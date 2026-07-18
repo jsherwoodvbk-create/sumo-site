@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Sumo Tracker — Nagoya 2026 Standings</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  /* ---- palette: dohyo clay · audience charcoal · gyoji purple + gunbai vermilion · roof-tassel green/red ---- */
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --charcoal:#2b2b31;
+    --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --maeg-hi:#46536b; --maeg-lo:#746a52;
+    --win:#227a4b; --loss:#a93327; --pending:#d9cfbc; --win-bg:#e3f2e9; --loss-bg:#f7e6e3; --win-bg2:#c3e3cf; --loss-bg2:#f1cbc2;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --charcoal:#0f0f12;
+      --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c; --pending:#3a3a42; --win-bg:#173a25; --loss-bg:#3c1f1b; --win-bg2:#1f5232; --loss-bg2:#5a2a22;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1,.gatebox h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  .wrap{max-width:940px;margin:0 auto;padding:0 16px 64px}
+
+  .sample{background:var(--vermilion);color:#fff;text-align:center;font-size:12px;font-weight:700;
+    letter-spacing:.03em;padding:6px;border-radius:0 0 8px 8px;margin-bottom:20px}
+
+  /* header band — clay, like the ring */
+  header{
+    background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(182deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid #38230f;
+    box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -3px 7px rgba(0,0,0,.25)}
+  header h1{font-size:25px;margin:0 0 3px;letter-spacing:0;font-weight:900}
+  header .sub{opacity:.9;font-size:13.5px;margin:0}
+  .hbrand{display:flex;align-items:center;gap:15px}
+  .emblem{flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
+
+  .watched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
+    border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:10px;padding:10px 14px;margin:0 0 16px;font-size:14px}
+  .watched b{color:var(--purple)}
+  .watched button{margin-left:auto;font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--purple);
+    border:none;border-radius:7px;padding:6px 12px;cursor:pointer}
+  .watched button:hover{filter:brightness(1.08)}
+
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  th,td{text-align:left;padding:9px 10px;border-top:1px solid var(--line);font-size:14px;vertical-align:middle}
+  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-top:none;background:var(--clay-soft)}
+  @media (prefers-color-scheme:dark){th{color:var(--clay)}}
+  tr:hover td{background:rgba(106,61,154,.05)}
+  .rank{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;color:#fff;white-space:nowrap}
+  .r-yok{background:var(--purple)} .r-ozeki{background:var(--vermilion)} .r-seki{background:var(--clay)}
+  .r-komu{background:var(--win)} .r-maeg-hi{background:var(--maeg-hi)} .r-maeg-lo{background:var(--maeg-lo)}
+  .name{font-weight:600}
+  .phys{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap;font-size:13.5px}
+  .rec{font-variant-numeric:tabular-nums;font-size:15px;white-space:nowrap}
+  .rec .w,.rec .l{font-weight:500} .rec .b{font-weight:800} .rec .dash{color:var(--muted);margin:0 2px}
+  .rec.kk{background:var(--win-bg2)} .rec.mk{background:var(--loss-bg2)}
+  .rec .badge{font-size:10px;font-weight:800;margin-left:5px;padding:1px 5px;border-radius:5px;vertical-align:1px}
+  .rec.kk .badge{background:var(--win);color:#fff} .rec.mk .badge{background:var(--loss);color:#fff}
+  .strip{display:flex;gap:2px}
+  .cell{width:11px;height:11px;border-radius:3px;background:var(--pending)}
+  .cell.w{background:var(--win)} .cell.l{background:var(--loss)}
+  .cell.hidden{background:transparent;border:1px dashed var(--line)}
+  .cell.abs{background:transparent;border:1px solid var(--muted);opacity:.45}
+  .rec.ky{background:transparent}
+  .rec .kyt{color:var(--muted);font-style:italic;font-size:13px}
+  .rec.ky .badge{background:var(--muted);color:#fff}
+
+  footer{margin-top:20px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+  footer b{color:var(--ink)}
+  .pal{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
+  .sw{font-size:10.5px;font-weight:700;color:#fff;padding:3px 8px;border-radius:6px}
+
+  .gate{position:fixed;inset:0;background:rgba(20,20,22,.74);backdrop-filter:blur(3px);display:flex;
+    align-items:center;justify-content:center;padding:20px;z-index:10}
+  .gatebox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--purple);
+    border-radius:16px;max-width:440px;padding:26px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.32)}
+  .gatebox .flag{font-size:32px;margin-bottom:8px}
+  .gatebox h2{margin:0 0 6px;font-size:20px}
+  .gatebox p{margin:0 0 18px;font-size:14px;color:var(--muted)}
+  .gaterow{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .gaterow select{font:inherit;font-size:16px;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+  .gaterow button{font:inherit;font-size:15px;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:10px 18px;cursor:pointer}
+  .gaterow button:hover{filter:brightness(1.08)}
+  .gate .fine{margin-top:14px;font-size:11.5px;color:var(--muted)}
+  .hidden-el{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a href="index.html" style="display:inline-block;margin:10px 2px 4px;font-size:13px;color:var(--purple);font-weight:700">‹ Sumo Tracker home</a>
+
+  <header>
+    <div class="hbrand">
+      <svg class="emblem" viewBox="0 0 120 120" width="52" height="52" role="img" aria-label="Sumo emblem">
+        <circle cx="60" cy="60" r="57" fill="#f0e0c2" stroke="#8a5a24" stroke-width="4"/>
+        <polygon points="55,80 47,109 57,109 60,82" fill="#e9bd93"/>
+        <polygon points="65,80 73,109 63,109 60,82" fill="#e9bd93"/>
+        <path d="M47 62 L16 51 Q11 50 13 57 Q14 61 20 60 L49 72 Z" fill="#e9bd93"/>
+        <path d="M73 62 L104 51 Q109 50 107 57 Q106 61 100 60 L71 72 Z" fill="#e9bd93"/>
+        <ellipse cx="60" cy="70" rx="28" ry="23" fill="#efc49b"/>
+        <path d="M36 82 Q60 97 84 82 L84 90 Q60 105 36 90 Z" fill="#cf5a2c"/>
+        <rect x="56" y="88" width="8" height="14" rx="2" fill="#cf5a2c"/>
+        <circle cx="60" cy="44" r="13" fill="#efc49b"/>
+        <path d="M51 41 Q54 28 60 28 Q66 28 69 41 Z" fill="#2b2b31"/>
+        <ellipse cx="60" cy="27" rx="5" ry="4.2" fill="#2b2b31"/>
+        <path d="M53 41 l6 -1.5 M67 41 l-6 -1.5" stroke="#2b2b31" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <circle cx="56" cy="46" r="1.5" fill="#2b2b31"/><circle cx="64" cy="46" r="1.5" fill="#2b2b31"/>
+      </svg>
+      <div>
+        <h1>Nagoya 2026 — Makuuchi Standings</h1>
+        <p class="sub">Clay of the dohyo · charcoal of the crowd · the gyoji's purple &amp; vermilion</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="watched" id="watched">
+    <span>Results <b id="thruLbl">through Day 6</b> — anything past your day stays hidden.</span>
+    <button id="changeDay">Change day</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th style="width:66px">Rank</th><th>Wrestler</th><th style="width:60px">Ht</th><th style="width:66px">Wt</th><th style="width:88px">W–L</th><th>Days</th></tr>
+    </thead>
+    <tbody id="rows"></tbody>
+  </table>
+
+  <footer>
+    <div class="pal">
+      <span class="sw" style="background:#a9742c">dohyo clay</span>
+      <span class="sw" style="background:#2b2b31">audience charcoal</span>
+      <span class="sw" style="background:#6a3d9a">gyoji purple</span>
+      <span class="sw" style="background:#cf5a2c">gunbai vermilion</span>
+      <span class="sw" style="background:#46536b">upper maegashira</span>
+      <span class="sw" style="background:#746a52">lower maegashira</span>
+      <span class="sw" style="background:#227a4b">tassel green (win)</span>
+      <span class="sw" style="background:#a93327">tassel red (loss)</span>
+    </div>
+    <p><b>Live data.</b> Records pull straight from the Match Log in Notion, current through the latest day the daily sync has posted. Height &amp; weight come from Master Rikishi and the basho banzuke — static facts, so they are <i>never</i> gated; only the W&#8211;L and the day-strip hide behind your watched day.</p>
+    <p style="margin-top:8px"><b>Reading it:</b> the W&#8211;L bolds whichever side leads (both when tied). A row fills green with a <b>&#10003; KK</b> the moment someone clinches kachi-koshi (8 wins), red with <b>&#10007; MK</b> at make-koshi (8 losses). A wrestler sitting the basho out (kyujo) shows &#8220;out&#8221; and sorts to the bottom rather than a misleading 0&#8211;0.</p>
+  </footer>
+</div>
+
+<div class="gate" id="gate">
+  <div class="gatebox">
+    <div class="flag">🚧</div>
+    <h2>Nagoya 2026 is in progress</h2>
+    <p>Standings can spoil you. How far have <i>you</i> watched? We'll show results only through that day.</p>
+    <div class="gaterow">
+      <label for="daySel" style="font-size:14px">Caught up through</label>
+      <select id="daySel"></select>
+      <button id="enter">Show standings</button>
+    </div>
+    <div class="fine">Asked fresh every visit during a tournament — no memory, no assumptions. Off-season, no gate at all.</div>
+  </div>
+</div>
+
+<script>
+const MAX_DAY=6;
+const DATA=[{"name": "Hoshoryu", "rank": "Yokozuna", "rc": "yok", "days": ["w", "w", "l", "w", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 331}, {"name": "Onosato", "rank": "Yokozuna", "rc": "yok", "days": ["l", "l", "w", "l", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'4\"", "wt": 417}, {"name": "Kirishima", "rank": "Ozeki", "rc": "ozeki", "days": ["w", "w", "w", "w", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'1\"", "wt": 331}, {"name": "Kotozakura", "rank": "Ozeki", "rc": "ozeki", "days": ["w", "w", "l", "w", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 392}, {"name": "Aonishiki", "rank": "Sekiwake", "rc": "seki", "days": ["w", "w", "w", "l", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 313}, {"name": "Atamifuji", "rank": "Sekiwake", "rc": "seki", "days": ["w", "w", "w", "l", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 434}, {"name": "Kotoshoho", "rank": "Sekiwake", "rc": "seki", "days": ["w", "w", "w", "l", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'3\"", "wt": 379}, {"name": "Wakatakakage", "rank": "Sekiwake", "rc": "seki", "days": ["", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 304}, {"name": "Yoshinofuji", "rank": "Komusubi", "rc": "komu", "days": ["w", "l", "l", "w", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'1\"", "wt": 346}, {"name": "Oho", "rank": "Komusubi", "rc": "komu", "days": ["l", "l", "l", "w", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'4\"", "wt": 408}, {"name": "Fujinokawa", "rank": "M1", "rc": "maeg", "days": ["l", "w", "w", "l", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "5'10\"", "wt": 271}, {"name": "Takanosho", "rank": "M1", "rc": "maeg", "days": ["l", "l", "l", "l", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 381}, {"name": "Churanoumi", "rank": "M2", "rc": "maeg", "days": ["l", "l", "w", "l", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "5'10\"", "wt": 333}, {"name": "Gonoyama", "rank": "M2", "rc": "maeg", "days": ["l", "l", "l", "w", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "5'10\"", "wt": 344}, {"name": "Hiradoumi", "rank": "M3", "rc": "maeg", "days": ["l", "l", "l", "l", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "5'10\"", "wt": 311}, {"name": "Hakunofuji", "rank": "M3", "rc": "maeg", "days": ["w", "w", "l", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "5'11\"", "wt": 351}, {"name": "Daieisho", "rank": "M4", "rc": "maeg", "days": ["l", "w", "w", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 353}, {"name": "Ichiyamamoto", "rank": "M4", "rc": "maeg", "days": ["w", "l", "w", "w", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'3\"", "wt": 353}, {"name": "Oshoma", "rank": "M5", "rc": "maeg", "days": ["w", "l", "l", "l", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'3\"", "wt": 366}, {"name": "Ura", "rank": "M5", "rc": "maeg", "days": ["l", "l", "l", "w", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "5'9\"", "wt": 306}, {"name": "Shodai", "rank": "M6", "rc": "maeg", "days": ["l", "l", "w", "l", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 370}, {"name": "Fujiseiun", "rank": "M6", "rc": "maeg", "days": ["w", "w", "l", "l", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'1\"", "wt": 331}, {"name": "Kotoeiho", "rank": "M7", "rc": "maeg", "days": ["l", "w", "w", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 313}, {"name": "Takayasu", "rank": "M7", "rc": "maeg", "days": ["w", "w", "w", "l", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 381}, {"name": "Wakamotoharu", "rank": "M8", "rc": "maeg", "days": ["l", "w", "l", "w", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 315}, {"name": "Roga", "rank": "M8", "rc": "maeg", "days": ["l", "l", "w", "l", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 353}, {"name": "Fujiryoga", "rank": "M9", "rc": "maeg", "days": ["w", "l", "w", "w", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "5'11\"", "wt": 399}, {"name": "Tobizaru", "rank": "M9", "rc": "maeg", "days": ["l", "w", "l", "l", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "5'8\"", "wt": 298}, {"name": "Asanoyama", "rank": "M10", "rc": "maeg", "days": ["w", "l", "l", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 386}, {"name": "Chiyoshoma", "rank": "M10", "rc": "maeg", "days": ["l", "l", "w", "l", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 309}, {"name": "Mitakeumi", "rank": "M11", "rc": "maeg", "days": ["l", "l", "l", "l", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 386}, {"name": "Wakanosho", "rank": "M11", "rc": "maeg", "days": ["w", "w", "w", "w", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "5'10\"", "wt": 320}, {"name": "Abi", "rank": "M12", "rc": "maeg", "days": ["w", "w", "l", "l", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 368}, {"name": "Asahakuryu", "rank": "M12", "rc": "maeg", "days": ["w", "l", "l", "w", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'1\"", "wt": 335}, {"name": "Nishikifuji", "rank": "M13", "rc": "maeg", "days": ["l", "w", "w", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'0\"", "wt": 342}, {"name": "Takerufuji", "rank": "M13", "rc": "maeg", "days": ["w", "l", "w", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'2\"", "wt": 326}, {"name": "Kinbozan", "rank": "M14", "rc": "maeg", "days": ["l", "w", "l", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'5\"", "wt": 395}, {"name": "Shishi", "rank": "M14", "rc": "maeg", "days": ["w", "w", "w", "w", "w", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'4\"", "wt": 390}, {"name": "Onokatsu", "rank": "M15", "rc": "maeg", "days": ["l", "l", "l", "l", "l", "w", "", "", "", "", "", "", "", "", ""], "ht": "6'1\"", "wt": 364}, {"name": "Kazuma", "rank": "M15", "rc": "maeg", "days": ["l", "w", "w", "l", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'1\"", "wt": 452}, {"name": "Asakoryu", "rank": "M16", "rc": "maeg", "days": ["w", "l", "w", "l", "l", "l", "", "", "", "", "", "", "", "", ""], "ht": "5'10\"", "wt": 276}, {"name": "Daiseizan", "rank": "M16", "rc": "maeg", "days": ["w", "l", "l", "l", "w", "l", "", "", "", "", "", "", "", "", ""], "ht": "6'4\"", "wt": 362}];
+  const TOTAL_DAYS=15;
+  const rankClass={yok:"r-yok",ozeki:"r-ozeki",seki:"r-seki",komu:"r-komu"};
+  function rk(rank,rc){return rc!=='maeg'?rankClass[rc]:((+rank.slice(1))<=8?'r-maeg-hi':'r-maeg-lo');}
+
+  const daySel=document.getElementById("daySel");
+  for(let d=1;d<=MAX_DAY;d++){const o=document.createElement("option");o.value=d;o.textContent="Day "+d;if(d===MAX_DAY)o.selected=true;daySel.appendChild(o);}
+  let thruDay=MAX_DAY;
+
+  function render(){
+    const rows=DATA.map(x=>{
+      let win=0,loss=0,bouts=0;
+      for(let d=0;d<thruDay;d++){const r=x.days[d];if(r==='w'){win++;bouts++;}else if(r==='l'){loss++;bouts++;}}
+      return {...x,win,loss,kyujo:bouts===0};
+    });
+    rows.sort((a,b)=>(a.kyujo-b.kyujo)||b.win-a.win||a.loss-b.loss||a.name.localeCompare(b.name));
+    const tb=document.getElementById("rows");tb.innerHTML="";
+    rows.forEach(r=>{
+      let strip="";
+      for(let d=0;d<TOTAL_DAYS;d++){
+        if(d>=thruDay){strip+='<span class="cell hidden"></span>';}
+        else{const v=r.days[d];strip+= v==='w'?'<span class="cell w"></span>':v==='l'?'<span class="cell l"></span>':'<span class="cell abs" title="no bout"></span>';}
+      }
+      let cls="",badge="",rec;
+      if(r.kyujo){
+        cls=" ky";badge='<span class="badge">kyujo</span>';
+        rec='<td class="rec ky"><span class="kyt">out</span>'+badge+'</td>';
+      }else{
+        if(r.win>=8){cls=" kk";badge='<span class="badge">\u2713 KK</span>';}
+        else if(r.loss>=8){cls=" mk";badge='<span class="badge">\u2717 MK</span>';}
+        const wB=r.win>=r.loss?' b':'',lB=r.loss>=r.win?' b':'';
+        rec='<td class="rec'+cls+'"><span class="w'+wB+'">'+r.win+'</span><span class="dash">\u2013</span><span class="l'+lB+'">'+r.loss+'</span>'+badge+'</td>';
+      }
+      tb.insertAdjacentHTML("beforeend",
+        '<tr><td><span class="rank '+rk(r.rank,r.rc)+'">'+r.rank+'</span></td>'+
+        '<td class="name">'+r.name+'</td>'+
+        '<td class="phys">'+r.ht+'</td>'+
+        '<td class="phys">'+r.wt+' lb</td>'+
+        rec+
+        '<td><div class="strip">'+strip+'</div></td></tr>');
+    });
+    document.getElementById("thruLbl").textContent="through Day "+thruDay;
+  }
+  document.getElementById("enter").onclick=()=>{thruDay=+daySel.value;render();document.getElementById("gate").classList.add("hidden-el");};
+  document.getElementById("changeDay").onclick=()=>document.getElementById("gate").classList.remove("hidden-el");
+  // Do NOT render until the viewer picks their watched day — table stays empty behind the gate (no spoilers).
+</script>
+</body>
+</html>
