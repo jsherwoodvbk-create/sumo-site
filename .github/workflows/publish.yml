@@ -1,0 +1,40 @@
+name: Publish standings
+
+on:
+  workflow_dispatch: {}          # lets us run it by hand to test
+  schedule:
+    - cron: "30 22 * * *"        # ~22:30 UTC daily = ~3:30 PM PT, after the Notion sync
+
+permissions:
+  contents: write                # allow the built-in token to commit
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Rebuild standings.html from Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node build-standings.mjs
+
+      - name: Commit & push if standings changed
+        run: |
+          git config user.name "sumo-bot"
+          git config user.email "actions@users.noreply.github.com"
+          if git diff --quiet -- standings.html; then
+            echo "No change — nothing to publish."
+          else
+            git add standings.html
+            git commit -m "Auto-update standings ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+          fi
