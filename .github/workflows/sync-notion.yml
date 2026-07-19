@@ -8,6 +8,10 @@ on:
         type: choice
         default: "true"
         options: ["true", "false"]
+      probe:
+        description: "Enrichment probe: a wrestler's English name (e.g. Aonishiki). Logs their sumo-api profile mapping and writes nothing. Leave blank for a normal run."
+        type: string
+        default: ""
   schedule:
     - cron: "35 16 * * *"       # 16:35 UTC = ~9:35 AM PT, just after the standings publish
 
@@ -29,8 +33,8 @@ jobs:
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
           BASHO: "202607"
-          # Manual runs use the dropdown above. Scheduled runs use repo variable
-          # NOTION_SYNC_DRY_RUN (set it to "0" when you're ready to go live);
-          # if that variable is unset, scheduled runs stay in safe dry-run mode.
+          PROBE_NAME: ${{ github.event.inputs.probe }}
+          # Manual runs use the dropdown. Scheduled runs use repo variable NOTION_SYNC_DRY_RUN
+          # (set to "0" to go live); unset -> scheduled runs stay in safe dry-run mode.
           DRY_RUN: ${{ github.event.inputs.dry_run == 'false' && '0' || (github.event_name == 'schedule' && (vars.NOTION_SYNC_DRY_RUN || '1') || '1') }}
         run: node sync-notion.mjs
