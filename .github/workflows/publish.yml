@@ -3,7 +3,7 @@ name: Publish standings
 on:
   workflow_dispatch: {}          # lets us run it by hand to test
   schedule:
-    - cron: "30 22 * * *"        # ~22:30 UTC daily = ~3:30 PM PT, after the Notion sync
+    - cron: "30 16 * * *"        # ~22:30 UTC daily = ~3:30 PM PT, after the Notion sync
 
 permissions:
   contents: write                # allow the built-in token to commit
