@@ -1,0 +1,36 @@
+name: Sync Notion (sumo-api -> Match Log)
+
+on:
+  workflow_dispatch:            # run by hand to test
+    inputs:
+      dry_run:
+        description: "Dry run? (true = log only, no writes)"
+        type: choice
+        default: "true"
+        options: ["true", "false"]
+  schedule:
+    - cron: "35 16 * * *"       # 16:35 UTC = ~9:35 AM PT, just after the standings publish
+
+concurrency:
+  group: sync-notion
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Sync results into Notion
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
+          BASHO: "202607"
+          # Manual runs use the dropdown above. Scheduled runs use repo variable
+          # NOTION_SYNC_DRY_RUN (set it to "0" when you're ready to go live);
+          # if that variable is unset, scheduled runs stay in safe dry-run mode.
+          DRY_RUN: ${{ github.event.inputs.dry_run == 'false' && '0' || (github.event_name == 'schedule' && (vars.NOTION_SYNC_DRY_RUN || '1') || '1') }}
+        run: node sync-notion.mjs
