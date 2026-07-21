@@ -3,7 +3,14 @@
 // Spoiler-safe logs: counts only.
 import fs from 'node:fs';
 
-const BASHO = process.env.BASHO || "202607";      // <-- the only per-basho knob
+// ─── PER-BASHO CONFIG — change at the start of each tournament ───────────────
+// BASHO: sumo-api basho code YYYYMM. This is the LIVE value — publish.yml does not
+//   override it, so edit it right here. Must also change in sync-notion.yml and
+//   sync-notion.mjs (the config block up top there).
+// HT_WT map below: add rows for any newly-promoted Makuuchi wrestlers, or their
+//   height/weight columns show blank. (Age auto-fetches from sumo-api, so age is fine.)
+// Full step-by-step: see the "Tournament Rollover" checklist in the project.
+const BASHO = process.env.BASHO || "202607";
 const DIVISION = "Makuuchi";
 const TOTAL_DAYS = 15;
 const TARGET = process.env.TARGET || "standings.html";

@@ -4,7 +4,9 @@
 //
 // EACH RUN:
 //   1. Reads the sumo-api banzuke for BASHO (roster + each wrestler's day-by-day record).
-//   2. Backfills only the tournament days NOT yet in Match Log.
+//   2. Backfills only the tournament days NOT yet in Match Log (dedup read is scoped to the
+//      current basho via the Tournament relation, so it stays flat as history grows — and so
+//      Day # 1–15 never collides across basho).
 //   3. Creates missing master data first (new Juryo visitors -> Master Rikishi + a "J" Banzuke
 //      entry) so bout relations never dangle -- and ENRICHES them from sumo-api's rikishi
 //      endpoint (height, weight, birthday, country, kanji shikona, real name, IDs).
@@ -29,7 +31,20 @@
 import process from 'node:process';
 
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
+
+// ─── PER-BASHO CONFIG — change these THREE together at the start of each tournament ───
+// (BASHO also has to change in sync-notion.yml AND in build-standings.mjs.)
+//   BASHO             : sumo-api basho code YYYYMM. Comes from the workflow env; this default
+//                       is just a fallback. The workflow (sync-notion.yml) sets the live value.
+//   TOURNAMENT_PAGE_ID: the Notion Tournament page for THIS basho. MUST exist before the first
+//                       sync — the scoped dedup read and every bout write both point at it.
+//   BASHO_LABEL       : exact text used in Banzuke "Entry" titles, e.g. "Aonishiki — Nagoya 2026".
+// Full step-by-step: see the "Tournament Rollover" checklist in the project.
 const BASHO = process.env.BASHO || '202607';
+const TOURNAMENT_PAGE_ID = '3351ade1-241f-80fb-b4ef-d2bef497b295';
+const BASHO_LABEL = 'Nagoya 2026';
+// ─────────────────────────────────────────────────────────────────────────────────────
+
 const DIVISION = 'Makuuchi';
 const DRY = !(process.env.DRY_RUN === '0' || String(process.env.DRY_RUN).toLowerCase() === 'false');
 const PROBE_NAME = (process.env.PROBE_NAME || '').trim();
@@ -43,7 +58,6 @@ const DB = {
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
   kimarite:      '2591d1eb-2146-4745-ab0a-72ba57bfd213',
 };
-const TOURNAMENT_PAGE_ID = '3351ade1-241f-80fb-b4ef-d2bef497b295';
 
 const IS_WIN = new Set(['win', 'fusen win']);
 const IS_BOUT = new Set(['win', 'loss', 'fusen win', 'fusen loss']);
@@ -146,20 +160,27 @@ async function main() {
   if (PROBE_NAME) { await probe(PROBE_NAME); return; }
   console.log(`sync-notion: BASHO=${BASHO} DRY_RUN=${DRY ? 'ON (no writes)' : 'OFF (writing!)'}`);
 
+  // Dedup read is SCOPED to the current tournament (relation filter), not the whole Match Log.
+  // Two reasons: (1) the read stays flat (~one basho of rows) no matter how many years accumulate,
+  // so sync cost never grows with history; (2) correctness — "Day #" is 1–15 within EACH basho,
+  // so an unscoped read would see last basho's Day 10 and wrongly skip this basho's Day 10.
+  // NB: TOURNAMENT_PAGE_ID must point at the current basho's Tournament page (same constant the
+  // writes already use), so it has to be updated each basho alongside BASHO.
+  const thisBashoFilter = { property: 'Tournament', relation: { contains: TOURNAMENT_PAGE_ID } };
   const [bz, existing, mrPages, bzPages, kmPages, start] = await Promise.all([
-    getBanzuke(), queryAll(DB.matchLog), queryAll(DB.masterRikishi), queryAll(DB.banzuke), queryAll(DB.kimarite), getBashoStart(),
+    getBanzuke(), queryAll(DB.matchLog, thisBashoFilter), queryAll(DB.masterRikishi), queryAll(DB.banzuke), queryAll(DB.kimarite), getBashoStart(),
   ]);
   console.log(`start date = ${iso(start)} (Day 1)`);
 
   const roster = [...(bz.east || []), ...(bz.west || [])];
   const MR = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p.id]));
-  const bzThis = bzPages.filter(p => titleOf(p, 'Entry').includes('Nagoya 2026'));
+  const bzThis = bzPages.filter(p => titleOf(p, 'Entry').includes(BASHO_LABEL));
   const BZ = new Map(bzThis.map(p => [titleOf(p, 'Entry').split(' — ')[0].trim(), p.id]));
   const KM = new Map(kmPages.map(p => [textOf(p, 'Kimarite').toLowerCase(), p.id]));
   const kimId = k => { const key = (k || '').trim().toLowerCase(); if (!key) return null; if (key === 'fusen') return KM.get('fusensho') || null; return KM.get(key) || null; };
 
   const daysPresent = new Set(existing.map(p => p.properties?.['Day #']?.number).filter(n => n != null));
-  console.log('days already in Match Log:', [...daysPresent].sort((a, b) => a - b).join(',') || '(none)');
+  console.log(`this-basho Match Log rows: ${existing.length} | days already in: ${[...daysPresent].sort((a, b) => a - b).join(',') || '(none)'}`);
 
   function boutsForDay(dayNum) {
     const d = dayNum - 1; const seen = new Set(); const list = [];
@@ -216,14 +237,14 @@ async function main() {
     }
     if (!bzId) {
       const props = {
-        'Entry': { title: [{ text: { content: `${name} — Nagoya 2026` } }] },
+        'Entry': { title: [{ text: { content: `${name} — ${BASHO_LABEL}` } }] },
         'Rank': { select: { name: 'J' } },
         'Rikishi': { relation: [{ id: mrId }] },
         'Tournament': { relation: [{ id: TOURNAMENT_PAGE_ID }] },
         'Notes': { rich_text: [{ text: { content: 'Juryo visitor entry auto-created for referential integrity.' } }] },
       };
       if (d?.weightKg) props['Weight (kg)'] = { number: d.weightKg };
-      if (DRY) { console.log(`  [dry] would CREATE Banzuke "${name} — Nagoya 2026" (J, ${d?.weightKg ?? '?'} kg)`); bzId = `dry-bz-${name}`; }
+      if (DRY) { console.log(`  [dry] would CREATE Banzuke "${name} — ${BASHO_LABEL}" (J, ${d?.weightKg ?? '?'} kg)`); bzId = `dry-bz-${name}`; }
       else { const p = await notion('/pages', 'POST', { parent: { database_id: DB.banzuke }, properties: props }); bzId = p.id; }
       BZ.set(name, bzId);
     }
