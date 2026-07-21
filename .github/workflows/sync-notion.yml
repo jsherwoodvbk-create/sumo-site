@@ -32,7 +32,7 @@ jobs:
       - name: Sync results into Notion
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
-          BASHO: "202607"
+          BASHO: "202607"    # PER-BASHO: change each tournament (also in build-standings.mjs + sync-notion.mjs config block). See project "Tournament Rollover" checklist.
           PROBE_NAME: ${{ github.event.inputs.probe }}
           # Manual runs use the dropdown. Scheduled runs use repo variable NOTION_SYNC_DRY_RUN
           # (set to "0" to go live); unset -> scheduled runs stay in safe dry-run mode.
