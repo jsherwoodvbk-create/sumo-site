@@ -31,13 +31,34 @@ async function getBanzuke(){
   return res.json();
 }
 
+// Age = static fact, never gated. Pulled per-wrestler from sumo-api; blank on any miss.
+async function fetchBirth(id){
+  try{
+    const res = await fetch(`https://www.sumo-api.com/api/rikishi/${id}`);
+    if(!res.ok) return null;
+    const j = await res.json();
+    return j.birthDate ? String(j.birthDate).slice(0,10) : null;
+  }catch(e){ return null; }
+}
+function ageFrom(bd){
+  if(!bd) return null;
+  const b=new Date(bd), n=new Date();
+  let a=n.getUTCFullYear()-b.getUTCFullYear();
+  const m=n.getUTCMonth()-b.getUTCMonth();
+  if(m<0||(m===0&&n.getUTCDate()<b.getUTCDate())) a--;
+  return (a>=0&&a<100)?a:null;
+}
+
 async function main(){
   const b = await getBanzuke();
   const all = [...(b.east||[]), ...(b.west||[])];
   all.sort((x,y)=> (x.rankValue-y.rankValue) || String(x.shikonaEn).localeCompare(String(y.shikonaEn)));
 
+  // ages fetched in parallel from the rikishi endpoint (aligned to `all` by index)
+  const ages = await Promise.all(all.map(r => fetchBirth(r.rikishiID).then(ageFrom)));
+
   let maxDay = 0;
-  const DATA = all.map(r=>{
+  const DATA = all.map((r,idx)=>{
     const {rank, rc} = rankInfo(r.rank);
     const days = Array(TOTAL_DAYS).fill("");
     (r.record||[]).forEach((rec,i)=>{
@@ -47,7 +68,7 @@ async function main(){
       if(code!=="" && (i+1)>maxDay) maxDay = i+1;
     });
     const hw = HT_WT[r.shikonaEn] || {ht:"", wt:""};
-    return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt };
+    return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt, age:ages[idx] };
   });
   const MAX_DAY = maxDay || 1;
 
