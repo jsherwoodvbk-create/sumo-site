@@ -35,14 +35,14 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node build-standings.mjs
 
-      - name: Commit & push if standings changed
+      - name: Commit & push if the site changed
         run: |
           git config user.name "sumo-bot"
           git config user.email "actions@users.noreply.github.com"
-          if git diff --quiet -- standings.html; then
+          if git diff --quiet -- standings.html index.html; then
             echo "No change — nothing to publish."
           else
-            git add standings.html
-            git commit -m "Auto-update standings ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git add standings.html index.html
+            git commit -m "Auto-update standings + homepage day ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
