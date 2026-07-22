@@ -96,5 +96,22 @@ async function main(){
   if(!re.test(html)) throw new Error("data block not found in "+TARGET);
   fs.writeFileSync(TARGET, html.replace(re, `const MAX_DAY=${MAX_DAY};\nconst DATA=${JSON.stringify(DATA)};`));
   console.log(`OK roster=${DATA.length} maxDay=${MAX_DAY} (source: sumo-api banzuke ${BASHO})`);
+
+  // Keep the homepage badge's day in sync. index.html has a hardcoded "· in progress · Day N";
+  // the publish pipeline otherwise only rebuilds standings.html, so the front page would freeze
+  // at whatever day it was last hand-edited (that's the "stuck on Day 6" bug). Non-fatal: if the
+  // file or pattern is missing, we log and move on rather than break the standings publish.
+  try {
+    const IDX = 'index.html';
+    if (fs.existsSync(IDX)) {
+      const idx = fs.readFileSync(IDX, 'utf8');
+      const idxRe = /(in progress · Day )\d+/;
+      if (idxRe.test(idx)) {
+        const patched = idx.replace(idxRe, `$1${MAX_DAY}`);
+        if (patched !== idx) { fs.writeFileSync(IDX, patched); console.log(`index.html badge -> Day ${MAX_DAY}`); }
+        else console.log(`index.html badge already Day ${MAX_DAY}`);
+      } else console.log('index.html badge pattern not found — skipped (homepage day not updated)');
+    }
+  } catch (e) { console.warn('index.html badge update skipped:', e.message); }
 }
 main().catch(e=>{ console.error(e); process.exit(1); });
