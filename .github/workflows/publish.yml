@@ -3,7 +3,15 @@ name: Publish standings
 on:
   workflow_dispatch: {}          # lets us run it by hand to test
   schedule:
-    - cron: "30 16 * * *"        # ~22:30 UTC daily = ~3:30 PM PT, after the Notion sync
+    # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
+    # Rebuilds standings.html from sumo-api and commits only if it changed (so repeats are no-ops
+    # until new results land). The MAX_DAY completeness logic keeps the day-picker off scheduled-
+    # but-unfought days. Moved into the morning so the site is fresh when Jennie checks it.
+    - cron: "32 11 * * *"        # ~04:32 AM PT
+    - cron: "32 13 * * *"        # ~06:32 AM PT
+    - cron: "32 15 * * *"        # ~08:32 AM PT
+    - cron: "32 17 * * *"        # ~10:32 AM PT
+    - cron: "32 22 * * *"        # ~03:32 PM PT — afternoon backstop
 
 permissions:
   contents: write                # allow the built-in token to commit

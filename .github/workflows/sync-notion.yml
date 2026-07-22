@@ -13,7 +13,15 @@ on:
         type: string
         default: ""
   schedule:
-    - cron: "35 16 * * *"       # 16:35 UTC = ~9:35 AM PT, just after the standings publish
+    # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
+    # Day results post ~09:00–10:00 UTC (evening JST); these span ~04:00 AM–03:00 PM PT.
+    # Safe to fire repeatedly: the dedup read skips days already in Match Log, and the completeness
+    # guard skips any day whose full slate of bouts hasn't posted yet (so no half-days ever land).
+    - cron: "17 11 * * *"       # ~04:17 AM PT
+    - cron: "17 13 * * *"       # ~06:17 AM PT
+    - cron: "17 15 * * *"       # ~08:17 AM PT
+    - cron: "17 17 * * *"       # ~10:17 AM PT
+    - cron: "17 22 * * *"       # ~03:17 PM PT — afternoon backstop
 
 concurrency:
   group: sync-notion
