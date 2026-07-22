@@ -254,9 +254,28 @@ async function main() {
   const maxDayInData = Math.max(0, ...roster.map(w => { const rec = w.record || []; let m = 0; rec.forEach((r, i) => { if (IS_BOUT.has(r.result) && i + 1 > m) m = i + 1; }); return m; }));
   console.log('max completed day in sumo-api data:', maxDayInData);
 
+  // COMPLETENESS GUARD: only write a day whose slate looks FINAL. This is what makes it safe to
+  // run the sync many times across the morning (resilient to a dropped cron) — an early run that
+  // fires while sumo-api is still posting a day's bouts will SKIP that day rather than write a
+  // half-populated one, and a later run writes it once the slate is complete. A day is "final" if
+  // its decided-bout count is within tolerance of the fullest day seen (self-calibrates to roster
+  // size), OR the next day already has bouts (which means this day is definitively over).
+  const boutCount = {};
+  for (let d = 1; d <= Math.min(maxDayInData, TOTAL_DAYS); d++) boutCount[d] = boutsForDay(d).length;
+  // Expected full slate = the fullest day seen, floored by roster/2 (a full Makuuchi day is ~roster/2
+  // bouts; a wrestler sitting out still yields a counted fusen bout for the opponent). The roster floor
+  // is what protects the very first run of a tournament, when a mid-populated Day 1 has no complete
+  // prior day to calibrate against and would otherwise look "full."
+  const fullSlate = Math.max(0, ...Object.values(boutCount));
+  const rosterFloor = Math.floor(roster.length / 2);
+  const expectedFull = Math.max(fullSlate, rosterFloor);
+  const DAY_TOLERANCE = 3; // slack for the rare double-absence bye; still far below a mid-posting day
+  const isFinal = d => (boutCount[d] || 0) > 0 && ((boutCount[d] >= expectedFull - DAY_TOLERANCE) || ((boutCount[d + 1] || 0) > 0));
+
   let created = 0;
   for (let day = 1; day <= Math.min(maxDayInData, TOTAL_DAYS); day++) {
     if (daysPresent.has(day)) continue;
+    if (!isFinal(day)) { console.log(`Day ${day}: ${boutCount[day]} bouts vs full slate ~${fullSlate} — looks incomplete, skipping until final.`); continue; }
     const bouts = boutsForDay(day); const dt = dayDate(start, day);
     console.log(`Day ${day} (${iso(dt)}): ${bouts.length} bouts to write`);
     for (const b of bouts) {

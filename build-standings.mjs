@@ -64,7 +64,7 @@ async function main(){
   // ages fetched in parallel from the rikishi endpoint (aligned to `all` by index)
   const ages = await Promise.all(all.map(r => fetchBirth(r.rikishiID).then(ageFrom)));
 
-  let maxDay = 0;
+  const dayDecided = Array(TOTAL_DAYS).fill(0); // decided (win/loss, incl. fusen) results per day across the roster
   const DATA = all.map((r,idx)=>{
     const {rank, rc} = rankInfo(r.rank);
     const days = Array(TOTAL_DAYS).fill("");
@@ -72,12 +72,24 @@ async function main(){
       if(i>=TOTAL_DAYS) return;
       const code = RESULT[rec.result] ?? "";
       days[i] = code;
-      if(code!=="" && (i+1)>maxDay) maxDay = i+1;
+      if(code==="w"||code==="l") dayDecided[i]++;   // only real results advance the day; "absent"/"" do not
     });
     const hw = HT_WT[r.shikonaEn] || {ht:"", wt:""};
     return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt, age:ages[idx] };
   });
-  const MAX_DAY = maxDay || 1;
+  // MAX_DAY = last day that's actually CONTESTED and essentially complete, so the day-picker never
+  // offers a day that's only been *scheduled* (absent markers appear before bouts are fought) or is
+  // still mid-population. "Complete" = decided-bout count near the fullest day, or a later day has data.
+  const fullSlate = Math.max(0, ...dayDecided);
+  const rosterFloor = Math.floor(all.length / 2); // full Makuuchi day ≈ roster/2; floors the first-day case
+  const expectedFull = Math.max(fullSlate, rosterFloor);
+  const DAY_TOL = 3;
+  let MAX_DAY = 1;
+  for(let d=1; d<=TOTAL_DAYS; d++){
+    const cnt = dayDecided[d-1];
+    const laterHasData = d<TOTAL_DAYS && dayDecided[d] > 0;
+    if(cnt>0 && ((cnt >= expectedFull - DAY_TOL) || laterHasData)) MAX_DAY = d;
+  }
 
   const html = fs.readFileSync(TARGET,"utf8");
   const re = /const MAX_DAY=\d+;\r?\nconst DATA=\[[\s\S]*?\];/;
