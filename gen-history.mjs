@@ -105,14 +105,27 @@ async function pullBasho(code){
   for(let day=1; day<=Math.min(maxDay, TOTAL_DAYS); day++)
     bouts = bouts.concat(boutsForDay(roster, rankByName, day, dayDate(start, day)));
 
-  // yusho = the MAKUUCHI champion = best record within our makuuchi roster. We deliberately
-  // DON'T use the basho endpoint's `yusho` field: it lists ALL SIX divisions' champions
-  // (makuuchi through jonokuchi) with full names, so it returned 6 names per basho. Deriving
-  // from the makuuchi records we already have keeps it makuuchi-only and clean. A tie = a
-  // playoff; we list the tied wrestlers and flag it for manual resolution (rare, a few across 9).
+  // yusho = the MAKUUCHI champion = best record within our makuuchi roster. The basho endpoint's
+  // `yusho` field lists ALL SIX divisions' champions (makuuchi → jonokuchi) with full names, so
+  // we don't trust it wholesale. But a TIE for the top record IS a playoff, and that field names
+  // the actual makuuchi winner — so on a tie we resolve the champion as the tied contender it
+  // names (matched on shikona). If it can't be matched, we fall back to flagging for manual entry.
   const topWins = Math.max(0, ...rikishi.map(r=>r.wins));
-  const yusho = rikishi.filter(r=>r.wins===topWins && r.wins>0).map(r=>r.name);
-  const yushoSource = yusho.length>1 ? `PLAYOFF: ${yusho.length} tied at ${topWins} wins — set winner by hand` : `${topWins} wins`;
+  const contenders = rikishi.filter(r=>r.wins===topWins && r.wins>0).map(r=>r.name);
+  let yusho = contenders, yushoSource = `${topWins} wins`;
+  if(contenders.length > 1){
+    const explicit = info ? [].concat(info.yusho || info.champion || info.makuuchiYusho || []) : [];
+    let resolved = null;
+    for(const x of explicit){
+      const nm = (x && (x.shikonaEn || x.name)) || (typeof x === 'string' ? x : '');
+      const shikona = String(nm).split(' ')[0];   // "Hoshoryu Tomokatsu" -> "Hoshoryu"
+      if(contenders.includes(shikona)){ resolved = shikona; break; }
+    }
+    yusho = resolved ? [resolved] : contenders;
+    yushoSource = resolved
+      ? `${topWins} wins (won the playoff; resolved from sumo-api yusho field)`
+      : `PLAYOFF: ${contenders.length} tied at ${topWins} wins — set winner by hand`;
+  }
 
   return { bashoId: code, label: LABEL[code]||code, startDate: start.toISOString().slice(0,10),
            days: Math.min(maxDay, TOTAL_DAYS), rikishi, yusho, yushoSource, bouts };
