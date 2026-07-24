@@ -105,11 +105,14 @@ async function pullBasho(code){
   for(let day=1; day<=Math.min(maxDay, TOTAL_DAYS); day++)
     bouts = bouts.concat(boutsForDay(roster, rankByName, day, dayDate(start, day)));
 
-  // yusho: prefer an explicit field from the basho endpoint if present, else derive from top wins
-  let yusho = [], yushoSource = 'derived (top makuuchi wins; playoffs not captured)';
-  const explicit = info && (info.yusho || info.champion || info.makuuchiYusho);
-  if(explicit){ yusho = [].concat(explicit).map(x => (x && (x.shikonaEn || x.name)) || x).filter(Boolean); yushoSource='sumo-api basho field'; }
-  if(!yusho.length){ const top = Math.max(0, ...rikishi.map(r=>r.wins)); yusho = rikishi.filter(r=>r.wins===top && r.wins>0).map(r=>r.name); }
+  // yusho = the MAKUUCHI champion = best record within our makuuchi roster. We deliberately
+  // DON'T use the basho endpoint's `yusho` field: it lists ALL SIX divisions' champions
+  // (makuuchi through jonokuchi) with full names, so it returned 6 names per basho. Deriving
+  // from the makuuchi records we already have keeps it makuuchi-only and clean. A tie = a
+  // playoff; we list the tied wrestlers and flag it for manual resolution (rare, a few across 9).
+  const topWins = Math.max(0, ...rikishi.map(r=>r.wins));
+  const yusho = rikishi.filter(r=>r.wins===topWins && r.wins>0).map(r=>r.name);
+  const yushoSource = yusho.length>1 ? `PLAYOFF: ${yusho.length} tied at ${topWins} wins — set winner by hand` : `${topWins} wins`;
 
   return { bashoId: code, label: LABEL[code]||code, startDate: start.toISOString().slice(0,10),
            days: Math.min(maxDay, TOTAL_DAYS), rikishi, yusho, yushoSource, bouts };
