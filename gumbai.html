@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Gumbai · Salt Stats & Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --win:#227a4b; --live:#c0392b;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --live:#e0685a;}
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;min-height:100dvh}
+  h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:var(--purple);text-decoration:none}
+
+  /* header */
+  .top{background:linear-gradient(160deg,#6e4826,#3f2814);color:#fff;padding:16px 18px 14px;
+    box-shadow:0 6px 18px rgba(50,30,10,.28)}
+  .top .row{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px}
+  .top .fan{font-size:30px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+  .top h1{margin:0;font-size:24px;font-weight:900;letter-spacing:.01em}
+  .top .tag{margin:1px 0 0;font-size:12.5px;opacity:.82}
+  .top .back{margin-left:auto;color:#fff;opacity:.85;font-size:13px;font-weight:600}
+
+  /* gate bar */
+  .gate{max-width:760px;margin:0 auto;width:100%;padding:10px 18px;display:flex;align-items:center;gap:10px;
+    flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--surface)}
+  .gate label{font-size:13px;color:var(--muted);font-weight:600}
+  .gate select{font:inherit;font-size:14px;font-weight:700;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:9px;padding:6px 10px}
+  .gate .safe{margin-left:auto;font-size:11.5px;color:var(--win);font-weight:700;display:inline-flex;gap:5px;align-items:center}
+  .gate .safe::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--win)}
+
+  /* chat */
+  .stream{flex:1;overflow-y:auto}
+  .inner{max-width:760px;margin:0 auto;padding:20px 18px 8px;display:flex;flex-direction:column;gap:14px}
+  .bubble{max-width:86%;padding:11px 15px;border-radius:16px;font-size:15px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+  .me{align-self:flex-end;background:var(--purple);color:#fff;border-bottom-right-radius:5px}
+  .gb{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .gb .who{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--clay);margin-bottom:3px}
+  .gb.warn{border-color:var(--vermilion);background:color-mix(in srgb,var(--vermilion) 8%,var(--surface))}
+  .typing{align-self:flex-start;color:var(--muted);font-size:14px;font-style:italic;padding:2px 4px}
+
+  /* intro / starters */
+  .intro{align-self:stretch;text-align:center;color:var(--muted);font-size:14px;padding:14px 6px 4px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+  .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;
+    font-size:13px;color:var(--ink);cursor:pointer;transition:border-color .12s,transform .12s}
+  .chip:hover{border-color:var(--purple);transform:translateY(-1px)}
+
+  /* composer */
+  .composer{border-top:1px solid var(--line);background:var(--surface)}
+  .composer .box{max-width:760px;margin:0 auto;padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+  .composer .full{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:9px;cursor:pointer;user-select:none}
+  .composer .full input{width:15px;height:15px;accent-color:var(--vermilion)}
+  .composer .full b{color:var(--vermilion)}
+  .composer .send{display:flex;gap:9px;align-items:flex-end}
+  .composer textarea{flex:1;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:13px;padding:11px 14px;resize:none;max-height:140px;line-height:1.4}
+  .composer textarea:focus{outline:none;border-color:var(--purple)}
+  .composer button{background:var(--purple);color:#fff;border:none;border-radius:12px;padding:11px 20px;
+    font:inherit;font-weight:800;font-size:14px;cursor:pointer;flex:0 0 auto}
+  .composer button:disabled{opacity:.5;cursor:default}
+  .foot{max-width:760px;margin:0 auto;padding:0 18px 10px;font-size:11px;color:var(--muted);text-align:center;opacity:.8}
+</style>
+</head>
+<body>
+  <div class="top"><div class="row">
+    <span class="fan">🪭</span>
+    <div>
+      <h1>Gumbai</h1>
+      <p class="tag">Ask the crew's sumo oracle — grounded in our data, not guessed from memory.</p>
+    </div>
+    <a class="back" href="/">← Home</a>
+  </div></div>
+
+  <div class="gate">
+    <label for="day">I've watched through:</label>
+    <select id="day"><option value="1">Day 1</option></select>
+    <span class="safe" id="safe">spoiler-safe</span>
+  </div>
+
+  <div class="stream"><div class="inner" id="stream">
+    <div class="intro" id="intro">
+      Ask me anything about the basho — records, matchups, who's from where, what a move means,
+      why they throw salt. I only speak from the crew's verified data, gated to the day you've watched.
+      <div class="chips" id="chips"></div>
+    </div>
+  </div></div>
+
+  <div class="composer"><div class="box">
+    <label class="full"><input type="checkbox" id="showFull"> <span>Show <b>full results</b> for this one question (ignore my day gate) — off by default</span></label>
+    <div class="send">
+      <textarea id="q" rows="1" placeholder="Ask Gumbai anything about the basho…" autocomplete="off"></textarea>
+      <button id="ask">Ask</button>
+    </div>
+    <div class="foot" id="foot">Gumbai answers from Salt Stats &amp; Sumo data · never reveals past your day</div>
+  </div></div>
+
+<script>
+const API = '/api/gumbai';
+const stream = document.getElementById('stream');
+const daySel = document.getElementById('day');
+const qBox = document.getElementById('q');
+const askBtn = document.getElementById('ask');
+const fullBox = document.getElementById('showFull');
+const foot = document.getElementById('foot');
+const intro = document.getElementById('intro');
+
+const STARTERS = [
+  "How's Atomic doing?",
+  "Who's earned a kinboshi so far?",
+  "List the sanyaku",
+  "What does Aonishiki's name mean?",
+  "Who's from Ukraine?",
+  "Why do they throw salt?"
+];
+const chips = document.getElementById('chips');
+STARTERS.forEach(s=>{ const c=document.createElement('div'); c.className='chip'; c.textContent=s;
+  c.onclick=()=>{ qBox.value=s; qBox.focus(); autosize(); }; chips.appendChild(c); });
+
+// conversation memory (in-page; a reload starts fresh)
+const history = [];
+let maxDay = 1, busy = false, offline = false;
+
+// populate the day selector from the server (maxDay is public, not a spoiler)
+fetch(API).then(r=>r.json()).then(d=>{
+  maxDay = d.maxDay || 1;
+  daySel.innerHTML='';
+  for(let i=1;i<=maxDay;i++){ const o=document.createElement('option'); o.value=i; o.textContent='Day '+i; daySel.appendChild(o); }
+  daySel.value = maxDay;             // default to caught-up; the viewer dials back if behind
+}).catch(()=>{ /* leave the single Day 1 option */ });
+
+function autosize(){ qBox.style.height='auto'; qBox.style.height=Math.min(qBox.scrollHeight,140)+'px'; }
+qBox.addEventListener('input', autosize);
+qBox.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
+askBtn.addEventListener('click', send);
+daySel.addEventListener('change', ()=>{ document.getElementById('safe').textContent =
+  (+daySel.value===maxDay) ? 'spoiler-safe' : 'spoiler-safe · showing through Day '+daySel.value; });
+
+function addBubble(cls, text, who){
+  if(intro) intro.style.display='none';
+  const b=document.createElement('div'); b.className='bubble '+cls;
+  if(who){ const w=document.createElement('span'); w.className='who'; w.textContent=who; b.appendChild(w); }
+  b.appendChild(document.createTextNode(text));
+  stream.appendChild(b); scrollDown(); return b;
+}
+function scrollDown(){ const s=document.querySelector('.stream'); s.scrollTop=s.scrollHeight; }
+
+async function send(){
+  const text = qBox.value.trim();
+  if(!text || busy) return;
+  busy=true; askBtn.disabled=true;
+  addBubble('me', text);
+  history.push({ role:'user', content:text });
+  qBox.value=''; autosize();
+  const showFull = fullBox.checked;
+  fullBox.checked=false;             // per-question: resets every send
+
+  const typing=document.createElement('div'); typing.className='typing'; typing.textContent='Gumbai’s checking the data… 🪭';
+  stream.appendChild(typing); scrollDown();
+
+  try{
+    const res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ messages:history, day:+daySel.value, showFull }) });
+    typing.remove();
+    if(res.status===503){ // not wired yet
+      offline=true;
+      addBubble('gb warn', "Gumbai isn't switched on yet — the crew's still wiring up his brain. Check back soon! 🪭", 'Gumbai');
+      foot.textContent='Endpoint not configured yet (no API key set).';
+      return;
+    }
+    const data = await res.json();
+    if(data.reply){
+      addBubble('gb'+(data.capped?' warn':''), data.reply, 'Gumbai');
+      if(!data.capped) history.push({ role:'assistant', content:data.reply });
+    } else {
+      addBubble('gb warn', "Hmm — something hiccuped on my end. Give it another go?", 'Gumbai');
+    }
+  }catch(e){
+    typing.remove();
+    addBubble('gb warn', "I couldn't reach the data just now — try once more in a sec.", 'Gumbai');
+  }finally{
+    busy=false; askBtn.disabled=false; qBox.focus();
+  }
+}
+</script>
+</body>
+</html>
