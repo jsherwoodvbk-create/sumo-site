@@ -4,9 +4,9 @@ on:
   workflow_dispatch: {}          # lets us run it by hand to test
   schedule:
     # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
-    # Rebuilds standings.html from sumo-api and commits only if it changed (so repeats are no-ops
-    # until new results land). The MAX_DAY completeness logic keeps the day-picker off scheduled-
-    # but-unfought days. Moved into the morning so the site is fresh when Jennie checks it.
+    # Rebuilds standings.html from sumo-api and the Gumbai snapshot from Notion, commits only if
+    # they changed (so repeats are no-ops until new results land). Runs ~15 min after the sync
+    # workflow, so Notion already holds the latest day before the Gumbai snapshot is rebuilt.
     - cron: "32 11 * * *"        # ~04:32 AM PT
     - cron: "32 13 * * *"        # ~06:32 AM PT
     - cron: "32 15 * * *"        # ~08:32 AM PT
@@ -35,14 +35,22 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node build-standings.mjs
 
-      - name: Commit & push if the site changed
+      - name: Rebuild Gumbai snapshot from Notion
+        # Non-fatal: if the Notion pull hiccups the snapshot self-aborts and writes nothing
+        # (leaving the last good one in place), and the standings publish below still runs.
+        continue-on-error: true
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node gen-gumbai-snapshot.mjs
+
+      - name: Commit & push if anything changed
         run: |
           git config user.name "sumo-bot"
           git config user.email "actions@users.noreply.github.com"
-          if git diff --quiet -- standings.html index.html; then
+          if git diff --quiet -- standings.html index.html functions/api/_snapshot.js; then
             echo "No change — nothing to publish."
           else
-            git add standings.html index.html
-            git commit -m "Auto-update standings + homepage day ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git add standings.html index.html functions/api/_snapshot.js
+            git commit -m "Auto-update standings + homepage + Gumbai snapshot ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
