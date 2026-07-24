@@ -23,6 +23,9 @@ export function gateSnapshot(snapshot, day, showFull){
     banzuke: snapshot.banzuke,
     kimarite: snapshot.kimarite,
     bouts: snapshot.bouts.filter(b => b.day <= gate),
+    // History (past basho, Jan 2025 onward) is NEVER gated — completed tournaments are
+    // not spoilers. Passed through untouched for the career/yusho/H2H tools.
+    history: snapshot.history || null,
   };
 }
 
@@ -126,6 +129,42 @@ function summarize(name, bouts){
 }
 
 // ────────────────────────────────────────────────────────────────────────────
+// HISTORY HELPERS — past basho (Jan 2025 onward). NEVER gated; completed tournaments
+// are not spoilers. gated.history = { basho: { <YYYYMM>: {label,yusho[],rikishi[{name,rank,wins,losses}],bouts[]} } }.
+function historyBashoList(gated){
+  const h = gated.history && gated.history.basho; if(!h) return [];
+  return Object.keys(h).sort().map(code => ({ code, ...h[code] }));   // YYYYMM sort = chronological
+}
+function careerFor(name, gated){
+  const perBasho=[]; let hw=0, hl=0; const yusho=[];
+  for(const b of historyBashoList(gated)){
+    const r=(b.rikishi||[]).find(x=>x.name===name);
+    if(r){ hw+=r.wins; hl+=r.losses; perBasho.push({ basho:b.label, rank:r.rank, record:`${r.wins}-${r.losses}` }); }
+    if((b.yusho||[]).includes(name)) yusho.push(b.label);
+  }
+  const cur=summarize(name, gated.bouts);
+  const curBz=gated.banzuke.find(x=>x.name===name);
+  if(cur.bouts>0) perBasho.push({ basho:(gated.meta&&gated.meta.basho)||'current', rank:curBz?curBz.rank:null, record:cur.record, inProgress:true });
+  return {
+    name,
+    sinceTracking:{ record:`${hw+cur.wins}-${hl+cur.losses}`, wins:hw+cur.wins, losses:hl+cur.losses,
+      note:'since the crew got into sumo (Jan 2025); the current basho counts only through your gated day' },
+    yushoCount:yusho.length, yusho,
+    perBasho,
+  };
+}
+function historyH2H(a, b, gated){
+  let aw=0, bw=0; const meetings=[];
+  for(const bb of historyBashoList(gated)) for(const x of (bb.bouts||[])){
+    if((x.winner===a&&x.loser===b)||(x.winner===b&&x.loser===a)){
+      if(x.winner===a) aw++; else bw++;
+      meetings.push({ basho:bb.label, day:x.day, winner:x.winner, kimarite:x.kimarite });
+    }
+  }
+  return { [a]:aw, [b]:bw, meetings:meetings.length, bouts:meetings };
+}
+
+// ────────────────────────────────────────────────────────────────────────────
 // THE TOOLS Claude may call. All read the gated view; none can see past the gate.
 export const TOOLS = [
   {
@@ -159,6 +198,16 @@ export const TOOLS = [
     name: 'query_standings',
     description: "The current win-loss standings for the tournament, gated to the viewer's day: every wrestler's W-L record, sorted best-first, with rank and how many wins they trail the leader by. Use this for anything about the championship picture: who is leading, who is in the yusho race, how far back a wrestler is, whether someone still has a shot. Ground all race talk in these ACTUAL records and gaps, never in a guess from rank alone.",
     input_schema: { type:'object', properties:{ top:{type:'integer', description:'optional: only the top N by wins'} } }
+  },
+  {
+    name: 'query_career',
+    description: "A wrestler's record across the whole tracked era (since the crew got into sumo, Jan 2025): total W-L, their record and rank basho-by-basho, and how many yusho they've won. Includes the current basho only through the viewer's gated day; past basho are never spoilers. Use for 'how's X done over the last year', 'X's career record', 'how many titles does X have', 'what ranks has X held', promotion-worthiness questions.",
+    input_schema: { type:'object', properties:{ name:{type:'string'} }, required:['name'] }
+  },
+  {
+    name: 'query_yusho',
+    description: "Championship (yusho) history since Jan 2025. With a name: which basho that wrestler won, and their title count. Without a name: the champion of each past basho. Past champions are never spoilers (the CURRENT basho's title isn't decided until it ends, so it is never listed here). Use for 'who won last Nagoya', 'how many yusho does X have', 'list recent champions'.",
+    input_schema: { type:'object', properties:{ name:{type:'string', description:'optional wrestler'} } }
   }
 ];
 
@@ -216,7 +265,8 @@ export function runTool(toolName, input, gated){
       if(focus) out.summary = { forRikishi: focus, ...summarize(focus, gated.bouts.filter(b=> !opp || b.winner===opp || b.loser===opp || b.winner===focus || b.loser===focus)) };
       if(focus && opp){
         const h2h = gated.bouts.filter(b=> (b.winner===focus&&b.loser===opp)||(b.winner===opp&&b.loser===focus));
-        out.headToHead = { [focus]: h2h.filter(b=>b.winner===focus).length, [opp]: h2h.filter(b=>b.winner===opp).length, meetings:h2h.length };
+        out.headToHead = { [focus]: h2h.filter(b=>b.winner===focus).length, [opp]: h2h.filter(b=>b.winner===opp).length, meetings:h2h.length, note:'this basho only' };
+        out.historicalHeadToHead = { ...historyH2H(focus, opp, gated), note:'past basho since Jan 2025 (add to headToHead for the full rivalry)' };
       }
       return out;
     }
@@ -237,6 +287,22 @@ export function runTool(toolName, input, gated){
       const withGap = rows.map(x=>({ ...x, winsBehindLeader: leaderWins - x.wins }));
       const list = Number.isInteger(input.top) ? withGap.slice(0, input.top) : withGap;
       return { throughDay: gated.gate, daysRemaining: Math.max(0, 15 - gated.gate), leaderWins, standings: list };
+    }
+    case 'query_career': {
+      const res = resolveName(input.name, gated.rikishi);
+      const name = res.name || input.name;
+      const c = careerFor(name, gated);
+      if(!c.perBasho.length) return { found:false, note:`No tracked record for "${input.name}" since Jan 2025.`, didYouMean: res.near };
+      return { found:true, resolvedFrom: res.matched || null, ...c };
+    }
+    case 'query_yusho': {
+      const list = historyBashoList(gated).reverse();   // most recent first
+      if(input.name){
+        const res = resolveName(input.name, gated.rikishi); const name = res.name || input.name;
+        const won = list.filter(b => (b.yusho||[]).includes(name)).map(b=>b.label);
+        return { name, yushoCount: won.length, yusho: won, note:'since Jan 2025; the current basho is still in progress and not counted' };
+      }
+      return { champions: list.map(b=>({ basho:b.label, yusho:(b.yusho||[]) })), note:'past basho since Jan 2025, most recent first; the current basho is in progress' };
     }
     default:
       return { error:`unknown tool ${toolName}` };
@@ -287,10 +353,10 @@ WRITE LIKE A REAL PERSON IN A GROUP CHAT, NOT LIKE AN AI. These are hard rules, 
 Never curse or swear, not even mild. The crew keeps it clean and your hype comes from personality and caps, never profanity. Never push Japanese-language learning on anyone (a standing crew boundary). Never go stiff, corporate, or over-formal. Never lecture.
 
 ═══ TOOLS ═══
-You have query_rikishi, query_banzuke, query_match_log, query_standings, and query_kimarite. For ANY Lane 1 question, call the relevant tool before answering, even if you think you know. Name resolution is forgiving (nicknames, misspellings, voice-to-text mangling all resolve), but if a tool returns didYouMean instead of a match, ask the crew which wrestler they meant rather than guessing. When a tool hands you a computed number (a record, a head-to-head, the standings), quote it directly rather than recounting bouts yourself. You can say briefly how you know ("across the bouts we have logged...").
+You have query_rikishi, query_banzuke, query_match_log, query_standings, query_kimarite, query_career, and query_yusho. For ANY Lane 1 question, call the relevant tool before answering, even if you think you know. For anything spanning more than the current basho, a wrestler's record over the last year, their title count, their rank history, whether a run makes them promotion-worthy, use query_career and query_yusho: our data goes back to Jan 2025 (when the crew got into sumo), and those past basho are never spoilers. Name resolution is forgiving (nicknames, misspellings, voice-to-text mangling all resolve), but if a tool returns didYouMean instead of a match, ask the crew which wrestler they meant rather than guessing. When a tool hands you a computed number (a record, a head-to-head, the standings), quote it directly rather than recounting bouts yourself. You can say briefly how you know ("across the bouts we have logged...").
 
 ═══ HONESTY ═══
-The data began tracking in Jan 2025, so career and historical totals before that are not complete. If a question reaches back before then, say the figure is "since we started tracking (Jan 2025)," not a full career number. Never dress a partial number up as complete.
+Our data goes back to Jan 2025. That is not a limitation to apologize for, it is when the crew got into sumo, so the records ARE the crew's whole sumo story. For anything reaching before Jan 2025, be honest that it is outside what we track ("that is before our watch started"); don't invent older career totals. Never dress a partial number up as complete.
 
 CURRENT ROSTER (names and nicknames you may hear; (O) is the crew's own, (J) is official or fan):
 ${roster}
