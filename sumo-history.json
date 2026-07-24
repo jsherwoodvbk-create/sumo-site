@@ -308,11 +308,9 @@
         }
       ],
       "yusho": [
-        "Hoshoryu",
-        "Oho",
-        "Kinbozan"
+        "Hoshoryu"
       ],
-      "yushoSource": "PLAYOFF: 3 tied at 12 wins — set winner by hand",
+      "yushoSource": "12 wins (won the playoff; resolved from sumo-api yusho field)",
       "bouts": [
         {
           "day": 1,
@@ -2978,10 +2976,9 @@
         }
       ],
       "yusho": [
-        "Onosato",
-        "Takayasu"
+        "Onosato"
       ],
-      "yushoSource": "PLAYOFF: 2 tied at 12 wins — set winner by hand",
+      "yushoSource": "12 wins (won the playoff; resolved from sumo-api yusho field)",
       "bouts": [
         {
           "day": 1,
@@ -11263,10 +11260,9 @@
         }
       ],
       "yusho": [
-        "Onosato",
-        "Hoshoryu"
+        "Onosato"
       ],
-      "yushoSource": "PLAYOFF: 2 tied at 13 wins — set winner by hand",
+      "yushoSource": "13 wins (won the playoff; resolved from sumo-api yusho field)",
       "bouts": [
         {
           "day": 1,
@@ -14084,10 +14080,9 @@
         }
       ],
       "yusho": [
-        "Aonishiki",
-        "Hoshoryu"
+        "Aonishiki"
       ],
-      "yushoSource": "PLAYOFF: 2 tied at 12 wins — set winner by hand",
+      "yushoSource": "12 wins (won the playoff; resolved from sumo-api yusho field)",
       "bouts": [
         {
           "day": 1,
@@ -16921,10 +16916,9 @@
         }
       ],
       "yusho": [
-        "Aonishiki",
-        "Atamifuji"
+        "Aonishiki"
       ],
-      "yushoSource": "PLAYOFF: 2 tied at 12 wins — set winner by hand",
+      "yushoSource": "12 wins (won the playoff; resolved from sumo-api yusho field)",
       "bouts": [
         {
           "day": 1,
@@ -22434,10 +22428,9 @@
         }
       ],
       "yusho": [
-        "Kirishima",
         "Wakatakakage"
       ],
-      "yushoSource": "PLAYOFF: 2 tied at 12 wins — set winner by hand",
+      "yushoSource": "12 wins (won the playoff; resolved from sumo-api yusho field)",
       "bouts": [
         {
           "day": 1,
