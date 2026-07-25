@@ -212,5 +212,29 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l",
   document.querySelectorAll("th.sortable").forEach(th=>{th.onclick=()=>{const k=th.dataset.key;if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=_defDir[k];}render();};});
   // Do NOT render until the viewer picks their watched day — table stays empty behind the gate (no spoilers).
 </script>
+<!-- Day carry-over: honor the day set on the homepage guard. Paste this just BEFORE </body> in standings.html. -->
+<script>
+(function(){
+  function readDay(){
+    try{ var u=new URLSearchParams(location.search).get('d'); if(u) return u; }catch(e){}
+    try{ return localStorage.getItem('ss_watched_day'); }catch(e){}
+    return null;
+  }
+  var sel=document.getElementById('daySel'), enter=document.getElementById('enter');
+  if(sel && enter){
+    enter.addEventListener('click', function(){
+      try{ localStorage.setItem('ss_watched_day', sel.value); }catch(e){}   // keep the shared day in sync
+    });
+    var raw=parseInt(readDay(),10);
+    if(raw>=1){
+      var opts=sel.options, maxv=opts.length ? +opts[opts.length-1].value : raw;
+      var d=Math.min(raw, maxv);
+      sel.value=d;
+      try{ localStorage.setItem('ss_watched_day', d); }catch(e){}
+      enter.click();   // runs the page's own "show standings through day d" flow, hides the gate
+    }
+  }
+})();
+</script>
 </body>
 </html>
