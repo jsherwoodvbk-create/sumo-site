@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+  <!-- Gumbai badge (LOCKED v11) — mascot in the logo's terracotta double-ring on cream. Self-contained; use via <img src="gumbai-badge.svg">. -->
+  <defs>
+    <filter id="ink" x="-8%" y="-8%" width="116%" height="116%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <path id="petal" d="M0 0 C -7 -16 -5 -38 0 -50 C 5 -38 7 -16 0 0 Z"/>
+    <g id="mum">
+      <g><use href="#petal" transform="rotate(0)"/><use href="#petal" transform="rotate(30)"/><use href="#petal" transform="rotate(60)"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(120)"/><use href="#petal" transform="rotate(150)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(210)"/><use href="#petal" transform="rotate(240)"/><use href="#petal" transform="rotate(270)"/><use href="#petal" transform="rotate(300)"/><use href="#petal" transform="rotate(330)"/></g>
+      <g transform="scale(0.6)"><use href="#petal" transform="rotate(15)"/><use href="#petal" transform="rotate(45)"/><use href="#petal" transform="rotate(75)"/><use href="#petal" transform="rotate(105)"/><use href="#petal" transform="rotate(135)"/><use href="#petal" transform="rotate(165)"/><use href="#petal" transform="rotate(195)"/><use href="#petal" transform="rotate(225)"/><use href="#petal" transform="rotate(255)"/><use href="#petal" transform="rotate(285)"/><use href="#petal" transform="rotate(315)"/><use href="#petal" transform="rotate(345)"/></g>
+    </g>
+    <path id="fan" d="M200 96 C 168 66 150 64 128 72 C 96 84 82 128 84 172 C 86 210 112 236 122 252 C 112 272 92 296 92 324 C 94 352 112 366 150 372 C 168 376 184 378 200 378 C 216 378 232 376 250 372 C 288 366 306 352 308 324 C 308 296 288 272 278 252 C 288 236 314 210 316 172 C 318 128 304 84 272 72 C 250 64 232 66 200 96 Z"/>
+    <clipPath id="fanClip"><use href="#fan"/></clipPath>
+    <clipPath id="badgeClip"><circle cx="60" cy="60" r="55"/></clipPath>
+  </defs>
+
+  <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+  <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+  <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+
+  <g clip-path="url(#badgeClip)"><g transform="translate(-4 -6) scale(0.32)">
+    <g filter="url(#ink)">
+      <g stroke="#efe7d5" fill="none" stroke-linejoin="round"><rect x="185" y="334" width="30" height="216" rx="15" stroke-width="7"/><use href="#fan" stroke-width="9"/></g>
+      <rect x="187" y="336" width="26" height="212" rx="13" fill="#17130f"/>
+      <path d="M188 402 C 200 396 212 396 224 404" fill="none" stroke="#22462a" stroke-width="5" stroke-linecap="round"/>
+      <rect x="212" y="401" width="30" height="15" rx="5" fill="#c06a34"/>
+      <path d="M214 416 C 205 470 203 520 212 544 C 219 560 240 560 247 544 C 257 520 255 470 246 416 Z" fill="#35663f"/>
+      <path d="M210 420 C 201 476 201 526 209 548" fill="none" stroke="#35663f" stroke-width="6" stroke-linecap="round"/>
+      <path d="M248 420 C 257 476 257 526 249 548" fill="none" stroke="#35663f" stroke-width="6" stroke-linecap="round"/>
+      <use href="#fan" fill="#211a12"/>
+      <g clip-path="url(#fanClip)">
+        <g fill="#dcc79a"><use href="#mum" transform="translate(126 150) scale(0.28) rotate(12)" opacity="0.9"/><use href="#mum" transform="translate(274 150) scale(0.28) rotate(-12)" opacity="0.9"/></g>
+        <g fill="#d09a63"><use href="#mum" transform="translate(148 316) scale(0.22) rotate(22)" opacity="0.9"/><use href="#mum" transform="translate(252 316) scale(0.22) rotate(-22)" opacity="0.9"/><use href="#mum" transform="translate(200 122) scale(0.16) rotate(6)" opacity="0.85"/></g>
+        <g fill="#c06a34"><use href="#mum" transform="translate(200 342) scale(0.14) rotate(-8)" opacity="0.95"/><use href="#mum" transform="translate(98 216) scale(0.11) rotate(40)" opacity="0.9"/><use href="#mum" transform="translate(304 268) scale(0.10) rotate(70)" opacity="0.88"/><use href="#mum" transform="translate(300 122) scale(0.095) rotate(18)" opacity="0.85"/><use href="#mum" transform="translate(112 320) scale(0.105) rotate(55)" opacity="0.9"/></g>
+      </g>
+      <use href="#fan" fill="none" stroke="#b23a2e" stroke-width="6"/>
+      <g transform="translate(200 214)"><circle r="66" fill="#b23a2e" opacity="0.16"/><use href="#mum" transform="scale(1.16)" fill="#b23a2e"/><circle r="13" fill="#9a3327"/><circle r="5" fill="#c99a72"/></g>
+    </g>
+  </g></g>
+</svg>

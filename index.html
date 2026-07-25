@@ -25,9 +25,9 @@
   a{color:inherit;text-decoration:none}
   .wrap{max-width:960px;margin:0 auto;padding:0 16px 64px}
 
-  /* hero — grained wood, room for a real photo later */
+  /* hero — grained wood */
   .hero{position:relative;overflow:hidden;border-radius:0 0 18px 18px;color:#fff;text-align:center;
-    padding:40px 22px 34px;margin-bottom:30px;
+    padding:40px 22px 34px;margin-bottom:24px;
     background:
       repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
       repeating-linear-gradient(182deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px),
@@ -37,40 +37,50 @@
   .hero .emblem{filter:drop-shadow(0 3px 6px rgba(0,0,0,.4));margin-bottom:6px}
   .hero h1{font-size:38px;font-weight:900;margin:4px 0 6px;letter-spacing:.01em}
   .hero p{margin:0 auto;max-width:440px;font-size:15px;opacity:.92}
-  .hero .photo-note{margin-top:14px;font-size:11px;letter-spacing:.05em;text-transform:uppercase;opacity:.55}
 
   .live{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
-    border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;margin:0 auto 26px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+    border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;margin:0 auto 8px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
   .live .dot{width:9px;height:9px;border-radius:50%;background:var(--live);box-shadow:0 0 0 4px color-mix(in srgb,var(--live) 25%,transparent)}
-  .live a{color:var(--purple);font-weight:700}
   .centerrow{text-align:center}
+
+  /* ── THE ARENA (dohyo hub) ── */
+  .arena{max-width:500px;margin:14px auto 8px}
+  .dohyoWrap{position:relative;width:100%;aspect-ratio:1/1}
+  svg.ring{position:absolute;inset:0;width:100%;height:100%}
+  .bands{position:absolute;inset:0}
+  .entry{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:11px;align-items:center;
+    background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;
+    box-shadow:0 4px 14px rgba(80,50,20,.16);white-space:nowrap;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;cursor:pointer}
+  .entry:hover{transform:translateX(-50%) translateY(-2px);border-color:var(--vermilion);box-shadow:0 10px 22px rgba(80,50,20,.22)}
+  .entry .ic{font-size:22px;line-height:1}
+  .entry .lab{text-align:left;line-height:1.12}
+  .entry .lab b{font-size:16px;display:block;font-family:'Zen Old Mincho',Georgia,serif}
+  .entry .lab small{font-size:10.5px;color:var(--clay);letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+  .entry .arrow{color:var(--vermilion);font-weight:800;font-size:17px}
+  .entry.top{top:12%}
+  .entry.bot{bottom:12%}
+  .entry.bot .badge{width:42px;height:42px;flex:0 0 auto}
+  .guard{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;
+    background:#2c2016;color:#f3e7d6;border-radius:999px;padding:7px 8px 7px 14px;font-size:12.5px;
+    display:flex;gap:8px;align-items:center;box-shadow:0 3px 12px rgba(0,0,0,.34)}
+  .guard label{opacity:.9}
+  .guard select{background:#efe7d5;border:none;border-radius:7px;padding:3px 7px;font:inherit;font-weight:800;color:#2c2016;cursor:pointer}
+  .arenacap{text-align:center;font-size:12px;color:var(--muted);margin-top:4px}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
   .sechead{font-family:'Zen Old Mincho',Georgia,serif;font-size:15px;font-weight:700;text-transform:uppercase;
-    letter-spacing:.08em;color:var(--clay);margin:28px 2px 12px;display:flex;align-items:center;gap:12px}
+    letter-spacing:.08em;color:var(--clay);margin:30px 2px 12px;display:flex;align-items:center;gap:12px}
   .sechead::after{content:"";flex:1;height:1px;background:var(--line)}
-  section:first-of-type .sechead{margin-top:4px}
   .card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
     transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
   .card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.09);border-color:var(--clay)}
   .card .ico{font-size:26px;line-height:1;margin-bottom:10px}
   .card h3{margin:0 0 5px;font-size:18px;font-weight:700}
   .card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
-  .oracle{display:flex;gap:18px;align-items:flex-start;background:var(--surface);border:1.5px solid var(--purple);
-    border-radius:16px;padding:20px 22px;margin:0 0 6px;box-shadow:0 6px 22px rgba(106,61,154,.16);
-    transition:transform .12s ease, box-shadow .12s ease}
-  .oracle:hover{transform:translateY(-2px);box-shadow:0 12px 28px rgba(106,61,154,.24)}
-  .oracle-ico{font-size:42px;line-height:1;flex:0 0 auto}
-  .oracle-body{flex:1;min-width:0}
-  .oracle-body h2{font-family:'Zen Old Mincho',Georgia,serif;margin:0 0 5px;font-size:22px}
-  .oracle-body p{margin:0 0 13px;font-size:14px;color:var(--muted)}
-  .oracle-input{display:flex;gap:8px;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:7px 7px 7px 14px}
-  .oracle-input span{flex:1;color:var(--muted);font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .oracle-input button{background:var(--purple);color:#fff;border:none;border-radius:8px;padding:9px 18px;font:inherit;font-weight:700;font-size:13px;cursor:pointer;flex:0 0 auto}
   .pill{float:right;font-size:10.5px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:999px;text-transform:uppercase}
-  .pill.live{background:var(--win);color:#fff;box-shadow:none;border:none;position:static;display:inline-block;margin:0}
+  .pill.live{background:var(--win);color:#fff}
   .pill.soon{background:var(--clay-soft);color:var(--clay)}
-  @media (prefers-color-scheme:dark){.pill.soon{color:var(--clay)}}
 
   footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
   footer b{color:var(--ink)}
@@ -83,24 +93,72 @@
     <p>The crew's home for the banzuke, the bouts, and the bragging rights — spoiler-safe, so you set how far you've watched.</p>
   </div>
 
+  <!-- inlined Gumbai mascot (avatar for the Ask-Gumbai entry) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="ink" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <path id="petal" d="M0 0 C -7 -16 -5 -38 0 -50 C 5 -38 7 -16 0 0 Z"/>
+    <g id="mum"><g><use href="#petal" transform="rotate(0)"/><use href="#petal" transform="rotate(30)"/><use href="#petal" transform="rotate(60)"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(120)"/><use href="#petal" transform="rotate(150)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(210)"/><use href="#petal" transform="rotate(240)"/><use href="#petal" transform="rotate(270)"/><use href="#petal" transform="rotate(300)"/><use href="#petal" transform="rotate(330)"/></g><g transform="scale(0.6)"><use href="#petal" transform="rotate(15)"/><use href="#petal" transform="rotate(45)"/><use href="#petal" transform="rotate(75)"/><use href="#petal" transform="rotate(105)"/><use href="#petal" transform="rotate(135)"/><use href="#petal" transform="rotate(165)"/><use href="#petal" transform="rotate(195)"/><use href="#petal" transform="rotate(225)"/><use href="#petal" transform="rotate(255)"/><use href="#petal" transform="rotate(285)"/><use href="#petal" transform="rotate(315)"/><use href="#petal" transform="rotate(345)"/></g></g>
+    <path id="fan" d="M200 96 C 168 66 150 64 128 72 C 96 84 82 128 84 172 C 86 210 112 236 122 252 C 112 272 92 296 92 324 C 94 352 112 366 150 372 C 168 376 184 378 200 378 C 216 378 232 376 250 372 C 288 366 306 352 308 324 C 308 296 288 272 278 252 C 288 236 314 210 316 172 C 318 128 304 84 272 72 C 250 64 232 66 200 96 Z"/>
+    <clipPath id="fanClip"><use href="#fan"/></clipPath>
+    <clipPath id="badgeClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <symbol id="gumbai" viewBox="0 0 400 560"><g filter="url(#ink)">
+      <g stroke="#efe7d5" fill="none" stroke-linejoin="round"><rect x="185" y="334" width="30" height="216" rx="15" stroke-width="7"/><use href="#fan" stroke-width="9"/></g>
+      <rect x="187" y="336" width="26" height="212" rx="13" fill="#17130f"/>
+      <path d="M188 402 C 200 396 212 396 224 404" fill="none" stroke="#22462a" stroke-width="5" stroke-linecap="round"/>
+      <rect x="212" y="401" width="30" height="15" rx="5" fill="#c06a34"/>
+      <path d="M214 416 C 205 470 203 520 212 544 C 219 560 240 560 247 544 C 257 520 255 470 246 416 Z" fill="#35663f"/>
+      <path d="M210 420 C 201 476 201 526 209 548" fill="none" stroke="#35663f" stroke-width="6" stroke-linecap="round"/>
+      <path d="M248 420 C 257 476 257 526 249 548" fill="none" stroke="#35663f" stroke-width="6" stroke-linecap="round"/>
+      <use href="#fan" fill="#211a12"/>
+      <g clip-path="url(#fanClip)">
+        <g fill="#dcc79a"><use href="#mum" transform="translate(126 150) scale(0.28) rotate(12)" opacity="0.9"/><use href="#mum" transform="translate(274 150) scale(0.28) rotate(-12)" opacity="0.9"/></g>
+        <g fill="#d09a63"><use href="#mum" transform="translate(148 316) scale(0.22) rotate(22)" opacity="0.9"/><use href="#mum" transform="translate(252 316) scale(0.22) rotate(-22)" opacity="0.9"/><use href="#mum" transform="translate(200 122) scale(0.16) rotate(6)" opacity="0.85"/></g>
+        <g fill="#c06a34"><use href="#mum" transform="translate(200 342) scale(0.14) rotate(-8)" opacity="0.95"/><use href="#mum" transform="translate(98 216) scale(0.11) rotate(40)" opacity="0.9"/><use href="#mum" transform="translate(304 268) scale(0.10) rotate(70)" opacity="0.88"/><use href="#mum" transform="translate(300 122) scale(0.095) rotate(18)" opacity="0.85"/><use href="#mum" transform="translate(112 320) scale(0.105) rotate(55)" opacity="0.9"/></g>
+      </g>
+      <use href="#fan" fill="none" stroke="#b23a2e" stroke-width="6"/>
+      <g transform="translate(200 214)"><circle r="66" fill="#b23a2e" opacity="0.16"/><use href="#mum" transform="scale(1.16)" fill="#b23a2e"/><circle r="13" fill="#9a3327"/><circle r="5" fill="#c99a72"/></g>
+    </g></symbol>
+  </defs></svg>
+
   <div class="wrap">
     <div class="centerrow">
-      <span class="live"><span class="dot"></span> Nagoya 2026 · in progress · Day 14 &nbsp;—&nbsp; <a href="standings.html">View standings →</a></span>
+      <span class="live"><span class="dot"></span> Nagoya 2026 · in progress · Day 14</span>
     </div>
 
-    <a class="oracle" href="gumbai.html">
-      <div class="oracle-ico">🪭</div>
-      <div class="oracle-body">
-        <h2>Gumbai <span class="pill soon" style="float:none;vertical-align:3px">Soon</span></h2>
-        <p>Any question about the sumo — "who's beaten a yokozuna this year?", "Onosato's toughest matchup?", "most kinboshi since 2025?" — answered straight from the data, and spoiler-safe to the day you've watched.</p>
-        <div class="oracle-input"><span>e.g. who has the best record against the sanyaku?</span><button>Ask Gumbai</button></div>
+    <!-- THE ARENA: circular dohyo hub -->
+    <div class="arena">
+      <div class="dohyoWrap">
+        <svg class="ring" viewBox="0 0 600 600" id="dohyo" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+        <div class="bands">
+          <a class="entry top" id="lnkStandings" href="standings.html">
+            <span class="ic">📋</span>
+            <span class="lab"><small>East</small><b>Standings</b></span>
+            <span class="arrow">→</span>
+          </a>
+
+          <div class="guard">
+            <label for="watchGuard">🥋 Watched through</label>
+            <select id="watchGuard" aria-label="Set the day you have watched through">
+              <option value="0">— pick —</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+              <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+              <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+            </select>
+          </div>
+
+          <a class="entry bot" id="lnkGumbai" href="gumbai.html">
+            <img class="badge" src="gumbai-badge.svg" width="42" height="42" alt="Gumbai">
+            <span class="lab"><small>West</small><b>Ask Gumbai</b></span>
+            <span class="arrow">→</span>
+          </a>
+        </div>
       </div>
-    </a>
+      <p class="arenacap">Set how far you've watched — the ring keeps Standings and Gumbai spoiler-safe to your day.</p>
+    </div>
 
     <section>
       <h2 class="sechead">Follow the Basho</h2>
       <div class="grid">
-        <a class="card" href="standings.html"><span class="pill live">Live</span><div class="ico">🏆</div><h3>Standings</h3><p>Current W–L for the basho, gated to the day you've watched. Lean, kachi-koshi, make-koshi at a glance.</p></a>
         <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico">📊</div><h3>Reports</h3><p>Rank moves over time, banzuke variance basho to basho, kimarite signatures, kinboshi history.</p></a>
       </div>
     </section>
@@ -125,5 +183,42 @@
       <p><b>Salt Stats & Sumo</b> — a Staves &amp; Hoop production for a crew of four. Data lives in Notion; this is the front porch.<br>Spoiler-safe by design · built basho by basho.</p>
     </footer>
   </div>
+
+<script>
+(function(){
+  // ---- draw the dohyo: tawara ring + tokudawara + two shikiri-sen ----
+  var svg=document.getElementById('dohyo'), NS='http://www.w3.org/2000/svg';
+  var cx=300, cy=300, r=272;
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  svg.appendChild(el('circle',{cx:cx,cy:cy,r:r-8,fill:'#d8b485'}));
+  svg.appendChild(el('circle',{cx:cx,cy:cy,r:r-70,fill:'#cba471','opacity':'0.45'}));
+  var N=46, toku=[0,90,180,270];
+  for(var i=0;i<N;i++){
+    var deg=(i/N)*360, a=deg*Math.PI/180, isToku=false;
+    for(var t=0;t<toku.length;t++){var d=Math.abs(((deg-toku[t]+540)%360)-180); if(d<4.2) isToku=true;}
+    var push=isToku?13:0, px=cx+(r+push)*Math.cos(a), py=cy+(r+push)*Math.sin(a);
+    var g=el('g',{transform:'translate('+px+' '+py+') rotate('+(deg+90)+')'});
+    g.appendChild(el('rect',{x:-17,y:-9,width:34,height:18,rx:8,fill:isToku?'#b8934f':'#cda869',stroke:'#9c7838','stroke-width':'1.5'}));
+    svg.appendChild(g);
+  }
+  [-30,30].forEach(function(dy){
+    svg.appendChild(el('line',{x1:cx-52,x2:cx+52,y1:cy+dy,y2:cy+dy,stroke:'#f4ecda','stroke-width':'7','stroke-linecap':'round'}));
+  });
+
+  // ---- day guard: remember the viewer's day, carry it to both pages ----
+  var sel=document.getElementById('watchGuard'),
+      st=document.getElementById('lnkStandings'),
+      gb=document.getElementById('lnkGumbai'), KEY='ss_watched_day';
+  function apply(d){ var q=d?('?d='+d):''; st.href='standings.html'+q; gb.href='gumbai.html'+q; }
+  var saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
+  if(saved){ sel.value=saved; }
+  apply(sel.value!=='0'?sel.value:'');
+  sel.addEventListener('change',function(){
+    var d=sel.value!=='0'?sel.value:'';
+    try{ if(d) localStorage.setItem(KEY,d); else localStorage.removeItem(KEY); }catch(e){}
+    apply(d);
+  });
+})();
+</script>
 </body>
 </html>
