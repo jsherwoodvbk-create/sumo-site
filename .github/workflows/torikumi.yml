@@ -1,0 +1,47 @@
+name: Torikumi (upcoming matchups)
+
+# Pulls the NEXT day's makuuchi card from sumo-api into tomorrow-card.json (result-free, ungated).
+# For now: manual (workflow_dispatch) so it can be tested next basho on its own. Once verified,
+# fold `node gen-torikumi.mjs` into publish.yml as a step BEFORE gen-gumbai-snapshot.mjs so each
+# daily publish refreshes the card and folds it into the Gumbai snapshot in the same run.
+on:
+  workflow_dispatch:
+    inputs:
+      day:
+        description: "Force a specific next-day (blank = auto: max completed day + 1). Testing only."
+        type: string
+        default: ""
+
+permissions:
+  contents: write
+
+concurrency:
+  group: torikumi
+  cancel-in-progress: false
+
+jobs:
+  torikumi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Pull next-day card from sumo-api
+        env:
+          BASHO: "202607"   # PER-BASHO: change each tournament (same code as the other scripts).
+          FORCE_DAY: ${{ github.event.inputs.day }}
+        run: node gen-torikumi.mjs
+
+      - name: Commit tomorrow-card.json
+        run: |
+          git config user.name "sumo-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add tomorrow-card.json                # stage first — a brand-new file is invisible to `git diff`
+          if git diff --cached --quiet; then
+            echo "No change."
+          else
+            git commit -m "Torikumi: next-day card ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git push
+          fi
