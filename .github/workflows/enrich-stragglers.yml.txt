@@ -1,0 +1,29 @@
+# .github/workflows/enrich-stragglers.yml
+# Authoritative enrichment for name-only wrestlers (pulls sumo-api profile, writes to Master Rikishi).
+# DRY_RUN defaults to "1" (preview). Flip to "0" to write.
+name: enrich-stragglers
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run? 1 = preview only, 0 = write'
+        required: true
+        default: '1'
+      stragglers:
+        description: 'Comma-separated shikona to enrich'
+        required: false
+        default: 'Shiden,Hidenoumi'
+jobs:
+  enrich-stragglers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Enrich stragglers
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+          STRAGGLERS: ${{ github.event.inputs.stragglers }}
+        run: node enrich-stragglers.mjs
