@@ -17,9 +17,13 @@
   @media (prefers-color-scheme:dark){
     :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
       --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --live:#e0685a;}
+    /* washi grain flips to a faint light speckle so it reads on the dark ground */
+    body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='wd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23wd)' opacity='0.05'/%3E%3C/svg%3E")}
+    .card,.entry{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wcd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wcd)' opacity='0.04'/%3E%3C/svg%3E")}
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
+  body{margin:0;background-color:var(--bg);color:var(--ink);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23w)' opacity='0.35'/%3E%3C/svg%3E");
     font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   a{color:inherit;text-decoration:none}
@@ -43,7 +47,8 @@
   svg.ring{position:absolute;inset:0;width:100%;height:100%}
   .bands{position:absolute;inset:0}
   .entry{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:11px;align-items:center;
-    background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;
+    background-color:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='we'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23we)' opacity='0.22'/%3E%3C/svg%3E");
     box-shadow:0 4px 14px rgba(80,50,20,.16);white-space:nowrap;
     transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;cursor:pointer}
   .entry:hover{transform:translateX(-50%) translateY(-2px);border-color:var(--vermilion);box-shadow:0 10px 22px rgba(80,50,20,.22)}
@@ -56,18 +61,20 @@
   .entry.top{top:12%}
   .entry.bot{bottom:12%}
   .entry.bot .badge{width:42px;height:42px;flex:0 0 auto}
-  .guard{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;
-    background:#2c2016;color:#f3e7d6;border-radius:999px;padding:7px 8px 7px 14px;font-size:12.5px;
-    display:flex;gap:8px;align-items:center;box-shadow:0 3px 12px rgba(0,0,0,.34)}
-  .guard label{opacity:.9}
-  .guard select{background:#efe7d5;border:none;border-radius:7px;padding:3px 7px;font:inherit;font-weight:800;color:#2c2016;cursor:pointer}
+  .guard{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;white-space:nowrap;
+    background:#2c2016;color:#f3e7d6;border-radius:999px;padding:6px 8px 6px 13px;font-size:12.5px;
+    display:flex;gap:7px;align-items:center;box-shadow:0 3px 12px rgba(0,0,0,.34)}
+  .guard label{opacity:.9;white-space:nowrap}
+  .guard select{background:#efe7d5;border:none;border-radius:7px;padding:3px 5px;font:inherit;font-weight:800;
+    color:#2c2016;cursor:pointer;text-align:center;width:3.2em}
   .arenacap{text-align:center;font-size:12px;color:var(--muted);margin-top:4px}
 
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
   .sechead{font-family:'Zen Old Mincho',Georgia,serif;font-size:15px;font-weight:700;text-transform:uppercase;
     letter-spacing:.08em;color:var(--clay);margin:30px 2px 12px;display:flex;align-items:center;gap:12px}
   .sechead::after{content:"";flex:1;height:1px;background:var(--line)}
-  .card{display:block;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+  .card{display:block;background-color:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wc'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wc)' opacity='0.22'/%3E%3C/svg%3E");
     transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
   .card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.09);border-color:var(--clay)}
   .card .ico{font-size:26px;line-height:1;margin-bottom:10px}
@@ -84,7 +91,7 @@
 </head>
 <body>
   <div class="roofWrap">
-    <svg class="roof" viewBox="0 0 820 250" preserveAspectRatio="none" role="img" aria-label="Salt Stats & Sumo — the roof over the dohyo">
+    <svg class="roof" viewBox="0 0 820 250" preserveAspectRatio="none" role="img" aria-label="Salt Stats & Sumo, the roof over the dohyo">
       <defs>
         <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0" stop-color="#7a5230"/><stop offset="0.5" stop-color="#5c3c22"/><stop offset="1" stop-color="#3d2713"/>
@@ -104,8 +111,8 @@
       <!-- two corner fusa — green (win) left, red (loss) right -->
       <g transform="translate(70 169)"><rect x="-6" y="0" width="12" height="7" rx="2" fill="#241a10"/><path d="M-8 7 Q0 4 8 7 L11 42 Q0 49 -11 42 Z" fill="#35663f"/><g stroke="#35663f" stroke-width="1.6" stroke-linecap="round"><line x1="-9" y1="42" x2="-11" y2="60"/><line x1="-4" y1="45" x2="-5" y2="64"/><line x1="1" y1="46" x2="1" y2="65"/><line x1="6" y1="45" x2="7" y2="64"/><line x1="10" y1="42" x2="12" y2="60"/></g></g>
       <g transform="translate(750 169)"><rect x="-6" y="0" width="12" height="7" rx="2" fill="#241a10"/><path d="M-8 7 Q0 4 8 7 L11 42 Q0 49 -11 42 Z" fill="#b23a2e"/><g stroke="#b23a2e" stroke-width="1.6" stroke-linecap="round"><line x1="-9" y1="42" x2="-11" y2="60"/><line x1="-4" y1="45" x2="-5" y2="64"/><line x1="1" y1="46" x2="1" y2="65"/><line x1="6" y1="45" x2="7" y2="64"/><line x1="10" y1="42" x2="12" y2="60"/></g></g>
-      <!-- emblem: the salt-throw badge lifted a touch so it clears the eave beam -->
-      <g transform="translate(410 121)">
+      <!-- emblem: the salt-throw badge centered in the gap between title and eave beam -->
+      <g transform="translate(410 130)">
         <image href="salt-stats-sumo-badgeold.png" x="-56" y="-56" width="112" height="112"/>
       </g>
     </svg>
@@ -230,6 +237,22 @@
         <circle cx="76" cy="53" r="2.3" fill="#efe7d5"/>
       </g>
     </symbol>
+
+    <symbol id="ic-catchphrase" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <path d="M40 39 H80 a7 7 0 0 1 7 7 V57 a7 7 0 0 1 -7 7 H54 L44 73 V64 H40 a7 7 0 0 1 -7 -7 V46 a7 7 0 0 1 7 -7 Z" fill="#211a12"/>
+        <g stroke="#efe7d5" stroke-width="2.6" stroke-linecap="round">
+          <line x1="46" y1="46" x2="46" y2="58"/>
+          <line x1="52" y1="46" x2="52" y2="58"/>
+          <line x1="58" y1="46" x2="58" y2="58"/>
+          <line x1="64" y1="46" x2="64" y2="58"/>
+        </g>
+        <line x1="43" y1="58" x2="67" y2="46" stroke="#b23a2e" stroke-width="2.8" stroke-linecap="round"/>
+      </g>
+    </symbol>
   </defs></svg>
 
   <div class="wrap">
@@ -251,7 +274,7 @@
           <div class="guard">
             <label for="watchGuard">🥋 Watched through</label>
             <select id="watchGuard" aria-label="Set the day you have watched through">
-              <option value="0">— pick —</option>
+              <option value="0">–</option>
               <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
               <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
               <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
@@ -265,34 +288,29 @@
           </a>
         </div>
       </div>
-      <p class="arenacap">Set how far you've watched — the ring keeps Standings and Gumbai spoiler-safe to your day.</p>
+      <p class="arenacap">Set how far you've watched. The ring keeps Standings and Gumbai spoiler-safe to your day.</p>
     </div>
-
-    <section>
-      <h2 class="sechead">Follow the Basho</h2>
-      <div class="grid">
-        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-reports"/></svg></div><h3>Reports</h3><p>Rank moves over time, banzuke variance basho to basho, kimarite signatures, kinboshi history.</p></a>
-      </div>
-    </section>
 
     <section>
       <h2 class="sechead">Games</h2>
       <div class="grid">
-        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-prediction"/></svg></div><h3>Prediction Pool</h3><p>Forecast the full next banzuke. Jennie, MJ, Sherry — and the machine — scored head to head.</p></a>
-        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-bingo"/></svg></div><h3>Sumo Bingo</h3><p>Sumo Kaboom cards, hand-colored and verified — chase a row of all-winning or all-losing records.</p></a>
-        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-leaderboard"/></svg></div><h3>Leaderboard</h3><p>Every game's points pooled in one shared ledger — the crew's ranking per basho, per year, and all-time.</p></a>
+        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-prediction"/></svg></div><h3>Prediction Pool</h3><p>Call the next banzuke before it's official. Us against the computer, and we're keeping score.</p></a>
+        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-bingo"/></svg></div><h3>Sumo Bingo</h3><p>Our Kaboom cards. Fill a row of all wins or all losses before anyone else does.</p></a>
+        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-catchphrase"/></svg></div><h3>Catchphrase Drinking Game</h3><p>The booth's favorite catchphrases, tracked by day and by announcer. What each one's worth is up to you.</p></a>
+        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-leaderboard"/></svg></div><h3>Leaderboard</h3><p>Who's actually on top. Every game's points added up, by basho and all-time.</p></a>
       </div>
     </section>
 
     <section>
-      <h2 class="sechead">The Crew</h2>
+      <h2 class="sechead">Beyond the Bouts</h2>
       <div class="grid">
-        <a class="card" href="gallery.html"><span class="pill live">Live</span><div class="ico"><svg><use href="#ic-gallery"/></svg></div><h3>Fan Gallery</h3><p>The crew's own shots from the road — Paris and wherever sumo takes you next.</p></a>
+        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-reports"/></svg></div><h3>Reports</h3><p>The stats corner. Rank climbs and slides, everyone's go-to moves, and the upsets, once we've logged enough basho.</p></a>
+        <a class="card" href="gallery.html"><span class="pill live">Live</span><div class="ico"><svg><use href="#ic-gallery"/></svg></div><h3>Fan Gallery</h3><p>Our own shots from the road. Paris, and wherever sumo takes us next.</p></a>
       </div>
     </section>
 
     <footer>
-      <p><b>Salt Stats & Sumo</b> — a Staves &amp; Hoop production for a crew of four. Data lives in Notion; this is the front porch.<br>Spoiler-safe by design · built basho by basho.</p>
+      <p><b>Salt Stats & Sumo</b>, a Staves &amp; Hoop production for the crew. Data lives in Notion; this is the front porch.<br>Spoiler-safe by design, built basho by basho.</p>
     </footer>
   </div>
 
