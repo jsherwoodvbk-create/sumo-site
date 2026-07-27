@@ -27,10 +27,8 @@
     font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   h1,.gatebox h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   .wrap{max-width:940px;margin:0 auto;padding:0 16px 64px}
-
   .sample{background:var(--vermilion);color:#fff;text-align:center;font-size:12px;font-weight:700;
     letter-spacing:.03em;padding:6px;border-radius:0 0 8px 8px;margin-bottom:20px}
-
   /* header band — clay, like the ring */
   header{
     background:
@@ -44,14 +42,12 @@
   header .sub{opacity:.9;font-size:13.5px;margin:0}
   .hbrand{display:flex;align-items:center;gap:15px}
   .emblem{flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
-
   .watched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
     border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:10px;padding:10px 14px;margin:0 0 16px;font-size:14px}
   .watched b{color:var(--purple)}
   .watched button{margin-left:auto;font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--purple);
     border:none;border-radius:7px;padding:6px 12px;cursor:pointer}
   .watched button:hover{filter:brightness(1.08)}
-
   table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
   th,td{text-align:left;padding:9px 10px;border-top:1px solid var(--line);font-size:14px;vertical-align:middle}
   th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-top:none;background:var(--clay-soft)}
@@ -64,6 +60,11 @@
   .r-yok{background:var(--purple)} .r-ozeki{background:var(--vermilion)} .r-seki{background:var(--clay)}
   .r-komu{background:var(--win)} .r-maeg-hi{background:var(--maeg-hi)} .r-maeg-lo{background:var(--maeg-lo)}
   .name{font-weight:600}
+  /* mawashi color dot — sits after the name, before height */
+  .maw{width:30px;text-align:center;padding-left:2px;padding-right:2px}
+  .mawdot{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.25), 0 0 0 1px rgba(255,255,255,.35)}
+  .mawdot.none{background:transparent !important;box-shadow:inset 0 0 0 1px var(--line)}
   .phys{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap;font-size:13.5px}
   .rec{font-variant-numeric:tabular-nums;font-size:15px;white-space:nowrap}
   .rec .w,.rec .l{font-weight:500} .rec .b{font-weight:800} .rec .dash{color:var(--muted);margin:0 2px}
@@ -78,12 +79,10 @@
   .rec.ky{background:transparent}
   .rec .kyt{color:var(--muted);font-style:italic;font-size:13px}
   .rec.ky .badge{background:var(--muted);color:#fff}
-
   footer{margin-top:20px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
   footer b{color:var(--ink)}
   .pal{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
   .sw{font-size:10.5px;font-weight:700;color:#fff;padding:3px 8px;border-radius:6px}
-
   .gate{position:fixed;inset:0;background:rgba(20,20,22,.74);backdrop-filter:blur(3px);display:flex;
     align-items:center;justify-content:center;padding:20px;z-index:10}
   .gatebox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--purple);
@@ -102,7 +101,6 @@
 <body>
 <div class="wrap">
   <a href="index.html" style="display:inline-block;margin:10px 2px 4px;font-size:13px;color:var(--purple);font-weight:700">‹ Salt Stats & Sumo home</a>
-
   <header>
     <div class="hbrand">
       <img class="emblem" src="salt-stats-sumo-badgeold.png" width="66" height="66" alt="Salt Stats & Sumo — a rikishi throwing salt">
@@ -112,19 +110,16 @@
       </div>
     </div>
   </header>
-
   <div class="watched" id="watched">
     <span>Results <b id="thruLbl">through Day 6</b> — anything past your day stays hidden.</span>
     <button id="changeDay">Change day</button>
   </div>
-
   <table>
     <thead>
-      <tr><th class="sortable" data-key="rank" style="width:66px">Rank<span class="arrow"></span></th><th class="sortable" data-key="name">Wrestler<span class="arrow"></span></th><th class="sortable" data-key="ht" style="width:60px">Ht<span class="arrow"></span></th><th class="sortable" data-key="wt" style="width:66px">Wt<span class="arrow"></span></th><th class="sortable" data-key="age" style="width:50px">Age<span class="arrow"></span></th><th class="sortable" data-key="record" style="width:88px">W–L<span class="arrow"></span></th><th>Days</th></tr>
+      <tr><th class="sortable" data-key="rank" style="width:66px">Rank<span class="arrow"></span></th><th class="sortable" data-key="name">Wrestler<span class="arrow"></span></th><th title="Mawashi (belt) color" style="width:30px"></th><th class="sortable" data-key="ht" style="width:60px">Ht<span class="arrow"></span></th><th class="sortable" data-key="wt" style="width:66px">Wt<span class="arrow"></span></th><th class="sortable" data-key="age" style="width:50px">Age<span class="arrow"></span></th><th class="sortable" data-key="record" style="width:88px">W–L<span class="arrow"></span></th><th>Days</th></tr>
     </thead>
     <tbody id="rows"></tbody>
   </table>
-
   <footer>
     <div class="pal">
       <span class="sw" style="background:#a9742c">dohyo clay</span>
@@ -137,10 +132,10 @@
       <span class="sw" style="background:#a93327">tassel red (loss)</span>
     </div>
     <p><b>Live data.</b> Records pull straight from the Match Log in Notion, current through the latest day the daily sync has posted. Height &amp; weight come from Master Rikishi and the basho banzuke — static facts, so they are <i>never</i> gated; only the W&#8211;L and the day-strip hide behind your watched day.</p>
+    <p style="margin-top:8px"><b>The dot</b> after each name is the wrestler's mawashi (belt) color, logged in Master Rikishi — a faint ring means we haven't recorded one yet.</p>
     <p style="margin-top:8px"><b>Reading it:</b> the W&#8211;L bolds whichever side leads (both when tied). A row fills green with a <b>&#10003; KK</b> the moment someone clinches kachi-koshi (8 wins), red with <b>&#10007; MK</b> at make-koshi (8 losses). A wrestler sitting the basho out (kyujo) shows &#8220;out&#8221; and sorts to the bottom rather than a misleading 0&#8211;0.</p>
   </footer>
 </div>
-
 <div class="gate" id="gate">
   <div class="gatebox">
     <div class="flag">🚧</div>
@@ -154,14 +149,12 @@
     <div class="fine">Asked fresh every visit during a tournament — no memory, no assumptions. Off-season, no gate at all.</div>
   </div>
 </div>
-
 <script>
 const MAX_DAY=15;
-const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l","w","w","l","w","w","l","l","w","l","l","l","a"],"ht":"6'2\"","wt":331,"age":27},{"name":"Onosato","rank":"Yokozuna","rc":"yok","days":["l","l","w","l","w","w","w","w","l","w","l","l","w","w","w"],"ht":"6'4\"","wt":417,"age":26},{"name":"Kirishima","rank":"Ozeki","rc":"ozeki","days":["w","w","w","w","l","w","w","w","l","w","w","w","l","w","w"],"ht":"6'1\"","wt":331,"age":30},{"name":"Kotozakura","rank":"Ozeki","rc":"ozeki","days":["w","w","l","w","l","l","l","w","l","w","w","w","w","l","l"],"ht":"6'2\"","wt":392,"age":28},{"name":"Atamifuji","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","l","w","w","l","w","w","w","w","w","w","w"],"ht":"6'2\"","wt":434,"age":23},{"name":"Kotoshoho","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","l","l","l","l","w","l","l","w","w","l","l"],"ht":"6'3\"","wt":379,"age":26},{"name":"Aonishiki","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","w","w","w","w","w","w","w","l","w","w","l"],"ht":"6'0\"","wt":313,"age":22},{"name":"Wakatakakage","rank":"Sekiwake","rc":"seki","days":["a","a","a","a","a","a","a","a","a","a","a","a","a","a","a"],"ht":"6'0\"","wt":304,"age":31},{"name":"Oho","rank":"Komusubi","rc":"komu","days":["l","l","l","w","l","l","l","l","l","l","l","l","l","w","l"],"ht":"6'4\"","wt":408,"age":26},{"name":"Yoshinofuji","rank":"Komusubi","rc":"komu","days":["w","l","l","w","w","l","l","w","w","l","l","l","w","l","l"],"ht":"6'1\"","wt":346,"age":25},{"name":"Fujinokawa","rank":"M1","rc":"maeg","days":["l","w","w","l","w","l","l","l","w","l","w","w","l","w","w"],"ht":"5'10\"","wt":271,"age":21},{"name":"Takanosho","rank":"M1","rc":"maeg","days":["l","l","l","l","w","w","w","l","l","w","w","w","l","l","l"],"ht":"6'0\"","wt":381,"age":31},{"name":"Churanoumi","rank":"M2","rc":"maeg","days":["l","l","w","l","l","l","l","w","w","l","w","w","w","l","w"],"ht":"5'10\"","wt":333,"age":33},{"name":"Gonoyama","rank":"M2","rc":"maeg","days":["l","l","l","w","l","w","w","l","w","w","l","l","w","l","w"],"ht":"5'10\"","wt":344,"age":28},{"name":"Hakunofuji","rank":"M3","rc":"maeg","days":["w","w","l","w","w","w","l","w","w","l","l","l","l","w","w"],"ht":"5'11\"","wt":351,"age":22},{"name":"Hiradoumi","rank":"M3","rc":"maeg","days":["l","l","l","l","w","l","l","l","l","l","l","w","w","w","l"],"ht":"5'10\"","wt":311,"age":26},{"name":"Daieisho","rank":"M4","rc":"maeg","days":["l","w","w","w","w","w","l","l","w","l","l","w","w","w","w"],"ht":"6'0\"","wt":353,"age":32},{"name":"Ichiyamamoto","rank":"M4","rc":"maeg","days":["w","l","w","w","l","l","w","l","l","w","l","l","l","l","w"],"ht":"6'3\"","wt":353,"age":32},{"name":"Oshoma","rank":"M5","rc":"maeg","days":["w","l","l","l","l","l","w","w","w","l","w","l","l","w","w"],"ht":"6'3\"","wt":366,"age":29},{"name":"Ura","rank":"M5","rc":"maeg","days":["l","l","l","w","l","l","l","w","w","w","l","l","l","w","l"],"ht":"5'9\"","wt":306,"age":34},{"name":"Fujiseiun","rank":"M6","rc":"maeg","days":["w","w","l","l","l","w","w","l","w","l","w","l","l","w","l"],"ht":"6'1\"","wt":331,"age":28},{"name":"Shodai","rank":"M6","rc":"maeg","days":["l","l","w","l","w","w","l","w","l","l","l","l","l","l","w"],"ht":"6'0\"","wt":370,"age":34},{"name":"Kotoeiho","rank":"M7","rc":"maeg","days":["l","w","w","w","w","w","w","w","w","w","l","l","l","w","w"],"ht":"6'0\"","wt":313,"age":23},{"name":"Takayasu","rank":"M7","rc":"maeg","days":["w","w","w","l","w","w","w","l","w","w","w","l","l","w","w"],"ht":"6'2\"","wt":381,"age":36},{"name":"Roga","rank":"M8","rc":"maeg","days":["l","l","w","l","w","l","l","w","l","w","w","w","w","w","w"],"ht":"6'0\"","wt":353,"age":27},{"name":"Wakamotoharu","rank":"M8","rc":"maeg","days":["l","w","l","w","l","l","w","l","l","w","w","w","l","l","l"],"ht":"6'2\"","wt":315,"age":32},{"name":"Fujiryoga","rank":"M9","rc":"maeg","days":["w","l","w","w","l","w","w","l","l","w","w","w","w","w","l"],"ht":"5'11\"","wt":399,"age":23},{"name":"Tobizaru","rank":"M9","rc":"maeg","days":["l","w","l","l","l","w","l","w","l","l","l","w","w","l","l"],"ht":"5'8\"","wt":298,"age":34},{"name":"Asanoyama","rank":"M10","rc":"maeg","days":["w","l","l","w","w","w","w","w","w","w","l","l","w","l","l"],"ht":"6'2\"","wt":386,"age":32},{"name":"Chiyoshoma","rank":"M10","rc":"maeg","days":["l","l","w","l","l","w","l","l","w","l","l","w","l","w","l"],"ht":"6'0\"","wt":309,"age":35},{"name":"Mitakeumi","rank":"M11","rc":"maeg","days":["l","l","l","l","l","l","l","w","l","l","l","l","w","l","l"],"ht":"6'0\"","wt":386,"age":33},{"name":"Wakanosho","rank":"M11","rc":"maeg","days":["w","w","w","w","w","l","l","a","a","a","a","a","a","a","a"],"ht":"5'10\"","wt":320,"age":22},{"name":"Abi","rank":"M12","rc":"maeg","days":["w","w","l","l","w","l","w","w","l","l","l","l","w","l","w"],"ht":"6'2\"","wt":368,"age":32},{"name":"Asahakuryu","rank":"M12","rc":"maeg","days":["w","l","l","w","l","l","l","l","l","w","w","w","l","w","w"],"ht":"6'1\"","wt":335,"age":27},{"name":"Nishikifuji","rank":"M13","rc":"maeg","days":["l","w","w","w","w","w","w","l","l","w","w","l","w","l","w"],"ht":"6'0\"","wt":342,"age":30},{"name":"Takerufuji","rank":"M13","rc":"maeg","days":["w","l","w","w","w","w","w","l","w","w","w","w","l","l","l"],"ht":"6'2\"","wt":326,"age":27},{"name":"Kinbozan","rank":"M14","rc":"maeg","days":["l","w","l","w","w","w","w","l","w","l","l","w","w","l","w"],"ht":"6'5\"","wt":395,"age":29},{"name":"Shishi","rank":"M14","rc":"maeg","days":["w","w","w","w","w","w","l","w","w","l","w","w","l","l","l"],"ht":"6'4\"","wt":390,"age":29},{"name":"Kazuma","rank":"M15","rc":"maeg","days":["l","w","w","l","l","l","l","w","l","l","l","l","l","w","w"],"ht":"6'1\"","wt":452,"age":24},{"name":"Onokatsu","rank":"M15","rc":"maeg","days":["l","l","l","l","l","w","l","l","w","l","l","l","w","w","l"],"ht":"6'1\"","wt":364,"age":26},{"name":"Asakoryu","rank":"M16","rc":"maeg","days":["w","l","w","l","l","l","w","w","l","w","w","w","w","l","w"],"ht":"5'10\"","wt":276,"age":27},{"name":"Daiseizan","rank":"M16","rc":"maeg","days":["w","l","l","l","w","l","w","l","l","w","w","w","l","l","l"],"ht":"6'4\"","wt":362,"age":26}];
+const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l","w","w","l","w","w","l","l","w","l","l","l","a"],"ht":"6'2\"","wt":331,"age":27},{"name":"Onosato","rank":"Yokozuna","rc":"yok","days":["l","l","w","l","w","w","w","w","l","w","l","l","w","w","w"],"ht":"6'4\"","wt":417,"age":26,"color":"#191970"},{"name":"Kirishima","rank":"Ozeki","rc":"ozeki","days":["w","w","w","w","l","w","w","w","l","w","w","w","l","w","w"],"ht":"6'1\"","wt":331,"age":30,"color":"#3a2b3a"},{"name":"Kotozakura","rank":"Ozeki","rc":"ozeki","days":["w","w","l","w","l","l","l","w","l","w","w","w","w","l","l"],"ht":"6'2\"","wt":392,"age":28,"color":"#7fd8cf"},{"name":"Atamifuji","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","l","w","w","l","w","w","w","w","w","w","w"],"ht":"6'2\"","wt":434,"age":23,"color":"#7e3a4f"},{"name":"Kotoshoho","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","l","l","l","l","w","l","l","w","w","l","l"],"ht":"6'3\"","wt":379,"age":26,"color":"#aebfca"},{"name":"Aonishiki","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","w","w","w","w","w","w","w","l","w","w","l"],"ht":"6'0\"","wt":313,"age":22,"color":"#004225"},{"name":"Wakatakakage","rank":"Sekiwake","rc":"seki","days":["a","a","a","a","a","a","a","a","a","a","a","a","a","a","a"],"ht":"6'0\"","wt":304,"age":31},{"name":"Oho","rank":"Komusubi","rc":"komu","days":["l","l","l","w","l","l","l","l","l","l","l","l","l","w","l"],"ht":"6'4\"","wt":408,"age":26,"color":"#47215e"},{"name":"Yoshinofuji","rank":"Komusubi","rc":"komu","days":["w","l","l","w","w","l","l","w","w","l","l","l","w","l","l"],"ht":"6'1\"","wt":346,"age":25,"color":"#2b1a47"},{"name":"Fujinokawa","rank":"M1","rc":"maeg","days":["l","w","w","l","w","l","l","l","w","l","w","w","l","w","w"],"ht":"5'10\"","wt":271,"age":21,"color":"#2f6fc0"},{"name":"Takanosho","rank":"M1","rc":"maeg","days":["l","l","l","l","w","w","w","l","l","w","w","w","l","l","l"],"ht":"6'0\"","wt":381,"age":31,"color":"#b7302a"},{"name":"Churanoumi","rank":"M2","rc":"maeg","days":["l","l","w","l","l","l","l","w","w","l","w","w","w","l","w"],"ht":"5'10\"","wt":333,"age":33,"color":"#6a3d9a"},{"name":"Gonoyama","rank":"M2","rc":"maeg","days":["l","l","l","w","l","w","w","l","w","w","l","l","w","l","w"],"ht":"5'10\"","wt":344,"age":28,"color":"#191970"},{"name":"Hakunofuji","rank":"M3","rc":"maeg","days":["w","w","l","w","w","w","l","w","w","l","l","l","l","w","w"],"ht":"5'11\"","wt":351,"age":22,"color":"#8a7b68"},{"name":"Hiradoumi","rank":"M3","rc":"maeg","days":["l","l","l","l","w","l","l","l","l","l","l","w","w","w","l"],"ht":"5'10\"","wt":311,"age":26,"color":"#2b1a47"},{"name":"Daieisho","rank":"M4","rc":"maeg","days":["l","w","w","w","w","w","l","l","w","l","l","w","w","w","w"],"ht":"6'0\"","wt":353,"age":32,"color":"#932c50"},{"name":"Ichiyamamoto","rank":"M4","rc":"maeg","days":["w","l","w","w","l","l","w","l","l","w","l","l","l","l","w"],"ht":"6'3\"","wt":353,"age":32,"color":"#17a088"},{"name":"Oshoma","rank":"M5","rc":"maeg","days":["w","l","l","l","l","l","w","w","w","l","w","l","l","w","w"],"ht":"6'3\"","wt":366,"age":29,"color":"#c6c6c6"},{"name":"Ura","rank":"M5","rc":"maeg","days":["l","l","l","w","l","l","l","w","w","w","l","l","l","w","l"],"ht":"5'9\"","wt":306,"age":34,"color":"#ffb7c5"},{"name":"Fujiseiun","rank":"M6","rc":"maeg","days":["w","w","l","l","l","w","w","l","w","l","w","l","l","w","l"],"ht":"6'1\"","wt":331,"age":28,"color":"#191970"},{"name":"Shodai","rank":"M6","rc":"maeg","days":["l","l","w","l","w","w","l","w","l","l","l","l","l","l","w"],"ht":"6'0\"","wt":370,"age":34,"color":"#1c1c1c"},{"name":"Kotoeiho","rank":"M7","rc":"maeg","days":["l","w","w","w","w","w","w","w","w","w","l","l","l","w","w"],"ht":"6'0\"","wt":313,"age":23,"color":"#5b73a0"},{"name":"Takayasu","rank":"M7","rc":"maeg","days":["w","w","w","l","w","w","w","l","w","w","w","l","l","w","w"],"ht":"6'2\"","wt":381,"age":36,"color":"#16305c"},{"name":"Roga","rank":"M8","rc":"maeg","days":["l","l","w","l","w","l","l","w","l","w","w","w","w","w","w"],"ht":"6'0\"","wt":353,"age":27,"color":"#302a63"},{"name":"Wakamotoharu","rank":"M8","rc":"maeg","days":["l","w","l","w","l","l","w","l","l","w","w","w","l","l","l"],"ht":"6'2\"","wt":315,"age":32,"color":"#1c1c1c"},{"name":"Fujiryoga","rank":"M9","rc":"maeg","days":["w","l","w","w","l","w","w","l","l","w","w","w","w","w","l"],"ht":"5'11\"","wt":399,"age":23,"color":"#16305c"},{"name":"Tobizaru","rank":"M9","rc":"maeg","days":["l","w","l","l","l","w","l","w","l","l","l","w","w","l","l"],"ht":"5'8\"","wt":298,"age":34,"color":"#adbccb"},{"name":"Asanoyama","rank":"M10","rc":"maeg","days":["w","l","l","w","w","w","w","w","w","w","l","l","w","l","l"],"ht":"6'2\"","wt":386,"age":32,"color":"#5a2a52"},{"name":"Chiyoshoma","rank":"M10","rc":"maeg","days":["l","l","w","l","l","w","l","l","w","l","l","w","l","w","l"],"ht":"6'0\"","wt":309,"age":35,"color":"#a9762f"},{"name":"Mitakeumi","rank":"M11","rc":"maeg","days":["l","l","l","l","l","l","l","w","l","l","l","l","w","l","l"],"ht":"6'0\"","wt":386,"age":33,"color":"#bf3d67"},{"name":"Wakanosho","rank":"M11","rc":"maeg","days":["w","w","w","w","w","l","l","a","a","a","a","a","a","a","a"],"ht":"5'10\"","wt":320,"age":22},{"name":"Abi","rank":"M12","rc":"maeg","days":["w","w","l","l","w","l","w","w","l","l","l","l","w","l","w"],"ht":"6'2\"","wt":368,"age":32,"color":"#191970"},{"name":"Asahakuryu","rank":"M12","rc":"maeg","days":["w","l","l","w","l","l","l","l","l","w","w","w","l","w","w"],"ht":"6'1\"","wt":335,"age":27,"color":"#16305c"},{"name":"Nishikifuji","rank":"M13","rc":"maeg","days":["l","w","w","w","w","w","w","l","l","w","w","l","w","l","w"],"ht":"6'0\"","wt":342,"age":30,"color":"#c096bf"},{"name":"Takerufuji","rank":"M13","rc":"maeg","days":["w","l","w","w","w","w","w","l","w","w","w","w","l","l","l"],"ht":"6'2\"","wt":326,"age":27,"color":"#ab8fd0"},{"name":"Kinbozan","rank":"M14","rc":"maeg","days":["l","w","l","w","w","w","w","l","w","l","l","w","w","l","w"],"ht":"6'5\"","wt":395,"age":29,"color":"#8c8c8c"},{"name":"Shishi","rank":"M14","rc":"maeg","days":["w","w","w","w","w","w","l","w","w","l","w","w","l","l","l"],"ht":"6'4\"","wt":390,"age":29,"color":"#1c1c1c"},{"name":"Kazuma","rank":"M15","rc":"maeg","days":["l","w","w","l","l","l","l","w","l","l","l","l","l","w","w"],"ht":"6'1\"","wt":452,"age":24,"color":"#191970"},{"name":"Onokatsu","rank":"M15","rc":"maeg","days":["l","l","l","l","l","w","l","l","w","l","l","l","w","w","l"],"ht":"6'1\"","wt":364,"age":26,"color":"#9a9a9a"},{"name":"Asakoryu","rank":"M16","rc":"maeg","days":["w","l","w","l","l","l","w","w","l","w","w","w","w","l","w"],"ht":"5'10\"","wt":276,"age":27,"color":"#b7302a"},{"name":"Daiseizan","rank":"M16","rc":"maeg","days":["w","l","l","l","w","l","w","l","l","w","w","w","l","l","l"],"ht":"6'4\"","wt":362,"age":26,"color":"#5d2e8e"}];
   const TOTAL_DAYS=15;
   const rankClass={yok:"r-yok",ozeki:"r-ozeki",seki:"r-seki",komu:"r-komu"};
   function rk(rank,rc){return rc!=='maeg'?rankClass[rc]:((+rank.slice(1))<=8?'r-maeg-hi':'r-maeg-lo');}
-
   const daySel=document.getElementById("daySel");
   for(let d=1;d<=MAX_DAY;d++){const o=document.createElement("option");o.value=d;o.textContent="Day "+d;if(d===MAX_DAY)o.selected=true;daySel.appendChild(o);}
   let thruDay=MAX_DAY;
@@ -170,7 +163,6 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l",
   const _base={rank:(a,b)=>a._ord-b._ord,name:(a,b)=>a.name.localeCompare(b.name),ht:(a,b)=>_htIn(a.ht)-_htIn(b.ht),wt:(a,b)=>(a.wt||0)-(b.wt||0),record:(a,b)=>(a.win-b.win)||(b.loss-a.loss),age:(a,b)=>(a.age||0)-(b.age||0)};
   const _defDir={rank:1,name:1,ht:-1,wt:-1,age:-1,record:-1};
   let sortKey="record",sortDir=-1;
-
   function render(){
     const rows=DATA.map(x=>{
       let win=0,loss=0,bouts=0;
@@ -190,14 +182,16 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l",
         cls=" ky";badge='<span class="badge">kyujo</span>';
         rec='<td class="rec ky"><span class="kyt">out</span>'+badge+'</td>';
       }else{
-        if(r.win>=8){cls=" kk";badge='<span class="badge">\u2713 KK</span>';}
-        else if(r.loss>=8){cls=" mk";badge='<span class="badge">\u2717 MK</span>';}
+        if(r.win>=8){cls=" kk";badge='<span class="badge">✓ KK</span>';}
+        else if(r.loss>=8){cls=" mk";badge='<span class="badge">✗ MK</span>';}
         const wB=r.win>=r.loss?' b':'',lB=r.loss>=r.win?' b':'';
-        rec='<td class="rec'+cls+'"><span class="w'+wB+'">'+r.win+'</span><span class="dash">\u2013</span><span class="l'+lB+'">'+r.loss+'</span>'+badge+'</td>';
+        rec='<td class="rec'+cls+'"><span class="w'+wB+'">'+r.win+'</span><span class="dash">–</span><span class="l'+lB+'">'+r.loss+'</span>'+badge+'</td>';
       }
+      const maw=r.color?'<span class="mawdot" style="background:'+r.color+'" title="mawashi"></span>':'<span class="mawdot none" title="no color logged"></span>';
       tb.insertAdjacentHTML("beforeend",
         '<tr><td><span class="rank '+rk(r.rank,r.rc)+'">'+r.rank+'</span></td>'+
         '<td class="name">'+r.name+'</td>'+
+        '<td class="maw">'+maw+'</td>'+
         '<td class="phys">'+r.ht+'</td>'+
         '<td class="phys">'+r.wt+' lb</td>'+
         '<td class="phys">'+(r.age!=null?r.age:'—')+'</td>'+
