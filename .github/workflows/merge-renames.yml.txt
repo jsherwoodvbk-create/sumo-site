@@ -1,0 +1,24 @@
+# .github/workflows/merge-renames.yml
+# Fold rename-duplicate wrestlers into their current Master Rikishi entry.
+# DRY_RUN defaults to "1" (preview only). Flip to "0" to actually merge + archive.
+name: merge-renames
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run? 1 = preview only, 0 = merge + archive'
+        required: true
+        default: '1'
+jobs:
+  merge-renames:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Merge renames
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: node gen-merge-renames.mjs
