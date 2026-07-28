@@ -1,0 +1,26 @@
+name: Enrich Rikishi
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 = preview only (writes nothing), 0 = write to Notion"
+        default: "1"
+        required: true
+      names:
+        description: "Comma-separated Ring Names (leave blank for retired 20 + Tomokaze)"
+        default: ""
+        required: false
+jobs:
+  enrich:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Run enrichment
+        run: node enrich-rikishi.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          NAMES: ${{ inputs.names }}
