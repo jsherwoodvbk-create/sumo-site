@@ -2,9 +2,10 @@
 // small, face-centered square head-crop, committed to /img/headshots/{slug}.png. Standings rounds it
 // with CSS. Runs in GitHub Actions (needs NOTION_TOKEN). Only dependency: sharp.
 //
-// Framing = the "A3" spec proven on Endo: square side = detected head width × 1.75, top = hair-top −10%
-// of the side, horizontally centered on the face. Width-scaled + face-centered, so it self-corrects for
-// portraits shot a little tighter/looser or at a different resolution — that's the drift grace.
+// Framing = head+shoulders scaled to IMAGE HEIGHT (~0.22 H), centered on the face. JSA formal portraits
+// share one standardized full-body framing, so a height fraction lands the head consistently across
+// resolutions and tight snips. (v1 used per-image jaw/neck detection; it grabbed the whole body on
+// thick-necked rikishi whose neck never narrowed — height-scaling is the robust replacement.)
 //
 // DRY_RUN=1 (default) logs the plan and writes nothing. DRY_RUN=0 writes the PNGs (the workflow commits).
 import fs from 'node:fs';
@@ -52,25 +53,25 @@ const photoUrl = p => {
 };
 const slugify = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
 
-// --- head-box detection (proven on Endo; reproduces the A3 framing) ---
+// --- head-box detection: height-scaled, neck-independent ---
 function detectHeadBox(rgba, W, H) {
-  const WHITE = 690; // sum(r,g,b) below this = subject vs white studio bg
+  const WHITE = 690; // sum(r,g,b) at/above this = white studio bg; below = subject
   const at = (x, y) => { const i = (y * W + x) * 4; return rgba[i] + rgba[i + 1] + rgba[i + 2]; };
   const rowSpan = y => { let lo = -1, hi = -1; for (let x = 0; x < W; x++) { if (at(x, y) < WHITE) { if (lo < 0) lo = x; hi = x; } } return lo < 0 ? null : [lo, hi]; };
-  let HT = -1; for (let y = 0; y < H; y++) { if (rowSpan(y)) { HT = y; break; } }
+  let HT = -1; for (let y = 0; y < H; y++) { if (rowSpan(y)) { HT = y; break; } }   // hair top = first subject row
   if (HT < 0) return null;
-  const band = Math.min(H - HT, Math.round(H * 0.35));
-  let peak = 0, peakY = HT, cxSum = 0, cxN = 0;
-  for (let y = HT; y < HT + band; y++) {
-    const s = rowSpan(y); if (!s) continue;
-    const w = s[1] - s[0];
-    if (y > HT + Math.round(H * 0.03)) { cxSum += (s[0] + s[1]) / 2; cxN++; }
-    if (w > peak) { peak = w; peakY = y; }
-    else if (peak > 0 && w < 0.85 * peak && y > peakY + 2) break; // hit the neck — head profile done
-  }
-  const side = Math.round(peak * 1.75);
-  const cx = Math.round(cxSum / Math.max(cxN, 1));
-  return { left: Math.round(cx - side / 2), top: Math.round(HT - 0.10 * side), side };
+  // Center-x = MEDIAN of row-centers in the head zone only (top ~10% of the image, above the shoulders).
+  // Reliable even when the neck doesn't narrow — that's the case the old jaw/neck detection failed on.
+  const centers = [];
+  const zone = Math.min(H, HT + Math.round(H * 0.10));
+  for (let y = HT; y < zone; y++) { const s = rowSpan(y); if (s) centers.push((s[0] + s[1]) / 2); }
+  centers.sort((a, b) => a - b);
+  const cx = Math.round(centers.length ? centers[Math.floor(centers.length / 2)] : W / 2);
+  // Crop scaled to image height: standardized full-body framing → head+shoulders at a consistent fraction.
+  const side = Math.round(0.22 * H);
+  const top = Math.round(HT - 0.12 * side);
+  const left = Math.round(cx - side / 2);
+  return { left, top, side };
 }
 
 async function cropHead(buf) {
