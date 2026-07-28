@@ -85,7 +85,12 @@ async function main(){
     });
     const hw = HT_WT[r.shikonaEn] || {ht:"", wt:""};
     const mc = MAWASHI[r.shikonaEn];
-    return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt, age:ages[idx], ...(mc?{color:mc}:{}) };
+    // Head-crop avatar: attach only if build-headshots has already committed one for this wrestler.
+    // slug must match build-headshots.mjs (lowercase, strip accents + non-alphanumerics).
+    const slug = String(r.shikonaEn).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+    const shotPath = `img/headshots/${slug}.png`;
+    const shot = fs.existsSync(shotPath) ? shotPath : null;
+    return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt, age:ages[idx], ...(mc?{color:mc}:{}), ...(shot?{shot}:{}) };
   });
   // MAX_DAY = last day that's actually CONTESTED and essentially complete, so the day-picker never
   // offers a day that's only been *scheduled* (absent markers appear before bouts are fought) or is
