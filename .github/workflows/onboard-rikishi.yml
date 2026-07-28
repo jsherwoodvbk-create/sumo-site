@@ -1,0 +1,50 @@
+name: Onboard / Refresh Rikishi
+# One action for the onboarding moment: enrich a wrestler's master data from sumo-api, THEN build their
+# head-crop from the portrait already uploaded to their Notion Photo. Same `names` input drives both.
+#   names = one or more Ring Names  -> onboard/refresh just those
+#   names = ALL                     -> whole roster (data refresh + rebuild every head-crop)
+# Kept separate from the bulk workflows on purpose: this is the "bring a rikishi into the fold" path.
+# Re-uploading a photo for an existing wrestler (bad crop, yokozuna re-shoot) still uses Build Headshots.
+on:
+  workflow_dispatch:
+    inputs:
+      names:
+        description: "Ring Name(s), comma-separated — or ALL for the whole roster"
+        default: ""
+        required: true
+      dry_run:
+        description: "1 = preview only (writes nothing), 0 = write to Notion + commit crops"
+        default: "1"
+        required: true
+permissions:
+  contents: write
+jobs:
+  onboard:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Install sharp
+        run: npm install sharp --no-save
+      - name: Enrich master data
+        run: node enrich-rikishi.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          NAMES: ${{ inputs.names }}
+      - name: Build head-crop
+        run: node build-headshots.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          NAMES: ${{ inputs.names }}
+      - name: Commit crops
+        if: ${{ inputs.dry_run == '0' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add img/headshots
+          git commit -m "Onboard/refresh head-crops: ${{ inputs.names }}" || echo "no crop changes to commit"
+          git push
