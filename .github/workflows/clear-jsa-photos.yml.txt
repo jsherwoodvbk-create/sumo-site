@@ -1,0 +1,21 @@
+name: Clear JSA Photos
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "1 = preview only (writes nothing), 0 = actually clear"
+        default: "1"
+        required: true
+jobs:
+  clear:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Clear JSA hot-linked photos
+        run: node clear-jsa-photos.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
