@@ -2,10 +2,13 @@
 // small, face-centered square head-crop, committed to /img/headshots/{slug}.png. Standings rounds it
 // with CSS. Runs in GitHub Actions (needs NOTION_TOKEN). Only dependency: sharp.
 //
-// Framing = head+shoulders scaled to IMAGE HEIGHT (~0.22 H), centered on the face. JSA formal portraits
-// share one standardized full-body framing, so a height fraction lands the head consistently across
-// resolutions and tight snips. (v1 used per-image jaw/neck detection; it grabbed the whole body on
-// thick-necked rikishi whose neck never narrowed — height-scaling is the robust replacement.)
+// Framing: crop size scaled to IMAGE HEIGHT (~0.22 H), centered horizontally on the HAIR. Centering on
+// the hair (reliably dark) survives portraits shot against a colored wall or dark floor — unlike v1/v2.
+//   v1: per-image jaw/neck detection → grabbed the whole body on thick-necked rikishi (no neck to find).
+//   v2: height-scaled + centered on "non-white pixels" → correct size, but a room background (tan wall /
+//       dark floor) read as subject and dragged the center sideways, pushing the head out of frame.
+//   v3 (this): height-scaled size + hair-centered → robust to any background. Small headroom keeps the
+//       topknot near the top of the round crop (less white cap on the circle).
 //
 // DRY_RUN=1 (default) logs the plan and writes nothing. DRY_RUN=0 writes the PNGs (the workflow commits).
 import fs from 'node:fs';
@@ -53,23 +56,24 @@ const photoUrl = p => {
 };
 const slugify = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]/g, '');
 
-// --- head-box detection: height-scaled, neck-independent ---
+// --- head-box detection: hair-centered, height-scaled (background-robust) ---
 function detectHeadBox(rgba, W, H) {
-  const WHITE = 690; // sum(r,g,b) at/above this = white studio bg; below = subject
-  const at = (x, y) => { const i = (y * W + x) * 4; return rgba[i] + rgba[i + 1] + rgba[i + 2]; };
-  const rowSpan = y => { let lo = -1, hi = -1; for (let x = 0; x < W; x++) { if (at(x, y) < WHITE) { if (lo < 0) lo = x; hi = x; } } return lo < 0 ? null : [lo, hi]; };
-  let HT = -1; for (let y = 0; y < H; y++) { if (rowSpan(y)) { HT = y; break; } }   // hair top = first subject row
-  if (HT < 0) return null;
-  // Center-x = MEDIAN of row-centers in the head zone only (top ~10% of the image, above the shoulders).
-  // Reliable even when the neck doesn't narrow — that's the case the old jaw/neck detection failed on.
-  const centers = [];
-  const zone = Math.min(H, HT + Math.round(H * 0.10));
-  for (let y = HT; y < zone; y++) { const s = rowSpan(y); if (s) centers.push((s[0] + s[1]) / 2); }
-  centers.sort((a, b) => a - b);
-  const cx = Math.round(centers.length ? centers[Math.floor(centers.length / 2)] : W / 2);
-  // Crop scaled to image height: standardized full-body framing → head+shoulders at a consistent fraction.
+  const HAIR = 300; // sum(r,g,b) below this = very dark = hair/topknot; robust to any background color
+  const dark = (x, y) => { const i = (y * W + x) * 4; return (rgba[i] + rgba[i + 1] + rgba[i + 2]) < HAIR; };
+  const rowHair = y => { const xs = []; for (let x = 0; x < W; x++) if (dark(x, y)) xs.push(x); return xs; };
+  let HT = -1; for (let y = 0; y < H; y++) { if (rowHair(y).length >= 3) { HT = y; break; } } // top of the topknot
   const side = Math.round(0.22 * H);
-  const top = Math.round(HT - 0.12 * side);
+  let cx;
+  if (HT < 0) { HT = 0; cx = Math.round(W / 2); } // no hair found (bald? odd source) → center fallback
+  else {
+    // cx = horizontal MEDIAN of hair pixels in the crown+topknot zone = the head's true center,
+    // regardless of what the background is doing on the sides.
+    const band = Math.min(H, HT + Math.round(H * 0.14));
+    const xs = []; for (let y = HT; y < band; y++) for (const x of rowHair(y)) xs.push(x);
+    xs.sort((a, b) => a - b);
+    cx = Math.round(xs[Math.floor(xs.length / 2)]);
+  }
+  const top = Math.round(HT - 0.06 * side); // small headroom above the topknot
   const left = Math.round(cx - side / 2);
   return { left, top, side };
 }
