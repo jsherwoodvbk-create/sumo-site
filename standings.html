@@ -60,6 +60,13 @@
   .r-yok{background:var(--purple)} .r-ozeki{background:var(--vermilion)} .r-seki{background:var(--clay)}
   .r-komu{background:var(--win)} .r-maeg-hi{background:var(--maeg-hi)} .r-maeg-lo{background:var(--maeg-lo)}
   .name{font-weight:600}
+  /* rikishi head-crop avatar (round via CSS; square PNGs live in /img/headshots) */
+  .namecell{display:flex;align-items:center;gap:9px}
+  .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:0 0 auto;
+    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 0 0 1px rgba(255,255,255,.4)}
+  .avatar.ph{display:flex;align-items:center;justify-content:center;background:var(--clay-soft);
+    color:var(--clay);font-weight:800;font-size:13px;font-family:'Zen Old Mincho',Georgia,serif}
+  @media (prefers-color-scheme:dark){.avatar.ph{color:var(--clay)}}
   /* mawashi color dot — sits after the name, before height */
   .maw{width:30px;text-align:center;padding-left:2px;padding-right:2px}
   .mawdot{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;
@@ -190,7 +197,7 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l",
       const maw=r.color?'<span class="mawdot" style="background:'+r.color+'" title="mawashi"></span>':'<span class="mawdot none" title="no color logged"></span>';
       tb.insertAdjacentHTML("beforeend",
         '<tr><td><span class="rank '+rk(r.rank,r.rc)+'">'+r.rank+'</span></td>'+
-        '<td class="name">'+r.name+'</td>'+
+        '<td class="name"><div class="namecell">'+(r.shot?('<img class="avatar" src="'+r.shot+'" loading="lazy" alt="'+r.name+'">'):('<span class="avatar ph">'+r.name.charAt(0)+'</span>'))+'<span>'+r.name+'</span></div></td>'+
         '<td class="maw">'+maw+'</td>'+
         '<td class="phys">'+r.ht+'</td>'+
         '<td class="phys">'+r.wt+' lb</td>'+
