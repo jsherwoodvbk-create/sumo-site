@@ -10,8 +10,9 @@
 //   3. Creates missing master data first (new Juryo visitors -> Master Rikishi + a "J" Banzuke
 //      entry) so bout relations never dangle -- and ENRICHES them from sumo-api's rikishi
 //      endpoint (height, weight, birthday, country, kanji shikona, real name, IDs).
-//   4. Writes each bout to Match Log with resolved relations + Day #, Date, and machine-derived
-//      Gold Star (kinboshi).
+//   4. Writes each bout to Match Log with resolved relations + Day #, Date, machine-derived
+//      Gold Star (kinboshi), AND a "Day" relation to the 📅 Days table (auto-creating that
+//      basho's Day row if it doesn't exist yet — so day-level rollups wire themselves).
 //
 // SINGLE SOURCE: everything machine-owned comes from sumo-api. The only genuinely JSA-only
 //   items are the official PHOTO (and sometimes the birth-name kanji); those are never fetched
@@ -19,14 +20,25 @@
 //
 // NEVER TOUCHES (human-owned): Henka, Monoii, Rematch, Notes-on-bouts. The sync only CREATES
 //   bouts; it never edits an existing one. (It does set the auto Notes on a *newly created*
-//   wrestler -- that record didn't exist before, so nothing human is overwritten.)
+//   wrestler -- that record didn't exist before, so nothing human is overwritten.) The one-time
+//   BACKFILL mode below only fills the machine-owned "Day" relation where it's EMPTY — it never
+//   writes any human field either.
+//
+// DAY LINK (📅 Days table): every bout carries a "Day" relation to its Day row. New bouts get it
+//   automatically. Existing bouts (created before this field existed) are wired by the one-time
+//   BACKFILL_DAY_LINKS mode. Day rows auto-create on demand, so at tournament rollover you do NOT
+//   have to pre-make them — the first sync of the new basho makes them.
 //
 // SAFETY: DRY_RUN defaults to "1" -> logs what it WOULD do, writes nothing.
 // PROBE:  set input/env PROBE_NAME=<shikonaEn> to fetch that wrestler from sumo-api and print
 //   the enrichment mapping WITHOUT writing -- use it to sanity-check the field mapping against a
 //   known wrestler (e.g. PROBE_NAME=Aonishiki should show 182 cm, 2004-03-23, Ukraine).
+// BACKFILL: set BACKFILL_DAY_LINKS=1 for a ONE-TIME pass that links this basho's EXISTING Match
+//   Log bouts to their Day rows (creates any missing Day rows), writes NO new bouts, and returns.
+//   Run it once per basho whose bouts predate the Day relation (e.g. Nagoya 2026). Honors DRY_RUN.
 //
-// ENV: NOTION_TOKEN (write key) · BASHO (default 202607) · DRY_RUN (default "1") · PROBE_NAME (opt)
+// ENV: NOTION_TOKEN (write key) · BASHO (default 202607) · DRY_RUN (default "1") ·
+//      PROBE_NAME (opt) · BACKFILL_DAY_LINKS (opt, "1" = one-time Day-link backfill)
 
 import process from 'node:process';
 
@@ -39,6 +51,7 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN;
 //   TOURNAMENT_PAGE_ID: the Notion Tournament page for THIS basho. MUST exist before the first
 //                       sync — the scoped dedup read and every bout write both point at it.
 //   BASHO_LABEL       : exact text used in Banzuke "Entry" titles, e.g. "Aonishiki — Nagoya 2026".
+//                       Also used as the Day-row title prefix, e.g. "Nagoya 2026 · Day 6".
 // Full step-by-step: see the "Tournament Rollover" checklist in the project.
 const BASHO = process.env.BASHO || '202607';
 const TOURNAMENT_PAGE_ID = '3351ade1-241f-80fb-b4ef-d2bef497b295';
@@ -48,6 +61,7 @@ const BASHO_LABEL = 'Nagoya 2026';
 const DIVISION = 'Makuuchi';
 const DRY = !(process.env.DRY_RUN === '0' || String(process.env.DRY_RUN).toLowerCase() === 'false');
 const PROBE_NAME = (process.env.PROBE_NAME || '').trim();
+const BACKFILL_DAYS = process.env.BACKFILL_DAY_LINKS === '1' || String(process.env.BACKFILL_DAY_LINKS).toLowerCase() === 'true';
 const NOTION_VERSION = '2022-06-28';
 const TOTAL_DAYS = 15;
 const API = 'https://www.sumo-api.com/api';
@@ -57,6 +71,7 @@ const DB = {
   masterRikishi: 'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
   kimarite:      '2591d1eb-2146-4745-ab0a-72ba57bfd213',
+  days:          'eb0597c9-7259-49cd-babb-889f3b28f33d',
 };
 
 const IS_WIN = new Set(['win', 'fusen win']);
@@ -158,7 +173,7 @@ async function probe(name) {
 // ---------- main ----------
 async function main() {
   if (PROBE_NAME) { await probe(PROBE_NAME); return; }
-  console.log(`sync-notion: BASHO=${BASHO} DRY_RUN=${DRY ? 'ON (no writes)' : 'OFF (writing!)'}`);
+  console.log(`sync-notion: BASHO=${BASHO} DRY_RUN=${DRY ? 'ON (no writes)' : 'OFF (writing!)'}${BACKFILL_DAYS ? ' MODE=BACKFILL_DAY_LINKS' : ''}`);
 
   // Dedup read is SCOPED to the current tournament (relation filter), not the whole Match Log.
   // Two reasons: (1) the read stays flat (~one basho of rows) no matter how many years accumulate,
@@ -167,8 +182,10 @@ async function main() {
   // NB: TOURNAMENT_PAGE_ID must point at the current basho's Tournament page (same constant the
   // writes already use), so it has to be updated each basho alongside BASHO.
   const thisBashoFilter = { property: 'Tournament', relation: { contains: TOURNAMENT_PAGE_ID } };
-  const [bz, existing, mrPages, bzPages, kmPages, start] = await Promise.all([
-    getBanzuke(), queryAll(DB.matchLog, thisBashoFilter), queryAll(DB.masterRikishi), queryAll(DB.banzuke), queryAll(DB.kimarite), getBashoStart(),
+  // Days table is scoped by its Basho relation (same tournament page). Kept flat per basho.
+  const daysBashoFilter = { property: 'Basho', relation: { contains: TOURNAMENT_PAGE_ID } };
+  const [bz, existing, mrPages, bzPages, kmPages, daysPages, start] = await Promise.all([
+    getBanzuke(), queryAll(DB.matchLog, thisBashoFilter), queryAll(DB.masterRikishi), queryAll(DB.banzuke), queryAll(DB.kimarite), queryAll(DB.days, daysBashoFilter), getBashoStart(),
   ]);
   console.log(`start date = ${iso(start)} (Day 1)`);
 
@@ -178,6 +195,52 @@ async function main() {
   const BZ = new Map(bzThis.map(p => [titleOf(p, 'Entry').split(' — ')[0].trim(), p.id]));
   const KM = new Map(kmPages.map(p => [textOf(p, 'Kimarite').toLowerCase(), p.id]));
   const kimId = k => { const key = (k || '').trim().toLowerCase(); if (!key) return null; if (key === 'fusen') return KM.get('fusensho') || null; return KM.get(key) || null; };
+
+  // Day #  ->  Day page id, scoped to this basho. Auto-grows via ensureDayRow.
+  const DAYS = new Map(daysPages.map(p => [p.properties?.['Day #']?.number, p.id]).filter(([n]) => n != null));
+  console.log(`this-basho Day rows present: ${[...DAYS.keys()].sort((a, b) => a - b).join(',') || '(none)'}`);
+
+  // Return the Day page id for a day number, creating the Day row if it's missing. This is what
+  // makes rollover hands-off: the first sync of a new basho materializes its Day rows on demand.
+  // A newly created row carries only Day / Day # / Basho — the crew fills announcer/notes later.
+  async function ensureDayRow(dayNum) {
+    let id = DAYS.get(dayNum);
+    if (id) return id;
+    const title = `${BASHO_LABEL} · Day ${dayNum}`;
+    const props = {
+      'Day': { title: [{ text: { content: title } }] },
+      'Day #': { number: dayNum },
+      'Basho': { relation: [{ id: TOURNAMENT_PAGE_ID }] },
+    };
+    if (DRY) { console.log(`  [dry] would CREATE Day row "${title}"`); id = `dry-day-${dayNum}`; }
+    else { const p = await notion('/pages', 'POST', { parent: { database_id: DB.days }, properties: props }); id = p.id; }
+    DAYS.set(dayNum, id);
+    return id;
+  }
+
+  const flags = [];
+
+  // ── ONE-TIME BACKFILL: link this basho's existing bouts to their Day rows, then stop. ──
+  // Only fills the "Day" relation where it is EMPTY; never writes any other field, never creates
+  // a bout. Safe to re-run (already-linked rows are skipped). Use for bouts that predate the field.
+  if (BACKFILL_DAYS) {
+    console.log(`BACKFILL_DAY_LINKS: scanning ${existing.length} existing ${BASHO_LABEL} bouts…`);
+    let linked = 0, already = 0, unresolved = 0;
+    for (const p of existing) {
+      const dnum = p.properties?.['Day #']?.number;
+      if (dnum == null) { unresolved++; flags.push(`Bout "${titleOf(p, 'Match')}" has no Day # — cannot link.`); continue; }
+      if ((p.properties?.['Day']?.relation || []).length > 0) { already++; continue; }
+      const dayId = await ensureDayRow(dnum);
+      if (!dayId) { unresolved++; flags.push(`Day ${dnum}: could not resolve/create Day row — "${titleOf(p, 'Match')}" left unlinked.`); continue; }
+      if (DRY) console.log(`  [dry] would LINK "${titleOf(p, 'Match')}" -> Day ${dnum}`);
+      else await notion(`/pages/${p.id}`, 'PATCH', { properties: { 'Day': { relation: [{ id: dayId }] } } });
+      linked++;
+    }
+    console.log(`\nBACKFILL DONE. ${DRY ? 'Would link' : 'Linked'} ${linked} bout(s); ${already} already linked; ${unresolved} unresolved.`);
+    if (flags.length) { console.log('\n⚠️  FLAGS FOR JENNIE:'); for (const f of [...new Set(flags)]) console.log('  - ' + f); }
+    else console.log('No flags.');
+    return;
+  }
 
   const daysPresent = new Set(existing.map(p => p.properties?.['Day #']?.number).filter(n => n != null));
   console.log(`this-basho Match Log rows: ${existing.length} | days already in: ${[...daysPresent].sort((a, b) => a - b).join(',') || '(none)'}`);
@@ -197,7 +260,6 @@ async function main() {
     return list;
   }
 
-  const flags = [];
   const rankOf = name => { const w = roster.find(r => r.shikonaEn === name); return w ? w.rank : 'Juryo'; };
 
   // create + enrich a wrestler if missing; return {mrId, bzId}
@@ -277,6 +339,7 @@ async function main() {
     if (daysPresent.has(day)) continue;
     if (!isFinal(day)) { console.log(`Day ${day}: ${boutCount[day]} bouts vs full slate ~${fullSlate} — looks incomplete, skipping until final.`); continue; }
     const bouts = boutsForDay(day); const dt = dayDate(start, day);
+    const dayRowId = await ensureDayRow(day);   // one Day row per day; auto-created if missing
     console.log(`Day ${day} (${iso(dt)}): ${bouts.length} bouts to write`);
     for (const b of bouts) {
       const W = await ensureWrestler(b.winner.name, b.winner.id);
@@ -290,9 +353,10 @@ async function main() {
         'Winner Banzuke': { relation: [{ id: W.bzId }] }, 'Loser Banzuke': { relation: [{ id: L.bzId }] },
         'Tournament': { relation: [{ id: TOURNAMENT_PAGE_ID }] },
       };
+      if (dayRowId && !String(dayRowId).startsWith('dry-')) props['Day'] = { relation: [{ id: dayRowId }] };
       if (tId) props['Technique'] = { relation: [{ id: tId }] };
       if (isMaegashira(rankOf(b.winner.name)) && isYokozuna(rankOf(b.loser.name))) props['Gold Star'] = { checkbox: true };
-      if (DRY) console.log(`  [dry] would CREATE bout: ${b.winner.name} vs ${b.loser.name} · Day ${day}`);
+      if (DRY) console.log(`  [dry] would CREATE bout: ${b.winner.name} vs ${b.loser.name} · Day ${day} (-> Day row ${day})`);
       else await notion('/pages', 'POST', { parent: { database_id: DB.matchLog }, properties: props });
       created++;
     }
