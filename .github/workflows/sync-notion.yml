@@ -12,6 +12,11 @@ on:
         description: "Enrichment probe: a wrestler's English name (e.g. Aonishiki). Logs their sumo-api profile mapping and writes nothing. Leave blank for a normal run."
         type: string
         default: ""
+      backfill_day_links:
+        description: "One-time: link this basho's EXISTING bouts to their Day rows (creates missing Day rows). Writes no new bouts. Honors Dry run above — run true first, then false. Leave 'false' for a normal sync."
+        type: choice
+        default: "false"
+        options: ["false", "true"]
   schedule:
     # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
     # Day results post ~09:00–10:00 UTC (evening JST); these span ~04:00 AM–03:00 PM PT.
@@ -42,6 +47,8 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
           BASHO: "202607"    # PER-BASHO: change each tournament (also in build-standings.mjs + sync-notion.mjs config block). See project "Tournament Rollover" checklist.
           PROBE_NAME: ${{ github.event.inputs.probe }}
+          # One-time Day-link backfill (manual only). "1" activates the backfill branch in the script.
+          BACKFILL_DAY_LINKS: ${{ github.event.inputs.backfill_day_links == 'true' && '1' || '0' }}
           # Manual runs use the dropdown. Scheduled runs use repo variable NOTION_SYNC_DRY_RUN
           # (set to "0" to go live); unset -> scheduled runs stay in safe dry-run mode.
           DRY_RUN: ${{ github.event.inputs.dry_run == 'false' && '0' || (github.event_name == 'schedule' && (vars.NOTION_SYNC_DRY_RUN || '1') || '1') }}
