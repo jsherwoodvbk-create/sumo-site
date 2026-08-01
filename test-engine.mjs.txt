@@ -1,7 +1,7 @@
 // test-engine.mjs — spoiler-gate + soft-data unit tests for gumbai-engine v4.
 // Run: node test-engine.mjs   (exits non-zero on any failure)
 import assert from 'node:assert';
-import { gateSnapshot, runTool, buildSystemPrompt } from './gumbai-engine.js';
+import { gateSnapshot, runTool, buildSystemPrompt } from './functions/api/_engine.js';
 
 let pass = 0, fail = 0;
 const ok = (name) => { pass++; console.log('  ✓ ' + name); };
@@ -281,6 +281,29 @@ t('no champion posted → never revealed even at 15', () => {
   assert.strictEqual(y.currentBashoInView, false);
   const c = runTool('query_career', {name:'Aonishiki'}, g);
   assert(!c.yusho.includes('Test Basho'));
+});
+// The exact bug Jennie hit: a non-champion's completed basho still read "in progress" at day 15.
+t('career: non-champion at 15 reads FINAL, not in-progress, no title', () => {
+  const g = gateSnapshot(SNAP_DONE, 15, false);
+  const c = runTool('query_career', {name:'Onosato'}, g);   // Onosato did NOT win
+  assert.strictEqual(c.bashoComplete, true);
+  const cur = c.perBasho.find(p=>p.basho==='Test Basho');
+  assert(cur && cur.final===true && !cur.inProgress && !cur.yusho);
+});
+t('career: at 14 a non-champion is still in-progress', () => {
+  const g = gateSnapshot(SNAP_DONE, 14, false);
+  const c = runTool('query_career', {name:'Onosato'}, g);
+  assert.strictEqual(c.bashoComplete, false);
+  const cur = c.perBasho.find(p=>p.basho==='Test Basho');
+  assert(cur && cur.inProgress===true && !cur.final);
+});
+// "Basho over" must NOT depend on the yusho fetch: even with no champion posted, day 15 = final.
+t('career: basho reads complete at 15 even when champion fetch is null', () => {
+  const g = gateSnapshot(SNAP_LIVE, 15, false);
+  const c = runTool('query_career', {name:'Onosato'}, g);
+  assert.strictEqual(c.bashoComplete, true);
+  const cur = c.perBasho.find(p=>p.basho==='Test Basho');
+  assert(cur && cur.final===true && !cur.inProgress && !cur.yusho);
 });
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
