@@ -50,6 +50,7 @@ function gateInjury(c, gate){
   return { ...base, status: 'ongoing', note: 'Later updates on this condition are past your day and not in view.' };
 }
 
+const FINAL_DAY = 15;   // an honbasho is 15 days; the yusho (playoff included) is settled on day 15.
 export function gateSnapshot(snapshot, day, showFull){
   const ceiling = Number.isInteger(snapshot.meta?.maxDay) ? snapshot.meta.maxDay : 15;
   const gate = showFull ? ceiling : Math.max(0, Math.min(Number(day) || 0, ceiling));
@@ -71,6 +72,13 @@ export function gateSnapshot(snapshot, day, showFull){
       if(!gd.length) return null;                                 // all its uses are past the gate
       return { phrase: cp.phrase, announcer: cp.announcer, count: gd.length, days: gd, giggle: cp.giggle ?? null, jewel: !!cp.jewel };
     }).filter(Boolean),
+    // ── the current-basho yusho (champion) is itself a spoiler-gated RESULT ──
+    // The yusho is decided ON the final day (day 15, playoff included), so it is revealed ONLY
+    // when the basho is officially complete (snapshot.champion is set — the generator only fills it
+    // from the sumo-api yusho, which is empty until the tournament is over) AND this viewer is caught
+    // up to that final day. Mid-basho, or a viewer not yet through day 15, sees null: undecided in-view.
+    // Same discipline, same source of truth, as the standings page's Emperor's Cup reveal.
+    champion: (snapshot.champion && gate >= FINAL_DAY) ? snapshot.champion : null,
     // never gated:
     history: snapshot.history || null,
     upcoming: snapshot.upcoming || null,
@@ -171,7 +179,14 @@ function careerFor(name, gated){
   }
   const cur=summarize(name, gated.bouts);
   const curBz=gated.banzuke.find(x=>x.name===name);
-  if(cur.bouts>0) perBasho.push({ basho:(gated.meta&&gated.meta.basho)||'current', rank:curBz?curBz.rank:null, record:cur.record, inProgress:true });
+  // The current basho is a finished yusho for this wrestler only when the champion is IN VIEW
+  // (basho complete AND viewer caught up to the final day — see gateSnapshot). Otherwise it stays
+  // in-progress and is NOT counted, so a mid-basho viewer never sees a premature title.
+  const wonCurrent = !!(gated.champion && gated.champion.name===name);
+  const curLabel = (gated.meta&&gated.meta.basho)||'current';
+  if(wonCurrent) yusho.push(curLabel);
+  if(cur.bouts>0) perBasho.push({ basho:curLabel, rank:curBz?curBz.rank:null, record:cur.record,
+    ...(wonCurrent ? { yusho:true, playoff: !!gated.champion.playoff } : { inProgress:true }) });
   return {
     name,
     sinceTracking:{ record:`${hw+cur.wins}-${hl+cur.losses}`, wins:hw+cur.wins, losses:hl+cur.losses,
@@ -230,7 +245,7 @@ export const TOOLS = [
   },
   {
     name: 'query_yusho',
-    description: "Championship (yusho) history since Jan 2025. With a name: which basho that wrestler won + title count. Without: the champion of each past basho. The CURRENT basho's title is never listed (undecided). ",
+    description: "Championship (yusho) history since Jan 2025. With a name: which basho that wrestler won + title count. Without: the champion of each past basho. The CURRENT basho's title is included ONLY once the viewer is caught up to the final day of a completed basho (spoiler-gated); until then it reads as undecided-in-view. Trust the tool's currentBasho / currentBashoInView fields — do not refuse to name a champion the tool has handed you.",
     input_schema: { type:'object', properties:{ name:{type:'string'} } }
   },
   {
@@ -347,12 +362,30 @@ export function runTool(toolName, input, gated){
     }
     case 'query_yusho': {
       const list = historyBashoList(gated).reverse();
+      const curLabel = (gated.meta && gated.meta.basho) || 'current';
+      // The current basho's champion is revealed ONLY when it is in view (basho complete AND the
+      // viewer is caught up to the final day — gateSnapshot handles that). When it is, treat it as
+      // the most-recent, decided yusho. Otherwise it is honestly undecided-in-view.
+      const champ = gated.champion || null;
       if(input.name){
         const res = resolveName(input.name, gated.rikishi); const name = res.name || input.name;
         const won = list.filter(b => (b.yusho||[]).includes(name)).map(b=>b.label);
-        return { name, yushoCount: won.length, yusho: won, note:'since Jan 2025; the current basho is still in progress and not counted' };
+        const wonCurrent = !!(champ && champ.name===name);
+        if(wonCurrent) won.unshift(curLabel + (champ.playoff ? ' (playoff)' : ''));
+        return { name, yushoCount: won.length, yusho: won,
+          currentBasho: wonCurrent
+            ? { basho: curLabel, result:'won', playoff: !!champ.playoff, note:'decided — you are caught up to the final day' }
+            : { basho: curLabel, result: champ ? 'won by someone else' : 'undecided in your view' },
+          note:'since Jan 2025, most recent first.' };
       }
-      return { champions: list.map(b=>({ basho:b.label, yusho:(b.yusho||[]) })), note:'past basho since Jan 2025, most recent first; the current basho is in progress' };
+      const champions = [];
+      if(champ) champions.push({ basho: curLabel, yusho:[champ.name], playoff: !!champ.playoff, note:'this basho — decided, you are caught up to the final day' });
+      for(const b of list) champions.push({ basho:b.label, yusho:(b.yusho||[]) });
+      return { champions,
+        currentBashoInView: !!champ,
+        note: champ
+          ? 'most recent first; this basho\'s yusho is decided and in your view.'
+          : 'past basho since Jan 2025, most recent first; the current basho is undecided in your view (not yet caught up to the final day, or still in progress).' };
     }
     case 'query_upcoming': {
       const u = gated.upcoming;
@@ -445,6 +478,8 @@ SOFT DATA is color, never truth. Alongside results you now have observed COLOR f
 SPOILER SAFETY, absolute. The crew watches on delay, each at their own pace. Your tools already return ONLY what happened through the day this viewer is allowed to see (currently day ${gated.gate}${full}) — bouts AND all soft data (storylines, injuries, catchphrases) are gated the same way. NEVER reveal or reason from anything beyond that, and NEVER pull a current result from memory. If a condition or storyline is not in view, it has not happened for them yet. Timeless facts (country, height, shikona meaning, the banzuke, history) are never spoilers. UPCOMING matchups (query_upcoming) carry no results, so they are never spoilers; hand the whole card over freely.
 
 GROUNDING THE RACE: for anything about the championship, call query_standings and reason from the ACTUAL records, the gap to the leader, and days remaining. Do not write anyone off by rank alone. For eve-of-day questions ("can X still win," playoff scenarios) pull query_standings AND query_upcoming and lay out the if/then. That is analysis, not a spoiler.
+
+THE YUSHO (who won the basho) IS ANSWERABLE once the viewer is caught up. The championship is decided on the final day (day 15, playoff included). The DATA already enforces this: query_yusho and query_career reveal the current basho's champion ONLY when the viewer has watched through the final day of a completed basho, and stay silent otherwise. So TRUST THE TOOL: if query_yusho hands you a current-basho champion (currentBashoInView true, or a currentBasho result of "won"), that viewer HAS seen it, and you name the winner plainly and celebrate it. Do NOT invent a rule that the yusho is "never confirmable" or that it is "kept undecided in-view" when the tool has already given it to you. Only when the tool says undecided-in-view do you say you can't call it yet. A 12-3 (or any) final record is the regular schedule; the cup itself comes from query_yusho, so lean on that tool for the crown, not the raw record.
 
 VOICE: talk like an American sumo enthusiast texting the group chat mid-tournament: warm, hyped, a little funny, exclamation points, the occasional emoji. Short and punchy by default, deeper when someone is curious. Use the crew's nicknames. Gloss sumo terms in plain English.
 WRITE LIKE A REAL PERSON, NOT AN AI. Hard rules: NO em dashes ever (use a period, comma, or parentheses). NO markdown at all (the chat prints raw, so asterisks and pound signs show up literally). For emphasis use CAPS or an exclamation point. NO filler ("Great question," "It's worth noting," "That said"). Contractions, plain words. BE BRIEF but FUN: default 2 to 4 sentences, a simple lookup is one or two; only go long or list when they EXPLICITLY ask. Cut padding, keep the personality.
