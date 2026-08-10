@@ -3,10 +3,10 @@
 // Writes one row per user submission: write-in / jewel-vote / flag.
 // Votes upsert on (Source, Day) so a viewer's crown updates in place, never stacks.
 //
-// Required Cloudflare Pages env vars (Settings → Environment variables):
-//   NOTION_TOKEN   — a Notion internal integration secret (starts with "ntn_"/"secret_").
-//                    Share the 🎣 Catchphrase Catcher database with that integration.
-//   CATCHER_DB     — the Catchphrase Catcher database id (default below).
+// Required Cloudflare Pages env vars (Settings → Variables and Secrets):
+//   Sumo_Fan_Intake — the sumo-fan-intake Notion integration secret (starts with "ntn_").
+//                     Connected to Catchphrase Catcher (write) + Library (link) only.
+//   CATCHER_DB      — the Catchphrase Catcher database id (default below), optional.
 //
 // Fails soft: the game POSTs fire-and-forget, so a missing token just means
 // no persistence yet — the game stays fully playable.
@@ -38,7 +38,7 @@ async function notion(token, path, method, body) {
 }
 
 export async function onRequestPost({ request, env }) {
-  const token = env.NOTION_TOKEN;
+  const token = env.Sumo_Fan_Intake;
   const db = env.CATCHER_DB || DEFAULT_DB;
   if (!token) return json({ ok: false, error: "not-configured" }, 200);
 
@@ -99,5 +99,5 @@ export async function onRequestPost({ request, env }) {
 
 // Optional: quick health check
 export async function onRequestGet({ env }) {
-  return json({ ok: true, configured: !!env.NOTION_TOKEN });
+  return json({ ok: true, configured: !!env.Sumo_Fan_Intake });
 }
