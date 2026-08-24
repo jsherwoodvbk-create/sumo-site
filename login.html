@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crew Login — Salt Stats &amp; Sumo</title>
+<style>
+  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--band); color:var(--ink); min-height:100vh;
+         display:flex; align-items:center; justify-content:center; padding:24px; }
+  .card { background:#fff; border:1px solid var(--line); border-radius:12px; max-width:380px;
+          width:100%; box-shadow:0 6px 24px rgba(61,39,19,.12); overflow:hidden; }
+  .card header { background:var(--head); color:#fff; padding:20px 24px; }
+  .card header h1 { margin:0; font-size:18px; }
+  .card header p { margin:4px 0 0; font-size:12px; opacity:.85; }
+  .body { padding:24px; }
+  label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
+  input[type=email] { width:100%; padding:10px 12px; font-size:15px; border:1px solid var(--line);
+                      border-radius:8px; }
+  button { margin-top:16px; width:100%; padding:11px; font-size:15px; font-weight:600; color:#fff;
+           background:var(--accent); border:0; border-radius:8px; cursor:pointer; }
+  button:hover { background:#731f18; }
+  .error { background:#fdecea; color:#8A2A20; border:1px solid #f3c0bb; padding:10px 12px;
+           border-radius:8px; font-size:13px; margin-bottom:16px; }
+  .note { margin-top:16px; font-size:12px; color:#8C7550; line-height:1.4; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <header>
+      <h1>🧂 Salt Stats &amp; Sumo</h1>
+      <p>Crew login</p>
+    </header>
+    <div class="body">
+      <div id="err" class="error" style="display:none">
+        That email isn't on the crew list. Check the spelling, or ask Jennie to add you.
+      </div>
+      <form method="POST" action="/api/auth/dev-login">
+        <label for="email">Your crew email</label>
+        <input id="email" name="email" type="email" required autocomplete="email"
+               placeholder="you@example.com" autofocus>
+        <button type="submit">Enter</button>
+      </form>
+      <p class="note">
+        Dev login (skeleton). For now this just checks your email against the crew list —
+        no password, no email sent yet. Real magic-link sign-in comes next.
+      </p>
+    </div>
+  </div>
+  <script>
+    if (new URLSearchParams(location.search).has('error')) {
+      document.getElementById('err').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
