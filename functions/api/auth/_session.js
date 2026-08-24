@@ -1,13 +1,15 @@
-// functions/api/auth/_session.js — the "wristband": sign & verify a session token.
+// functions/api/auth/_session.js — the "wristband": sign & verify tokens.
 // Helper module (leading _, no onRequest export) → never a URL.
 //
-// A session is a small SIGNED token: base64url(JSON payload) + "." + base64url(HMAC-SHA256).
-// The payload holds { email, name, exp } (exp = unix seconds). The signature is made with
-// AUTH_SECRET (a Cloudflare env secret) so nobody can forge or tamper with a token.
+// Two token kinds, both HMAC-signed with AUTH_SECRET, told apart by a `purpose` field so one
+// can never be used as the other:
+//   • SESSION  {email, name, purpose:'session', exp}  — the 14-day login cookie.
+//   • MAGIC    {email,       purpose:'magic',   exp}  — the 15-min one-time login link token.
 // Stateless: nothing is stored server-side, so no database is needed yet.
 
 const COOKIE_NAME = 'ss_session';
-const DEFAULT_TTL_SECONDS = 60 * 60 * 24 * 14; // 14 days
+const SESSION_TTL = 60 * 60 * 24 * 14; // 14 days
+const MAGIC_TTL = 60 * 15;             // 15 minutes
 
 const enc = new TextEncoder();
 
@@ -33,16 +35,14 @@ async function hmacKey(env) {
   );
 }
 
-// Make a signed token from a payload object.
-export async function signSession(env, payload) {
+// ---- generic sign / verify ----
+export async function signToken(env, payload) {
   const body = b64urlEncode(enc.encode(JSON.stringify(payload)));
   const key = await hmacKey(env);
   const sig = new Uint8Array(await crypto.subtle.sign('HMAC', key, enc.encode(body)));
   return body + '.' + b64urlEncode(sig);
 }
-
-// Verify a token; return the payload if valid & unexpired, else null.
-export async function verifySession(env, token) {
+export async function verifyToken(env, token) {
   if (!token || token.indexOf('.') < 0) return null;
   const [body, sig] = token.split('.');
   try {
@@ -57,22 +57,31 @@ export async function verifySession(env, token) {
   }
 }
 
-// Build a session for a crew member → returns a Set-Cookie header value.
-export async function makeSessionCookie(env, { email, name }, ttl = DEFAULT_TTL_SECONDS) {
+// ---- SESSION cookie (login) ----
+export async function makeSessionCookie(env, { email, name }, ttl = SESSION_TTL) {
   const exp = Math.floor(Date.now() / 1000) + ttl;
-  const token = await signSession(env, { email, name, exp });
+  const token = await signToken(env, { email, name, purpose: 'session', exp });
   return cookie(COOKIE_NAME, token, ttl);
 }
-
-// Read + verify the session from a request's Cookie header. Returns payload|null.
 export async function getSession(request, env) {
   const token = readCookie(request, COOKIE_NAME);
-  return token ? verifySession(env, token) : null;
+  if (!token) return null;
+  const p = await verifyToken(env, token);
+  return p && p.purpose === 'session' ? p : null;
 }
-
-// A Set-Cookie value that clears the session (logout).
 export function clearSessionCookie() {
   return cookie(COOKIE_NAME, '', 0);
+}
+
+// ---- MAGIC token (one-time login link) ----
+export async function signMagicToken(env, email, ttl = MAGIC_TTL) {
+  const exp = Math.floor(Date.now() / 1000) + ttl;
+  return signToken(env, { email, purpose: 'magic', exp });
+}
+// Returns the email if the token is a valid, unexpired magic token, else null.
+export async function verifyMagicToken(env, token) {
+  const p = await verifyToken(env, token);
+  return p && p.purpose === 'magic' ? p.email : null;
 }
 
 // ---- cookie plumbing ----
