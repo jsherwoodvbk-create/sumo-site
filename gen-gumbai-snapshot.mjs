@@ -144,6 +144,7 @@ async function main() {
       birthday: dateOf(p, 'Birthday'),
       highestRank: selOf(p, 'Highest Rank'),
       heightCm: numOf(p, 'Height (cm)'),
+      mawashi: textOf(p, 'Mawashi Color') || null,   // ← ADD: current mawashi color (words), same field standings' hex map comes from
       injuryNotes: textOf(p, 'Notes') || null,
       shikonaMeaning: textOf(p, 'Translation') || null,
     });
