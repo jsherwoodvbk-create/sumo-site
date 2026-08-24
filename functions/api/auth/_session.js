@@ -8,7 +8,7 @@
 // Stateless: nothing is stored server-side, so no database is needed yet.
 
 const COOKIE_NAME = 'ss_session';
-const SESSION_TTL = 60 * 60 * 24 * 14; // 14 days
+const SESSION_TTL = 60 * 60 * 24 * 60; // 60 days
 const MAGIC_TTL = 60 * 15;             // 15 minutes
 
 const enc = new TextEncoder();
