@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Crew App — Salt Stats &amp; Sumo</title>
+<style>
+  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--band); color:var(--ink); min-height:100vh; }
+  header.top { background:var(--head); color:#fff; padding:14px 20px; display:flex;
+               align-items:center; justify-content:space-between; }
+  header.top h1 { margin:0; font-size:16px; }
+  header.top a { color:#fff; font-size:13px; opacity:.9; text-decoration:none;
+                 border:1px solid rgba(255,255,255,.4); padding:5px 10px; border-radius:6px; }
+  header.top a:hover { background:rgba(255,255,255,.12); }
+  main { max-width:720px; margin:0 auto; padding:32px 20px; }
+  .hello { font-size:22px; margin:0 0 8px; }
+  .sub { color:#8C7550; margin:0 0 24px; }
+  .panel { background:#fff; border:1px solid var(--line); border-radius:12px; padding:24px;
+           box-shadow:0 6px 24px rgba(61,39,19,.08); }
+  .panel h2 { margin:0 0 8px; font-size:15px; color:var(--accent); }
+  .panel p { margin:0; font-size:14px; line-height:1.5; }
+  a.home { color:var(--accent); font-size:13px; }
+</style>
+</head>
+<body>
+  <header class="top">
+    <h1>🧂 Salt Stats &amp; Sumo — Crew App</h1>
+    <a href="/api/auth/logout">Log out</a>
+  </header>
+  <main>
+    <h1 class="hello">Welcome, <span id="who">crew member</span>! 🎉</h1>
+    <p class="sub">You're inside the members-only side of the site. The doorman let you in.</p>
+    <div class="panel">
+      <h2>This is the app skeleton</h2>
+      <p>Nothing furnished yet — this room exists to prove the front door works.
+         Only logged-in crew can see this page; everyone else gets bounced to the login screen.
+         Next we'll furnish real rooms here (your predictions, your files).</p>
+    </div>
+    <p style="margin-top:24px"><a class="home" href="/">← Back to the public site</a></p>
+  </main>
+  <script>
+    fetch('/api/auth/me', { headers: { 'Accept': 'application/json' } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (d && d.name) document.getElementById('who').textContent = d.name; })
+      .catch(() => {});
+  </script>
+</body>
+</html>
