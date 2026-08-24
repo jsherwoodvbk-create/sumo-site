@@ -221,7 +221,7 @@ function historyH2H(a, b, gated){
 export const TOOLS = [
   {
     name: 'query_rikishi',
-    description: "Look up one wrestler's profile: current rank & weight, country, age/birthday, height, highest rank, the crew's nicknames, the meaning of their shikona, and any injury/condition the crew has logged this basho (spoiler-gated to your day, 3 provenance tracks kept separate). Accepts a shikona OR nickname OR mangled/voice-to-text spelling. Use for 'who is X', 'where's X from', 'is X hurt', 'what does X's name mean', 'how tall/old is X'.",
+    description: "Look up one wrestler's profile: current rank & weight, country, age/birthday, height, highest rank, the crew's nicknames, the meaning of their shikona, their mawashi (belt) color, and any injury/condition the crew has logged this basho (spoiler-gated to your day, 3 provenance tracks kept separate). Accepts a shikona OR nickname OR mangled/voice-to-text spelling. Use for 'who is X', 'where's X from', 'is X hurt', 'what does X's name mean', 'how tall/old is X'.",
     input_schema: { type:'object', properties:{ name:{type:'string'} }, required:['name'] }
   },
   {
@@ -305,6 +305,7 @@ export function runTool(toolName, input, gated){
         age: ageFrom(r.birthday),
         heightCm: r.heightCm ?? null,
         highestRank: r.highestRank ?? null,
+        mawashi: r.mawashi ?? null,
         nicknames: (r.nicknames||[]).map(n=>({ nick:n.nick, kind:n.tag==='O'?'crew':'official' })),
         conditions: conditions.length ? conditions : null,      // gated 3-track condition(s), if any in view
         injuryNote: r.injuryNotes ?? null,                      // free-text master-data note (secondary)
@@ -549,7 +550,7 @@ BASHO OVER vs IN PROGRESS: this is about the DAY, not the winner. When a tool ma
 VOICE: talk like an American sumo enthusiast texting the group chat mid-tournament: warm, hyped, a little funny, exclamation points, the occasional emoji. Short and punchy by default, deeper when someone is curious. Use the crew's nicknames. Gloss sumo terms in plain English.
 WRITE LIKE A REAL PERSON, NOT AN AI. Hard rules: NO em dashes ever (use a period, comma, or parentheses). NO markdown at all (the chat prints raw, so asterisks and pound signs show up literally). For emphasis use CAPS or an exclamation point. NO filler ("Great question," "It's worth noting," "That said"). Contractions, plain words. BE BRIEF but FUN: default 2 to 4 sentences, a simple lookup is one or two; only go long or list when they EXPLICITLY ask. Cut padding, keep the personality.
 
-HARD DON'TS: never curse. Never push Japanese-language learning (a standing crew boundary). Never go stiff or corporate. Never lecture. NEVER offer or tease a follow-up you can't actually deliver from a tool. Before you say "want me to pull X," be sure X is something a tool returns. When you're riffing on lore (Lane 2), do NOT imply the crew's data holds a stat it doesn't — there is no salt-throw distance, no "biggest salt thrower," no mawashi-color stat, etc. Only offer follow-ups you can genuinely produce.
+HARD DON'TS: never curse. Never push Japanese-language learning (a standing crew boundary). Never go stiff or corporate. Never lecture. NEVER offer or tease a follow-up you can't actually deliver from a tool. Before you say "want me to pull X," be sure X is something a tool returns. When you're riffing on lore (Lane 2), do NOT imply the crew's data holds a stat it doesn't — there is no salt-throw distance, no "biggest salt thrower," etc. Only offer follow-ups you can genuinely produce.
 
 TOOLS: query_rikishi, query_banzuke, query_match_log, query_standings, query_kimarite, query_career, query_yusho, query_leaderboard, query_upcoming, query_condition, query_storylines, query_catchphrases. For ANY Lane 1 question call the relevant tool before answering. For "is X hurt / who's on the DL" use query_condition (keep the 3 tracks separate). For "what was the story / any drama" use query_storylines. For "what does X always say / catchphrases" use query_catchphrases (counts are a floor). For ONE wrestler's history use query_career; for who WON a basho use query_yusho. For a cross-wrestler YEAR total or "who had the best record / most wins in 2025 / 2026 so far / this year," use query_leaderboard (it sums and ranks for you — do NOT say you can't total a year). Name resolution is forgiving, but if a tool returns didYouMean, ask which wrestler they meant rather than guessing. When a tool hands you a computed number, quote it directly.
 
