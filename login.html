@@ -22,8 +22,9 @@
   button { margin-top:16px; width:100%; padding:11px; font-size:15px; font-weight:600; color:#fff;
            background:var(--accent); border:0; border-radius:8px; cursor:pointer; }
   button:hover { background:#731f18; }
-  .error { background:#fdecea; color:#8A2A20; border:1px solid #f3c0bb; padding:10px 12px;
-           border-radius:8px; font-size:13px; margin-bottom:16px; }
+  .msg { padding:11px 13px; border-radius:8px; font-size:13px; margin-bottom:16px; line-height:1.4; }
+  .msg.ok { background:#e9f5ec; color:#2f6b3d; border:1px solid #b9dec4; }
+  .msg.err { background:#fdecea; color:#8A2A20; border:1px solid #f3c0bb; }
   .note { margin-top:16px; font-size:12px; color:#8C7550; line-height:1.4; }
 </style>
 </head>
@@ -34,25 +35,29 @@
       <p>Crew login</p>
     </header>
     <div class="body">
-      <div id="err" class="error" style="display:none">
-        That email isn't on the crew list. Check the spelling, or ask Jennie to add you.
-      </div>
-      <form method="POST" action="/api/auth/dev-login">
+      <div id="msg" class="msg" style="display:none"></div>
+      <form method="POST" action="/api/auth/request-link">
         <label for="email">Your crew email</label>
         <input id="email" name="email" type="email" required autocomplete="email"
                placeholder="you@example.com" autofocus>
-        <button type="submit">Enter</button>
+        <button type="submit">Email me a login link</button>
       </form>
       <p class="note">
-        Dev login (skeleton). For now this just checks your email against the crew list —
-        no password, no email sent yet. Real magic-link sign-in comes next.
+        No password. We email you a one-time link — tap it and you're in. The link works for
+        15 minutes.
       </p>
     </div>
   </div>
   <script>
-    if (new URLSearchParams(location.search).has('error')) {
-      document.getElementById('err').style.display = 'block';
-    }
+    (function () {
+      var p = new URLSearchParams(location.search);
+      var box = document.getElementById('msg');
+      function show(cls, html) { box.className = 'msg ' + cls; box.innerHTML = html; box.style.display = 'block'; }
+      if (p.has('sent')) show('ok', "📬 Check your inbox — we just emailed you a login link. (Peek in spam if it's shy.)");
+      else if (p.get('error') === 'notcrew') show('err', "That email isn't on the crew list. Check the spelling, or ask Jennie to add you.");
+      else if (p.get('error') === 'expired') show('err', "That link expired or was already used. Enter your email for a fresh one.");
+      else if (p.get('error') === 'send') show('err', "Something hiccuped sending the email. Try again in a moment.");
+    })();
   </script>
 </body>
 </html>
