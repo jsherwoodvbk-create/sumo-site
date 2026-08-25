@@ -1,45 +1,172 @@
-// functions/api/app/prediction.js — a member's banzuke picks, stored in Cloudflare KV.
-// Members only (self-gated: the /app middleware does NOT cover /api/*, so this checks the
-// session itself). One JSON doc per (member, basho), keyed pred:{basho}:{email}.
-// Bindings/env: KV namespace `PREDICTIONS`; current basho in env `PREDICT_BASHO`.
-import { getSession } from '../auth/_session.js';
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banzuke Predictions — Salt Stats &amp; Sumo</title>
+<style>
+  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184;
+          --kk:#2f6b3d; --mk:#8A2A20; --up:#2f6b3d; --down:#a23; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--band); color:var(--ink); }
+  header.top { background:var(--head); color:#fff; padding:14px 20px; display:flex;
+               align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5; }
+  header.top h1 { margin:0; font-size:16px; }
+  header.top a { color:#fff; font-size:13px; opacity:.9; text-decoration:none;
+                 border:1px solid rgba(255,255,255,.4); padding:5px 10px; border-radius:6px; margin-left:8px; }
+  main { max-width:820px; margin:0 auto; padding:18px 16px 60px; }
+  .intro { color:#6b5636; font-size:13.5px; line-height:1.5; margin:0 0 10px; }
+  .savebar { position:sticky; top:52px; z-index:4; background:var(--band); padding:9px 0;
+             display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line); }
+  button.save { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 18px;
+                font-size:14px; font-weight:600; cursor:pointer; }
+  button.save:hover { background:#731f18; } button.save:disabled { opacity:.6; cursor:default; }
+  .status { font-size:13px; color:#8C7550; } .status.dirty { color:var(--accent); font-weight:600; }
+  .scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13.5px; min-width:560px; }
+  th, td { text-align:left; padding:6px 9px; border-bottom:1px solid #e3d3af; white-space:nowrap; }
+  thead th { position:sticky; top:96px; background:#efe1c2; font-size:11px; color:#7a6236;
+             text-transform:uppercase; letter-spacing:.03em; z-index:2; border-bottom:1px solid var(--line); }
+  tbody tr:nth-child(even){ background:rgba(255,255,255,.35); }
+  td.rank, td.rec { color:#7a6236; }
+  td.kk { color:var(--kk); font-weight:600; } td.mk { color:var(--mk); font-weight:600; }
+  td.delta { font-weight:600; text-align:center; width:52px; }
+  td.delta.up { color:var(--up); } td.delta.down { color:var(--down); } td.delta.zero { color:#9a875f; }
+  select, input.name { font-size:13.5px; padding:5px 7px; border:1px solid var(--line); border-radius:6px;
+                       background:#fff; font-family:inherit; }
+  select { width:120px; }
+  h2 { font-size:15px; color:var(--accent); margin:26px 0 3px; }
+  .sub { font-size:12.5px; color:#8C7550; margin:0 0 8px; }
+  input.name { width:190px; } .bonus td.n { width:28px; color:#8C7550; }
+  .loading { color:#8C7550; padding:24px 0; }
+</style>
+</head>
+<body>
+  <header class="top">
+    <h1>🏆 Banzuke Predictions</h1>
+    <div><a href="/app/">← App</a><a href="/api/auth/logout">Log out</a></div>
+  </header>
+  <main>
+    <p class="intro" id="intro">Loading…</p>
+    <div class="savebar">
+      <button class="save" id="saveBtn">Save picks</button>
+      <span class="status" id="status">—</span>
+    </div>
+    <div id="body"><p class="loading">Loading the roster…</p></div>
+  </main>
 
-export async function onRequestGet(context) {
-  const { request, env } = context;
-  const s = await getSession(request, env);
-  if (!s) return json({ error: 'not-authed' }, 401);
-  const key = `pred:${env.PREDICT_BASHO}:${s.email}`;
-  const saved = await env.PREDICTIONS.get(key);
-  const doc = saved ? JSON.parse(saved) : null;
-  return json({
-    basho: env.PREDICT_BASHO,
-    name: s.name,
-    picks: doc?.picks ?? null,
-    savedAt: doc?.savedAt ?? null,
-  });
-}
+<script>
+(function () {
+  var RANKS=[['y','Yokozuna'],['o','Ozeki'],['s','Sekiwake'],['k','Komusubi']];
+  for (var i=1;i<=18;i++) RANKS.push(['m'+i,'M'+i]);
+  RANKS.push(['j','Juryo'],['r','Retired']);
 
-export async function onRequestPost(context) {
-  const { request, env } = context;
-  const s = await getSession(request, env);
-  if (!s) return json({ error: 'not-authed' }, 401);
-  let body;
-  try { body = await request.json(); } catch { return json({ error: 'bad-json' }, 400); }
-  const key = `pred:${env.PREDICT_BASHO}:${s.email}`;
-  const doc = {
-    email: s.email,
-    name: s.name,
-    basho: env.PREDICT_BASHO,
-    picks: body.picks ?? {},
-    savedAt: Date.now(),
-  };
-  await env.PREDICTIONS.put(key, JSON.stringify(doc));
-  return json({ ok: true, savedAt: doc.savedAt });
-}
+  function rankValue(x){
+    if(x===null||x===undefined||x==='') return null;
+    var r=String(x).toLowerCase().trim();
+    if(r.indexOf('yoko')===0||r==='y') return 1;
+    if(r.indexOf('oze')===0||r==='o') return 2;
+    if(r.indexOf('seki')===0||r==='s') return 3;
+    if(r.indexOf('komu')===0||r==='k') return 4;
+    var m=r.match(/(?:maegashira|m)\s*(\d+)/); if(m) return 4+parseInt(m[1],10);
+    if(r.indexOf('juryo')===0||r==='j') return 23;
+    if(r.indexOf('retire')===0||r==='r') return 24;
+    return null;
+  }
 
-function json(obj, status = 200) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
+  var state={ basho:'', roster:[], ranks:{}, bonus:[], dirty:false, savedAt:null };
+
+  function markDirty(){ state.dirty=true; setStatus(); }
+  function setStatus(){
+    var el=document.getElementById('status');
+    if(state.dirty){ el.textContent='Unsaved changes'; el.className='status dirty'; }
+    else { el.textContent=state.savedAt?('Saved ✓ '+new Date(state.savedAt).toLocaleString()):'No picks saved yet'; el.className='status'; }
+  }
+  function ensureBonus(i){ if(!state.bonus[i]) state.bonus[i]={name:'',rank:''}; return state.bonus[i]; }
+
+  function rankSelect(value,onchange){
+    var s=document.createElement('select');
+    var blank=document.createElement('option'); blank.value=''; blank.textContent='—'; s.appendChild(blank);
+    RANKS.forEach(function(r){ var o=document.createElement('option'); o.value=r[0]; o.textContent=r[1]; if(r[0]===value)o.selected=true; s.appendChild(o); });
+    s.addEventListener('change',onchange); return s;
+  }
+  function setDelta(td,currentRank,pickCode){
+    var cv=rankValue(currentRank), pv=rankValue(pickCode);
+    if(cv===null||pv===null){ td.textContent='—'; td.className='delta zero'; return; }
+    var d=cv-pv;
+    if(d>0){ td.textContent='+'+d; td.className='delta up'; }
+    else if(d<0){ td.textContent=String(d); td.className='delta down'; }
+    else { td.textContent='0'; td.className='delta zero'; }
+  }
+
+  function render(){
+    document.getElementById('intro').textContent=
+      'Predict where each wrestler lands on the '+state.basho+' banzuke — their record & KK/MK from last basho are your guide. '+
+      'Rank Δ shows how far your pick moves them (+ up / − down). Below: up to 7 juryo→makuuchi promotions (−1 each correct). Retiring? Pick “Retired”.';
+    var body=document.getElementById('body'); body.innerHTML='';
+
+    var scroll=document.createElement('div'); scroll.className='scroll';
+    var t=document.createElement('table');
+    t.innerHTML='<thead><tr><th>Wrestler</th><th>Rank</th><th>W–L</th><th>KK/MK</th><th>Your pick</th><th>Δ</th></tr></thead>';
+    var tb=document.createElement('tbody');
+    state.roster.forEach(function(w){
+      var tr=document.createElement('tr');
+      var name=document.createElement('td'); name.textContent=w.name;
+      var rank=document.createElement('td'); rank.className='rank'; rank.textContent=w.rank||'';
+      var rec=document.createElement('td'); rec.className='rec'; rec.textContent=w.record||'';
+      var kk=document.createElement('td'); kk.textContent=w.kkmk||''; kk.className=w.kkmk==='KK'?'kk':(w.kkmk==='MK'?'mk':'');
+      var pick=document.createElement('td');
+      var delta=document.createElement('td');
+      var sel=rankSelect(state.ranks[w.name]||'', function(e){ state.ranks[w.name]=e.target.value; setDelta(delta,w.rank,e.target.value); markDirty(); });
+      pick.appendChild(sel);
+      setDelta(delta,w.rank,state.ranks[w.name]||'');
+      tr.appendChild(name); tr.appendChild(rank); tr.appendChild(rec); tr.appendChild(kk); tr.appendChild(pick); tr.appendChild(delta);
+      tb.appendChild(tr);
+    });
+    t.appendChild(tb); scroll.appendChild(t); body.appendChild(scroll);
+
+    var h=document.createElement('h2'); h.textContent='Juryo → Makuuchi promotions'; body.appendChild(h);
+    var sub=document.createElement('p'); sub.className='sub'; sub.textContent='Up to 7 — name + the rank you think they debut at. −1 off your score per exact hit.'; body.appendChild(sub);
+    var bt=document.createElement('table'); bt.className='bonus'; bt.style.minWidth='0'; var btb=document.createElement('tbody');
+    for(var i=0;i<7;i++){ (function(idx){
+      var bn=state.bonus[idx]||{name:'',rank:''};
+      var tr=document.createElement('tr');
+      var n=document.createElement('td'); n.className='n'; n.textContent=(idx+1);
+      var nm=document.createElement('td'); var inp=document.createElement('input');
+      inp.className='name'; inp.type='text'; inp.placeholder='Wrestler name'; inp.value=bn.name;
+      inp.addEventListener('input',function(e){ ensureBonus(idx).name=e.target.value; markDirty(); }); nm.appendChild(inp);
+      var rk=document.createElement('td'); rk.appendChild(rankSelect(bn.rank,function(e){ ensureBonus(idx).rank=e.target.value; markDirty(); }));
+      tr.appendChild(n); tr.appendChild(nm); tr.appendChild(rk); btb.appendChild(tr);
+    })(i); }
+    bt.appendChild(btb); body.appendChild(bt);
+    setStatus();
+  }
+
+  function save(){
+    var btn=document.getElementById('saveBtn'); btn.disabled=true; btn.textContent='Saving…';
+    var bonus=state.bonus.filter(function(b){ return b && (b.name||'').trim(); });
+    fetch('/api/app/prediction',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({picks:{ranks:state.ranks, bonus:bonus}})})
+      .then(function(r){return r.json();})
+      .then(function(d){ if(d.ok){ state.dirty=false; state.savedAt=d.savedAt; } setStatus(); })
+      .catch(function(){ var el=document.getElementById('status'); el.textContent='Save failed — try again.'; el.className='status dirty'; })
+      .finally(function(){ btn.disabled=false; btn.textContent='Save picks'; });
+  }
+  document.getElementById('saveBtn').addEventListener('click',save);
+
+  Promise.all([
+    fetch('/api/app/roster').then(function(r){return r.ok?r.json():{};}),
+    fetch('/api/app/prediction').then(function(r){return r.ok?r.json():null;})
+  ]).then(function(res){
+    var rd=res[0]||{}, saved=res[1]||{};
+    state.basho=(saved&&saved.basho)||rd.basho||'the next';
+    state.roster=rd.roster||[];
+    var p=(saved&&saved.picks)||{};
+    state.ranks=p.ranks||{}; state.bonus=p.bonus||[]; state.savedAt=saved&&saved.savedAt;
+    render();
+  }).catch(function(){ document.getElementById('body').innerHTML='<p class="loading">Couldn’t load the roster. Refresh to try again.</p>'; });
+})();
+</script>
+</body>
+</html>
