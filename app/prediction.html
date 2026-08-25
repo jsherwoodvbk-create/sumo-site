@@ -177,14 +177,16 @@
   // ---- export / import (work in your own system) ----
   function csvCell(s){ s=String(s==null?'':s); return /[",\n]/.test(s)?('"'+s.replace(/"/g,'""')+'"'):s; }
   function exportCSV(){
-    var rows=[['Wrestler','Rank','W-L','KK/MK','Pick']];
+    var rows=[['Wrestler','Rank','Sort','W-L','KK/MK','Pick','Δ']];
     state.roster.forEach(function(w){
       var code=state.ranks[w.name]||'', label='';
       RANKS.forEach(function(r){ if(r[0]===code) label=r[1]; });
-      rows.push([w.name, w.rank, w.record, w.kkmk, label]);
+      var cv=rankValue(w.rank), pv=rankValue(code), delta='';
+      if(cv!==null && pv!==null){ var d=cv-pv; delta=(d>0?'+':'')+d; }
+      rows.push([w.name, w.rank, rankValue(w.rank), w.record, w.kkmk, label, delta]);
     });
     var csv=rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n');
-    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
     var url=URL.createObjectURL(blob);
     var a=document.createElement('a'); a.href=url; a.download='banzuke-picks-'+state.basho+'.csv';
     document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
@@ -200,6 +202,7 @@
     });
   }
   function importCSV(text){
+    text=String(text).replace(/^\uFEFF/,'');
     var rows=parseCSV(text); if(!rows.length) return;
     var head=rows[0].map(function(h){return h.toLowerCase();});
     var wi=head.indexOf('wrestler'), pi=head.indexOf('pick');
