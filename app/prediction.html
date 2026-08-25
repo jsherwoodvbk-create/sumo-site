@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banzuke Predictions — Salt Stats &amp; Sumo</title>
+<style>
+  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--band); color:var(--ink); }
+  header.top { background:var(--head); color:#fff; padding:14px 20px; display:flex;
+               align-items:center; justify-content:space-between; position:sticky; top:0; z-index:5; }
+  header.top h1 { margin:0; font-size:16px; }
+  header.top a { color:#fff; font-size:13px; opacity:.9; text-decoration:none;
+                 border:1px solid rgba(255,255,255,.4); padding:5px 10px; border-radius:6px; margin-left:8px; }
+  main { max-width:760px; margin:0 auto; padding:20px; }
+  .intro { color:#6b5636; font-size:14px; line-height:1.5; margin:0 0 12px; }
+  .savebar { position:sticky; top:52px; z-index:4; background:var(--band); padding:10px 0;
+             display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line); }
+  button.save { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 18px;
+                font-size:14px; font-weight:600; cursor:pointer; }
+  button.save:hover { background:#731f18; }
+  button.save:disabled { opacity:.6; cursor:default; }
+  .status { font-size:13px; color:#8C7550; }
+  .status.dirty { color:var(--accent); font-weight:600; }
+  table { width:100%; border-collapse:collapse; margin:12px 0; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid #e5d6b8; font-size:14px; }
+  th { font-size:12px; color:#8C7550; text-transform:uppercase; letter-spacing:.03em; }
+  td.now { color:#8C7550; width:120px; }
+  select, input.name { font-size:14px; padding:6px 8px; border:1px solid var(--line); border-radius:6px;
+                       background:#fff; font-family:inherit; }
+  select { width:130px; }
+  input.name { width:100%; }
+  h2 { font-size:15px; color:var(--accent); margin:28px 0 4px; }
+  .sub { font-size:13px; color:#8C7550; margin:0 0 8px; }
+  .bonus td.n { width:32px; color:#8C7550; }
+  .loading { color:#8C7550; padding:24px 0; }
+</style>
+</head>
+<body>
+  <header class="top">
+    <h1>🏆 Banzuke Predictions</h1>
+    <div><a href="/app/">← App</a><a href="/api/auth/logout">Log out</a></div>
+  </header>
+  <main>
+    <p class="intro" id="intro">Loading…</p>
+    <div class="savebar">
+      <button class="save" id="saveBtn">Save picks</button>
+      <span class="status" id="status">—</span>
+    </div>
+    <div id="body"><p class="loading">Loading the roster…</p></div>
+  </main>
+
+<script>
+(function () {
+  var RANKS = [['y','Yokozuna'],['o','Ozeki'],['s','Sekiwake'],['k','Komusubi']];
+  for (var i=1;i<=18;i++) RANKS.push(['m'+i,'M'+i]);
+  RANKS.push(['j','Juryo'],['r','Retired']);
+
+  var state = { basho:'', roster:[], ranks:{}, bonus:[], dirty:false, savedAt:null };
+
+  function rankSelect(value, onchange) {
+    var s=document.createElement('select');
+    var blank=document.createElement('option'); blank.value=''; blank.textContent='—'; s.appendChild(blank);
+    RANKS.forEach(function(r){ var o=document.createElement('option'); o.value=r[0]; o.textContent=r[1]; if(r[0]===value)o.selected=true; s.appendChild(o); });
+    s.addEventListener('change', onchange);
+    return s;
+  }
+  function markDirty(){ state.dirty=true; setStatus(); }
+  function setStatus(){
+    var el=document.getElementById('status');
+    if(state.dirty){ el.textContent='Unsaved changes'; el.className='status dirty'; }
+    else { el.textContent=state.savedAt?('Saved ✓ '+new Date(state.savedAt).toLocaleString()):'No picks saved yet'; el.className='status'; }
+  }
+  function ensureBonus(i){ if(!state.bonus[i]) state.bonus[i]={name:'',rank:''}; return state.bonus[i]; }
+
+  function render() {
+    document.getElementById('intro').textContent =
+      'Predict where each wrestler lands on the '+state.basho+' banzuke — pick a rank for everyone. '+
+      'Below, name up to 7 juryo wrestlers you think get promoted (−1 off your score per exact name+rank hit). '+
+      'Think someone retires? Pick “Retired”.';
+    var body=document.getElementById('body'); body.innerHTML='';
+
+    var t=document.createElement('table');
+    t.innerHTML='<thead><tr><th>Wrestler</th><th class="now">Now</th><th>Your pick</th></tr></thead>';
+    var tb=document.createElement('tbody');
+    state.roster.forEach(function(w){
+      var tr=document.createElement('tr');
+      var a=document.createElement('td'); a.textContent=w.name;
+      var b=document.createElement('td'); b.className='now'; b.textContent=w.rank||'';
+      var c=document.createElement('td');
+      c.appendChild(rankSelect(state.ranks[w.name]||'', function(e){ state.ranks[w.name]=e.target.value; markDirty(); }));
+      tr.appendChild(a); tr.appendChild(b); tr.appendChild(c); tb.appendChild(tr);
+    });
+    t.appendChild(tb); body.appendChild(t);
+
+    var h=document.createElement('h2'); h.textContent='Juryo → Makuuchi promotions'; body.appendChild(h);
+    var sub=document.createElement('p'); sub.className='sub'; sub.textContent='Up to 7 — name + the rank you think they debut at. −1 off your score per exact hit.'; body.appendChild(sub);
+    var bt=document.createElement('table'); bt.className='bonus'; var btb=document.createElement('tbody');
+    for(var i=0;i<7;i++){ (function(idx){
+      var bn=state.bonus[idx]||{name:'',rank:''};
+      var tr=document.createElement('tr');
+      var n=document.createElement('td'); n.className='n'; n.textContent=(idx+1);
+      var nm=document.createElement('td'); var inp=document.createElement('input');
+      inp.className='name'; inp.type='text'; inp.placeholder='Wrestler name'; inp.value=bn.name;
+      inp.addEventListener('input', function(e){ ensureBonus(idx).name=e.target.value; markDirty(); });
+      nm.appendChild(inp);
+      var rk=document.createElement('td'); rk.appendChild(rankSelect(bn.rank, function(e){ ensureBonus(idx).rank=e.target.value; markDirty(); }));
+      tr.appendChild(n); tr.appendChild(nm); tr.appendChild(rk); btb.appendChild(tr);
+    })(i); }
+    bt.appendChild(btb); body.appendChild(bt);
+    setStatus();
+  }
+
+  function save(){
+    var btn=document.getElementById('saveBtn'); btn.disabled=true; btn.textContent='Saving…';
+    var bonus=state.bonus.filter(function(b){ return b && (b.name||'').trim(); });
+    fetch('/api/app/prediction',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({picks:{ranks:state.ranks, bonus:bonus}})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){ if(d.ok){ state.dirty=false; state.savedAt=d.savedAt; } setStatus(); })
+      .catch(function(){ var el=document.getElementById('status'); el.textContent='Save failed — try again.'; el.className='status dirty'; })
+      .finally(function(){ btn.disabled=false; btn.textContent='Save picks'; });
+  }
+  document.getElementById('saveBtn').addEventListener('click', save);
+
+  Promise.all([
+    fetch('/api/app/roster').then(function(r){return r.json();}),
+    fetch('/api/app/prediction').then(function(r){return r.ok?r.json():null;})
+  ]).then(function(res){
+    var rd=res[0]||{}, saved=res[1]||{};
+    state.basho=(saved&&saved.basho)||rd.basho||'the next';
+    state.roster=rd.roster||[];
+    var p=(saved&&saved.picks)||{};
+    state.ranks=p.ranks||{}; state.bonus=p.bonus||[]; state.savedAt=saved&&saved.savedAt;
+    render();
+  }).catch(function(){
+    document.getElementById('body').innerHTML='<p class="loading">Couldn’t load the roster. Refresh to try again.</p>';
+  });
+})();
+</script>
+</body>
+</html>
