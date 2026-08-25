@@ -18,16 +18,19 @@
   main { max-width:820px; margin:0 auto; padding:18px 16px 60px; }
   .intro { color:#6b5636; font-size:13.5px; line-height:1.5; margin:0 0 10px; }
   .savebar { position:sticky; top:52px; z-index:4; background:var(--band); padding:9px 0;
-             display:flex; align-items:center; gap:12px; border-bottom:1px solid var(--line); }
+             display:flex; align-items:center; gap:10px; flex-wrap:wrap; border-bottom:1px solid var(--line); }
   button.save { background:var(--accent); color:#fff; border:0; border-radius:8px; padding:9px 18px;
                 font-size:14px; font-weight:600; cursor:pointer; }
   button.save:hover { background:#731f18; } button.save:disabled { opacity:.6; cursor:default; }
+  button.ghost { background:#fff; color:var(--accent); border:1px solid var(--line); border-radius:8px;
+                 padding:8px 12px; font-size:13px; font-weight:600; cursor:pointer; }
+  button.ghost:hover { background:#f6ecd6; }
   .status { font-size:13px; color:#8C7550; } .status.dirty { color:var(--accent); font-weight:600; }
   .scroll { overflow-x:auto; }
   table { width:100%; border-collapse:collapse; margin:10px 0; font-size:13.5px; min-width:560px; }
   th, td { text-align:left; padding:6px 9px; border-bottom:1px solid #e3d3af; white-space:nowrap; }
   thead th { background:#efe1c2; font-size:11px; color:#7a6236;
-             text-transform:uppercase; letter-spacing:.03em; z-index:2; border-bottom:1px solid var(--line); }
+             text-transform:uppercase; letter-spacing:.03em; border-bottom:1px solid var(--line); }
   tbody tr:nth-child(even){ background:rgba(255,255,255,.35); }
   td.rank, td.rec { color:#7a6236; }
   td.kk { color:var(--kk); font-weight:600; } td.mk { color:var(--mk); font-weight:600; }
@@ -51,6 +54,9 @@
     <p class="intro" id="intro">Loading…</p>
     <div class="savebar">
       <button class="save" id="saveBtn">Save picks</button>
+      <button class="ghost" id="exportBtn">⬇ Export CSV</button>
+      <button class="ghost" id="importBtn">⬆ Import CSV</button>
+      <input type="file" id="importFile" accept=".csv,text/csv" style="display:none">
       <span class="status" id="status">—</span>
     </div>
     <div id="body"><p class="loading">Loading the roster…</p></div>
@@ -74,6 +80,18 @@
     if(r.indexOf('retire')===0||r==='r') return 24;
     return null;
   }
+  function toCode(input){
+    if(input===null||input===undefined) return '';
+    var r=String(input).toLowerCase().trim(); if(!r) return '';
+    if(r.indexOf('yoko')===0||r==='y') return 'y';
+    if(r.indexOf('oze')===0||r==='o') return 'o';
+    if(r.indexOf('seki')===0||r==='s') return 's';
+    if(r.indexOf('komu')===0||r==='k') return 'k';
+    var m=r.match(/(?:maegashira|m)\s*(\d+)/); if(m){ var n=parseInt(m[1],10); if(n>=1&&n<=18) return 'm'+n; }
+    if(r.indexOf('juryo')===0||r==='j') return 'j';
+    if(r.indexOf('retire')===0||r==='r') return 'r';
+    return '';
+  }
 
   var state={ basho:'', roster:[], ranks:{}, bonus:[], dirty:false, savedAt:null };
 
@@ -83,6 +101,7 @@
     if(state.dirty){ el.textContent='Unsaved changes'; el.className='status dirty'; }
     else { el.textContent=state.savedAt?('Saved ✓ '+new Date(state.savedAt).toLocaleString()):'No picks saved yet'; el.className='status'; }
   }
+  function setImportMsg(m,err){ var el=document.getElementById('status'); el.textContent=m; el.className='status'+(err?' dirty':''); }
   function ensureBonus(i){ if(!state.bonus[i]) state.bonus[i]={name:'',rank:''}; return state.bonus[i]; }
 
   function rankSelect(value,onchange){
@@ -103,7 +122,8 @@
   function render(){
     document.getElementById('intro').textContent=
       'Predict where each wrestler lands on the '+state.basho+' banzuke — their record & KK/MK from last basho are your guide. '+
-      'Rank Δ shows how far your pick moves them (+ up / − down). Below: up to 7 juryo→makuuchi promotions (−1 each correct). Retiring? Pick “Retired”.';
+      'Rank Δ shows how far your pick moves them (+ up / − down). Prefer your own system? Export the CSV, fill it, import it back. '+
+      'Below: up to 7 juryo→makuuchi promotions (−1 each correct). Retiring? Pick “Retired”.';
     var body=document.getElementById('body'); body.innerHTML='';
 
     var scroll=document.createElement('div'); scroll.className='scroll';
@@ -150,10 +170,64 @@
       body:JSON.stringify({picks:{ranks:state.ranks, bonus:bonus}})})
       .then(function(r){return r.json();})
       .then(function(d){ if(d.ok){ state.dirty=false; state.savedAt=d.savedAt; } setStatus(); })
-      .catch(function(){ var el=document.getElementById('status'); el.textContent='Save failed — try again.'; el.className='status dirty'; })
+      .catch(function(){ setImportMsg('Save failed — try again.',true); })
       .finally(function(){ btn.disabled=false; btn.textContent='Save picks'; });
   }
+
+  // ---- export / import (work in your own system) ----
+  function csvCell(s){ s=String(s==null?'':s); return /[",\n]/.test(s)?('"'+s.replace(/"/g,'""')+'"'):s; }
+  function exportCSV(){
+    var rows=[['Wrestler','Rank','W-L','KK/MK','Pick']];
+    state.roster.forEach(function(w){
+      var code=state.ranks[w.name]||'', label='';
+      RANKS.forEach(function(r){ if(r[0]===code) label=r[1]; });
+      rows.push([w.name, w.rank, w.record, w.kkmk, label]);
+    });
+    var csv=rows.map(function(r){return r.map(csvCell).join(',');}).join('\r\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
+    var url=URL.createObjectURL(blob);
+    var a=document.createElement('a'); a.href=url; a.download='banzuke-picks-'+state.basho+'.csv';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+  }
+  function parseCSV(text){
+    return text.split(/\r?\n/).filter(function(l){return l.length;}).map(function(line){
+      var out=[],cur='',q=false;
+      for(var i=0;i<line.length;i++){ var c=line[i];
+        if(c==='"'){ if(q&&line[i+1]==='"'){cur+='"';i++;} else q=!q; }
+        else if(c===','&&!q){ out.push(cur); cur=''; } else cur+=c;
+      }
+      out.push(cur); return out.map(function(s){return s.trim();});
+    });
+  }
+  function importCSV(text){
+    var rows=parseCSV(text); if(!rows.length) return;
+    var head=rows[0].map(function(h){return h.toLowerCase();});
+    var wi=head.indexOf('wrestler'), pi=head.indexOf('pick');
+    if(wi<0||pi<0){ setImportMsg('Couldn’t find "Wrestler" and "Pick" columns in that file.',true); return; }
+    var byName={}; state.roster.forEach(function(w){ byName[w.name.toLowerCase()]=w.name; });
+    var n=0, unknown=[];
+    for(var i=1;i<rows.length;i++){
+      var name=(rows[i][wi]||'').trim(); if(!name) continue;
+      var canon=byName[name.toLowerCase()];
+      if(!canon){ unknown.push(name); continue; }
+      var code=toCode(rows[i][pi]);
+      if(code){ state.ranks[canon]=code; n++; }
+    }
+    markDirty(); render();
+    var msg='Imported '+n+' pick'+(n===1?'':'s')+'. Review, then Save.';
+    if(unknown.length) msg+=' ('+unknown.length+" didn't match: "+unknown.slice(0,3).join(', ')+(unknown.length>3?'…':'')+')';
+    setImportMsg(msg,false);
+  }
+
   document.getElementById('saveBtn').addEventListener('click',save);
+  document.getElementById('exportBtn').addEventListener('click',exportCSV);
+  document.getElementById('importBtn').addEventListener('click',function(){ document.getElementById('importFile').click(); });
+  document.getElementById('importFile').addEventListener('change',function(e){
+    var f=e.target.files&&e.target.files[0]; if(!f) return;
+    var reader=new FileReader();
+    reader.onload=function(ev){ importCSV(String(ev.target.result)); e.target.value=''; };
+    reader.readAsText(f);
+  });
 
   Promise.all([
     fetch('/api/app/roster').then(function(r){return r.ok?r.json():{};}),
