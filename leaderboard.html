@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Banzuke Prediction Standings — Salt Stats &amp; Sumo</title>
+<style>
+  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184;
+          --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--band); color:var(--ink); min-height:100vh; padding:24px 16px; }
+  .wrap { max-width:640px; margin:0 auto; }
+  .card { background:var(--paper); border:1px solid var(--line); border-radius:12px;
+          box-shadow:0 6px 24px rgba(61,39,19,.12); overflow:hidden; }
+  .card > header { background:var(--head); color:#fff; padding:22px 24px; }
+  .brand { font-size:14px; opacity:.9; margin:0 0 8px; display:flex; align-items:center; gap:9px; }
+  .brand .sitelogo { width:30px; height:30px; border-radius:50%; flex:0 0 auto;
+                     background:#efe7d5; box-shadow:0 0 0 1px rgba(255,255,255,.25); }
+  .card > header h1 { margin:0; font-size:22px; line-height:1.25; }
+  .card > header .sub { margin:6px 0 0; font-size:13px; opacity:.9; }
+  .body { padding:22px 24px 26px; }
+  .lead { font-size:14px; line-height:1.5; color:var(--ink); margin:0 0 18px; }
+  .lead b { color:var(--accent); }
+
+  /* locked state */
+  .locked-note { background:#F7EEDA; border:1px solid var(--line); border-radius:10px;
+                 padding:14px 16px; font-size:13.5px; line-height:1.5; margin-bottom:18px; }
+  .crew { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 6px; }
+  .chip { display:flex; align-items:center; gap:8px; background:#F1E4C7; border:1px solid var(--line);
+          border-radius:999px; padding:7px 14px 7px 10px; font-size:14px; font-weight:600; }
+  .chip .dot { width:9px; height:9px; border-radius:50%; background:var(--kk); flex:0 0 auto; }
+  .chip .lil { font-weight:400; font-size:11.5px; color:var(--muted); }
+
+  /* standings table */
+  table { width:100%; border-collapse:collapse; font-size:14.5px; }
+  thead th { text-align:left; font-size:11px; letter-spacing:.04em; text-transform:uppercase;
+             color:var(--muted); border-bottom:2px solid var(--line); padding:8px 10px; }
+  thead th.num, td.num { text-align:right; font-variant-numeric:tabular-nums; }
+  tbody td { padding:11px 10px; border-bottom:1px solid #EFE3C6; }
+  tbody tr.leader { background:#FBF4DF; }
+  .place { font-weight:700; color:var(--muted); width:34px; }
+  .medal { font-size:16px; }
+  .who { font-weight:600; }
+  .who .gm { font-weight:400; font-size:11.5px; color:var(--muted); }
+  .score { font-weight:700; font-size:16px; }
+  .bonus { color:var(--kk); font-size:12px; }
+
+  .cta { margin-top:22px; background:#F7EEDA; border:1px dashed var(--accent); border-radius:10px;
+         padding:16px 18px; text-align:center; }
+  .cta p { margin:0 0 12px; font-size:14px; line-height:1.5; }
+  .cta a { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
+           font-weight:600; font-size:14.5px; padding:10px 22px; border-radius:8px; }
+  .cta a:hover { background:#731f18; }
+  .rules { margin-top:18px; font-size:12px; color:var(--muted); line-height:1.5; }
+  .foot { text-align:center; margin-top:16px; font-size:12px; color:var(--muted); }
+  .spin { text-align:center; padding:30px; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <p class="brand"><img class="sitelogo" src="salt-stats-sumo-badgeold.png" alt=""> Salt Stats &amp; Sumo</p>
+        <h1>Banzuke Prediction Standings</h1>
+        <p class="sub" id="sub">Aki 2026 · the crew guesses the next banzuke — lowest score wins</p>
+      </header>
+      <div class="body" id="body">
+        <div class="spin">Loading standings…</div>
+      </div>
+    </div>
+    <p class="foot">Golf scoring: each pick is graded by how far it lands from the real rank. Closest crew wins.</p>
+  </div>
+
+<script>
+(function () {
+  var body = document.getElementById('body');
+  var sub  = document.getElementById('sub');
+  var MEDAL = { 1:'🥇', 2:'🥈', 3:'🥉' };
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  function ctaHTML(){
+    return '<div class="cta">' +
+      '<p>Think you can read the banzuke better than the crew?</p>' +
+      '<a href="/app">Join the crew &amp; make your picks →</a>' +
+      '</div>';
+  }
+
+  function renderLocked(d){
+    sub.textContent = d.basho + ' · picks are in — standings drop with the banzuke';
+    var chips = (d.players||[]).map(function(p){
+      return '<div class="chip"><span class="dot"></span>' + esc(p.name) +
+             ' <span class="lil">' + p.picks + ' locked</span></div>';
+    }).join('');
+    body.innerHTML =
+      '<p class="lead">The crew has <b>locked in</b> their ' + esc(d.basho) +
+        ' banzuke predictions. When the real banzuke is announced, every pick gets graded ' +
+        'and the standings go live right here.</p>' +
+      '<div class="locked-note">🔒 ' + esc(d.message) + '</div>' +
+      '<div class="crew">' + chips + '</div>' +
+      ctaHTML() +
+      '<p class="rules">Each player ranks all 42 makuuchi wrestlers for the next tournament. ' +
+        'Score = how far each pick is from where the wrestler actually lands, summed. ' +
+        'Lowest total wins. Correct juryo→makuuchi promotion calls shave points off.</p>';
+  }
+
+  function renderGraded(d){
+    sub.textContent = d.basho + ' · final standings — lowest score wins';
+    var rows = (d.standings||[]).map(function(r){
+      var med = MEDAL[r.place] ? '<span class="medal">'+MEDAL[r.place]+'</span>' : '';
+      var bonus = r.bonusHits ? ' <span class="bonus">(−'+r.bonusHits+' bonus)</span>' : '';
+      var gm = (r.key==='gumbai') ? ' <span class="gm">🤖 the machine</span>' : '';
+      return '<tr class="'+(r.place===1?'leader':'')+'">' +
+        '<td class="place">'+(MEDAL[r.place]?med:r.place)+'</td>' +
+        '<td class="who">'+esc(r.name)+gm+'</td>' +
+        '<td class="num"><span class="score">'+r.final+'</span>'+bonus+'</td>' +
+      '</tr>';
+    }).join('');
+    body.innerHTML =
+      '<p class="lead">The <b>'+esc(d.basho)+'</b> banzuke is out — here\'s how the crew did. ' +
+        'Lower is better.</p>' +
+      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Score</th></tr></thead>' +
+        '<tbody>'+rows+'</tbody></table>' +
+      ctaHTML();
+  }
+
+  fetch('/api/leaderboard', { credentials:'same-origin' })
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      if (d.status === 'graded') renderGraded(d);
+      else renderLocked(d);
+    })
+    .catch(function(){
+      body.innerHTML = '<div class="spin">Standings are taking a breather — refresh in a moment.</div>';
+    });
+})();
+</script>
+</body>
+</html>
