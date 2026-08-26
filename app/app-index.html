@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Crew — Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --win:#227a4b; --live:#c0392b;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --live:#e0685a;}
+    body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='wd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23wd)' opacity='0.05'/%3E%3C/svg%3E")}
+    .card,.entry{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wcd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wcd)' opacity='0.04'/%3E%3C/svg%3E")}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background-color:var(--bg);color:var(--ink);
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23w)' opacity='0.35'/%3E%3C/svg%3E");
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:960px;margin:0 auto;padding:0 16px 64px}
+
+  /* crew bar — the authed strip above the roof */
+  .crewbar{display:flex;align-items:center;justify-content:space-between;gap:12px;
+    max-width:960px;margin:0 auto;padding:11px 16px 4px;font-size:13px}
+  .crewbar .brand{display:flex;align-items:center;gap:9px;font-family:'Zen Old Mincho',Georgia,serif;
+    font-weight:700;font-size:15px;color:var(--ink)}
+  .crewbar .crewlogo{width:26px;height:26px;border-radius:50%;background:#efe7d5;flex:0 0 auto;
+    box-shadow:0 0 0 1px var(--line)}
+  .crewbar .you{color:var(--muted);text-align:right}
+  .crewbar .you b{color:var(--ink)}
+  .crewbar .you a{color:var(--vermilion);font-weight:700;margin-left:6px}
+
+  /* hero — tsuriyane roofline */
+  .roofWrap{position:relative;max-width:680px;margin:6px auto 18px}
+  .roof{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 24px rgba(50,30,10,.30))}
+  .titleovl{position:absolute;left:0;right:0;top:6%;text-align:center;color:#f4ecda;pointer-events:none}
+  .titleovl h1{font-weight:900;font-size:clamp(20px,4vw,34px);margin:0;letter-spacing:.01em;text-shadow:0 2px 9px rgba(0,0,0,.5)}
+
+  .live{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+    border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;margin:0 auto 8px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
+  .live .dot{width:9px;height:9px;border-radius:50%;background:var(--live);box-shadow:0 0 0 4px color-mix(in srgb,var(--live) 25%,transparent)}
+  .live.done .dot{background:var(--win);box-shadow:0 0 0 4px color-mix(in srgb,var(--win) 25%,transparent)}
+  .centerrow{text-align:center}
+
+  /* ── THE ARENA (dohyo hub) ── */
+  .arena{max-width:452px;margin:8px auto 6px}
+  .dohyoWrap{position:relative;width:100%;aspect-ratio:1/1}
+  svg.ring{position:absolute;inset:0;width:100%;height:100%}
+  .bands{position:absolute;inset:0}
+  .entry{position:absolute;left:50%;transform:translateX(-50%);display:flex;gap:11px;align-items:center;
+    background-color:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:10px 18px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='we'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23we)' opacity='0.22'/%3E%3C/svg%3E");
+    box-shadow:0 4px 14px rgba(80,50,20,.16);white-space:nowrap;
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease;cursor:pointer}
+  .entry:hover{transform:translateX(-50%) translateY(-2px);border-color:var(--vermilion);box-shadow:0 10px 22px rgba(80,50,20,.22)}
+  .entry .ic{font-size:22px;line-height:1}
+  .entry .ic svg{width:28px;height:28px;display:block}
+  .entry .lab{text-align:left;line-height:1.12}
+  .entry .lab b{font-size:16px;display:block;font-family:'Zen Old Mincho',Georgia,serif}
+  .entry .lab small{font-size:10.5px;color:var(--clay);letter-spacing:.12em;text-transform:uppercase;font-weight:700}
+  .entry .arrow{color:var(--vermilion);font-weight:800;font-size:17px}
+  .entry.top{top:12%}
+  .entry.bot{bottom:12%}
+  .entry.bot .badge{width:42px;height:42px;flex:0 0 auto}
+  .guard{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;white-space:nowrap;
+    background:#2c2016;color:#f3e7d6;border-radius:999px;padding:6px 8px 6px 13px;font-size:12.5px;
+    display:flex;gap:7px;align-items:center;box-shadow:0 3px 12px rgba(0,0,0,.34)}
+  .guard label{opacity:.9;white-space:nowrap}
+  .guard select{background:#efe7d5;border:none;border-radius:7px;padding:3px 5px;font:inherit;font-weight:800;
+    color:#2c2016;cursor:pointer;text-align:center;width:3.2em}
+  .arenacap{text-align:center;font-size:12px;color:var(--muted);margin-top:4px}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .sechead{font-family:'Zen Old Mincho',Georgia,serif;font-size:15px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--clay);margin:30px 2px 12px;display:flex;align-items:center;gap:12px}
+  .sechead::after{content:"";flex:1;height:1px;background:var(--line)}
+  .card{display:block;background-color:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px 18px 16px;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wc'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wc)' opacity='0.22'/%3E%3C/svg%3E");
+    transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.09);border-color:var(--clay)}
+  .card .ico{font-size:26px;line-height:1;margin-bottom:10px}
+  .card .ico svg{width:34px;height:34px;display:block}
+  .card h3{margin:0 0 5px;font-size:18px;font-weight:700}
+  .card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
+  .pill{float:right;font-size:10.5px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:999px;text-transform:uppercase}
+  .pill.soon{background:var(--clay-soft);color:var(--clay)}
+
+  footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+  footer b{color:var(--ink)}
+  footer a{color:var(--vermilion);font-weight:600}
+</style>
+</head>
+<body>
+  <div class="crewbar">
+    <a class="brand" href="/app"><img class="crewlogo" src="/salt-stats-sumo-badgeold.png" alt=""> Salt Stats &amp; Sumo · Crew</a>
+    <span class="you">Welcome, <b id="who">crew</b><a href="/api/auth/logout">Log out</a></span>
+  </div>
+
+  <div class="roofWrap">
+    <svg class="roof" viewBox="0 0 820 250" preserveAspectRatio="none" role="img" aria-label="Salt Stats & Sumo, the roof over the dohyo">
+      <defs>
+        <linearGradient id="wood" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#7a5230"/><stop offset="0.5" stop-color="#5c3c22"/><stop offset="1" stop-color="#3d2713"/>
+        </linearGradient>
+      </defs>
+      <path d="M0 0 L820 0 L820 166 Q700 176 620 185 Q510 195 410 197 Q310 195 200 185 Q120 176 0 166 Z" fill="url(#wood)"/>
+      <g stroke="#000" stroke-opacity="0.10" stroke-width="1">
+        <line x1="0" y1="36" x2="820" y2="36"/><line x1="0" y1="74" x2="820" y2="74"/><line x1="0" y1="112" x2="820" y2="112"/><line x1="0" y1="146" x2="820" y2="146"/>
+      </g>
+      <g stroke="#fff" stroke-opacity="0.05" stroke-width="1"><line x1="0" y1="54" x2="820" y2="54"/><line x1="0" y1="130" x2="820" y2="130"/></g>
+      <rect x="-14" y="0" width="848" height="16" fill="#2c1c10"/>
+      <rect x="-14" y="16" width="848" height="2.5" fill="#a9742c" opacity="0.5"/>
+      <path d="M0 160 Q120 170 200 179 Q310 189 410 191 Q510 189 620 179 Q700 170 820 160" fill="none" stroke="#c79657" stroke-width="2.5" opacity="0.55"/>
+      <g transform="translate(70 169)"><rect x="-6" y="0" width="12" height="7" rx="2" fill="#241a10"/><path d="M-8 7 Q0 4 8 7 L11 42 Q0 49 -11 42 Z" fill="#35663f"/><g stroke="#35663f" stroke-width="1.6" stroke-linecap="round"><line x1="-9" y1="42" x2="-11" y2="60"/><line x1="-4" y1="45" x2="-5" y2="64"/><line x1="1" y1="46" x2="1" y2="65"/><line x1="6" y1="45" x2="7" y2="64"/><line x1="10" y1="42" x2="12" y2="60"/></g></g>
+      <g transform="translate(750 169)"><rect x="-6" y="0" width="12" height="7" rx="2" fill="#241a10"/><path d="M-8 7 Q0 4 8 7 L11 42 Q0 49 -11 42 Z" fill="#b23a2e"/><g stroke="#b23a2e" stroke-width="1.6" stroke-linecap="round"><line x1="-9" y1="42" x2="-11" y2="60"/><line x1="-4" y1="45" x2="-5" y2="64"/><line x1="1" y1="46" x2="1" y2="65"/><line x1="6" y1="45" x2="7" y2="64"/><line x1="10" y1="42" x2="12" y2="60"/></g></g>
+      <g transform="translate(410 130)">
+        <image href="/salt-stats-sumo-badgeold.png" x="-56" y="-56" width="112" height="112"/>
+      </g>
+    </svg>
+    <div class="titleovl"><h1>Salt Stats &amp; Sumo</h1></div>
+  </div>
+
+  <!-- inlined dohyo-coin tile icons -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+
+    <symbol id="ic-standings" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)" fill="#211a12">
+        <rect x="43" y="37" width="34" height="7" rx="3.5"/>
+        <rect x="59" y="49" width="2" height="33" opacity="0.5"/>
+        <rect x="40" y="51" width="16" height="4" rx="2"/><rect x="64" y="51" width="16" height="4" rx="2"/>
+        <rect x="41" y="59" width="15" height="4" rx="2"/><rect x="64" y="59" width="15" height="4" rx="2"/>
+        <rect x="42" y="67" width="14" height="4" rx="2"/><rect x="64" y="67" width="14" height="4" rx="2"/>
+        <rect x="43" y="75" width="13" height="4" rx="2"/><rect x="64" y="75" width="13" height="4" rx="2"/>
+      </g>
+    </symbol>
+
+    <symbol id="ic-reports" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="#211a12">
+          <rect x="40" y="60" width="8" height="20" rx="1.5"/>
+          <rect x="51" y="50" width="8" height="30" rx="1.5"/>
+          <rect x="62" y="56" width="8" height="24" rx="1.5"/>
+          <rect x="73" y="44" width="8" height="36" rx="1.5"/>
+        </g>
+        <path d="M44 56 L55 46 L66 52 L77 40" fill="none" stroke="#b23a2e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="77" cy="40" r="3.2" fill="#b23a2e"/>
+      </g>
+    </symbol>
+
+    <symbol id="ic-prediction" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="none" stroke="#211a12" stroke-width="3"><circle cx="55" cy="66" r="15"/><circle cx="55" cy="66" r="8"/></g>
+        <circle cx="55" cy="66" r="3.4" fill="#b23a2e"/>
+        <line x1="86" y1="37" x2="59" y2="62" stroke="#211a12" stroke-width="3" stroke-linecap="round"/>
+        <path d="M59 62 l8 -1.5 l-3.5 -6.5 Z" fill="#211a12"/>
+        <path d="M86 37 l1 -6 M86 37 l6 -1" stroke="#211a12" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      </g>
+    </symbol>
+
+    <symbol id="ic-leaderboard" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="#211a12">
+          <rect x="38" y="60" width="16" height="20" rx="2"/>
+          <rect x="52" y="50" width="16" height="30" rx="2"/>
+          <rect x="66" y="64" width="16" height="16" rx="2"/>
+        </g>
+        <path d="M60 39 l2.5 5.1 l5.6 .5 l-4.2 3.7 l1.3 5.5 l-5.2 -2.9 l-5.2 2.9 l1.3 -5.5 l-4.2 -3.7 l5.6 -.5 Z" fill="#b23a2e"/>
+      </g>
+    </symbol>
+
+    <symbol id="ic-gallery" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <rect x="37" y="48" width="46" height="30" rx="5" fill="#211a12"/>
+        <path d="M50 48 l3 -6 h14 l3 6 Z" fill="#211a12"/>
+        <circle cx="60" cy="63" r="10" fill="#efe7d5"/>
+        <circle cx="60" cy="63" r="10" fill="none" stroke="#211a12" stroke-width="2.5"/>
+        <circle cx="60" cy="63" r="4.4" fill="#b23a2e"/>
+        <circle cx="76" cy="53" r="2.3" fill="#efe7d5"/>
+      </g>
+    </symbol>
+
+    <symbol id="ic-catchphrase" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <path d="M40 39 H80 a7 7 0 0 1 7 7 V57 a7 7 0 0 1 -7 7 H54 L44 73 V64 H40 a7 7 0 0 1 -7 -7 V46 a7 7 0 0 1 7 -7 Z" fill="#211a12"/>
+        <g stroke="#efe7d5" stroke-width="2.6" stroke-linecap="round">
+          <line x1="46" y1="46" x2="46" y2="58"/>
+          <line x1="52" y1="46" x2="52" y2="58"/>
+          <line x1="58" y1="46" x2="58" y2="58"/>
+          <line x1="64" y1="46" x2="64" y2="58"/>
+        </g>
+        <line x1="43" y1="58" x2="67" y2="46" stroke="#b23a2e" stroke-width="2.8" stroke-linecap="round"/>
+      </g>
+    </symbol>
+  </defs></svg>
+
+  <div class="wrap">
+    <div class="centerrow">
+      <span class="live done"><span class="dot"></span> Nagoya 2026 · Complete</span>
+    </div>
+
+    <!-- THE ARENA: circular dohyo hub -->
+    <div class="arena">
+      <div class="dohyoWrap">
+        <svg class="ring" viewBox="0 0 600 600" id="dohyo" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
+        <div class="bands">
+          <a class="entry top" id="lnkStandings" href="/standings">
+            <span class="ic"><svg><use href="#ic-standings"/></svg></span>
+            <span class="lab"><small>East</small><b>Standings</b></span>
+            <span class="arrow">→</span>
+          </a>
+
+          <div class="guard">
+            <label for="watchGuard">🥋 Watched through</label>
+            <select id="watchGuard" aria-label="Set the day you have watched through">
+              <option value="0">–</option>
+              <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+              <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+              <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+            </select>
+          </div>
+
+          <a class="entry bot" id="lnkGumbai" href="/gumbai">
+            <img class="badge" src="/gumbai-badge.svg" width="42" height="42" alt="Gumbai">
+            <span class="lab"><small>West</small><b>Ask Gumbai</b></span>
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+      <p class="arenacap">Set how far you've watched. The ring keeps Standings and Gumbai spoiler-safe to your day.</p>
+    </div>
+
+    <section>
+      <h2 class="sechead">Games</h2>
+      <div class="grid">
+        <a class="card" href="/prediction"><div class="ico"><svg><use href="#ic-prediction"/></svg></div><h3>Prediction Pool</h3><p>Call the next banzuke before it's official. Us against the computer, and we're keeping score.</p></a>
+        <a class="card" href="/drinking-game"><div class="ico"><svg><use href="#ic-catchphrase"/></svg></div><h3>Catchphrase Drinking Game</h3><p>The booth's favorite catchphrases, tracked by day and by announcer. What each one's worth is up to you.</p></a>
+        <a class="card" href="/leaderboard"><div class="ico"><svg><use href="#ic-leaderboard"/></svg></div><h3>Leaderboard</h3><p>Who's actually on top. Every game's points added up, by basho and all-time.</p></a>
+      </div>
+    </section>
+
+    <section>
+      <h2 class="sechead">Beyond the Bouts</h2>
+      <div class="grid">
+        <a class="card" href="#"><span class="pill soon">Soon</span><div class="ico"><svg><use href="#ic-reports"/></svg></div><h3>Reports</h3><p>The stats corner. Rank climbs and slides, everyone's go-to moves, and the upsets, once we've logged enough basho.</p></a>
+        <a class="card" href="/gallery"><div class="ico"><svg><use href="#ic-gallery"/></svg></div><h3>Fan Gallery</h3><p>Our own shots from the road. Paris, and wherever sumo takes us next.</p></a>
+      </div>
+    </section>
+
+    <footer>
+      <p><b>Salt Stats &amp; Sumo</b>, a Staves &amp; Hoop production for the crew. Data lives in Notion; this is the crew room.<br>
+      Spoiler-safe by design, built basho by basho. &nbsp;·&nbsp; <a href="/">Public site →</a></p>
+    </footer>
+  </div>
+
+<script>
+(function(){
+  // ---- fill in the logged-in crew member's name ----
+  fetch('/api/auth/me', { headers: { 'Accept': 'application/json' } })
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .then(function(d){ if (d && d.name) document.getElementById('who').textContent = d.name; })
+    .catch(function(){});
+
+  // ---- draw the dohyo: tawara ring + tokudawara + two shikiri-sen ----
+  var svg=document.getElementById('dohyo'), NS='http://www.w3.org/2000/svg';
+  var cx=300, cy=300, r=272;
+  function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e;}
+  svg.appendChild(el('circle',{cx:cx,cy:cy,r:r-8,fill:'#d8b485'}));
+  svg.appendChild(el('circle',{cx:cx,cy:cy,r:r-70,fill:'#cba471','opacity':'0.45'}));
+  var N=46, toku=[0,90,180,270];
+  for(var i=0;i<N;i++){
+    var deg=(i/N)*360, a=deg*Math.PI/180, isToku=false;
+    for(var t=0;t<toku.length;t++){var d=Math.abs(((deg-toku[t]+540)%360)-180); if(d<4.2) isToku=true;}
+    var push=isToku?13:0, px=cx+(r+push)*Math.cos(a), py=cy+(r+push)*Math.sin(a);
+    var g=el('g',{transform:'translate('+px+' '+py+') rotate('+(deg+90)+')'});
+    g.appendChild(el('rect',{x:-17,y:-9,width:34,height:18,rx:8,fill:isToku?'#b8934f':'#cda869',stroke:'#9c7838','stroke-width':'1.5'}));
+    svg.appendChild(g);
+  }
+  [-30,30].forEach(function(dy){
+    svg.appendChild(el('line',{x1:cx-52,x2:cx+52,y1:cy+dy,y2:cy+dy,stroke:'#f4ecda','stroke-width':'7','stroke-linecap':'round'}));
+  });
+
+  // ---- day guard: remember the viewer's day, carry it to both pages ----
+  var sel=document.getElementById('watchGuard'),
+      st=document.getElementById('lnkStandings'),
+      gb=document.getElementById('lnkGumbai'), KEY='ss_watched_day';
+  function apply(d){ var q=d?('?d='+d):''; st.href='/standings'+q; gb.href='/gumbai'+q; }
+  var saved=null; try{ saved=localStorage.getItem(KEY); }catch(e){}
+  if(saved){ sel.value=saved; }
+  apply(sel.value!=='0'?sel.value:'');
+  sel.addEventListener('change',function(){
+    var d=sel.value!=='0'?sel.value:'';
+    try{ if(d) localStorage.setItem(KEY,d); else localStorage.removeItem(KEY); }catch(e){}
+    apply(d);
+  });
+})();
+</script>
+</body>
+</html>
