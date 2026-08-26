@@ -4,37 +4,31 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Salt Stats & Sumo — Banzuke Prediction Pool</title>
+<title>Salt Stats &amp; Sumo — Banzuke Prediction Pool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  /* shared palette with the rest of the arena — clay, charcoal, gyoji purple + gunbai vermilion */
   :root{
     --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
-    --clay:#a9742c; --clay-soft:#e6cf9f; --charcoal:#2b2b31;
-    --purple:#6a3d9a; --vermilion:#cf5a2c;
-    --win:#227a4b; --loss:#a93327; --win-bg2:#c3e3cf; --loss-bg2:#f1cbc2;
-    --up:#227a4b; --down:#a93327;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --win:#227a4b; --loss:#a93327;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
-      --clay:#d2a35c; --clay-soft:#40331d; --charcoal:#0f0f12;
-      --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;
-      --win-bg2:#1f5232; --loss-bg2:#5a2a22; --up:#49bd82; --down:#e06a5c;}
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;}
     body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='wd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23wd)' opacity='0.05'/%3E%3C/svg%3E")}
-    table,.panel,.legend,.players{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wcd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wcd)' opacity='0.04'/%3E%3C/svg%3E")}
+    .panel,.legend{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wcd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wcd)' opacity='0.04'/%3E%3C/svg%3E")}
   }
   *{box-sizing:border-box}
   body{margin:0;background-color:var(--bg);color:var(--ink);
     background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23w)' opacity='0.35'/%3E%3C/svg%3E");
-    font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   a{color:inherit}
-  .wrap{max-width:940px;margin:0 auto;padding:0 16px 64px}
+  .wrap{max-width:760px;margin:0 auto;padding:0 16px 64px}
   .home{display:inline-block;margin:10px 2px 4px;font-size:13px;color:var(--purple);font-weight:700;text-decoration:none}
-
-  /* header band — clay, matching standings */
+  /* clay header band — same as the rest of the arena */
   header{
     background:
       repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
@@ -43,470 +37,93 @@
       linear-gradient(160deg,#6e4826,#432a15);
     color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid #38230f;
     box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -3px 7px rgba(0,0,0,.25)}
+  .hbrand{display:flex;align-items:center;gap:15px}
+  .emblem{flex:0 0 auto;border-radius:50%;background:#efe7d5;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
   header h1{font-size:25px;margin:0 0 3px;letter-spacing:0;font-weight:900}
   header .sub{opacity:.9;font-size:13.5px;margin:0}
-  .hbrand{display:flex;align-items:center;gap:15px}
-  .emblem{flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
-
-  /* phase strip — like standings' "watched" band, colour keyed to state */
-  .phase{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
-    border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:10px;
-    padding:10px 14px;margin:0 0 16px;font-size:14px}
-  .phase .tag{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
-    padding:3px 9px;border-radius:999px;color:#fff}
-  .phase.open{border-left-color:var(--clay)} .phase.open .tag{background:var(--clay)}
-  .phase.locked{border-left-color:var(--purple)} .phase.locked .tag{background:var(--purple)}
-  .phase.scored{border-left-color:var(--win)} .phase.scored .tag{background:var(--win)}
-  .phase b{color:var(--ink)}
-  .phase .cta{margin-left:auto;font:inherit;font-size:13px;font-weight:700;color:#fff;background:var(--purple);
-    border:none;border-radius:8px;padding:7px 14px;cursor:pointer;text-decoration:none;display:inline-block}
-  .phase .cta:hover{filter:brightness(1.08)}
-  .phase .cta.ghost{background:transparent;color:var(--purple);border:1px solid var(--purple)}
-
-  .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px}
-  .panel h2{font-size:17px;margin:0 0 8px}
-  .panel p{margin:0 0 8px;font-size:14px;line-height:1.55;color:var(--ink)}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 16px}
+  .panel h2{font-size:18px;margin:0 0 10px}
+  .panel p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:var(--ink)}
   .panel p:last-child{margin-bottom:0}
-  .panel .muted{color:var(--muted);font-size:13px}
-  .steps{margin:6px 0 0;padding-left:20px;font-size:14px;line-height:1.6}
-  .steps li{margin:2px 0}
-
-  /* players strip */
-  .players{display:flex;gap:10px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);
-    border-radius:12px;padding:12px 14px;margin:0 0 16px}
-  .pchip{display:flex;align-items:center;gap:8px;font-size:13.5px;font-weight:600;
-    background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:6px 12px 6px 8px}
-  .pchip .av{width:22px;height:22px;border-radius:50%;flex:0 0 auto;display:grid;place-items:center;
-    color:#fff;font-size:11px;font-weight:800;font-family:'Zen Old Mincho',serif}
-  .pchip small{color:var(--muted);font-weight:600;font-size:11px}
-  .pchip.gum .av{background:#b23a2e}
-
-  /* tables */
-  .scroll{overflow-x:auto;border-radius:12px;border:1px solid var(--line)}
-  table{width:100%;border-collapse:collapse;background:var(--surface)}
-  th,td{text-align:left;padding:9px 11px;border-top:1px solid var(--line);font-size:14px;vertical-align:middle;white-space:nowrap}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-top:none;
-    background:var(--clay-soft);position:sticky;top:0}
-  @media (prefers-color-scheme:dark){th{color:var(--clay)}}
-  th.sortable{cursor:pointer;user-select:none}
-  th.sortable:hover{color:var(--ink)}
-  th .arrow{font-size:9px;margin-left:4px}
-  tr:hover td{background:rgba(106,61,154,.05)}
-  .rank{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;color:#fff;white-space:nowrap}
-  .r-yok{background:var(--purple)} .r-ozeki{background:var(--vermilion)} .r-seki{background:var(--clay)}
-  .r-komu{background:var(--win)} .r-maeg-hi{background:#46536b} .r-maeg-lo{background:#746a52} .r-jun{background:#8a6d3b}
-  .name{font-weight:600}
-  .rec{font-variant-numeric:tabular-nums;font-size:14px}
-  .rec.kk{background:var(--win-bg2)} .rec.mk{background:var(--loss-bg2)}
-  .rec .badge{font-size:10px;font-weight:800;margin-left:5px;padding:1px 5px;border-radius:5px;vertical-align:1px}
-  .rec.kk .badge{background:var(--win);color:#fff} .rec.mk .badge{background:var(--loss);color:#fff}
-  td.pick{text-align:center;font-weight:700;font-variant-numeric:tabular-nums}
-  td.pick .code{text-transform:uppercase;font-size:13px}
-  td.pick.gum{background:rgba(178,58,46,.07)}
-  td.delta{text-align:center;font-variant-numeric:tabular-nums;font-weight:700;font-size:13px}
-  td.delta.up{color:var(--up)} td.delta.down{color:var(--down)} td.delta.flat{color:var(--muted)}
-  td.actual{text-align:center;font-weight:800;background:var(--clay-soft)}
-  td.score{text-align:center;font-variant-numeric:tabular-nums;color:var(--muted);font-size:13px}
-  td.score.best{color:var(--win);font-weight:800}
-  .spread{display:inline-block;min-width:22px}
-
-  /* leaderboard */
-  .lb{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 16px}
-  .lbcard{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px;text-align:center;position:relative}
-  .lbcard.lead{border-color:var(--win);box-shadow:0 0 0 2px color-mix(in srgb,var(--win) 30%,transparent)}
-  .lbcard .who{font-family:'Zen Old Mincho',serif;font-weight:700;font-size:16px;margin-bottom:2px}
-  .lbcard .pts{font-size:28px;font-weight:800;font-variant-numeric:tabular-nums;line-height:1.1}
-  .lbcard .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
-  .lbcard .crown{position:absolute;top:-11px;left:50%;transform:translateX(-50%);font-size:18px}
-
-  /* legend */
-  .legend{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;margin:0 0 16px}
-  .legend h3{font-size:14px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.05em;color:var(--clay)}
+  .panel .muted{color:var(--muted);font-size:13.5px}
+  /* hero pitch panel */
+  .hero{border-left:4px solid var(--vermilion)}
+  .hero h2{font-size:21px;line-height:1.25}
+  .hero b{color:var(--vermilion)}
+  .steps{margin:6px 0 0;padding-left:20px;font-size:14.5px;line-height:1.65}
+  .steps li{margin:3px 0}
+  .steps b{color:var(--purple)}
+  /* CTA buttons */
+  .ctarow{display:flex;flex-wrap:wrap;gap:11px;margin-top:14px}
+  .btn{display:inline-block;font-weight:700;font-size:14.5px;text-decoration:none;padding:11px 22px;border-radius:9px;
+    background:var(--purple);color:#fff;border:1px solid var(--purple);transition:filter .12s ease}
+  .btn:hover{filter:brightness(1.09)}
+  .btn.ghost{background:transparent;color:var(--purple)}
+  /* rank legend */
+  .legend{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 16px}
+  .legend h3{font-size:13px;margin:0 0 9px;text-transform:uppercase;letter-spacing:.05em;color:var(--clay)}
   .codes{display:flex;flex-wrap:wrap;gap:6px}
   .codes .c{font-size:12px;font-weight:700;background:var(--bg);border:1px solid var(--line);
     border-radius:7px;padding:3px 9px;font-variant-numeric:tabular-nums}
   .codes .c b{color:var(--purple)}
-
-  footer{margin-top:22px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
+  footer{margin-top:22px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;line-height:1.5}
   footer b{color:var(--ink)}
-  .hidden-el{display:none}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <a class="home" href="index.html">‹ Salt Stats & Sumo home</a>
+  <a class="home" href="index.html">‹ Salt Stats &amp; Sumo home</a>
+
   <header>
     <div class="hbrand">
       <img class="emblem" src="salt-stats-sumo-badgeold.png" width="66" height="66" alt="Salt Stats & Sumo — a rikishi throwing salt">
       <div>
-        <h1 id="hTitle">Banzuke Prediction Pool</h1>
-        <p class="sub">Call the next banzuke before it's official. Us against the computer, and we're keeping score.</p>
+        <h1>Banzuke Prediction Pool</h1>
+        <p class="sub">Call the next banzuke before it's official — the crew vs. the machine.</p>
       </div>
     </div>
   </header>
 
-  <div class="phase open" id="phaseStrip">
-    <span class="tag" id="phaseTag">Picks open</span>
-    <span id="phaseMsg">Everyone's filling their own sheet. The board reveals every pick side by side once the window closes.</span>
-    <a class="cta" id="ctaPick" href="#" target="_blank" rel="noopener">Make your picks</a>
+  <div class="panel hero">
+    <h2>Think you can read the banzuke better than the rest of us?</h2>
+    <p>Every tournament, before the new rankings are announced, the crew predicts where all 42 makuuchi wrestlers will land. When the banzuke drops, every pick gets scored against the truth — <b>closest call wins.</b> Gumbai, the machine, plays too. Nobody's safe.</p>
+    <div class="ctarow">
+      <a class="btn" href="/app">Make your picks →</a>
+      <a class="btn ghost" href="leaderboard.html">See the standings →</a>
+    </div>
   </div>
 
-  <main id="main"></main>
+  <div class="panel">
+    <h2>How it works</h2>
+    <ol class="steps">
+      <li>Predict where each of the <b>42 makuuchi wrestlers</b> lands on the next banzuke.</li>
+      <li>Your score is the <b>rank-distance</b> between each pick and where the wrestler actually ends up, added up. An exact call is a clean zero.</li>
+      <li><b>Lowest total wins</b> — it's golf, not darts.</li>
+      <li>Call the juryo wrestlers getting promoted for <b>bonus points off your score.</b></li>
+      <li>Picks lock and everything grades the moment the real banzuke is announced.</li>
+    </ol>
+  </div>
 
-  <footer id="foot"></footer>
+  <div class="legend">
+    <h3>The rank ladder</h3>
+    <div class="codes">
+      <span class="c"><b>Y</b> Yokozuna</span><span class="c"><b>O</b> Ozeki</span><span class="c"><b>S</b> Sekiwake</span>
+      <span class="c"><b>K</b> Komusubi</span><span class="c"><b>M1–M18</b> Maegashira</span><span class="c"><b>J</b> Juryo</span>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Play along</h2>
+    <p>The pool is a <b>crew game</b> — members make their picks right in the app, and the standings are public for everyone to watch. Not in yet? Come join the crew.</p>
+    <div class="ctarow">
+      <a class="btn" href="/app">Join the crew →</a>
+    </div>
+    <p class="muted" style="margin-top:12px">Invite-only for now — the crew's a small clubhouse.</p>
+  </div>
+
+  <footer>
+    <p><b>Salt Stats &amp; Sumo</b>, a Staves &amp; Hoop production for the crew. The prediction pool runs basho by basho; the machine has opinions.</p>
+  </footer>
 </div>
-
-<script>
-/* ============================================================================
-   PREDICTION POOL — read-only board. Picks live in each player's Google Sheet.
-   This page NEVER embeds anyone's picks (so view-source can't leak a model);
-   it embeds only the public field (rank + final record). Picks arrive from the
-   published sheet at reveal time.
-
-   ── ROLLOVER (per basho): nothing in the HTML below needs editing. Drop a
-      prediction-current.json next to this file and it overrides CFG + ROSTER.
-      That single file IS the site's pointer to "the current basho." See docs. ──
-   ============================================================================ */
-
-  // Default payload (Aki 2026). A same-origin prediction-current.json overrides this.
-  const DEFAULT_CFG = {
-    basho:      "Aki 2026",
-    refBasho:   "Nagoya 2026",
-    phase:      "open",          // "open" | "locked" | "scored"
-    players:    ["Jennie","MJ","Sherry","James","Gumbai"],
-    sheetEditUrl: "",            // link players click to fill their tab (paste when ready)
-    csvUrl:     "",              // published Master CSV — used only at "locked"/"scored"
-    lockNote:   "Reveals when the Aki banzuke is announced."
-  };
-
-  // The field = every current-Makuuchi wrestler by Nagoya '26 rank + final record.
-  // PUBLIC data only. No picks here, on purpose.
-  const ROSTER = [
-    {n:"Hoshoryu",r:"Yokozuna",rec:"7–7",kk:""},
-    {n:"Onosato",r:"Yokozuna",rec:"9–6",kk:"KK"},
-    {n:"Kirishima",r:"Ozeki",rec:"12–3",kk:"KK"},
-    {n:"Kotozakura",r:"Ozeki",rec:"8–7",kk:"KK"},
-    {n:"Atamifuji",r:"Sekiwake",rec:"12–3",kk:"KK"},
-    {n:"Kotoshoho",r:"Sekiwake",rec:"6–9",kk:"MK"},
-    {n:"Aonishiki",r:"Sekiwake",rec:"12–3",kk:"KK"},
-    {n:"Wakatakakage",r:"Sekiwake",rec:"—",kk:""},
-    {n:"Oho",r:"Komusubi",rec:"2–13",kk:"MK"},
-    {n:"Yoshinofuji",r:"Komusubi",rec:"6–9",kk:"MK"},
-    {n:"Fujinokawa",r:"M1",rec:"8–7",kk:"KK"},
-    {n:"Takanosho",r:"M1",rec:"6–9",kk:"MK"},
-    {n:"Churanoumi",r:"M2",rec:"7–8",kk:"MK"},
-    {n:"Gonoyama",r:"M2",rec:"7–8",kk:"MK"},
-    {n:"Hakunofuji",r:"M3",rec:"9–6",kk:"KK"},
-    {n:"Hiradoumi",r:"M3",rec:"4–11",kk:"MK"},
-    {n:"Daieisho",r:"M4",rec:"10–5",kk:"KK"},
-    {n:"Ichiyamamoto",r:"M4",rec:"6–9",kk:"MK"},
-    {n:"Oshoma",r:"M5",rec:"7–8",kk:"MK"},
-    {n:"Ura",r:"M5",rec:"5–10",kk:"MK"},
-    {n:"Fujiseiun",r:"M6",rec:"7–8",kk:"MK"},
-    {n:"Shodai",r:"M6",rec:"5–10",kk:"MK"},
-    {n:"Kotoeiho",r:"M7",rec:"11–4",kk:"KK"},
-    {n:"Takayasu",r:"M7",rec:"11–4",kk:"KK"},
-    {n:"Roga",r:"M8",rec:"9–6",kk:"KK"},
-    {n:"Wakamotoharu",r:"M8",rec:"6–9",kk:"MK"},
-    {n:"Fujiryoga",r:"M9",rec:"10–5",kk:"KK"},
-    {n:"Tobizaru",r:"M9",rec:"5–10",kk:"MK"},
-    {n:"Asanoyama",r:"M10",rec:"9–6",kk:"KK"},
-    {n:"Chiyoshoma",r:"M10",rec:"5–10",kk:"MK"},
-    {n:"Mitakeumi",r:"M11",rec:"3–12",kk:"MK"},
-    {n:"Wakanosho",r:"M11",rec:"5–2",kk:""},
-    {n:"Abi",r:"M12",rec:"7–8",kk:"MK"},
-    {n:"Asahakuryu",r:"M12",rec:"6–9",kk:"MK"},
-    {n:"Nishikifuji",r:"M13",rec:"10–5",kk:"KK"},
-    {n:"Takerufuji",r:"M13",rec:"10–5",kk:"KK"},
-    {n:"Kinbozan",r:"M14",rec:"9–6",kk:"KK"},
-    {n:"Shishi",r:"M14",rec:"10–5",kk:"KK"},
-    {n:"Kazuma",r:"M15",rec:"5–10",kk:"MK"},
-    {n:"Onokatsu",r:"M15",rec:"4–11",kk:"MK"},
-    {n:"Asakoryu",r:"M16",rec:"9–6",kk:"KK"},
-    {n:"Daiseizan",r:"M16",rec:"5–10",kk:"MK"}
-  ];
-
-  // Rank code -> value. Juryo is graded DYNAMICALLY at scoring time (see jVal()).
-  const RANK_KEY = {y:1,yokozuna:1,o:2,ozeki:2,s:3,sekiwake:3,k:4,komusubi:4,
-    m1:5,m2:6,m3:7,m4:8,m5:9,m6:10,m7:11,m8:12,m9:13,m10:14,m11:15,m12:16,
-    m13:17,m14:18,m15:19,m16:20,m17:21,m18:22,j:23,juryo:23};
-
-  const PLAYER_COLORS = {Jennie:"#6a3d9a",MJ:"#a9742c",Sherry:"#2f6fc0",James:"#227a4b",Gumbai:"#b23a2e"};
-
-  let CFG = Object.assign({}, DEFAULT_CFG);
-  // picks: {wrestlerName: {Player: "m3", ...}}   actuals: {wrestlerName: "m2"}
-  let PICKS = {}, ACTUAL = {};
-
-  /* ---------- helpers ---------- */
-  function rankClass(r){
-    r=(r||"").toLowerCase();
-    if(r.startsWith("yok"))return"r-yok"; if(r.startsWith("oze"))return"r-ozeki";
-    if(r.startsWith("sek"))return"r-seki"; if(r.startsWith("kom"))return"r-komu";
-    if(r==="j"||r.startsWith("jur"))return"r-jun";
-    if(r[0]==="m"){var n=+r.slice(1); return n<=8?"r-maeg-hi":"r-maeg-lo";}
-    return"r-maeg-lo";
-  }
-  function val(code){var v=RANK_KEY[(code||"").toString().trim().toLowerCase()];return v==null?null:v;}
-  // dynamic Juryo value = 1 + deepest Maegashira value actually present in ACTUAL
-  function jVal(){
-    var mx=0,has=false;
-    for(var k in ACTUAL){var c=(ACTUAL[k]||"").toLowerCase();
-      if(c[0]==="m"){var v=RANK_KEY[c]; if(v!=null){mx=Math.max(mx,v);has=true;}}}
-    return has?1+mx:22;
-  }
-  function valJ(code){ // value with Juryo resolved dynamically
-    code=(code||"").toString().trim().toLowerCase();
-    if(code==="j"||code==="juryo")return jVal();
-    return val(code);
-  }
-  function score(pred,actual){
-    if(!pred||!actual)return null;
-    var a=valJ(actual),p=valJ(pred);
-    if(a==null||p==null)return null;
-    return Math.abs(a-p);
-  }
-  function esc(s){return(s==null?"":String(s)).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
-  function recCell(rec,kk){
-    var cls=kk==="KK"?" kk":kk==="MK"?" mk":"";
-    var badge=kk==="KK"?'<span class="badge">✓ KK</span>':kk==="MK"?'<span class="badge">✗ MK</span>':"";
-    return '<td class="rec'+cls+'">'+esc(rec)+badge+'</td>';
-  }
-
-  /* ---------- tolerant CSV parse (handles quotes + commas) ---------- */
-  function parseCSV(txt){
-    var rows=[],row=[],cur="",q=false;
-    for(var i=0;i<txt.length;i++){var ch=txt[i];
-      if(q){ if(ch==='"'){ if(txt[i+1]==='"'){cur+='"';i++;} else q=false; } else cur+=ch; }
-      else{ if(ch==='"')q=true;
-        else if(ch===','){row.push(cur);cur="";}
-        else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur="";}
-        else if(ch==='\r'){}
-        else cur+=ch; }
-    }
-    if(cur.length||row.length){row.push(cur);rows.push(row);}
-    return rows;
-  }
-  // Map a published Master CSV -> PICKS / ACTUAL, matched by wrestler NAME (sort-proof)
-  function ingestCSV(txt){
-    var rows=parseCSV(txt).filter(function(r){return r.some(function(c){return(c||"").trim();});});
-    if(!rows.length)return false;
-    var head=rows[0].map(function(h){return(h||"").toLowerCase().trim();});
-    function findCol(names){for(var j=0;j<head.length;j++){for(var k=0;k<names.length;k++){
-      if(head[j].indexOf(names[k])>-1)return j;}}return -1;}
-    var cName=findCol(["wrestler","rikishi","name"]);
-    if(cName<0)cName=0;
-    var cActual=findCol(["actual"]);
-    var pcol={};
-    CFG.players.forEach(function(p){pcol[p]=findCol([p.toLowerCase()]);});
-    var np={},na={};
-    for(var i=1;i<rows.length;i++){
-      var nm=(rows[i][cName]||"").trim(); if(!nm)continue;
-      np[nm]={};
-      CFG.players.forEach(function(p){var j=pcol[p];
-        if(j>-1){var v=(rows[i][j]||"").trim(); if(v && !/score/.test(head[j])) np[nm][p]=v;}});
-      if(cActual>-1){var a=(rows[i][cActual]||"").trim(); if(a)na[nm]=a;}
-    }
-    PICKS=np; ACTUAL=na; return true;
-  }
-
-  /* ---------- render pieces ---------- */
-  function fieldRows(sortKey,sortDir){
-    var data=ROSTER.map(function(x,i){return Object.assign({_ord:i},x);});
-    var cmp={
-      rank:function(a,b){return a._ord-b._ord;},
-      name:function(a,b){return a.n.localeCompare(b.n);},
-      rec:function(a,b){return recNum(a.rec)-recNum(b.rec);}
-    }[sortKey]||function(a,b){return a._ord-b._ord;};
-    data.sort(function(a,b){return sortDir*cmp(a,b)||a._ord-b._ord;});
-    return data;
-  }
-  function recNum(rec){var m=/(-?\d+)\D+(-?\d+)/.exec(rec||"");return m?(+m[1]-+m[2]):-99;}
-
-  var sortKey="rank",sortDir=1;
-
-  function renderOpen(){
-    var m=document.getElementById("main");
-    var rows=fieldRows(sortKey,sortDir).map(function(r){
-      return '<tr><td><span class="rank '+rankClass(r.r)+'">'+esc(r.r)+'</span></td>'+
-        '<td class="name">'+esc(r.n)+'</td>'+recCell(r.rec,r.kk)+'</tr>';
-    }).join("");
-    m.innerHTML =
-      panelHowTo() +
-      playersStrip(null) +
-      '<div class="panel"><h2>The field — '+esc(CFG.refBasho)+' finish</h2>'+
-        '<p class="muted">Your ballot. Every wrestler currently in Makuuchi, with how they closed the last basho. Predict where each lands on the '+esc(CFG.basho)+' banzuke, in your own sheet.</p></div>'+
-      '<div class="scroll"><table><thead><tr>'+
-        th("rank","Rank")+th("name","Wrestler")+th("rec","Final record")+
-        '</tr></thead><tbody>'+rows+'</tbody></table></div>'+
-      legend() + gumbaiNote();
-    wireSort(renderOpen);
-  }
-
-  function renderBoard(scored){
-    var m=document.getElementById("main");
-    var players=CFG.players;
-    var jv=jVal();
-    // per-player totals (scored only)
-    var totals={}; players.forEach(function(p){totals[p]=0;});
-    var anyScore=false;
-
-    var body=ROSTER.map(function(r){
-      var picks=PICKS[r.n]||{};
-      var actual=ACTUAL[r.n]||"";
-      var tds=players.map(function(p){
-        var code=picks[p]||"";
-        var gum=p==="Gumbai"?" gum":"";
-        return '<td class="pick'+gum+'"><span class="code">'+esc(code||"·")+'</span></td>';
-      }).join("");
-      var actTd="", scoreTds="";
-      if(scored){
-        actTd='<td class="actual">'+esc(actual||"·")+'</td>';
-        // find best (lowest) score this row for subtle highlight
-        var rowScores=players.map(function(p){return score(picks[p]||"",actual);});
-        var valid=rowScores.filter(function(s){return s!=null;});
-        var best=valid.length?Math.min.apply(null,valid):null;
-        scoreTds=players.map(function(p,idx){
-          var s=rowScores[idx];
-          if(s!=null){totals[p]+=s;anyScore=true;}
-          var bcls=(s!=null&&s===best)?" best":"";
-          return '<td class="score'+bcls+'">'+(s==null?"":s)+'</td>';
-        }).join("");
-      }
-      return '<tr><td><span class="rank '+rankClass(r.r)+'">'+esc(r.r)+'</span></td>'+
-        '<td class="name">'+esc(r.n)+'</td>'+recCell(r.rec,r.kk)+tds+actTd+scoreTds+'</tr>';
-    }).join("");
-
-    var head='<tr>'+th("rank","Rank")+th("name","Wrestler")+'<th>Final</th>'+
-      players.map(function(p){return '<th style="text-align:center">'+esc(p)+'</th>';}).join("");
-    if(scored){
-      head+='<th style="text-align:center">Actual</th>'+
-        players.map(function(p){return '<th style="text-align:center">'+esc(p)+' pts</th>';}).join("");
-    }
-    head+='</tr>';
-
-    var lb="";
-    if(scored && anyScore){
-      var arr=players.map(function(p){return {p:p,t:totals[p]};}).sort(function(a,b){return a.t-b.t;});
-      var lead=arr[0].t;
-      lb='<div class="lb">'+arr.map(function(o){
-        var isLead=o.t===lead;
-        return '<div class="lbcard'+(isLead?" lead":"")+'">'+(isLead?'<div class="crown">🏆</div>':'')+
-          '<div class="who">'+esc(o.p)+'</div><div class="pts">'+o.t+'</div>'+
-          '<div class="lbl">total · lowest wins</div></div>';
-      }).join("")+'</div>';
-    }
-
-    m.innerHTML =
-      (scored?'<div class="panel"><h2>Results — '+esc(CFG.basho)+' banzuke</h2><p class="muted">Score is the rank-distance between each pick and where the wrestler actually landed. Exact call = 0. Lowest total wins. Juryo graded dynamically (this basho, j = '+jv+').</p></div>':
-               '<div class="panel"><h2>Everyone’s picks — '+esc(CFG.basho)+'</h2><p class="muted">Locked in. Actual ranks and scoring appear once the '+esc(CFG.basho)+' banzuke is announced.</p></div>') +
-      lb +
-      '<div class="scroll"><table><thead>'+head+'</thead><tbody>'+body+'</tbody></table></div>' +
-      legend() + gumbaiNote();
-  }
-
-  /* ---------- small builders ---------- */
-  function th(key,label){
-    var ar=key===sortKey?(sortDir>0?"▲":"▼"):"";
-    return '<th class="sortable" data-key="'+key+'">'+label+'<span class="arrow">'+ar+'</span></th>';
-  }
-  function wireSort(rerender){
-    document.querySelectorAll("th.sortable").forEach(function(t){
-      t.onclick=function(){var k=t.dataset.key;
-        if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=k==="rank"?1:(k==="rec"?-1:1);}
-        rerender();};
-    });
-  }
-  function playersStrip(){
-    return '<div class="players">'+CFG.players.map(function(p){
-      var gum=p==="Gumbai";
-      return '<span class="pchip'+(gum?" gum":"")+'"><span class="av" style="background:'+
-        (PLAYER_COLORS[p]||"#6a3d9a")+'">'+esc(p[0])+'</span>'+esc(p)+
-        (gum?' <small>the machine</small>':'')+'</span>';
-    }).join("")+'</div>';
-  }
-  function panelHowTo(){
-    return '<div class="panel"><h2>How the pool works</h2>'+
-      '<p>Each of us predicts where every wrestler lands on the next banzuke, entered as a short rank code in our own sheet. When the real banzuke drops, the board scores every pick by rank-distance from the truth.</p>'+
-      '<ol class="steps">'+
-        '<li>Open your own tab in the shared sheet and fill your picks.</li>'+
-        '<li>Picks stay private here until the window closes — no peeking, no bias.</li>'+
-        '<li>The board reveals all picks side by side, then scores them when Aki is announced.</li>'+
-        '<li><b>Lowest total wins.</b> An exact call is a clean zero.</li>'+
-      '</ol></div>';
-  }
-  function legend(){
-    var order=[["y","Yokozuna"],["o","Ozeki"],["s","Sekiwake"],["k","Komusubi"],
-      ["m1","M1"],["m2","M2"],["…","…"],["m16","M16"],["m17","M17"],["m18","M18"],["j","Juryo"]];
-    return '<div class="legend"><h3>Rank codes</h3><div class="codes">'+
-      order.map(function(o){return '<span class="c"><b>'+esc(o[0])+'</b> '+esc(o[1])+'</span>';}).join("")+
-      '</div><p class="muted" style="margin:8px 0 0;font-size:12.5px">Type the code (lowercase) into your sheet. Juryo’s distance is graded to how deep the Maegashira ranks actually go each basho.</p></div>';
-  }
-  function gumbaiNote(){
-    return '<div class="panel"><h2>Gumbai’s method</h2>'+
-      '<p class="muted">The machine reasons like a banzuke committee off the final records — Yokozuna stay, kachi-koshi Ozeki hold, a 12–3 Sekiwake stays put rather than betting the Ozeki run, Maegashira shift about two ranks per win over .500, and the bottom-rung disasters fall to Juryo. It commits its picks with everyone else. No, you can’t cheat off it.</p></div>';
-  }
-
-  function renderFoot(){
-    document.getElementById("foot").innerHTML =
-      '<p><b>Salt Stats & Sumo</b> — the prediction board. Picks live in each player’s Google Sheet on the honor system; this page shows the field now and the full board once the window closes. The field (rank + final record) comes from the '+esc(CFG.refBasho)+' finals.</p>';
-  }
-
-  /* ---------- phase strip ---------- */
-  function applyPhase(){
-    var strip=document.getElementById("phaseStrip"),
-        tag=document.getElementById("phaseTag"),
-        msg=document.getElementById("phaseMsg"),
-        cta=document.getElementById("ctaPick");
-    document.getElementById("hTitle").textContent=CFG.basho+" — Banzuke Prediction Pool";
-    strip.className="phase "+CFG.phase;
-    if(CFG.phase==="open"){
-      tag.textContent="Picks open";
-      msg.innerHTML="Everyone’s filling their own sheet. <b>"+esc(CFG.lockNote||"")+"</b> The board reveals every pick side by side once the window closes.";
-      if(CFG.sheetEditUrl){cta.style.display="";cta.href=CFG.sheetEditUrl;cta.textContent="Make your picks →";}
-      else{cta.style.display="none";}
-    }else if(CFG.phase==="locked"){
-      tag.textContent="Picks locked";
-      msg.innerHTML="Everyone’s in. Picks are revealed below; <b>actual ranks and scores post when the "+esc(CFG.basho)+" banzuke is announced.</b>";
-      cta.className="cta ghost";cta.style.display=CFG.sheetEditUrl?"":"none";
-      if(CFG.sheetEditUrl){cta.href=CFG.sheetEditUrl;cta.textContent="Open the sheet →";}
-    }else{
-      tag.textContent="Scored";
-      msg.innerHTML="The "+esc(CFG.basho)+" banzuke is out and the pool is scored. <b>Lowest total wins.</b>";
-      cta.className="cta ghost";cta.style.display=CFG.sheetEditUrl?"":"none";
-      if(CFG.sheetEditUrl){cta.href=CFG.sheetEditUrl;cta.textContent="Open the sheet →";}
-    }
-  }
-
-  function renderMain(){
-    if(CFG.phase==="open")renderOpen();
-    else renderBoard(CFG.phase==="scored");
-  }
-
-  /* ---------- boot: default payload, then optional overrides ---------- */
-  async function boot(){
-    // 1) per-basho override file (the rollover pointer). Optional; ignore if absent.
-    try{
-      var res=await fetch("prediction-current.json",{cache:"no-store"});
-      if(res.ok){
-        var j=await res.json();
-        if(j && typeof j==="object"){
-          CFG=Object.assign({},DEFAULT_CFG,j.cfg||j);
-          if(Array.isArray(j.roster)&&j.roster.length){ROSTER.length=0;j.roster.forEach(function(x){ROSTER.push(x);});}
-        }
-      }
-    }catch(e){/* static hosting without the file — fine */}
-
-    // 2) live picks from the published Master CSV (only meaningful once locked/scored)
-    if(CFG.csvUrl && CFG.phase!=="open"){
-      try{
-        var r2=await fetch(CFG.csvUrl,{cache:"no-store"});
-        if(r2.ok){ ingestCSV(await r2.text()); }
-      }catch(e){/* not published yet — board shows the shell */}
-    }
-
-    applyPhase(); renderMain(); renderFoot();
-  }
-  boot();
-</script>
 </body>
 </html>
