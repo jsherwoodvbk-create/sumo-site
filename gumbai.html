@@ -25,7 +25,6 @@
     display:flex;flex-direction:column;min-height:100dvh}
   h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   a{color:var(--purple);text-decoration:none}
-
   /* header — contained clay banner, matching the other child pages */
   .top{background:
       repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
@@ -44,7 +43,6 @@
     transition:transform .12s ease, box-shadow .12s ease}
   .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
   .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
-
   /* gate bar */
   .gate{max-width:760px;width:calc(100% - 32px);margin:0 auto 2px;padding:9px 14px;display:flex;align-items:center;gap:10px;
     flex-wrap:wrap;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
@@ -53,9 +51,11 @@
     border:1px solid var(--line);border-radius:9px;padding:6px 10px}
   .gate .safe{margin-left:auto;font-size:11.5px;color:var(--win);font-weight:700;display:inline-flex;gap:5px;align-items:center}
   .gate .safe::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--win)}
-
   /* chat */
   .stream{flex:1;overflow-y:auto}
+  /* landing (before the first question): don't let the stream eat all the height,
+     so the composer sits right under the starters instead of at the bottom of the screen */
+  body:not(.chatting) .stream{flex:0 0 auto;overflow-y:visible}
   .inner{max-width:760px;margin:0 auto;padding:20px 18px 8px;display:flex;flex-direction:column;gap:14px}
   .bubble{max-width:86%;padding:11px 15px;border-radius:16px;font-size:15px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
   .me{align-self:flex-end;background:var(--purple);color:#fff;border-bottom-right-radius:5px}
@@ -63,16 +63,16 @@
   .gb .who{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--clay);margin-bottom:3px}
   .gb.warn{border-color:var(--vermilion);background:color-mix(in srgb,var(--vermilion) 8%,var(--surface))}
   .typing{align-self:flex-start;color:var(--muted);font-size:14px;font-style:italic;padding:2px 4px}
-
   /* intro / starters */
   .intro{align-self:stretch;text-align:center;color:var(--muted);font-size:14px;padding:14px 6px 4px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
   .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;
     font-size:13px;color:var(--ink);cursor:pointer;transition:border-color .12s,transform .12s}
   .chip:hover{border-color:var(--purple);transform:translateY(-1px)}
-
   /* composer */
   .composer{border-top:1px solid var(--line);background:var(--surface)}
+  /* landing state: no top bar / no fill — the box just sits under the starters */
+  body:not(.chatting) .composer{border-top:none;background:transparent}
   .composer .box{max-width:760px;margin:0 auto;padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
   .composer .full{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:9px;cursor:pointer;user-select:none}
   .composer .full input{width:15px;height:15px;accent-color:var(--vermilion)}
@@ -121,13 +121,11 @@
     </div>
     <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
   </div></div>
-
   <div class="gate">
     <label for="day">I've watched through:</label>
     <select id="day"><option value="1">Day 1</option></select>
     <span class="safe" id="safe">spoiler-safe</span>
   </div>
-
   <div class="stream"><div class="inner" id="stream">
     <div class="intro" id="intro">
       Ask me anything about the basho: records, matchups, who's from where, what a move means,
@@ -135,7 +133,6 @@
       <div class="chips" id="chips"></div>
     </div>
   </div></div>
-
   <div class="composer"><div class="box">
     <label class="full"><input type="checkbox" id="showFull"> <span>Show <b>full results</b> for this one question (ignore my day gate). Off by default</span></label>
     <div class="send">
@@ -144,7 +141,6 @@
     </div>
     <div class="foot" id="foot">Gumbai answers from Salt Stats &amp; Sumo data · never reveals past your day</div>
   </div></div>
-
 <script>
 const API = '/api/gumbai';
 const stream = document.getElementById('stream');
@@ -154,7 +150,6 @@ const askBtn = document.getElementById('ask');
 const fullBox = document.getElementById('showFull');
 const foot = document.getElementById('foot');
 const intro = document.getElementById('intro');
-
 const STARTERS = [
   "How's Atomic doing?",
   "Who's earned a kinboshi so far?",
@@ -166,11 +161,9 @@ const STARTERS = [
 const chips = document.getElementById('chips');
 STARTERS.forEach(s=>{ const c=document.createElement('div'); c.className='chip'; c.textContent=s;
   c.onclick=()=>{ qBox.value=s; qBox.focus(); autosize(); }; chips.appendChild(c); });
-
 // conversation memory (in-page; a reload starts fresh)
 const history = [];
 let maxDay = 1, busy = false, offline = false;
-
 // populate the day selector from the server (maxDay is public, not a spoiler)
 fetch(API).then(r=>r.json()).then(d=>{
   maxDay = d.maxDay || 1;
@@ -185,7 +178,6 @@ fetch(API).then(r=>r.json()).then(d=>{
   try{ localStorage.setItem('ss_watched_day', daySel.value); }catch(e){}
   daySel.dispatchEvent(new Event('change'));
 }).catch(()=>{ /* leave the single Day 1 option */ });
-
 function autosize(){ qBox.style.height='auto'; qBox.style.height=Math.min(qBox.scrollHeight,140)+'px'; }
 qBox.addEventListener('input', autosize);
 qBox.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
@@ -194,16 +186,15 @@ daySel.addEventListener('change', ()=>{
   try{ localStorage.setItem('ss_watched_day', daySel.value); }catch(e){}   // keep the shared day in sync
   document.getElementById('safe').textContent =
   (+daySel.value===maxDay) ? 'spoiler-safe' : 'spoiler-safe · showing through Day '+daySel.value; });
-
 function addBubble(cls, text, who){
   if(intro) intro.style.display='none';
+  document.body.classList.add('chatting');   // conversation started: composer drops to the bottom, chat scrolls above it
   const b=document.createElement('div'); b.className='bubble '+cls;
   if(who){ const w=document.createElement('span'); w.className='who'; w.textContent=who; b.appendChild(w); }
   b.appendChild(document.createTextNode(text));
   stream.appendChild(b); scrollDown(); return b;
 }
 function scrollDown(){ const s=document.querySelector('.stream'); s.scrollTop=s.scrollHeight; }
-
 async function send(){
   const text = qBox.value.trim();
   if(!text || busy) return;
@@ -213,10 +204,8 @@ async function send(){
   qBox.value=''; autosize();
   const showFull = fullBox.checked;
   fullBox.checked=false;             // per-question: resets every send
-
   const typing=document.createElement('div'); typing.className='typing'; typing.textContent='Gumbai’s checking the data… 🪭';
   stream.appendChild(typing); scrollDown();
-
   try{
     const res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'},
       body: JSON.stringify({ messages:history, day:+daySel.value, showFull }) });
