@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Crew Gallery — Salt Stats &amp; Sumo</title>
+<title>Crew Gallery · Salt Stats &amp; Sumo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
@@ -138,14 +138,14 @@
       </div>
       <button class="go" id="go">Upload</button>
     </div>
-    <p class="hint">🌐 <b>Public</b> shows on the site's Fan Gallery for anyone. 🔒 <b>Crew only</b> stays here in the app — only logged-in crew can see it. You can delete your own anytime, and it's gone everywhere.</p>
+    <p class="hint">🌐 <b>Public</b> shows on the site's Fan Gallery for anyone. 🔒 <b>Crew only</b> stays here in the app; only logged-in crew can see it. You can delete your own anytime, and it's gone everywhere.</p>
     <p class="status" id="status"></p>
   </div>
 
   <div id="grid" class="grid"></div>
   <div id="loading" class="spin">Loading the gallery…</div>
 
-  <footer><b>Salt Stats &amp; Sumo</b> — the crew gallery. Photos live in your crew store; delete yours anytime.</footer>
+  <footer><b>Salt Stats &amp; Sumo</b>, the crew gallery. Photos live in your crew store; delete yours anytime.</footer>
 </div>
 
 <script>
@@ -180,7 +180,7 @@
       ADMIN = !!(d&&d.admin);
       var photos=(d&&d.photos)||[]; PHOTOS={};
       var grid=document.getElementById('grid'); if(!grid) return;
-      if(!photos.length){ grid.innerHTML='<div class="empty">No shots yet — add the first one above.</div>'; return; }
+      if(!photos.length){ grid.innerHTML='<div class="empty">No shots yet. Add the first one above.</div>'; return; }
       grid.innerHTML = photos.map(function(p){
         PHOTOS[p.id]=p;
         var badge = p.visibility==='public'
@@ -196,7 +196,7 @@
       }).join('');
       grid.querySelectorAll('.del').forEach(function(b){ b.onclick=function(){ del(b.dataset.id); }; });
       grid.querySelectorAll('.edit').forEach(function(b){ b.onclick=function(){ openEdit(b.dataset.id); }; });
-    }).catch(function(){ var l=document.getElementById('loading'); if(l) l.textContent='Gallery is taking a breather — refresh in a moment.'; });
+    }).catch(function(){ var l=document.getElementById('loading'); if(l) l.textContent='Gallery is taking a breather. Refresh in a moment.'; });
   }
 
   function metaFor(id){ var ms=document.querySelectorAll('.meta'); for(var i=0;i<ms.length;i++){ if(ms[i].dataset.id===id) return ms[i]; } return null; }
@@ -222,7 +222,7 @@
       setStatus('','Saving…');
       fetch('/api/app/gallery',{method:'PATCH',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
         .then(function(r){return r.json();}).then(function(d){ if(d&&d.ok){ setStatus('ok','Updated.'); load(); } else setStatus('err','Update failed: '+((d&&d.error)||'error')); })
-        .catch(function(){ setStatus('err','Update failed — try again.'); });
+        .catch(function(){ setStatus('err','Update failed. Try again.'); });
     };
   }
 
@@ -232,14 +232,14 @@
       .then(function(r){return r.json();}).then(function(d){
         if(d&&d.ok){ setStatus('ok','Deleted.'); load(); }
         else setStatus('err','Could not delete: '+((d&&d.error)||'error'));
-      }).catch(function(){ setStatus('err','Delete failed — try again.'); });
+      }).catch(function(){ setStatus('err','Delete failed. Try again.'); });
   }
 
   document.getElementById('go').onclick=function(){
     var f=document.getElementById('file').files[0];
     if(!f){ setStatus('err','Pick a photo first.'); return; }
     var cap=(document.getElementById('cap').value||'').trim();
-    if(!cap){ setStatus('err','Add a caption first — it tells everyone what they\'re looking at.'); document.getElementById('cap').focus(); return; }
+    if(!cap){ setStatus('err','Add a caption first. It tells everyone what they\'re looking at.'); document.getElementById('cap').focus(); return; }
     var vis=(document.querySelector('input[name=vis]:checked')||{}).value||'crew';
     var btn=document.getElementById('go'); btn.disabled=true; setStatus('','Reading photo…');
     f.arrayBuffer().then(function(buf){
@@ -251,10 +251,10 @@
       return fetch('/api/app/gallery',{method:'POST',body:fd,credentials:'same-origin'});
     }).then(function(r){return r.json();}).then(function(d){
       btn.disabled=false;
-      if(d&&d.ok){ setStatus('ok','Added'+(vis==='public'?' — live on the public gallery.':' — crew only.'));
+      if(d&&d.ok){ setStatus('ok','Added'+(vis==='public'?'. Live on the public gallery.':'. Crew only.'));
         document.getElementById('file').value=''; document.getElementById('cap').value=''; load(); }
       else setStatus('err','Upload failed: '+((d&&d.error)||'error'));
-    }).catch(function(){ btn.disabled=false; setStatus('err','Upload failed — try again.'); });
+    }).catch(function(){ btn.disabled=false; setStatus('err','Upload failed. Try again.'); });
   };
 
   load();
