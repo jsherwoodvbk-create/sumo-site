@@ -242,5 +242,12 @@ async function send(){
   }
 }
 </script>
+<script>
+/* auth-aware home crest: logged-in crew go back to the app hub, visitors to the public home */
+fetch('/api/auth/me',{headers:{'Accept':'application/json'},credentials:'same-origin'})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){ if(d&&d.email){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } } })
+  .catch(function(){});
+</script>
 </body>
 </html>
