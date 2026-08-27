@@ -3,36 +3,69 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Crew Login — Salt Stats &amp; Sumo</title>
+<meta name="robots" content="noindex, nofollow">
+<title>Crew Login · Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184; }
-  * { box-sizing:border-box; }
-  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
-         background:var(--band); color:var(--ink); min-height:100vh;
-         display:flex; align-items:center; justify-content:center; padding:24px; }
-  .card { background:#fff; border:1px solid var(--line); border-radius:12px; max-width:380px;
-          width:100%; box-shadow:0 6px 24px rgba(61,39,19,.12); overflow:hidden; }
-  .card header { background:var(--head); color:#fff; padding:20px 24px; }
-  .card header h1 { margin:0; font-size:18px; }
-  .card header p { margin:4px 0 0; font-size:12px; opacity:.85; }
-  .body { padding:24px; }
-  label { display:block; font-size:13px; font-weight:600; margin-bottom:6px; }
-  input[type=email] { width:100%; padding:10px 12px; font-size:15px; border:1px solid var(--line);
-                      border-radius:8px; }
-  button { margin-top:16px; width:100%; padding:11px; font-size:15px; font-weight:600; color:#fff;
-           background:var(--accent); border:0; border-radius:8px; cursor:pointer; }
-  button:hover { background:#731f18; }
-  .msg { padding:11px 13px; border-radius:8px; font-size:13px; margin-bottom:16px; line-height:1.4; }
-  .msg.ok { background:#e9f5ec; color:#2f6b3d; border:1px solid #b9dec4; }
-  .msg.err { background:#fdecea; color:#8A2A20; border:1px solid #f3c0bb; }
-  .note { margin-top:16px; font-size:12px; color:#8C7550; line-height:1.4; }
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --win:#227a4b; --loss:#a93327;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);min-height:100vh;
+    display:flex;align-items:center;justify-content:center;padding:24px;
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:var(--purple);text-decoration:none;font-weight:600}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;max-width:400px;width:100%;
+    overflow:hidden;box-shadow:0 8px 26px rgba(50,30,10,.12)}
+  header{
+    background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;padding:20px 22px;border-bottom:1px solid #38230f}
+  .hbrand{display:flex;align-items:center;gap:14px}
+  .hbrand .badge{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:#efe7d5;
+    box-shadow:0 0 0 1px rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.28);overflow:hidden}
+  .hbrand .badge img{width:100%;height:100%;object-fit:cover;display:block}
+  header h1{margin:0;font-size:20px;font-weight:900}
+  header p{margin:2px 0 0;font-size:13px;opacity:.9}
+  .body{padding:22px}
+  label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px}
+  input[type=email]{width:100%;font:inherit;font-size:15px;padding:10px 12px;
+    border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+  input[type=email]:focus{outline:none;border-color:var(--purple)}
+  button{margin-top:16px;width:100%;padding:12px;font:inherit;font-size:15px;font-weight:700;color:#fff;
+    background:var(--vermilion);border:0;border-radius:9px;cursor:pointer;transition:filter .12s ease}
+  button:hover{filter:brightness(1.08)}
+  .msg{padding:11px 14px;border-radius:9px;font-size:13.5px;margin-bottom:16px;line-height:1.5}
+  .msg.ok{background:#e9f5ec;color:#2f6b3d;border:1px solid #b9dec4}
+  .msg.err{background:#fdecea;color:var(--loss);border:1px solid #f3c0bb}
+  @media (prefers-color-scheme:dark){
+    .msg.ok{background:#173a25;color:#8fe0ab;border-color:#245536}
+    .msg.err{background:#3c1f1b;color:#f0a89e;border-color:#5a2a22}}
+  .note{margin-top:16px;font-size:12.5px;color:var(--muted);line-height:1.5}
+  .foot{margin-top:14px;font-size:13px;color:var(--muted);text-align:center}
 </style>
 </head>
 <body>
   <div class="card">
     <header>
-      <h1>🧂 Salt Stats &amp; Sumo</h1>
-      <p>Crew login</p>
+      <div class="hbrand">
+        <span class="badge"><img src="/salt-stats-sumo-badgeold.png" alt=""></span>
+        <div>
+          <h1>Salt Stats &amp; Sumo</h1>
+          <p>Crew login</p>
+        </div>
+      </div>
     </header>
     <div class="body">
       <div id="msg" class="msg" style="display:none"></div>
@@ -42,10 +75,8 @@
                placeholder="you@example.com" autofocus>
         <button type="submit">Email me a login link</button>
       </form>
-      <p class="note">
-        No password. We email you a one-time link — tap it and you're in. The link works for
-        15 minutes.
-      </p>
+      <p class="note">No password. We email you a one-time link, you tap it, and you're in. The link works for 15 minutes.</p>
+      <p class="foot">Not in the crew yet? <a href="/join">Request an invite →</a></p>
     </div>
   </div>
   <script>
@@ -53,8 +84,8 @@
       var p = new URLSearchParams(location.search);
       var box = document.getElementById('msg');
       function show(cls, html) { box.className = 'msg ' + cls; box.innerHTML = html; box.style.display = 'block'; }
-      if (p.has('sent')) show('ok', "📬 Check your inbox — we just emailed you a login link. (Peek in spam if it's shy.)");
-      else if (p.get('error') === 'notcrew') show('err', "That email isn't on the crew list. Check the spelling, or ask Jennie to add you.");
+      if (p.has('sent')) show('ok', "📬 Check your inbox. We just emailed you a login link. (Peek in spam if it's shy.)");
+      else if (p.get('error') === 'notcrew') show('err', "That email isn't on the crew list. Check the spelling, or <a href=\"/join\">request an invite →</a>");
       else if (p.get('error') === 'expired') show('err', "That link expired or was already used. Enter your email for a fresh one.");
       else if (p.get('error') === 'send') show('err', "Something hiccuped sending the email. Try again in a moment.");
     })();
