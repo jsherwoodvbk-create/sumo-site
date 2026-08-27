@@ -4,278 +4,238 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Salt Stats & Sumo — Nagoya 2026 Standings</title>
+<title>Gumbai · Salt Stats & Sumo</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
 <style>
-  /* ---- palette: dohyo clay · audience charcoal · gyoji purple + gunbai vermilion · roof-tassel green/red ---- */
   :root{
     --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
-    --clay:#a9742c; --clay-soft:#e6cf9f; --charcoal:#2b2b31;
-    --purple:#6a3d9a; --vermilion:#cf5a2c;
-    --maeg-hi:#46536b; --maeg-lo:#746a52;
-    --win:#227a4b; --loss:#a93327; --pending:#d9cfbc; --win-bg:#e3f2e9; --loss-bg:#f7e6e3; --win-bg2:#c3e3cf; --loss-bg2:#f1cbc2;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --win:#227a4b; --live:#c0392b;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
-      --clay:#d2a35c; --clay-soft:#40331d; --charcoal:#0f0f12;
-      --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c; --pending:#3a3a42; --win-bg:#173a25; --loss-bg:#3c1f1b; --win-bg2:#1f5232; --loss-bg2:#5a2a22;}
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --live:#e0685a;}
   }
   *{box-sizing:border-box}
+  html,body{height:100%}
   body{margin:0;background:var(--bg);color:var(--ink);
-    font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  h1,.gatebox h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
-  .wrap{max-width:940px;margin:0 auto;padding:0 16px 64px}
-  .sample{background:var(--vermilion);color:#fff;text-align:center;font-size:12px;font-weight:700;
-    letter-spacing:.03em;padding:6px;border-radius:0 0 8px 8px;margin-bottom:20px}
-  /* header band — clay, like the ring */
-  header{
-    background:
-      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
-      repeating-linear-gradient(182deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px),
-      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
-      linear-gradient(160deg,#6e4826,#432a15);
-    color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid #38230f;
-    box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -3px 7px rgba(0,0,0,.25)}
-  header h1{font-size:25px;margin:0 0 3px;letter-spacing:0;font-weight:900}
-  header .sub{opacity:.9;font-size:13.5px;margin:0}
-  .hbrand{display:flex;align-items:center;gap:15px}
-  .emblem{flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
-  .watched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
-    border:1px solid var(--line);border-left:4px solid var(--purple);border-radius:10px;padding:10px 14px;margin:0 0 16px;font-size:14px}
-  .watched b{color:var(--purple)}
-  .watched button{margin-left:auto;font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--purple);
-    border:none;border-radius:7px;padding:6px 12px;cursor:pointer}
-  .watched button:hover{filter:brightness(1.08)}
-  /* yusho (champion) banner — imperial purple, revealed ONLY at the final-day gate */
-  .yusho{display:flex;align-items:center;gap:13px;
-    background:linear-gradient(135deg,#6a3d9a,#4c2a73);
-    color:#fff;border:1px solid #3a235c;border-radius:12px;padding:13px 17px;margin:0 0 16px;
-    box-shadow:0 6px 18px rgba(76,42,115,.32), inset 0 1px 0 rgba(255,255,255,.14)}
-  .yusho .cup{font-size:30px;line-height:1;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35))}
-  .yusho .ytext{display:flex;flex-direction:column;gap:2px}
-  .yusho .ylab{font-size:11px;text-transform:uppercase;letter-spacing:.12em;opacity:.85;font-weight:700}
-  .yusho .yline{display:flex;align-items:baseline;gap:9px;flex-wrap:wrap}
-  .yusho .yname{font-family:'Zen Old Mincho',Georgia,serif;font-size:21px;font-weight:900;line-height:1.15}
-  .yusho .yrec{font-variant-numeric:tabular-nums;font-weight:700;opacity:.95}
-  .yusho .ypo{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;
-    background:rgba(255,255,255,.20);padding:3px 9px;border-radius:20px}
-  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-  th,td{text-align:left;padding:9px 10px;border-top:1px solid var(--line);font-size:14px;vertical-align:middle}
-  th{font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-top:none;background:var(--clay-soft)}
-  th.sortable{cursor:pointer;user-select:none}
-  th.sortable:hover{color:var(--ink)}
-  th .arrow{font-size:9px;margin-left:4px;vertical-align:1px}
-  @media (prefers-color-scheme:dark){th{color:var(--clay)}}
-  tr:hover td{background:rgba(106,61,154,.05)}
-  /* champion row — purple wash + gyoji-purple edge + a small cup by the name */
-  tr.champ td{background:rgba(106,61,154,.15) !important}
-  tr.champ td:first-child{box-shadow:inset 3px 0 0 var(--purple)}
-  .namecell .cup{font-size:15px;margin-left:1px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
-  .rank{font-size:11px;font-weight:800;padding:2px 7px;border-radius:6px;color:#fff;white-space:nowrap}
-  .r-yok{background:var(--purple)} .r-ozeki{background:var(--vermilion)} .r-seki{background:var(--clay)}
-  .r-komu{background:var(--win)} .r-maeg-hi{background:var(--maeg-hi)} .r-maeg-lo{background:var(--maeg-lo)}
-  .name{font-weight:600}
-  /* rikishi head-crop avatar (round via CSS; square PNGs live in /img/headshots) */
-  .namecell{display:flex;align-items:center;gap:9px}
-  .avatar{width:30px;height:30px;border-radius:50%;object-fit:cover;flex:0 0 auto;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.18), 0 0 0 1px rgba(255,255,255,.4)}
-  .avatar.ph{display:flex;align-items:center;justify-content:center;background:var(--clay-soft);
-    color:var(--clay);font-weight:800;font-size:13px;font-family:'Zen Old Mincho',Georgia,serif}
-  @media (prefers-color-scheme:dark){.avatar.ph{color:var(--clay)}}
-  /* mawashi color dot — sits after the name, before height */
-  .maw{width:30px;text-align:center;padding-left:2px;padding-right:2px}
-  .mawdot{display:inline-block;width:13px;height:13px;border-radius:50%;vertical-align:middle;
-    box-shadow:inset 0 0 0 1px rgba(0,0,0,.25), 0 0 0 1px rgba(255,255,255,.35)}
-  .mawdot.none{background:transparent !important;box-shadow:inset 0 0 0 1px var(--line)}
-  .phys{font-variant-numeric:tabular-nums;color:var(--muted);white-space:nowrap;font-size:13.5px}
-  .rec{font-variant-numeric:tabular-nums;font-size:15px;white-space:nowrap}
-  .rec .w,.rec .l{font-weight:500} .rec .b{font-weight:800} .rec .dash{color:var(--muted);margin:0 2px}
-  .rec.kk{background:var(--win-bg2)} .rec.mk{background:var(--loss-bg2)}
-  .rec .badge{font-size:10px;font-weight:800;margin-left:5px;padding:1px 5px;border-radius:5px;vertical-align:1px}
-  .rec.kk .badge{background:var(--win);color:#fff} .rec.mk .badge{background:var(--loss);color:#fff}
-  .strip{display:flex;gap:2px}
-  .cell{width:11px;height:11px;border-radius:3px;background:var(--pending)}
-  .cell.w{background:var(--win)} .cell.l{background:var(--loss)}
-  .cell.hidden{background:transparent;border:1px dashed var(--line)}
-  .cell.abs{background:transparent;border:1px solid var(--muted);opacity:.45}
-  .rec.ky{background:transparent}
-  .rec .kyt{color:var(--muted);font-style:italic;font-size:13px}
-  .rec.ky .badge{background:var(--muted);color:#fff}
-  footer{margin-top:20px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px}
-  footer b{color:var(--ink)}
-  .pal{display:flex;gap:6px;margin:10px 0 4px;flex-wrap:wrap}
-  .sw{font-size:10.5px;font-weight:700;color:#fff;padding:3px 8px;border-radius:6px}
-  .gate{position:fixed;inset:0;background:rgba(20,20,22,.74);backdrop-filter:blur(3px);display:flex;
-    align-items:center;justify-content:center;padding:20px;z-index:10}
-  .gatebox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--purple);
-    border-radius:16px;max-width:440px;padding:26px 24px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.32)}
-  .gatebox .flag{font-size:32px;margin-bottom:8px}
-  .gatebox h2{margin:0 0 6px;font-size:20px}
-  .gatebox p{margin:0 0 18px;font-size:14px;color:var(--muted)}
-  .gaterow{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
-  .gaterow select{font:inherit;font-size:16px;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
-  .gaterow button{font:inherit;font-size:15px;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:10px 18px;cursor:pointer}
-  .gaterow button:hover{filter:brightness(1.08)}
-  .gate .fine{margin-top:14px;font-size:11.5px;color:var(--muted)}
-  .hidden-el{display:none}
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    display:flex;flex-direction:column;min-height:100dvh}
+  h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:var(--purple);text-decoration:none}
+
+  /* header */
+  .top{background:linear-gradient(160deg,#6e4826,#3f2814);color:#fff;padding:16px 18px 14px;
+    box-shadow:0 6px 18px rgba(50,30,10,.28)}
+  .top .row{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px}
+  .top .fan{font-size:30px;line-height:1;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))}
+  .top h1{margin:0;font-size:24px;font-weight:900;letter-spacing:.01em}
+  .top .tag{margin:1px 0 0;font-size:12.5px;opacity:.82}
+  /* home crest — the site mark, tap to go home */
+  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;
+    background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);
+    transition:transform .12s ease, box-shadow .12s ease}
+  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
+
+  /* gate bar */
+  .gate{max-width:760px;margin:0 auto;width:100%;padding:10px 18px;display:flex;align-items:center;gap:10px;
+    flex-wrap:wrap;border-bottom:1px solid var(--line);background:var(--surface)}
+  .gate label{font-size:13px;color:var(--muted);font-weight:600}
+  .gate select{font:inherit;font-size:14px;font-weight:700;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:9px;padding:6px 10px}
+  .gate .safe{margin-left:auto;font-size:11.5px;color:var(--win);font-weight:700;display:inline-flex;gap:5px;align-items:center}
+  .gate .safe::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--win)}
+
+  /* chat */
+  .stream{flex:1;overflow-y:auto}
+  .inner{max-width:760px;margin:0 auto;padding:20px 18px 8px;display:flex;flex-direction:column;gap:14px}
+  .bubble{max-width:86%;padding:11px 15px;border-radius:16px;font-size:15px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+  .me{align-self:flex-end;background:var(--purple);color:#fff;border-bottom-right-radius:5px}
+  .gb{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px}
+  .gb .who{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--clay);margin-bottom:3px}
+  .gb.warn{border-color:var(--vermilion);background:color-mix(in srgb,var(--vermilion) 8%,var(--surface))}
+  .typing{align-self:flex-start;color:var(--muted);font-size:14px;font-style:italic;padding:2px 4px}
+
+  /* intro / starters */
+  .intro{align-self:stretch;text-align:center;color:var(--muted);font-size:14px;padding:14px 6px 4px}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+  .chip{background:var(--surface);border:1px solid var(--line);border-radius:999px;padding:8px 14px;
+    font-size:13px;color:var(--ink);cursor:pointer;transition:border-color .12s,transform .12s}
+  .chip:hover{border-color:var(--purple);transform:translateY(-1px)}
+
+  /* composer */
+  .composer{border-top:1px solid var(--line);background:var(--surface)}
+  .composer .box{max-width:760px;margin:0 auto;padding:12px 18px calc(12px + env(safe-area-inset-bottom))}
+  .composer .full{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);margin-bottom:9px;cursor:pointer;user-select:none}
+  .composer .full input{width:15px;height:15px;accent-color:var(--vermilion)}
+  .composer .full b{color:var(--vermilion)}
+  .composer .send{display:flex;gap:9px;align-items:flex-end}
+  .composer textarea{flex:1;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);
+    border:1px solid var(--line);border-radius:13px;padding:11px 14px;resize:none;max-height:140px;line-height:1.4}
+  .composer textarea:focus{outline:none;border-color:var(--purple)}
+  .composer button{background:var(--purple);color:#fff;border:none;border-radius:12px;padding:11px 20px;
+    font:inherit;font-weight:800;font-size:14px;cursor:pointer;flex:0 0 auto}
+  .composer button:disabled{opacity:.5;cursor:default}
+  .foot{max-width:760px;margin:0 auto;padding:0 18px 10px;font-size:11px;color:var(--muted);text-align:center;opacity:.8}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <a href="index.html" style="display:inline-block;margin:10px 2px 4px;font-size:13px;color:var(--purple);font-weight:700">‹ Salt Stats & Sumo home</a>
-  <header>
-    <div class="hbrand">
-      <img class="emblem" src="salt-stats-sumo-badgeold.png" width="66" height="66" alt="Salt Stats & Sumo — a rikishi throwing salt">
-      <div>
-        <h1>Nagoya 2026 — Makuuchi Standings</h1>
-        <p class="sub">Clay of the dohyo · charcoal of the crowd · the gyoji's purple &amp; vermilion</p>
-      </div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="ink" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
+    <path id="petal" d="M0 0 C -7 -16 -5 -38 0 -50 C 5 -38 7 -16 0 0 Z"/>
+    <g id="mum"><g><use href="#petal" transform="rotate(0)"/><use href="#petal" transform="rotate(30)"/><use href="#petal" transform="rotate(60)"/><use href="#petal" transform="rotate(90)"/><use href="#petal" transform="rotate(120)"/><use href="#petal" transform="rotate(150)"/><use href="#petal" transform="rotate(180)"/><use href="#petal" transform="rotate(210)"/><use href="#petal" transform="rotate(240)"/><use href="#petal" transform="rotate(270)"/><use href="#petal" transform="rotate(300)"/><use href="#petal" transform="rotate(330)"/></g><g transform="scale(0.6)"><use href="#petal" transform="rotate(15)"/><use href="#petal" transform="rotate(45)"/><use href="#petal" transform="rotate(75)"/><use href="#petal" transform="rotate(105)"/><use href="#petal" transform="rotate(135)"/><use href="#petal" transform="rotate(165)"/><use href="#petal" transform="rotate(195)"/><use href="#petal" transform="rotate(225)"/><use href="#petal" transform="rotate(255)"/><use href="#petal" transform="rotate(285)"/><use href="#petal" transform="rotate(315)"/><use href="#petal" transform="rotate(345)"/></g></g>
+    <path id="fan" d="M200 96 C 168 66 150 64 128 72 C 96 84 82 128 84 172 C 86 210 112 236 122 252 C 112 272 92 296 92 324 C 94 352 112 366 150 372 C 168 376 184 378 200 378 C 216 378 232 376 250 372 C 288 366 306 352 308 324 C 308 296 288 272 278 252 C 288 236 314 210 316 172 C 318 128 304 84 272 72 C 250 64 232 66 200 96 Z"/>
+    <clipPath id="fanClip"><use href="#fan"/></clipPath>
+    <clipPath id="badgeClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <symbol id="gumbai" viewBox="0 0 400 560"><g filter="url(#ink)">
+      <g stroke="#efe7d5" fill="none" stroke-linejoin="round"><rect x="185" y="334" width="30" height="216" rx="15" stroke-width="7"/><use href="#fan" stroke-width="9"/></g>
+      <rect x="187" y="336" width="26" height="212" rx="13" fill="#17130f"/>
+      <path d="M188 402 C 200 396 212 396 224 404" fill="none" stroke="#22462a" stroke-width="5" stroke-linecap="round"/>
+      <rect x="212" y="401" width="30" height="15" rx="5" fill="#c06a34"/>
+      <path d="M214 416 C 205 470 203 520 212 544 C 219 560 240 560 247 544 C 257 520 255 470 246 416 Z" fill="#35663f"/>
+      <path d="M210 420 C 201 476 201 526 209 548" fill="none" stroke="#35663f" stroke-width="6" stroke-linecap="round"/>
+      <path d="M248 420 C 257 476 257 526 249 548" fill="none" stroke="#35663f" stroke-width="6" stroke-linecap="round"/>
+      <use href="#fan" fill="#211a12"/>
+      <g clip-path="url(#fanClip)">
+        <g fill="#dcc79a"><use href="#mum" transform="translate(126 150) scale(0.28) rotate(12)" opacity="0.9"/><use href="#mum" transform="translate(274 150) scale(0.28) rotate(-12)" opacity="0.9"/></g>
+        <g fill="#d09a63"><use href="#mum" transform="translate(148 316) scale(0.22) rotate(22)" opacity="0.9"/><use href="#mum" transform="translate(252 316) scale(0.22) rotate(-22)" opacity="0.9"/><use href="#mum" transform="translate(200 122) scale(0.16) rotate(6)" opacity="0.85"/></g>
+        <g fill="#c06a34"><use href="#mum" transform="translate(200 342) scale(0.14) rotate(-8)" opacity="0.95"/><use href="#mum" transform="translate(98 216) scale(0.11) rotate(40)" opacity="0.9"/><use href="#mum" transform="translate(304 268) scale(0.10) rotate(70)" opacity="0.88"/><use href="#mum" transform="translate(300 122) scale(0.095) rotate(18)" opacity="0.85"/><use href="#mum" transform="translate(112 320) scale(0.105) rotate(55)" opacity="0.9"/></g>
+      </g>
+      <use href="#fan" fill="none" stroke="#b23a2e" stroke-width="6"/>
+      <g transform="translate(200 214)"><circle r="66" fill="#b23a2e" opacity="0.16"/><use href="#mum" transform="scale(1.16)" fill="#b23a2e"/><circle r="13" fill="#9a3327"/><circle r="5" fill="#c99a72"/></g>
+    </g></symbol>
+  </defs></svg>
+  <div class="top"><div class="row">
+    <img class="fan" src="gumbai-badge.svg" width="46" height="46" alt="Gumbai">
+    <div>
+      <h1>Gumbai</h1>
+      <p class="tag">Ask the crew's sumo oracle, grounded in our data, not guessed from memory.</p>
     </div>
-  </header>
-  <div class="watched" id="watched">
-    <span>Results <b id="thruLbl">through Day 6</b> — anything past your day stays hidden.</span>
-    <button id="changeDay">Change day</button>
+    <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+  </div></div>
+
+  <div class="gate">
+    <label for="day">I've watched through:</label>
+    <select id="day"><option value="1">Day 1</option></select>
+    <span class="safe" id="safe">spoiler-safe</span>
   </div>
-  <div class="yusho hidden-el" id="yusho"></div>
-  <table>
-    <thead>
-      <tr><th class="sortable" data-key="rank" style="width:66px">Rank<span class="arrow"></span></th><th class="sortable" data-key="name">Wrestler<span class="arrow"></span></th><th title="Mawashi (belt) color" style="width:30px"></th><th class="sortable" data-key="ht" style="width:60px">Ht<span class="arrow"></span></th><th class="sortable" data-key="wt" style="width:66px">Wt<span class="arrow"></span></th><th class="sortable" data-key="age" style="width:50px">Age<span class="arrow"></span></th><th class="sortable" data-key="record" style="width:88px">W–L<span class="arrow"></span></th><th>Days</th></tr>
-    </thead>
-    <tbody id="rows"></tbody>
-  </table>
-  <footer>
-    <div class="pal">
-      <span class="sw" style="background:#a9742c">dohyo clay</span>
-      <span class="sw" style="background:#2b2b31">audience charcoal</span>
-      <span class="sw" style="background:#6a3d9a">gyoji purple</span>
-      <span class="sw" style="background:#cf5a2c">gunbai vermilion</span>
-      <span class="sw" style="background:#46536b">upper maegashira</span>
-      <span class="sw" style="background:#746a52">lower maegashira</span>
-      <span class="sw" style="background:#227a4b">tassel green (win)</span>
-      <span class="sw" style="background:#a93327">tassel red (loss)</span>
+
+  <div class="stream"><div class="inner" id="stream">
+    <div class="intro" id="intro">
+      Ask me anything about the basho: records, matchups, who's from where, what a move means,
+      why they throw salt. I only speak from the crew's verified data, gated to the day you've watched.
+      <div class="chips" id="chips"></div>
     </div>
-    <p><b>Live data.</b> Records pull straight from the Match Log in Notion, current through the latest day the daily sync has posted. Height &amp; weight come from Master Rikishi and the basho banzuke — static facts, so they are <i>never</i> gated; only the W&#8211;L and the day-strip hide behind your watched day.</p>
-    <p style="margin-top:8px"><b>The dot</b> after each name is the wrestler's mawashi (belt) color, logged in Master Rikishi — a faint ring means we haven't recorded one yet.</p>
-    <p style="margin-top:8px"><b>Reading it:</b> the W&#8211;L bolds whichever side leads (both when tied). A row fills green with a <b>&#10003; KK</b> the moment someone clinches kachi-koshi (8 wins), red with <b>&#10007; MK</b> at make-koshi (8 losses). A wrestler sitting the basho out (kyujo) shows &#8220;out&#8221; and sorts to the bottom rather than a misleading 0&#8211;0.</p>
-    <p style="margin-top:8px"><b>The cup.</b> When you're caught up to the final day, the tournament champion (yusho) gets the &#127942; Emperor's Cup banner and a purple row. If a playoff decided it, the cup names the winner the tied records can't.</p>
-  </footer>
-</div>
-<div class="gate" id="gate">
-  <div class="gatebox">
-    <div class="flag">🚧</div>
-    <h2>Nagoya 2026 is in progress</h2>
-    <p>Standings can spoil you. How far have <i>you</i> watched? We'll show results only through that day.</p>
-    <div class="gaterow">
-      <label for="daySel" style="font-size:14px">Caught up through</label>
-      <select id="daySel"></select>
-      <button id="enter">Show standings</button>
+  </div></div>
+
+  <div class="composer"><div class="box">
+    <label class="full"><input type="checkbox" id="showFull"> <span>Show <b>full results</b> for this one question (ignore my day gate). Off by default</span></label>
+    <div class="send">
+      <textarea id="q" rows="1" placeholder="Ask Gumbai anything about the basho…" autocomplete="off"></textarea>
+      <button id="ask">Ask</button>
     </div>
-    <div class="fine">Asked fresh every visit during a tournament — no memory, no assumptions. Off-season, no gate at all.</div>
-  </div>
-</div>
+    <div class="foot" id="foot">Gumbai answers from Salt Stats &amp; Sumo data · never reveals past your day</div>
+  </div></div>
+
 <script>
-const MAX_DAY=15;
-const CHAMPION={"name":"Aonishiki","playoff":true};
-const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["w","w","l","w","w","l","w","w","l","l","w","l","l","l","a"],"ht":"6'2\"","wt":331,"age":27,"color":"#10132e","shot":"img/headshots/hoshoryu.png"},{"name":"Onosato","rank":"Yokozuna","rc":"yok","days":["l","l","w","l","w","w","w","w","l","w","l","l","w","w","w"],"ht":"6'4\"","wt":417,"age":26,"color":"#191970","shot":"img/headshots/onosato.png"},{"name":"Kirishima","rank":"Ozeki","rc":"ozeki","days":["w","w","w","w","l","w","w","w","l","w","w","w","l","w","w"],"ht":"6'1\"","wt":331,"age":30,"color":"#3a2b3a","shot":"img/headshots/kirishima.png"},{"name":"Kotozakura","rank":"Ozeki","rc":"ozeki","days":["w","w","l","w","l","l","l","w","l","w","w","w","w","l","l"],"ht":"6'2\"","wt":392,"age":28,"color":"#7fd8cf","shot":"img/headshots/kotozakura.png"},{"name":"Atamifuji","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","l","w","w","l","w","w","w","w","w","w","w"],"ht":"6'2\"","wt":434,"age":23,"color":"#7e3a4f","shot":"img/headshots/atamifuji.png"},{"name":"Kotoshoho","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","l","l","l","l","w","l","l","w","w","l","l"],"ht":"6'3\"","wt":379,"age":27,"color":"#aebfca","shot":"img/headshots/kotoshoho.png"},{"name":"Aonishiki","rank":"Sekiwake","rc":"seki","days":["w","w","w","l","w","w","w","w","w","w","w","l","w","w","l"],"ht":"6'0\"","wt":313,"age":22,"color":"#004225","shot":"img/headshots/aonishiki.png"},{"name":"Wakatakakage","rank":"Sekiwake","rc":"seki","days":["a","a","a","a","a","a","a","a","a","a","a","a","a","a","a"],"ht":"6'0\"","wt":304,"age":31,"color":"#16215e","shot":"img/headshots/wakatakakage.png"},{"name":"Oho","rank":"Komusubi","rc":"komu","days":["l","l","l","w","l","l","l","l","l","l","l","l","l","w","l"],"ht":"6'4\"","wt":408,"age":26,"color":"#47215e","shot":"img/headshots/oho.png"},{"name":"Yoshinofuji","rank":"Komusubi","rc":"komu","days":["w","l","l","w","w","l","l","w","w","l","l","l","w","l","l"],"ht":"6'1\"","wt":346,"age":25,"color":"#2b1a47","shot":"img/headshots/yoshinofuji.png"},{"name":"Fujinokawa","rank":"M1","rc":"maeg","days":["l","w","w","l","w","l","l","l","w","l","w","w","l","w","w"],"ht":"5'10\"","wt":271,"age":21,"color":"#2f6fc0","shot":"img/headshots/fujinokawa.png"},{"name":"Takanosho","rank":"M1","rc":"maeg","days":["l","l","l","l","w","w","w","l","l","w","w","w","l","l","l"],"ht":"6'0\"","wt":381,"age":31,"color":"#b7302a","shot":"img/headshots/takanosho.png"},{"name":"Churanoumi","rank":"M2","rc":"maeg","days":["l","l","w","l","l","l","l","w","w","l","w","w","w","l","w"],"ht":"5'10\"","wt":333,"age":33,"color":"#6a3d9a","shot":"img/headshots/churanoumi.png"},{"name":"Gonoyama","rank":"M2","rc":"maeg","days":["l","l","l","w","l","w","w","l","w","w","l","l","w","l","w"],"ht":"5'10\"","wt":344,"age":28,"color":"#191970","shot":"img/headshots/gonoyama.png"},{"name":"Hakunofuji","rank":"M3","rc":"maeg","days":["w","w","l","w","w","w","l","w","w","l","l","l","l","w","w"],"ht":"5'11\"","wt":351,"age":23,"color":"#8a7b68","shot":"img/headshots/hakunofuji.png"},{"name":"Hiradoumi","rank":"M3","rc":"maeg","days":["l","l","l","l","w","l","l","l","l","l","l","w","w","w","l"],"ht":"5'10\"","wt":311,"age":26,"color":"#2b1a47","shot":"img/headshots/hiradoumi.png"},{"name":"Daieisho","rank":"M4","rc":"maeg","days":["l","w","w","w","w","w","l","l","w","l","l","w","w","w","w"],"ht":"6'0\"","wt":353,"age":32,"color":"#932c50","shot":"img/headshots/daieisho.png"},{"name":"Ichiyamamoto","rank":"M4","rc":"maeg","days":["w","l","w","w","l","l","w","l","l","w","l","l","l","l","w"],"ht":"6'3\"","wt":353,"age":32,"color":"#17a088","shot":"img/headshots/ichiyamamoto.png"},{"name":"Oshoma","rank":"M5","rc":"maeg","days":["w","l","l","l","l","l","w","w","w","l","w","l","l","w","w"],"ht":"6'3\"","wt":366,"age":29,"color":"#c6c6c6","shot":"img/headshots/oshoma.png"},{"name":"Ura","rank":"M5","rc":"maeg","days":["l","l","l","w","l","l","l","w","w","w","l","l","l","w","l"],"ht":"5'9\"","wt":306,"age":34,"color":"#ffb7c5","shot":"img/headshots/ura.png"},{"name":"Fujiseiun","rank":"M6","rc":"maeg","days":["w","w","l","l","l","w","w","l","w","l","w","l","l","w","l"],"ht":"6'1\"","wt":331,"age":28,"color":"#191970","shot":"img/headshots/fujiseiun.png"},{"name":"Shodai","rank":"M6","rc":"maeg","days":["l","l","w","l","w","w","l","w","l","l","l","l","l","l","w"],"ht":"6'0\"","wt":370,"age":34,"color":"#1c1c1c","shot":"img/headshots/shodai.png"},{"name":"Kotoeiho","rank":"M7","rc":"maeg","days":["l","w","w","w","w","w","w","w","w","w","l","l","l","w","w"],"ht":"6'0\"","wt":313,"age":23,"color":"#5b73a0","shot":"img/headshots/kotoeiho.png"},{"name":"Takayasu","rank":"M7","rc":"maeg","days":["w","w","w","l","w","w","w","l","w","w","w","l","l","w","w"],"ht":"6'2\"","wt":381,"age":36,"color":"#16305c","shot":"img/headshots/takayasu.png"},{"name":"Roga","rank":"M8","rc":"maeg","days":["l","l","w","l","w","l","l","w","l","w","w","w","w","w","w"],"ht":"6'0\"","wt":353,"age":27,"color":"#302a63","shot":"img/headshots/roga.png"},{"name":"Wakamotoharu","rank":"M8","rc":"maeg","days":["l","w","l","w","l","l","w","l","l","w","w","w","l","l","l"],"ht":"6'2\"","wt":315,"age":32,"color":"#1c1c1c","shot":"img/headshots/wakamotoharu.png"},{"name":"Fujiryoga","rank":"M9","rc":"maeg","days":["w","l","w","w","l","w","w","l","l","w","w","w","w","w","l"],"ht":"5'11\"","wt":399,"age":23,"color":"#16305c","shot":"img/headshots/fujiryoga.png"},{"name":"Tobizaru","rank":"M9","rc":"maeg","days":["l","w","l","l","l","w","l","w","l","l","l","w","w","l","l"],"ht":"5'8\"","wt":298,"age":34,"color":"#adbccb","shot":"img/headshots/tobizaru.png"},{"name":"Asanoyama","rank":"M10","rc":"maeg","days":["w","l","l","w","w","w","w","w","w","w","l","l","w","l","l"],"ht":"6'2\"","wt":386,"age":32,"color":"#5a2a52","shot":"img/headshots/asanoyama.png"},{"name":"Chiyoshoma","rank":"M10","rc":"maeg","days":["l","l","w","l","l","w","l","l","w","l","l","w","l","w","l"],"ht":"6'0\"","wt":309,"age":35,"color":"#a9762f","shot":"img/headshots/chiyoshoma.png"},{"name":"Mitakeumi","rank":"M11","rc":"maeg","days":["l","l","l","l","l","l","l","w","l","l","l","l","w","l","l"],"ht":"6'0\"","wt":386,"age":33,"color":"#bf3d67","shot":"img/headshots/mitakeumi.png"},{"name":"Wakanosho","rank":"M11","rc":"maeg","days":["w","w","w","w","w","l","l","a","a","a","a","a","a","a","a"],"ht":"5'10\"","wt":320,"age":23,"color":"#191970","shot":"img/headshots/wakanosho.png"},{"name":"Abi","rank":"M12","rc":"maeg","days":["w","w","l","l","w","l","w","w","l","l","l","l","w","l","w"],"ht":"6'2\"","wt":368,"age":32,"color":"#191970","shot":"img/headshots/abi.png"},{"name":"Asahakuryu","rank":"M12","rc":"maeg","days":["w","l","l","w","l","l","l","l","l","w","w","w","l","w","w"],"ht":"6'1\"","wt":335,"age":27,"color":"#16305c","shot":"img/headshots/asahakuryu.png"},{"name":"Nishikifuji","rank":"M13","rc":"maeg","days":["l","w","w","w","w","w","w","l","l","w","w","l","w","l","w"],"ht":"6'0\"","wt":342,"age":30,"color":"#c096bf","shot":"img/headshots/nishikifuji.png"},{"name":"Takerufuji","rank":"M13","rc":"maeg","days":["w","l","w","w","w","w","w","l","w","w","w","w","l","l","l"],"ht":"6'2\"","wt":326,"age":27,"color":"#ab8fd0","shot":"img/headshots/takerufuji.png"},{"name":"Kinbozan","rank":"M14","rc":"maeg","days":["l","w","l","w","w","w","w","l","w","l","l","w","w","l","w"],"ht":"6'5\"","wt":395,"age":29,"color":"#8c8c8c","shot":"img/headshots/kinbozan.png"},{"name":"Shishi","rank":"M14","rc":"maeg","days":["w","w","w","w","w","w","l","w","w","l","w","w","l","l","l"],"ht":"6'4\"","wt":390,"age":29,"color":"#1c1c1c","shot":"img/headshots/shishi.png"},{"name":"Kazuma","rank":"M15","rc":"maeg","days":["l","w","w","l","l","l","l","w","l","l","l","l","l","w","w"],"ht":"6'1\"","wt":452,"age":24,"color":"#191970","shot":"img/headshots/kazuma.png"},{"name":"Onokatsu","rank":"M15","rc":"maeg","days":["l","l","l","l","l","w","l","l","w","l","l","l","w","w","l"],"ht":"6'1\"","wt":364,"age":26,"color":"#9a9a9a","shot":"img/headshots/onokatsu.png"},{"name":"Asakoryu","rank":"M16","rc":"maeg","days":["w","l","w","l","l","l","w","w","l","w","w","w","w","l","w"],"ht":"5'10\"","wt":276,"age":27,"color":"#b7302a","shot":"img/headshots/asakoryu.png"},{"name":"Daiseizan","rank":"M16","rc":"maeg","days":["w","l","l","l","w","l","w","l","l","w","w","w","l","l","l"],"ht":"6'4\"","wt":362,"age":26,"color":"#5d2e8e","shot":"img/headshots/daiseizan.png"}];
-  const TOTAL_DAYS=15;
-  const rankClass={yok:"r-yok",ozeki:"r-ozeki",seki:"r-seki",komu:"r-komu"};
-  function rk(rank,rc){return rc!=='maeg'?rankClass[rc]:((+rank.slice(1))<=8?'r-maeg-hi':'r-maeg-lo');}
-  const daySel=document.getElementById("daySel");
-  for(let d=1;d<=MAX_DAY;d++){const o=document.createElement("option");o.value=d;o.textContent="Day "+d;if(d===MAX_DAY)o.selected=true;daySel.appendChild(o);}
-  let thruDay=MAX_DAY;
-  DATA.forEach((x,i)=>x._ord=i);
-  const _htIn=s=>{const m=/(\d+)\x27(\d+)/.exec(s||"");return m?(+m[1]*12+ +m[2]):-1;};
-  const _base={rank:(a,b)=>a._ord-b._ord,name:(a,b)=>a.name.localeCompare(b.name),ht:(a,b)=>_htIn(a.ht)-_htIn(b.ht),wt:(a,b)=>(a.wt||0)-(b.wt||0),record:(a,b)=>(a.win-b.win)||(b.loss-a.loss),age:(a,b)=>(a.age||0)-(b.age||0)};
-  const _defDir={rank:1,name:1,ht:-1,wt:-1,age:-1,record:-1};
-  let sortKey="record",sortDir=-1;
-  function render(){
-    const rows=DATA.map(x=>{
-      let win=0,loss=0,bouts=0;
-      for(let d=0;d<thruDay;d++){const r=x.days[d];if(r==='w'){win++;bouts++;}else if(r==='l'){loss++;bouts++;}}
-      return {...x,win,loss,kyujo:bouts===0};
-    });
-    rows.sort((a,b)=>(a.kyujo-b.kyujo)||(sortDir*_base[sortKey](a,b))||a.name.localeCompare(b.name));
-    // Champion (yusho) is a final-day RESULT: reveal ONLY when the viewer is caught up to the last day
-    // AND the build actually resolved a champion (null mid-basho — the API has no yusho yet). Both gates
-    // must hold, so a mid-basho or partway-caught-up viewer never sees a spoiler.
-    const champReveal = !!CHAMPION && CHAMPION.name && thruDay>=MAX_DAY;
-    const champRow = champReveal ? rows.find(r=>r.name===CHAMPION.name) : null;
-    const tb=document.getElementById("rows");tb.innerHTML="";
-    rows.forEach(r=>{
-      let strip="";
-      for(let d=0;d<TOTAL_DAYS;d++){
-        if(d>=thruDay){strip+='<span class="cell hidden"></span>';}
-        else{const v=r.days[d];strip+= v==='w'?'<span class="cell w"></span>':v==='l'?'<span class="cell l"></span>':'<span class="cell abs" title="no bout"></span>';}
-      }
-      let cls="",badge="",rec;
-      if(r.kyujo){
-        cls=" ky";badge='<span class="badge">kyujo</span>';
-        rec='<td class="rec ky"><span class="kyt">out</span>'+badge+'</td>';
-      }else{
-        if(r.win>=8){cls=" kk";badge='<span class="badge">✓ KK</span>';}
-        else if(r.loss>=8){cls=" mk";badge='<span class="badge">✗ MK</span>';}
-        const wB=r.win>=r.loss?' b':'',lB=r.loss>=r.win?' b':'';
-        rec='<td class="rec'+cls+'"><span class="w'+wB+'">'+r.win+'</span><span class="dash">–</span><span class="l'+lB+'">'+r.loss+'</span>'+badge+'</td>';
-      }
-      const maw=r.color?'<span class="mawdot" style="background:'+r.color+'" title="mawashi"></span>':'<span class="mawdot none" title="no color logged"></span>';
-      const isChamp = champReveal && r.name===CHAMPION.name;
-      const cup = isChamp ? '<span class="cup" title="Yusho — Emperor’s Cup">🏆</span>' : '';
-      tb.insertAdjacentHTML("beforeend",
-        '<tr'+(isChamp?' class="champ"':'')+'><td><span class="rank '+rk(r.rank,r.rc)+'">'+r.rank+'</span></td>'+
-        '<td class="name"><div class="namecell">'+(r.shot?('<img class="avatar" src="'+r.shot+'" loading="lazy" alt="'+r.name+'">'):('<span class="avatar ph">'+r.name.charAt(0)+'</span>'))+'<span>'+r.name+'</span>'+cup+'</div></td>'+
-        '<td class="maw">'+maw+'</td>'+
-        '<td class="phys">'+r.ht+'</td>'+
-        '<td class="phys">'+r.wt+' lb</td>'+
-        '<td class="phys">'+(r.age!=null?r.age:'—')+'</td>'+
-        rec+
-        '<td><div class="strip">'+strip+'</div></td></tr>');
-    });
-    // Yusho banner atop the table — same reveal gate, re-hidden on "Change day".
-    const yb=document.getElementById("yusho");
-    if(champRow){
-      yb.innerHTML='<span class="cup">🏆</span><div class="ytext">'+
-        '<span class="ylab">Yusho — Emperor’s Cup</span>'+
-        '<span class="yline"><span class="yname">'+champRow.name+'</span>'+
-        '<span class="yrec">'+champRow.win+'–'+champRow.loss+'</span>'+
-        (CHAMPION.playoff?'<span class="ypo">playoff</span>':'')+'</span></div>';
-      yb.classList.remove("hidden-el");
-    }else{
-      yb.classList.add("hidden-el");
-      yb.innerHTML="";
+const API = '/api/gumbai';
+const stream = document.getElementById('stream');
+const daySel = document.getElementById('day');
+const qBox = document.getElementById('q');
+const askBtn = document.getElementById('ask');
+const fullBox = document.getElementById('showFull');
+const foot = document.getElementById('foot');
+const intro = document.getElementById('intro');
+
+const STARTERS = [
+  "How's Atomic doing?",
+  "Who's earned a kinboshi so far?",
+  "List the sanyaku",
+  "What does Aonishiki's name mean?",
+  "Who's from Ukraine?",
+  "Why do they throw salt?"
+];
+const chips = document.getElementById('chips');
+STARTERS.forEach(s=>{ const c=document.createElement('div'); c.className='chip'; c.textContent=s;
+  c.onclick=()=>{ qBox.value=s; qBox.focus(); autosize(); }; chips.appendChild(c); });
+
+// conversation memory (in-page; a reload starts fresh)
+const history = [];
+let maxDay = 1, busy = false, offline = false;
+
+// populate the day selector from the server (maxDay is public, not a spoiler)
+fetch(API).then(r=>r.json()).then(d=>{
+  maxDay = d.maxDay || 1;
+  daySel.innerHTML='';
+  for(let i=1;i<=maxDay;i++){ const o=document.createElement('option'); o.value=i; o.textContent='Day '+i; daySel.appendChild(o); }
+  // carry over the day the viewer set on the homepage (?d=N or the shared localStorage), clamped to maxDay
+  let carried=null;
+  try{ carried = new URLSearchParams(location.search).get('d'); }catch(e){}
+  if(!carried){ try{ carried = localStorage.getItem('ss_watched_day'); }catch(e){} }
+  const cd = parseInt(carried,10);
+  daySel.value = (cd>=1) ? Math.min(cd, maxDay) : maxDay;   // default caught-up if nothing carried
+  try{ localStorage.setItem('ss_watched_day', daySel.value); }catch(e){}
+  daySel.dispatchEvent(new Event('change'));
+}).catch(()=>{ /* leave the single Day 1 option */ });
+
+function autosize(){ qBox.style.height='auto'; qBox.style.height=Math.min(qBox.scrollHeight,140)+'px'; }
+qBox.addEventListener('input', autosize);
+qBox.addEventListener('keydown', e=>{ if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); send(); } });
+askBtn.addEventListener('click', send);
+daySel.addEventListener('change', ()=>{
+  try{ localStorage.setItem('ss_watched_day', daySel.value); }catch(e){}   // keep the shared day in sync
+  document.getElementById('safe').textContent =
+  (+daySel.value===maxDay) ? 'spoiler-safe' : 'spoiler-safe · showing through Day '+daySel.value; });
+
+function addBubble(cls, text, who){
+  if(intro) intro.style.display='none';
+  const b=document.createElement('div'); b.className='bubble '+cls;
+  if(who){ const w=document.createElement('span'); w.className='who'; w.textContent=who; b.appendChild(w); }
+  b.appendChild(document.createTextNode(text));
+  stream.appendChild(b); scrollDown(); return b;
+}
+function scrollDown(){ const s=document.querySelector('.stream'); s.scrollTop=s.scrollHeight; }
+
+async function send(){
+  const text = qBox.value.trim();
+  if(!text || busy) return;
+  busy=true; askBtn.disabled=true;
+  addBubble('me', text);
+  history.push({ role:'user', content:text });
+  qBox.value=''; autosize();
+  const showFull = fullBox.checked;
+  fullBox.checked=false;             // per-question: resets every send
+
+  const typing=document.createElement('div'); typing.className='typing'; typing.textContent='Gumbai’s checking the data… 🪭';
+  stream.appendChild(typing); scrollDown();
+
+  try{
+    const res = await fetch(API, { method:'POST', headers:{'content-type':'application/json'},
+      body: JSON.stringify({ messages:history, day:+daySel.value, showFull }) });
+    typing.remove();
+    if(res.status===503){ // not wired yet
+      offline=true;
+      addBubble('gb warn', "Gumbai isn't switched on yet. The crew's still wiring up his brain. Check back soon! 🪭", 'Gumbai');
+      foot.textContent='Endpoint not configured yet (no API key set).';
+      return;
     }
-    document.querySelectorAll("th.sortable").forEach(th=>{const ar=th.querySelector(".arrow");ar.textContent=th.dataset.key===sortKey?(sortDir>0?"▲":"▼"):"";});
-    document.getElementById("thruLbl").textContent="through Day "+thruDay;
-  }
-  document.getElementById("enter").onclick=()=>{thruDay=+daySel.value;render();document.getElementById("gate").classList.add("hidden-el");};
-  document.getElementById("changeDay").onclick=()=>document.getElementById("gate").classList.remove("hidden-el");
-  document.querySelectorAll("th.sortable").forEach(th=>{th.onclick=()=>{const k=th.dataset.key;if(sortKey===k)sortDir=-sortDir;else{sortKey=k;sortDir=_defDir[k];}render();};});
-  // Do NOT render until the viewer picks their watched day — table stays empty behind the gate (no spoilers).
-</script>
-<!-- Day carry-over: honor the day set on the homepage guard. Paste this just BEFORE </body> in standings.html. -->
-<script>
-(function(){
-  function readDay(){
-    try{ var u=new URLSearchParams(location.search).get('d'); if(u) return u; }catch(e){}
-    try{ return localStorage.getItem('ss_watched_day'); }catch(e){}
-    return null;
-  }
-  var sel=document.getElementById('daySel'), enter=document.getElementById('enter');
-  if(sel && enter){
-    enter.addEventListener('click', function(){
-      try{ localStorage.setItem('ss_watched_day', sel.value); }catch(e){}   // keep the shared day in sync
-    });
-    var raw=parseInt(readDay(),10);
-    if(raw>=1){
-      var opts=sel.options, maxv=opts.length ? +opts[opts.length-1].value : raw;
-      var d=Math.min(raw, maxv);
-      sel.value=d;
-      try{ localStorage.setItem('ss_watched_day', d); }catch(e){}
-      enter.click();   // runs the page's own "show standings through day d" flow, hides the gate
+    const data = await res.json();
+    if(data.reply){
+      addBubble('gb'+(data.capped?' warn':''), data.reply, 'Gumbai');
+      if(!data.capped) history.push({ role:'assistant', content:data.reply });
+    } else {
+      addBubble('gb warn', "Hmm, something hiccuped on my end. Give it another go?", 'Gumbai');
     }
+  }catch(e){
+    typing.remove();
+    addBubble('gb warn', "I couldn't reach the data just now. Try once more in a sec.", 'Gumbai');
+  }finally{
+    busy=false; askBtn.disabled=false; qBox.focus();
   }
-})();
+}
 </script>
 </body>
 </html>
