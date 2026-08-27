@@ -110,6 +110,8 @@
 <script>
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDate(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); return m?MON[(+m[2])-1]+' '+(+m[3])+', '+m[1]:''; }
 
   fetch('/api/gallery').then(function(r){ return r.json(); }).then(function(d){
     document.getElementById('loading').style.display = 'none';
@@ -123,13 +125,15 @@
     document.getElementById('feature').innerHTML =
       '<div class="feature"><img src="'+esc(featured.src)+'" alt="'+esc(featured.caption)+'">'+
       '<div class="cap"><b>'+esc(featured.caption)+'</b>'+
-      (featured.by?'<div class="by">— '+esc(featured.by)+'</div>':'')+'</div></div>';
+      (function(){ var b=[featured.by?('— '+esc(featured.by)):'', fmtDate(featured.taken)].filter(Boolean).join(' · ');
+        return b?'<div class="by">'+b+'</div>':''; })()+'</div></div>';
     if (rest.length) {
       document.getElementById('sechead').style.display = '';
       document.getElementById('grid').innerHTML = rest.map(function(p){
+        var gby=[p.by?('by '+esc(p.by)):'', fmtDate(p.taken)].filter(Boolean).join(' · ');
         return '<div class="card"><img src="'+esc(p.src)+'" loading="lazy" alt="'+esc(p.caption)+'">'+
           '<div class="meta"><p>'+esc(p.caption)+'</p>'+
-          (p.by?'<div class="by">by '+esc(p.by)+'</div>':'')+'</div></div>';
+          (gby?'<div class="by">'+gby+'</div>':'')+'</div></div>';
       }).join('');
     }
   }).catch(function(){
