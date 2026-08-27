@@ -66,8 +66,16 @@
   .card .meta .by{color:var(--muted);font-size:12px;margin-top:3px}
   .vbadge{position:absolute;top:8px;left:8px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;color:#fff}
   .vbadge.public{background:var(--win)} .vbadge.crew{background:#4a4a55}
-  .del{position:absolute;top:8px;right:8px;background:rgba(169,51,39,.92);color:#fff;border:0;border-radius:999px;
-    font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer}
+  .cardbtns{position:absolute;top:8px;right:8px;display:flex;gap:6px;z-index:2}
+  .mini{border:0;border-radius:999px;font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer;color:#fff}
+  .mini.edit{background:rgba(106,61,154,.92)} .mini.del{background:rgba(169,51,39,.92)}
+  .mini.save{background:var(--win)} .mini.cancel{background:#7a7a85}
+  .efield{display:block;font-size:11px;font-weight:700;color:var(--muted);margin:0 0 8px}
+  .efield input{display:block;width:100%;font:inherit;font-size:13px;padding:7px 9px;border:1px solid var(--line);border-radius:7px;background:var(--bg);color:var(--ink);margin-top:3px}
+  .evis{display:flex;gap:6px;margin:0 0 8px}
+  .vbtn{flex:1;border:1px solid var(--line);background:var(--bg);color:var(--muted);border-radius:7px;font-size:12px;font-weight:600;padding:6px;cursor:pointer}
+  .vbtn.on{background:var(--purple);color:#fff;border-color:var(--purple)}
+  .erow{display:flex;gap:6px}
   .empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:40px 24px;text-align:center;color:var(--muted)}
   .spin{padding:36px;text-align:center;color:var(--muted)}
   footer{margin-top:30px;text-align:center;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
@@ -118,8 +126,8 @@
         <input id="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
       </div>
       <div class="field">
-        <label for="cap">Caption</label>
-        <input id="cap" type="text" placeholder="Aonishiki vs Ura · Paris 2026">
+        <label for="cap">Caption <span style="color:var(--vermilion)">*</span></label>
+        <input id="cap" type="text" placeholder="Aonishiki vs Ura · Paris 2026" required>
       </div>
       <div class="field">
         <label>Who sees it</label>
@@ -142,7 +150,7 @@
 
 <script>
 (function(){
-  var meEmail = null;
+  var meEmail = null, PHOTOS = {}, ADMIN = false;
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function setStatus(cls,msg){ var el=document.getElementById('status'); el.className='status '+cls; el.textContent=msg; }
@@ -169,23 +177,53 @@
   function load(){
     fetch('/api/app/gallery',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
       document.getElementById('loading').style.display='none';
-      var photos=(d&&d.photos)||[];
-      var grid=document.getElementById('grid');
-      if(!photos.length){ grid.outerHTML='<div class="empty">No shots yet — add the first one above.</div>'; return; }
+      ADMIN = !!(d&&d.admin);
+      var photos=(d&&d.photos)||[]; PHOTOS={};
+      var grid=document.getElementById('grid'); if(!grid) return;
+      if(!photos.length){ grid.innerHTML='<div class="empty">No shots yet — add the first one above.</div>'; return; }
       grid.innerHTML = photos.map(function(p){
+        PHOTOS[p.id]=p;
         var badge = p.visibility==='public'
           ? '<span class="vbadge public">🌐 Public</span>'
           : '<span class="vbadge crew">🔒 Crew</span>';
-        var del = p.canDelete ? '<button class="del" data-id="'+esc(p.id)+'">Delete</button>' : '';
-        return '<div class="card">'+badge+del+
+        var btns = p.canDelete
+          ? '<div class="cardbtns"><button class="mini edit" data-id="'+esc(p.id)+'">Edit</button><button class="mini del" data-id="'+esc(p.id)+'">Delete</button></div>'
+          : '';
+        return '<div class="card">'+badge+btns+
           '<img src="'+esc(p.src)+'" loading="lazy" alt="'+esc(p.caption)+'">'+
-          '<div class="meta"><p>'+esc(p.caption||'')+'</p>'+
+          '<div class="meta" data-id="'+esc(p.id)+'"><p>'+esc(p.caption||'')+'</p>'+
           (byline(p)?'<div class="by">'+byline(p)+'</div>':'')+'</div></div>';
       }).join('');
-      grid.querySelectorAll('.del').forEach(function(b){
-        b.onclick=function(){ del(b.dataset.id); };
-      });
-    }).catch(function(){ document.getElementById('loading').textContent='Gallery is taking a breather — refresh in a moment.'; });
+      grid.querySelectorAll('.del').forEach(function(b){ b.onclick=function(){ del(b.dataset.id); }; });
+      grid.querySelectorAll('.edit').forEach(function(b){ b.onclick=function(){ openEdit(b.dataset.id); }; });
+    }).catch(function(){ var l=document.getElementById('loading'); if(l) l.textContent='Gallery is taking a breather — refresh in a moment.'; });
+  }
+
+  function metaFor(id){ var ms=document.querySelectorAll('.meta'); for(var i=0;i<ms.length;i++){ if(ms[i].dataset.id===id) return ms[i]; } return null; }
+
+  function openEdit(id){
+    var p=PHOTOS[id], meta=metaFor(id); if(!p||!meta) return;
+    var vis = p.visibility==='public'?'public':'crew';
+    var adminField = ADMIN ? '<label class="efield">Photographer<input class="ephotog" type="text" value="'+esc(p.by||'')+'"></label>' : '';
+    meta.innerHTML =
+      '<label class="efield">Caption<input class="ecap" type="text" value="'+esc(p.caption||'')+'"></label>'+
+      '<div class="evis"><button class="vbtn" data-v="public">🌐 Public</button><button class="vbtn" data-v="crew">🔒 Crew</button></div>'+
+      adminField +
+      '<div class="erow"><button class="mini save">Save</button><button class="mini cancel">Cancel</button></div>';
+    function paint(){ meta.querySelectorAll('.vbtn').forEach(function(x){ x.classList.toggle('on', x.dataset.v===vis); }); }
+    paint();
+    meta.querySelectorAll('.vbtn').forEach(function(b){ b.onclick=function(){ vis=b.dataset.v; paint(); }; });
+    meta.querySelector('.cancel').onclick=function(){ load(); };
+    meta.querySelector('.save').onclick=function(){
+      var cap=(meta.querySelector('.ecap').value||'').trim();
+      if(!cap){ setStatus('err','Caption is required.'); return; }
+      var payload={ id:id, caption:cap, visibility:vis };
+      if(ADMIN){ payload.by=(meta.querySelector('.ephotog').value||'').trim(); }
+      setStatus('','Saving…');
+      fetch('/api/app/gallery',{method:'PATCH',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)})
+        .then(function(r){return r.json();}).then(function(d){ if(d&&d.ok){ setStatus('ok','Updated.'); load(); } else setStatus('err','Update failed: '+((d&&d.error)||'error')); })
+        .catch(function(){ setStatus('err','Update failed — try again.'); });
+    };
   }
 
   function del(id){
@@ -200,12 +238,14 @@
   document.getElementById('go').onclick=function(){
     var f=document.getElementById('file').files[0];
     if(!f){ setStatus('err','Pick a photo first.'); return; }
+    var cap=(document.getElementById('cap').value||'').trim();
+    if(!cap){ setStatus('err','Add a caption first — it tells everyone what they\'re looking at.'); document.getElementById('cap').focus(); return; }
     var vis=(document.querySelector('input[name=vis]:checked')||{}).value||'crew';
     var btn=document.getElementById('go'); btn.disabled=true; setStatus('','Reading photo…');
     f.arrayBuffer().then(function(buf){
       var captured = exifDate(buf) || '';
       var fd=new FormData();
-      fd.append('photo',f); fd.append('caption',document.getElementById('cap').value||'');
+      fd.append('photo',f); fd.append('caption',cap);
       fd.append('visibility',vis); fd.append('captured',captured);
       setStatus('','Uploading…');
       return fetch('/api/app/gallery',{method:'POST',body:fd,credentials:'same-origin'});
