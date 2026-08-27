@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Salt Stats &amp; Sumo — Banzuke Prediction Pool</title>
+<title>Salt Stats &amp; Sumo · Banzuke Prediction Pool</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
@@ -105,7 +105,7 @@
         <h1>Banzuke Prediction Pool</h1>
         <p class="sub">Call the next banzuke before it's official. The crew vs. the machine.</p>
       </div>
-      <a class="homecrest" href="/" title="Salt Stats &amp; Sumo — home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+      <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
     </div>
   </header>
 
@@ -150,5 +150,12 @@
     <p><b>Salt Stats &amp; Sumo</b>, a Staves &amp; Hoop production for the crew. The prediction pool runs basho by basho; the machine has opinions.</p>
   </footer>
 </div>
+<script>
+/* auth-aware home crest: logged-in crew go back to the app hub, visitors to the public home */
+fetch('/api/auth/me',{headers:{'Accept':'application/json'},credentials:'same-origin'})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){ if(d&&d.email){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } } })
+  .catch(function(){});
+</script>
 </body>
 </html>
