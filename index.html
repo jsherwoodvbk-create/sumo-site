@@ -28,19 +28,16 @@
   h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   a{color:inherit;text-decoration:none}
   .wrap{max-width:960px;margin:0 auto;padding:0 16px 64px}
-
   /* hero — tsuriyane roofline */
   .roofWrap{position:relative;max-width:680px;margin:0 auto 18px}
   .roof{display:block;width:100%;height:auto;filter:drop-shadow(0 10px 24px rgba(50,30,10,.30))}
   .titleovl{position:absolute;left:0;right:0;top:6%;text-align:center;color:#f4ecda;pointer-events:none}
   .titleovl h1{font-weight:900;font-size:clamp(20px,4vw,34px);margin:0;letter-spacing:.01em;text-shadow:0 2px 9px rgba(0,0,0,.5)}
-
   .live{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
     border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;margin:0 auto 8px;box-shadow:0 2px 10px rgba(0,0,0,.05)}
   .live .dot{width:9px;height:9px;border-radius:50%;background:var(--live);box-shadow:0 0 0 4px color-mix(in srgb,var(--live) 25%,transparent)}
   .live.done .dot{background:var(--win);box-shadow:0 0 0 4px color-mix(in srgb,var(--win) 25%,transparent)}
   .centerrow{text-align:center}
-
   /* ── THE ARENA (dohyo hub) ── */
   .arena{max-width:452px;margin:8px auto 6px}
   .dohyoWrap{position:relative;width:100%;aspect-ratio:1/1}
@@ -68,7 +65,6 @@
   .guard select{background:#efe7d5;border:none;border-radius:7px;padding:3px 5px;font:inherit;font-weight:800;
     color:#2c2016;cursor:pointer;text-align:center;width:3.2em}
   .arenacap{text-align:center;font-size:12px;color:var(--muted);margin-top:4px}
-
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
   .sechead{font-family:'Zen Old Mincho',Georgia,serif;font-size:15px;font-weight:700;text-transform:uppercase;
     letter-spacing:.08em;color:var(--clay);margin:30px 2px 12px;display:flex;align-items:center;gap:12px}
@@ -84,7 +80,6 @@
   .pill{float:right;font-size:10.5px;font-weight:800;letter-spacing:.04em;padding:3px 8px;border-radius:999px;text-transform:uppercase}
   .pill.live{background:var(--win);color:#fff}
   .pill.soon{background:var(--clay-soft);color:var(--clay)}
-
   footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
   footer b{color:var(--ink)}
 </style>
@@ -118,7 +113,6 @@
     </svg>
     <div class="titleovl"><h1>Salt Stats &amp; Sumo</h1></div>
   </div>
-
   <!-- inlined Gumbai mascot (avatar for the Ask-Gumbai entry) -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
     <filter id="ink" x="-8%" y="-8%" width="116%" height="116%"><feTurbulence type="fractalNoise" baseFrequency="0.78" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3.2" xChannelSelector="R" yChannelSelector="G"/></filter>
@@ -144,14 +138,12 @@
       <use href="#fan" fill="none" stroke="#b23a2e" stroke-width="6"/>
       <g transform="translate(200 214)"><circle r="66" fill="#b23a2e" opacity="0.16"/><use href="#mum" transform="scale(1.16)" fill="#b23a2e"/><circle r="13" fill="#9a3327"/><circle r="5" fill="#c99a72"/></g>
     </g></symbol>
-
     <!-- ── dohyo-coin tile icons ── -->
     <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
       <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
       <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
     </filter>
     <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
-
     <symbol id="ic-standings" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
       <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
@@ -165,7 +157,6 @@
         <rect x="43" y="75" width="13" height="4" rx="2"/><rect x="64" y="75" width="13" height="4" rx="2"/>
       </g>
     </symbol>
-
     <symbol id="ic-reports" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
       <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
@@ -181,7 +172,6 @@
         <circle cx="77" cy="40" r="3.2" fill="#b23a2e"/>
       </g>
     </symbol>
-
     <symbol id="ic-prediction" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
       <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
@@ -194,22 +184,6 @@
         <path d="M86 37 l1 -6 M86 37 l6 -1" stroke="#211a12" stroke-width="2.6" fill="none" stroke-linecap="round"/>
       </g>
     </symbol>
-
-    <symbol id="ic-bingo" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
-      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
-      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
-      <g clip-path="url(#coinClip)" filter="url(#inkS)">
-        <rect x="43" y="43" width="34" height="34" rx="4" fill="none" stroke="#211a12" stroke-width="3"/>
-        <g stroke="#211a12" stroke-width="2">
-          <line x1="54.3" y1="44" x2="54.3" y2="76"/><line x1="65.6" y1="44" x2="65.6" y2="76"/>
-          <line x1="44" y1="54.3" x2="76" y2="54.3"/><line x1="44" y1="65.6" x2="76" y2="65.6"/>
-        </g>
-        <g fill="#211a12"><circle cx="48.6" cy="48.6" r="3.3"/><circle cx="60" cy="60" r="3.3"/><circle cx="71.3" cy="71.3" r="3.3"/></g>
-        <circle cx="71.3" cy="48.6" r="3.3" fill="#b23a2e"/>
-      </g>
-    </symbol>
-
     <symbol id="ic-leaderboard" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
       <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
@@ -223,7 +197,6 @@
         <path d="M60 39 l2.5 5.1 l5.6 .5 l-4.2 3.7 l1.3 5.5 l-5.2 -2.9 l-5.2 2.9 l1.3 -5.5 l-4.2 -3.7 l5.6 -.5 Z" fill="#b23a2e"/>
       </g>
     </symbol>
-
     <symbol id="ic-gallery" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
       <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
@@ -237,7 +210,6 @@
         <circle cx="76" cy="53" r="2.3" fill="#efe7d5"/>
       </g>
     </symbol>
-
     <symbol id="ic-catchphrase" viewBox="0 0 120 120">
       <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
       <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
@@ -254,12 +226,10 @@
       </g>
     </symbol>
   </defs></svg>
-
   <div class="wrap">
     <div class="centerrow">
       <span class="live done"><span class="dot"></span> Nagoya 2026 · Complete</span>
     </div>
-
     <!-- THE ARENA: circular dohyo hub -->
     <div class="arena">
       <div class="dohyoWrap">
@@ -270,7 +240,6 @@
             <span class="lab"><small>East</small><b>Standings</b></span>
             <span class="arrow">→</span>
           </a>
-
           <div class="guard">
             <label for="watchGuard">🥋 Watched through</label>
             <select id="watchGuard" aria-label="Set the day you have watched through">
@@ -280,7 +249,6 @@
               <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
             </select>
           </div>
-
           <a class="entry bot" id="lnkGumbai" href="gumbai.html">
             <img class="badge" src="gumbai-badge.svg" width="42" height="42" alt="Gumbai">
             <span class="lab"><small>West</small><b>Ask Gumbai</b></span>
@@ -290,7 +258,6 @@
       </div>
       <p class="arenacap">Set how far you've watched. The ring keeps Standings and Gumbai spoiler-safe to your day.</p>
     </div>
-
     <section>
       <h2 class="sechead">Games</h2>
       <div class="grid">
@@ -299,7 +266,6 @@
         <a class="card" href="leaderboard.html"><div class="ico"><svg><use href="#ic-leaderboard"/></svg></div><h3>Leaderboard</h3><p>Who's actually on top. Every game's points added up, by basho and all-time.</p></a>
       </div>
     </section>
-
     <section>
       <h2 class="sechead">Beyond the Bouts</h2>
       <div class="grid">
@@ -307,12 +273,10 @@
         <a class="card" href="gallery.html"><div class="ico"><svg><use href="#ic-gallery"/></svg></div><h3>Fan Gallery</h3><p>Our own shots from the road. Paris, and wherever sumo takes us next.</p></a>
       </div>
     </section>
-
     <footer>
       <p><b>Salt Stats & Sumo</b>, a Staves &amp; Hoop production for the crew. Data lives in Notion; this is the front porch.<br>Spoiler-safe by design, built basho by basho.</p>
     </footer>
   </div>
-
 <script>
 (function(){
   // ---- draw the dohyo: tawara ring + tokudawara + two shikiri-sen ----
@@ -333,7 +297,6 @@
   [-30,30].forEach(function(dy){
     svg.appendChild(el('line',{x1:cx-52,x2:cx+52,y1:cy+dy,y2:cy+dy,stroke:'#f4ecda','stroke-width':'7','stroke-linecap':'round'}));
   });
-
   // ---- day guard: remember the viewer's day, carry it to both pages ----
   var sel=document.getElementById('watchGuard'),
       st=document.getElementById('lnkStandings'),
