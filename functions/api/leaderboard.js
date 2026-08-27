@@ -1,23 +1,20 @@
-// functions/api/leaderboard.js — PUBLIC storefront leaderboard for the banzuke prediction game.
-// No auth: this is the teaser. It exposes standings (names + scores), NEVER raw picks.
+// functions/api/leaderboard.js — PUBLIC season leaderboard for the banzuke prediction game.
+// No auth: this is the storefront scoreboard. Exposes standings + points, never raw picks.
 //
-// HOW IT GRADES: the answer key is the actual banzuke, read from the server snapshot
-// (snapshot.banzuke). It grades ONLY once the snapshot reflects the target basho —
-// i.e. once Jennie has entered the new banzuke on the Notion Banzuke table and
-// regenerated + published the snapshot ("that will be the grade sheet"). Until then it
-// returns a LOCKED teaser: "the crew's picks are in, awaiting the banzuke."
+// SEASON MODEL (see state/prediction-game-backlog.md → Season leaderboard):
+//   • Golf score (from _score.js) ranks each basho's field.
+//   • Season points = 3/2/1 to the top-3 HUMANS among themselves; Gumbai is the PACE CAR
+//     (earns its own overall-finish medal, flagged AI, never crowned) — all in _season.js.
+//   • Three views: This basho (golf shown) · This year · All-time (points only).
 //
-// TARGET basho = the picks set's own bashoId (Aki = 202609). Two ways it goes live:
-//   1) auto — snapshot.meta.bashoId matches the target (or meta.basho names it), OR
-//   2) manual switch — env LEADERBOARD_LIVE set to the target bashoId (a hard "go live"
-//      lever Jennie controls in Cloudflare the moment she knows the snapshot is Aki).
-//
-// FOR NOVEMBER (Kyushu): swap the picks source from the frozen Aki module to live KV
-// (pred:{basho}:*) and bump the target bashoId — see the PICKS_SOURCE note below.
+// SEASON STORE: Nagoya '26 is baked in (_season.NAGOYA, the first banked result). Aki appends
+// itself the moment it grades — same GO-LIVE lever as before (snapshot rolls to Aki, or env
+// LEADERBOARD_LIVE=202609). Future bashos (Ky26+) will append the same way once wired to KV.
 
 import snapshot from './_snapshot.js';
-import PICKS from './app/_aki-picks.js';           // frozen Aki picks (the demo set)
+import PICKS from './app/_aki-picks.js';
 import { gradeBasho, codeFromRank } from './app/_score.js';
+import { NAGOYA, gradeBashoSeason, seasonViews } from './app/_season.js';
 
 function json(obj, status = 200) {
   return new Response(JSON.stringify(obj), {
@@ -26,51 +23,41 @@ function json(obj, status = 200) {
   });
 }
 
-export async function onRequestGet(context) {
-  const env = context.env || {};
+// Is the Aki grade live yet? (snapshot reflects Aki, or the manual env switch is set)
+function akiIsLive(env) {
+  const target = String(PICKS.bashoId);
   const snapBashoId = String(snapshot?.meta?.bashoId ?? '');
   const snapBashoName = String(snapshot?.meta?.basho ?? '');
-  const target = String(PICKS.bashoId);              // '202609' for Aki
-
-  // Is the snapshot the grade sheet for THIS basho yet?
   const forced = String(env.LEADERBOARD_LIVE || '') === target;
-  const autoRolled =
-    snapBashoId === target ||
+  const rolled = snapBashoId === target ||
     (PICKS.basho && new RegExp(PICKS.basho.split(' ')[0], 'i').test(snapBashoName));
-  const live = forced || autoRolled;
+  return forced || rolled;
+}
 
-  // roster of who's playing (names + pick counts only — no picks leaked pre-grade)
-  const players = (PICKS.players || []).map((p) => ({
-    name: p.name,
-    picks: Object.keys(p.ranks || {}).length,
-    bonus: (p.bonus || []).length,
-  }));
-
-  if (!live) {
-    return json({
-      status: 'locked',
-      basho: PICKS.basho,
-      message: 'Picks are locked. Standings go live when the ' + PICKS.basho + ' banzuke drops.',
-      players,
-      _debug: { snapshotBashoId: snapBashoId, targetBashoId: target },
-    });
-  }
-
-  // Build the answer key from the snapshot banzuke: { wrestlerName: code }
+// Grade Aki from the snapshot and shape it as a season field [{key, golf}].
+function akiField() {
   const actualRanks = {};
   for (const b of (snapshot.banzuke || [])) {
     if (!b || !b.name) continue;
     const code = codeFromRank(b.rank);
     if (code) actualRanks[b.name] = code;
   }
+  const graded = gradeBasho(PICKS, actualRanks);   // standings: [{key,name,base,bonusHits,final}]
+  return graded.standings.map((s) => ({ key: s.key, golf: s.final }));
+}
 
-  const graded = gradeBasho(PICKS, actualRanks);
-  return json({
-    status: 'graded',
-    basho: graded.basho,
-    juryoValue: graded.juryoValue,
-    standings: graded.standings,     // [{place,name,base,bonusHits,final}]
-    players,
-    _debug: { snapshotBashoId: snapBashoId, targetBashoId: target, source: forced ? 'forced' : 'auto' },
-  });
+export async function onRequestGet(context) {
+  const env = context.env || {};
+
+  // Season store: Nagoya baked, then Aki once it's live.
+  const completed = [gradeBashoSeason(NAGOYA, NAGOYA.field)];
+  let pending = null;
+  if (akiIsLive(env)) {
+    completed.push(gradeBashoSeason({ basho: PICKS.basho, bashoId: PICKS.bashoId, year: 2026 }, akiField()));
+  } else {
+    pending = { basho: PICKS.basho, message: PICKS.basho + ' picks are locked — the leaderboard updates when the banzuke drops.' };
+  }
+
+  const views = seasonViews(completed);
+  return json({ status: 'ok', views, pending, bashosPlayed: completed.length });
 }
