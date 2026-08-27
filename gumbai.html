@@ -243,11 +243,17 @@ async function send(){
 }
 </script>
 <script>
-/* auth-aware home crest: logged-in crew go back to the app hub, visitors to the public home */
-fetch('/api/auth/me',{headers:{'Accept':'application/json'},credentials:'same-origin'})
-  .then(function(r){return r.ok?r.json():null;})
-  .then(function(d){ if(d&&d.email){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } } })
-  .catch(function(){});
+/* surface-aware home crest: "home" follows the surface you're browsing (app hub vs public site),
+   not your login. Referrer says where you came from; sessionStorage remembers it across refreshes. */
+(function(){
+  var s=null;
+  try{ if(document.referrer){ var u=new URL(document.referrer);
+    if(u.origin===location.origin && u.pathname!==location.pathname)
+      s = u.pathname.indexOf('/app')===0 ? 'app' : 'site'; } }catch(e){}
+  if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
+  else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
+  if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
+})();
 </script>
 </body>
 </html>
