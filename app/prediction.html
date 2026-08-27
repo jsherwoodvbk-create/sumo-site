@@ -24,10 +24,13 @@
     font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   h1,h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   a{color:inherit;text-decoration:none}
-  .wrap{max-width:880px;margin:0 auto;padding:0 16px 60px}
-  .crewbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 2px 6px;font-size:13px}
-  .crewbar a{color:var(--purple);font-weight:700}
-  .crewbar .you{color:var(--muted)}
+  .wrap{max-width:880px;margin:0 auto;padding:14px 16px 60px}
+  /* home crest — the crew mark, tap back to the hub */
+  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;
+    background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);
+    transition:transform .12s ease, box-shadow .12s ease}
+  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
   header{
     background:
       repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
@@ -90,10 +93,6 @@
   </defs></svg>
 
 <div class="wrap">
-  <div class="crewbar">
-    <a href="/app">‹ Crew home</a>
-    <span class="you">Welcome, <b id="who">crew</b> · <a href="/api/auth/logout">Log out</a></span>
-  </div>
   <header>
     <div class="hbrand">
       <svg class="icon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-prediction"/></svg>
@@ -101,6 +100,7 @@
         <h1>Banzuke Predictions</h1>
         <p>Call the next banzuke before it's official. The crew vs. the machine.</p>
       </div>
+      <a class="homecrest" href="/app" title="Crew home" aria-label="Crew home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
     </div>
   </header>
 
@@ -117,10 +117,6 @@
   var RANKS=[['y','Yokozuna'],['o','Ozeki'],['s','Sekiwake'],['k','Komusubi']];
   for (var i=1;i<=18;i++) RANKS.push(['m'+i,'M'+i]);
   RANKS.push(['j','Juryo'],['r','Retired']);
-
-  // fill the crew member's name in the welcome strip
-  fetch('/api/auth/me',{headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():null;})
-    .then(function(d){ if(d&&d.name) document.getElementById('who').textContent=d.name; }).catch(function(){});
 
   function rankValue(x){
     if(x===null||x===undefined||x==='') return null;
