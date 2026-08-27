@@ -146,6 +146,22 @@
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
   function setStatus(cls,msg){ var el=document.getElementById('status'); el.className='status '+cls; el.textContent=msg; }
+  var MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  function fmtDate(iso){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(iso||''); return m?MON[(+m[2])-1]+' '+(+m[3])+', '+m[1]:''; }
+  function byline(p){ var parts=[]; if(p.by)parts.push('by '+esc(p.by)); var d=fmtDate(p.taken); if(d)parts.push(d); return parts.join(' · '); }
+  // read the capture date out of the JPEG's EXIF (client-side; GPS is intentionally ignored)
+  function exifDate(buf){ try{ var dv=new DataView(buf); if(dv.getUint16(0)!==0xFFD8) return null; var off=2;
+    while(off<dv.byteLength-1){ var mk=dv.getUint16(off);
+      if(mk===0xFFE1 && dv.getUint32(off+4)===0x45786966) return parseExif(dv, off+10);
+      if((mk&0xFF00)!==0xFF00) return null; off += 2 + dv.getUint16(off+2); }
+    return null; }catch(e){ return null; } }
+  function parseExif(dv,tiff){ var little=dv.getUint16(tiff)===0x4949;
+    function u16(o){return dv.getUint16(o,little);} function u32(o){return dv.getUint32(o,little);}
+    function rd(o,c){var s='';for(var j=0;j<c&&j<20;j++){var ch=dv.getUint8(o+j); if(!ch)break; s+=String.fromCharCode(ch);} return s;}
+    function toD(s){var m=/^(\d{4}):(\d{2}):(\d{2})/.exec(s); return m?m[1]+'-'+m[2]+'-'+m[3]:null;}
+    function scan(ifd){var n=u16(ifd),r={}; for(var i=0;i<n;i++){var e=ifd+2+i*12,tag=u16(e),cnt=u32(e+4),vo=cnt>4?tiff+u32(e+8):e+8;
+      if(tag===0x9003)r.orig=toD(rd(vo,cnt)); else if(tag===0x0132)r.dt=toD(rd(vo,cnt)); else if(tag===0x8769)r.exif=tiff+u32(e+8);} return r;}
+    var a=scan(tiff+u32(tiff+4)),orig=a.orig,dt=a.dt; if(a.exif){var b=scan(a.exif); orig=orig||b.orig; dt=dt||b.dt;} return orig||dt||null; }
 
   fetch('/api/auth/me',{headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():null;})
     .then(function(d){ if(d&&d.name) document.getElementById('who').textContent=d.name; if(d) meEmail=d.email; });
@@ -160,11 +176,11 @@
         var badge = p.visibility==='public'
           ? '<span class="vbadge public">🌐 Public</span>'
           : '<span class="vbadge crew">🔒 Crew</span>';
-        var del = p.mine ? '<button class="del" data-id="'+esc(p.id)+'">Delete</button>' : '';
+        var del = p.canDelete ? '<button class="del" data-id="'+esc(p.id)+'">Delete</button>' : '';
         return '<div class="card">'+badge+del+
           '<img src="'+esc(p.src)+'" loading="lazy" alt="'+esc(p.caption)+'">'+
           '<div class="meta"><p>'+esc(p.caption||'')+'</p>'+
-          (p.by?'<div class="by">by '+esc(p.by)+'</div>':'')+'</div></div>';
+          (byline(p)?'<div class="by">'+byline(p)+'</div>':'')+'</div></div>';
       }).join('');
       grid.querySelectorAll('.del').forEach(function(b){
         b.onclick=function(){ del(b.dataset.id); };
@@ -185,16 +201,20 @@
     var f=document.getElementById('file').files[0];
     if(!f){ setStatus('err','Pick a photo first.'); return; }
     var vis=(document.querySelector('input[name=vis]:checked')||{}).value||'crew';
-    var fd=new FormData();
-    fd.append('photo',f); fd.append('caption',document.getElementById('cap').value||''); fd.append('visibility',vis);
-    var btn=document.getElementById('go'); btn.disabled=true; setStatus('','Uploading…');
-    fetch('/api/app/gallery',{method:'POST',body:fd,credentials:'same-origin'})
-      .then(function(r){return r.json();}).then(function(d){
-        btn.disabled=false;
-        if(d&&d.ok){ setStatus('ok','Added'+(vis==='public'?' — live on the public gallery.':' — crew only.'));
-          document.getElementById('file').value=''; document.getElementById('cap').value=''; load(); }
-        else setStatus('err','Upload failed: '+((d&&d.error)||'error'));
-      }).catch(function(){ btn.disabled=false; setStatus('err','Upload failed — try again.'); });
+    var btn=document.getElementById('go'); btn.disabled=true; setStatus('','Reading photo…');
+    f.arrayBuffer().then(function(buf){
+      var captured = exifDate(buf) || '';
+      var fd=new FormData();
+      fd.append('photo',f); fd.append('caption',document.getElementById('cap').value||'');
+      fd.append('visibility',vis); fd.append('captured',captured);
+      setStatus('','Uploading…');
+      return fetch('/api/app/gallery',{method:'POST',body:fd,credentials:'same-origin'});
+    }).then(function(r){return r.json();}).then(function(d){
+      btn.disabled=false;
+      if(d&&d.ok){ setStatus('ok','Added'+(vis==='public'?' — live on the public gallery.':' — crew only.'));
+        document.getElementById('file').value=''; document.getElementById('cap').value=''; load(); }
+      else setStatus('err','Upload failed: '+((d&&d.error)||'error'));
+    }).catch(function(){ btn.disabled=false; setStatus('err','Upload failed — try again.'); });
   };
 
   load();
