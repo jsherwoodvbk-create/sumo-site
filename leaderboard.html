@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Banzuke Prediction Standings — Salt Stats &amp; Sumo</title>
+<title>Leaderboard — Salt Stats &amp; Sumo</title>
 <style>
   :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184;
-          --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; }
+          --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; --pace:#5b6d8c; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
          background:var(--band); color:var(--ink); min-height:100vh; padding:24px 16px; }
-  .wrap { max-width:640px; margin:0 auto; }
+  .wrap { max-width:660px; margin:0 auto; }
   .card { background:var(--paper); border:1px solid var(--line); border-radius:12px;
           box-shadow:0 6px 24px rgba(61,39,19,.12); overflow:hidden; }
   .card > header { background:var(--head); color:#fff; padding:22px 24px; }
@@ -19,32 +19,43 @@
                      background:#efe7d5; box-shadow:0 0 0 1px rgba(255,255,255,.25); }
   .card > header h1 { margin:0; font-size:22px; line-height:1.25; }
   .card > header .sub { margin:6px 0 0; font-size:13px; opacity:.9; }
-  .body { padding:22px 24px 26px; }
-  .lead { font-size:14px; line-height:1.5; color:var(--ink); margin:0 0 18px; }
-  .lead b { color:var(--accent); }
+  .hdrow { display:flex; align-items:center; gap:14px; }
+  .hdricon { width:48px; height:48px; flex:0 0 auto; }
+  .body { padding:20px 22px 26px; }
 
-  /* locked state */
-  .locked-note { background:#F7EEDA; border:1px solid var(--line); border-radius:10px;
-                 padding:14px 16px; font-size:13.5px; line-height:1.5; margin-bottom:18px; }
-  .crew { display:flex; flex-wrap:wrap; gap:10px; margin:0 0 6px; }
-  .chip { display:flex; align-items:center; gap:8px; background:#F1E4C7; border:1px solid var(--line);
-          border-radius:999px; padding:7px 14px 7px 10px; font-size:14px; font-weight:600; }
-  .chip .dot { width:9px; height:9px; border-radius:50%; background:var(--kk); flex:0 0 auto; }
-  .chip .lil { font-weight:400; font-size:11.5px; color:var(--muted); }
+  /* view toggle */
+  .tabs { display:flex; gap:6px; background:#F1E4C7; border:1px solid var(--line); border-radius:10px;
+          padding:4px; margin:0 0 18px; }
+  .tabs button { flex:1; font:inherit; font-size:13.5px; font-weight:600; color:var(--ink);
+                 background:transparent; border:0; border-radius:7px; padding:9px 6px; cursor:pointer; }
+  .tabs button.on { background:var(--head); color:#fff; box-shadow:0 2px 6px rgba(61,39,19,.18); }
 
-  /* standings table */
-  table { width:100%; border-collapse:collapse; font-size:14.5px; }
+  .viewhead { font-size:13px; color:var(--muted); margin:0 0 12px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+
+  .pending { background:#F7EEDA; border:1px solid var(--line); border-left:4px solid var(--accent);
+             border-radius:9px; padding:11px 14px; font-size:13px; line-height:1.5; margin:0 0 16px; }
+
+  table { width:100%; border-collapse:collapse; font-size:15px; }
   thead th { text-align:left; font-size:11px; letter-spacing:.04em; text-transform:uppercase;
-             color:var(--muted); border-bottom:2px solid var(--line); padding:8px 10px; }
+             color:var(--muted); border-bottom:2px solid var(--line); padding:7px 10px; }
   thead th.num, td.num { text-align:right; font-variant-numeric:tabular-nums; }
   tbody td { padding:11px 10px; border-bottom:1px solid #EFE3C6; }
   tbody tr.leader { background:#FBF4DF; }
-  .place { font-weight:700; color:var(--muted); width:34px; }
-  .medal { font-size:16px; }
+  .place { font-weight:700; color:var(--muted); width:40px; }
+  .medal { font-size:17px; }
   .who { font-weight:600; }
-  .who .gm { font-weight:400; font-size:11.5px; color:var(--muted); }
-  .score { font-weight:700; font-size:16px; }
-  .bonus { color:var(--kk); font-size:12px; }
+  .pts { font-weight:800; font-size:17px; }
+  .golf { color:var(--muted); font-variant-numeric:tabular-nums; }
+
+  /* pace car strip */
+  .pacecar { margin:16px 0 4px; display:flex; align-items:center; gap:12px;
+             background:#eef1f6; border:1px solid #cdd6e6; border-radius:10px; padding:12px 15px; }
+  .pacecar .bot { font-size:22px; flex:0 0 auto; }
+  .pacecar .txt { font-size:13px; line-height:1.45; color:#39445c; }
+  .pacecar .txt b { color:var(--pace); }
+  .pacecar .p { margin-left:auto; text-align:center; flex:0 0 auto; }
+  .pacecar .p .n { font-weight:800; font-size:20px; color:var(--pace); font-variant-numeric:tabular-nums; }
+  .pacecar .p .l { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#7a839a; }
 
   .cta { margin-top:22px; background:#F7EEDA; border:1px dashed var(--accent); border-radius:10px;
          padding:16px 18px; text-align:center; }
@@ -52,86 +63,145 @@
   .cta a { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
            font-weight:600; font-size:14.5px; padding:10px 22px; border-radius:8px; }
   .cta a:hover { background:#731f18; }
-  .rules { margin-top:18px; font-size:12px; color:var(--muted); line-height:1.5; }
+  .rules { margin-top:16px; font-size:12px; color:var(--muted); line-height:1.55; }
   .foot { text-align:center; margin-top:16px; font-size:12px; color:var(--muted); }
   .spin { text-align:center; padding:30px; color:var(--muted); font-size:14px; }
 </style>
 </head>
 <body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <symbol id="ic-leaderboard" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="#211a12">
+          <rect x="38" y="60" width="16" height="20" rx="2"/>
+          <rect x="52" y="50" width="16" height="30" rx="2"/>
+          <rect x="66" y="64" width="16" height="16" rx="2"/>
+        </g>
+        <path d="M60 39 l2.5 5.1 l5.6 .5 l-4.2 3.7 l1.3 5.5 l-5.2 -2.9 l-5.2 2.9 l1.3 -5.5 l-4.2 -3.7 l5.6 -.5 Z" fill="#b23a2e"/>
+      </g>
+    </symbol>
+  </defs></svg>
   <div class="wrap">
     <div class="card">
       <header>
-        <p class="brand"><img class="sitelogo" src="salt-stats-sumo-badgeold.png" alt=""> Salt Stats &amp; Sumo</p>
-        <h1>Banzuke Prediction Standings</h1>
-        <p class="sub" id="sub">Aki 2026 · the crew guesses the next banzuke — lowest score wins</p>
+        <div class="hdrow">
+          <svg class="hdricon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-leaderboard"/></svg>
+          <div>
+            <h1>Leaderboard</h1>
+            <p class="sub" id="sub">Where the crew stands — this basho, this year, and all-time.</p>
+          </div>
+        </div>
       </header>
       <div class="body" id="body">
         <div class="spin">Loading standings…</div>
       </div>
     </div>
-    <p class="foot">Golf scoring: each pick is graded by how far it lands from the real rank. Closest crew wins.</p>
+    <p class="foot">Each basho, the closest three crew members score 3·2·1. Gumbai runs the same race as the pace car — beat it if you can.</p>
   </div>
 
 <script>
 (function () {
   var body = document.getElementById('body');
-  var sub  = document.getElementById('sub');
   var MEDAL = { 1:'🥇', 2:'🥈', 3:'🥉' };
+  var state = { data:null, view:'thisBasho' };
 
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, function(c){
     return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function ordinal(n){ var s=['th','st','nd','rd'], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); }
 
+  function tabsHTML(){
+    var t = [['thisBasho','This basho'],['thisYear','This year'],['allTime','All-time']];
+    return '<div class="tabs">' + t.map(function(x){
+      return '<button data-v="'+x[0]+'" class="'+(state.view===x[0]?'on':'')+'">'+x[1]+'</button>';
+    }).join('') + '</div>';
+  }
   function ctaHTML(){
-    return '<div class="cta">' +
-      '<p>Think you can read the banzuke better than the crew?</p>' +
-      '<a href="/app">Join the crew &amp; make your picks →</a>' +
-      '</div>';
+    return '<div class="cta"><p>Think you can out-call the crew — or the bot?</p>'+
+      '<a href="/app">Join the crew &amp; make your picks →</a></div>';
+  }
+  function pendingHTML(){
+    var p = state.data.pending;
+    return p ? '<div class="pending">🔒 '+esc(p.message)+'</div>' : '';
+  }
+  function paceStrip(pace, view){
+    if(!pace) return '';
+    var detail;
+    if(view==='thisBasho'){
+      var overall = (pace.aheadRank!=null) ? (' — shot '+pace.golf+', good for '+ordinal(pace.aheadRank)+' in the field') : '';
+      detail = 'Gumbai, the machine, ran the same race'+overall+'.';
+    } else {
+      detail = 'Gumbai, the machine, running the season as the pace car.';
+    }
+    return '<div class="pacecar"><span class="bot">🤖</span>'+
+      '<span class="txt"><b>Gumbai · pace car</b><br>'+esc(detail)+' The crew’s crown is decided among the humans — this is the mark to beat.</span>'+
+      '<span class="p"><span class="n">'+pace.points+'</span><span class="l">pace pts</span></span></div>';
   }
 
-  function renderLocked(d){
-    sub.textContent = d.basho + ' · picks are in — standings drop with the banzuke';
-    var chips = (d.players||[]).map(function(p){
-      return '<div class="chip"><span class="dot"></span>' + esc(p.name) +
-             ' <span class="lil">' + p.picks + ' locked</span></div>';
+  function renderBasho(v){
+    var humans = v.rows.filter(function(r){return !r.pace;});
+    var pace = v.rows.filter(function(r){return r.pace;})[0];
+    if(pace){ // pace car's finishing position in the full field (for the strip text)
+      pace.aheadRank = v.rows.filter(function(r){return r.golf < pace.golf;}).length + 1;
+    }
+    var rows = humans.map(function(r){
+      var med = MEDAL[r.place] ? '<span class="medal">'+MEDAL[r.place]+'</span>' : r.place;
+      return '<tr class="'+(r.place===1?'leader':'')+'">'+
+        '<td class="place">'+med+'</td>'+
+        '<td class="who">'+esc(r.name)+'</td>'+
+        '<td class="num golf">'+r.golf+'</td>'+
+        '<td class="num"><span class="pts">'+r.points+'</span></td></tr>';
     }).join('');
-    body.innerHTML =
-      '<p class="lead">The crew has <b>locked in</b> their ' + esc(d.basho) +
-        ' banzuke predictions. When the real banzuke is announced, every pick gets graded ' +
-        'and the standings go live right here.</p>' +
-      '<div class="locked-note">🔒 ' + esc(d.message) + '</div>' +
-      '<div class="crew">' + chips + '</div>' +
-      ctaHTML() +
-      '<p class="rules">Each player ranks all 42 makuuchi wrestlers for the next tournament. ' +
-        'Score = how far each pick is from where the wrestler actually lands, summed. ' +
-        'Lowest total wins. Correct juryo→makuuchi promotion calls shave points off.</p>';
+    return '<p class="viewhead">'+esc(v.basho)+' · final</p>'+
+      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Golf</th><th class="num">Pts</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+ paceStrip(pace,'thisBasho');
   }
 
-  function renderGraded(d){
-    sub.textContent = d.basho + ' · final standings — lowest score wins';
-    var rows = (d.standings||[]).map(function(r){
-      var med = MEDAL[r.place] ? '<span class="medal">'+MEDAL[r.place]+'</span>' : '';
-      var bonus = r.bonusHits ? ' <span class="bonus">(−'+r.bonusHits+' bonus)</span>' : '';
-      var gm = (r.key==='gumbai') ? ' <span class="gm">🤖 the machine</span>' : '';
-      return '<tr class="'+(r.place===1?'leader':'')+'">' +
-        '<td class="place">'+(MEDAL[r.place]?med:r.place)+'</td>' +
-        '<td class="who">'+esc(r.name)+gm+'</td>' +
-        '<td class="num"><span class="score">'+r.final+'</span>'+bonus+'</td>' +
-      '</tr>';
+  function renderPoints(v, label){
+    var humans = v.rows.filter(function(r){return !r.pace;});
+    var pace = v.rows.filter(function(r){return r.pace;})[0];
+    // dense rank by points (ties share)
+    var rank=0, prev=null;
+    var rows = humans.map(function(r,i){
+      if(prev===null || r.points!==prev){ rank=i+1; prev=r.points; }
+      var med = MEDAL[rank] ? '<span class="medal">'+MEDAL[rank]+'</span>' : rank;
+      return '<tr class="'+(rank===1&&r.points>0?'leader':'')+'">'+
+        '<td class="place">'+med+'</td>'+
+        '<td class="who">'+esc(r.name)+'</td>'+
+        '<td class="num"><span class="pts">'+r.points+'</span></td></tr>';
     }).join('');
-    body.innerHTML =
-      '<p class="lead">The <b>'+esc(d.basho)+'</b> banzuke is out — here\'s how the crew did. ' +
-        'Lower is better.</p>' +
-      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Score</th></tr></thead>' +
-        '<tbody>'+rows+'</tbody></table>' +
-      ctaHTML();
+    return '<p class="viewhead">'+esc(label)+'</p>'+
+      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Points</th></tr></thead>'+
+      '<tbody>'+rows+'</tbody></table>'+ paceStrip(pace, 'points');
+  }
+
+  function render(){
+    var d = state.data, v = d.views;
+    var inner;
+    if(state.view==='thisBasho'){
+      inner = v.thisBasho ? renderBasho(v.thisBasho) : '<p class="spin">No basho scored yet.</p>';
+    } else if(state.view==='thisYear'){
+      inner = renderPoints(v.thisYear, (v.thisYear.year||'') + ' season · points');
+    } else {
+      inner = renderPoints(v.allTime, 'All-time · points');
+    }
+    body.innerHTML = tabsHTML() + pendingHTML() + inner + ctaHTML() +
+      '<p class="rules">Within a basho, each pick is graded by rank-distance from where the wrestler actually landed (golf — lowest total wins). The closest three crew members earn 3·2·1 toward the season. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
+    body.querySelectorAll('.tabs button').forEach(function(b){
+      b.onclick = function(){ state.view = b.dataset.v; render(); };
+    });
   }
 
   fetch('/api/leaderboard', { credentials:'same-origin' })
     .then(function(r){ return r.json(); })
-    .then(function(d){
-      if (d.status === 'graded') renderGraded(d);
-      else renderLocked(d);
-    })
+    .then(function(d){ state.data = d; render(); })
     .catch(function(){
       body.innerHTML = '<div class="spin">Standings are taking a breather — refresh in a moment.</div>';
     });
