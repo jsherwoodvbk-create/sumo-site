@@ -113,7 +113,8 @@ export async function onRequestPost(context) {
     return json({ error: 'gallery-full', message: 'The gallery is at capacity right now — Jennie has been notified.' }, 507);
   }
 
-  const caption = String(form.get('caption') || '').slice(0, 240);
+  const caption = String(form.get('caption') || '').trim().slice(0, 240);
+  if (!caption) return json({ error: 'no-caption', message: 'A caption is required.' }, 400);
   const visibility = String(form.get('visibility') || '') === 'public' ? 'public' : 'crew';
   const takenRaw = String(form.get('captured') || '');                 // EXIF date, parsed in the browser
   const taken = /^\d{4}-\d{2}-\d{2}$/.test(takenRaw) ? takenRaw : '';
@@ -151,6 +152,41 @@ export async function onRequestDelete(context) {
   if (owner !== s.email.toLowerCase() && !isAdmin(env, s.email)) return json({ error: 'not-yours' }, 403);
 
   await bucket.delete(id);
+  return json({ ok: true });
+}
+
+// PATCH → edit a photo's caption / visibility (owner or admin); admin may also set the photographer credit.
+export async function onRequestPatch(context) {
+  const { env } = context;
+  const s = await getSession(context.request, env);
+  if (!s) return json({ error: 'not-authed' }, 401);
+  const bucket = env.GALLERY;
+  if (!bucket) return json({ error: 'not-configured' }, 503);
+
+  let body;
+  try { body = await context.request.json(); } catch { return json({ error: 'bad-json' }, 400); }
+  const id = String(body.id || '');
+  if (!id) return json({ error: 'no-id' }, 400);
+
+  const obj = await bucket.get(id);
+  if (!obj) return json({ error: 'not-found' }, 404);
+  const m = obj.customMetadata || {};
+  const admin = isAdmin(env, s.email);
+  const owns = (m.owner || '').toLowerCase() === s.email.toLowerCase();
+  if (!owns && !admin) return json({ error: 'not-yours' }, 403);
+
+  const caption = (typeof body.caption === 'string' ? body.caption : (m.caption || '')).trim().slice(0, 240);
+  if (!caption) return json({ error: 'no-caption', message: 'A caption is required.' }, 400);
+  const visibility = (body.visibility === 'public' || body.visibility === 'crew') ? body.visibility : (m.visibility || 'crew');
+  const ownerName = (admin && typeof body.by === 'string' && body.by.trim())
+    ? body.by.trim().slice(0, 60) : (m.ownerName || '');
+
+  // R2 has no in-place metadata edit — rewrite the object (same key, same bytes) with new metadata.
+  const bytes = await obj.arrayBuffer();
+  await bucket.put(id, bytes, {
+    httpMetadata: obj.httpMetadata,
+    customMetadata: { owner: m.owner || '', ownerName, caption, visibility, taken: m.taken || '', uploaded: m.uploaded || '' },
+  });
   return json({ ok: true });
 }
 
