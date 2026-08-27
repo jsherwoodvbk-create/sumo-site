@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Leaderboard — Salt Stats &amp; Sumo</title>
+<title>Leaderboard · Salt Stats &amp; Sumo</title>
 <style>
   :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184;
           --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; --vermilion:#cf5a2c;
@@ -103,7 +103,7 @@
             <h1>Leaderboard</h1>
             <p class="sub" id="sub">Where the crew stands: this basho, this year, and all-time.</p>
           </div>
-          <a class="homecrest" href="/" title="Salt Stats &amp; Sumo — home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+          <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
         </div>
       </header>
       <div class="body" id="body">
@@ -213,6 +213,13 @@
       body.innerHTML = '<div class="spin">Standings are taking a breather. Refresh in a moment.</div>';
     });
 })();
+</script>
+<script>
+/* auth-aware home crest: logged-in crew go back to the app hub, visitors to the public home */
+fetch('/api/auth/me',{headers:{'Accept':'application/json'},credentials:'same-origin'})
+  .then(function(r){return r.ok?r.json():null;})
+  .then(function(d){ if(d&&d.email){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } } })
+  .catch(function(){});
 </script>
 </body>
 </html>
