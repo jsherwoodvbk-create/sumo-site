@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Join the Crew · Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
+    --win:#227a4b; --loss:#a93327;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);min-height:100vh;
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:var(--purple);text-decoration:none;font-weight:600}
+  .wrap{max-width:460px;margin:0 auto;padding:14px 16px 48px}
+  .home{display:inline-block;margin:2px 2px 12px;font-size:13px;color:var(--purple);font-weight:700}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+    box-shadow:0 8px 26px rgba(50,30,10,.12)}
+  header{
+    background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;padding:20px 22px;border-bottom:1px solid #38230f}
+  .hbrand{display:flex;align-items:center;gap:14px}
+  .hbrand .badge{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:#efe7d5;
+    box-shadow:0 0 0 1px rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.28);overflow:hidden}
+  .hbrand .badge img{width:100%;height:100%;object-fit:cover;display:block}
+  header h1{margin:0;font-size:22px;font-weight:900}
+  header p{margin:2px 0 0;font-size:13px;opacity:.9}
+  .body{padding:20px 22px 24px}
+  .pitch{margin:0 0 18px;font-size:14px;line-height:1.6;color:var(--ink)}
+  .msg{padding:11px 14px;border-radius:9px;font-size:13.5px;line-height:1.5;margin:0 0 16px}
+  .msg.ok{background:#e9f5ec;color:#2f6b3d;border:1px solid #b9dec4}
+  .msg.err{background:#fdecea;color:var(--loss);border:1px solid #f3c0bb}
+  @media (prefers-color-scheme:dark){
+    .msg.ok{background:#173a25;color:#8fe0ab;border-color:#245536}
+    .msg.err{background:#3c1f1b;color:#f0a89e;border-color:#5a2a22}}
+  label{display:block;font-size:13px;font-weight:700;color:var(--muted);margin:0 0 5px}
+  label .opt{font-weight:400;text-transform:none;color:var(--muted)}
+  .field{margin:0 0 14px}
+  input[type=text],input[type=email],textarea{width:100%;font:inherit;font-size:15px;padding:10px 12px;
+    border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink)}
+  input:focus,textarea:focus{outline:none;border-color:var(--purple)}
+  textarea{resize:vertical;min-height:70px;line-height:1.5}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  button{width:100%;margin-top:4px;padding:12px;font:inherit;font-size:15px;font-weight:700;color:#fff;
+    background:var(--vermilion);border:0;border-radius:9px;cursor:pointer;transition:filter .12s ease}
+  button:hover{filter:brightness(1.08)} button:disabled{opacity:.6;cursor:default}
+  .foot{margin:16px 0 0;font-size:13px;color:var(--muted);text-align:center}
+  .fine{margin:12px 0 0;font-size:12px;color:var(--muted);line-height:1.5}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <a class="home" href="/">‹ Salt Stats &amp; Sumo</a>
+  <div class="card">
+    <header>
+      <div class="hbrand">
+        <span class="badge"><img src="/salt-stats-sumo-badgeold.png" alt=""></span>
+        <div>
+          <h1>Join the Crew</h1>
+          <p>Request an invite to the sumo clubhouse.</p>
+        </div>
+      </div>
+    </header>
+    <div class="body">
+      <div id="msg" class="msg" style="display:none"></div>
+      <div id="form-wrap">
+        <p class="pitch">Salt Stats &amp; Sumo is a small, invite-only crew: everything on the site, plus gameplay &amp; rankings, photos, and more. Tell us a bit about you and Jennie will get you set up!</p>
+        <form id="form" novalidate>
+          <div class="field">
+            <label for="name">Your name</label>
+            <input id="name" name="name" type="text" required autocomplete="name" placeholder="Jane Doe">
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label for="sumo">How did you get into sumo?</label>
+            <textarea id="sumo" name="sumo" required placeholder="What pulled you in: a wrestler, a trip, a friend, a late-night NHK rabbit hole…"></textarea>
+          </div>
+          <div class="field">
+            <label for="note">How you know the crew <span class="opt">(optional)</span></label>
+            <textarea id="note" name="note" placeholder="A friend of MJ's, met at the Paris basho, found the site…"></textarea>
+          </div>
+          <input class="hp" type="text" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+          <button type="submit" id="go">Request an invite</button>
+        </form>
+      </div>
+      <p class="foot">Already crew? <a href="/login">Log in →</a></p>
+      <p class="fine">Invite-only for now. The crew's a small clubhouse, and we'll only use your email to set up your login.</p>
+    </div>
+  </div>
+</div>
+<script>
+(function(){
+  var form=document.getElementById('form'), go=document.getElementById('go'),
+      msg=document.getElementById('msg'), wrap=document.getElementById('form-wrap');
+  function show(cls,html){ msg.className='msg '+cls; msg.innerHTML=html; msg.style.display='block'; }
+  form.addEventListener('submit',function(e){
+    e.preventDefault();
+    var name=document.getElementById('name').value.trim();
+    var email=document.getElementById('email').value.trim();
+    var sumo=document.getElementById('sumo').value.trim();
+    var note=document.getElementById('note').value.trim();
+    var website=form.querySelector('input[name=website]').value;
+    if(!name){ show('err','Please add your name.'); return; }
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ show('err','That email doesn’t look right.'); return; }
+    if(!sumo){ show('err','Tell us how you got into sumo, so we know you’re a real fan.'); return; }
+    go.disabled=true; go.textContent='Sending…';
+    fetch('/api/join-request',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:name,email:email,sumo:sumo,note:note,website:website})})
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if(d&&d.ok){
+          if(wrap) wrap.style.display='none';
+          show('ok','📨 <b>Request sent.</b> Jennie will add you to the crew and you\'ll be able to log in at <a href="/login">the login page</a> with this email. Welcome aboard soon!');
+        } else {
+          go.disabled=false; go.textContent='Request an invite';
+          show('err',(d&&d.message)||'Something hiccuped. Try again in a moment.');
+        }
+      })
+      .catch(function(){ go.disabled=false; go.textContent='Request an invite';
+        show('err','Something hiccuped sending that. Try again in a moment.'); });
+  });
+})();
+</script>
+</body>
+</html>
