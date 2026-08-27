@@ -6,7 +6,8 @@
 <title>Leaderboard — Salt Stats &amp; Sumo</title>
 <style>
   :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184;
-          --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; --pace:#5b6d8c; }
+          --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; --vermilion:#cf5a2c;
+          --pace:#8a6a2e; }
   * { box-sizing:border-box; }
   body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
          background:var(--band); color:var(--ink); min-height:100vh; padding:24px 16px; }
@@ -14,13 +15,16 @@
   .card { background:var(--paper); border:1px solid var(--line); border-radius:12px;
           box-shadow:0 6px 24px rgba(61,39,19,.12); overflow:hidden; }
   .card > header { background:var(--head); color:#fff; padding:22px 24px; }
-  .brand { font-size:14px; opacity:.9; margin:0 0 8px; display:flex; align-items:center; gap:9px; }
-  .brand .sitelogo { width:30px; height:30px; border-radius:50%; flex:0 0 auto;
-                     background:#efe7d5; box-shadow:0 0 0 1px rgba(255,255,255,.25); }
   .card > header h1 { margin:0; font-size:22px; line-height:1.25; }
   .card > header .sub { margin:6px 0 0; font-size:13px; opacity:.9; }
   .hdrow { display:flex; align-items:center; gap:14px; }
   .hdricon { width:48px; height:48px; flex:0 0 auto; }
+  /* home crest — the site mark, tap to go home */
+  .homecrest { width:34px; height:34px; border-radius:50%; flex:0 0 auto; margin-left:auto; overflow:hidden;
+               background:#efe7d5; box-shadow:0 0 0 1px rgba(255,255,255,.30), 0 2px 6px rgba(0,0,0,.28);
+               transition:transform .12s ease, box-shadow .12s ease; }
+  .homecrest:hover { transform:translateY(-1px); box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 5px 13px rgba(0,0,0,.34); }
+  .homecrest img { width:100%; height:100%; object-fit:cover; display:block; }
   .body { padding:20px 22px 26px; }
 
   /* view toggle */
@@ -30,7 +34,8 @@
                  background:transparent; border:0; border-radius:7px; padding:9px 6px; cursor:pointer; }
   .tabs button.on { background:var(--head); color:#fff; box-shadow:0 2px 6px rgba(61,39,19,.18); }
 
-  .viewhead { font-size:13px; color:var(--muted); margin:0 0 12px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+  .viewhead { font-size:13px; color:var(--muted); margin:0 0 10px; text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
+  .scorehint { font-size:12px; color:var(--muted); margin:0 0 12px; line-height:1.45; }
 
   .pending { background:#F7EEDA; border:1px solid var(--line); border-left:4px solid var(--accent);
              border-radius:9px; padding:11px 14px; font-size:13px; line-height:1.5; margin:0 0 16px; }
@@ -47,22 +52,22 @@
   .pts { font-weight:800; font-size:17px; }
   .golf { color:var(--muted); font-variant-numeric:tabular-nums; }
 
-  /* pace car strip */
+  /* pace car strip — Gumbai, the benchmark. Warm bronze/parchment, on-palette. */
   .pacecar { margin:16px 0 4px; display:flex; align-items:center; gap:12px;
-             background:#eef1f6; border:1px solid #cdd6e6; border-radius:10px; padding:12px 15px; }
-  .pacecar .bot { font-size:22px; flex:0 0 auto; }
-  .pacecar .txt { font-size:13px; line-height:1.45; color:#39445c; }
+             background:#F3ECDA; border:1px solid #D8C79E; border-radius:10px; padding:12px 15px; }
+  .pacecar .botimg { width:38px; height:38px; flex:0 0 auto; }
+  .pacecar .txt { font-size:13px; line-height:1.45; color:#5f5340; }
   .pacecar .txt b { color:var(--pace); }
   .pacecar .p { margin-left:auto; text-align:center; flex:0 0 auto; }
   .pacecar .p .n { font-weight:800; font-size:20px; color:var(--pace); font-variant-numeric:tabular-nums; }
-  .pacecar .p .l { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#7a839a; }
+  .pacecar .p .l { font-size:10px; text-transform:uppercase; letter-spacing:.05em; color:#9a8a66; }
 
-  .cta { margin-top:22px; background:#F7EEDA; border:1px dashed var(--accent); border-radius:10px;
+  .cta { margin-top:22px; background:#F7EEDA; border:1px dashed var(--vermilion); border-radius:10px;
          padding:16px 18px; text-align:center; }
   .cta p { margin:0 0 12px; font-size:14px; line-height:1.5; }
-  .cta a { display:inline-block; background:var(--accent); color:#fff; text-decoration:none;
+  .cta a { display:inline-block; background:var(--vermilion); color:#fff; text-decoration:none;
            font-weight:600; font-size:14.5px; padding:10px 22px; border-radius:8px; }
-  .cta a:hover { background:#731f18; }
+  .cta a:hover { background:#b24a24; }
   .rules { margin-top:16px; font-size:12px; color:var(--muted); line-height:1.55; }
   .foot { text-align:center; margin-top:16px; font-size:12px; color:var(--muted); }
   .spin { text-align:center; padding:30px; color:var(--muted); font-size:14px; }
@@ -96,15 +101,16 @@
           <svg class="hdricon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-leaderboard"/></svg>
           <div>
             <h1>Leaderboard</h1>
-            <p class="sub" id="sub">Where the crew stands — this basho, this year, and all-time.</p>
+            <p class="sub" id="sub">Where the crew stands: this basho, this year, and all-time.</p>
           </div>
+          <a class="homecrest" href="/" title="Salt Stats &amp; Sumo — home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
         </div>
       </header>
       <div class="body" id="body">
         <div class="spin">Loading standings…</div>
       </div>
     </div>
-    <p class="foot">Each basho, the closest three crew members score 3·2·1. Gumbai runs the same race as the pace car — beat it if you can.</p>
+    <p class="foot">Each basho, the closest three crew members score 3·2·1. Gumbai runs the same race as the pace car. Beat it if you can.</p>
   </div>
 
 <script>
@@ -124,7 +130,7 @@
     }).join('') + '</div>';
   }
   function ctaHTML(){
-    return '<div class="cta"><p>Think you can out-call the crew — or the bot?</p>'+
+    return '<div class="cta"><p>Think you can out-call the crew, or even the bot?</p>'+
       '<a href="/app">Join the crew &amp; make your picks →</a></div>';
   }
   function pendingHTML(){
@@ -135,13 +141,13 @@
     if(!pace) return '';
     var detail;
     if(view==='thisBasho'){
-      var overall = (pace.aheadRank!=null) ? (' — shot '+pace.golf+', good for '+ordinal(pace.aheadRank)+' in the field') : '';
+      var overall = (pace.aheadRank!=null) ? ('. It scored '+pace.golf+', good for '+ordinal(pace.aheadRank)+' in the field') : '';
       detail = 'Gumbai, the machine, ran the same race'+overall+'.';
     } else {
       detail = 'Gumbai, the machine, running the season as the pace car.';
     }
-    return '<div class="pacecar"><span class="bot">🤖</span>'+
-      '<span class="txt"><b>Gumbai · pace car</b><br>'+esc(detail)+' The crew’s crown is decided among the humans — this is the mark to beat.</span>'+
+    return '<div class="pacecar"><img class="botimg" src="/gumbai-badge.svg" alt="Gumbai">'+
+      '<span class="txt"><b>Gumbai · pace car</b><br>'+esc(detail)+' The crew’s crown is decided among the humans. This is the mark to beat.</span>'+
       '<span class="p"><span class="n">'+pace.points+'</span><span class="l">pace pts</span></span></div>';
   }
 
@@ -160,7 +166,8 @@
         '<td class="num"><span class="pts">'+r.points+'</span></td></tr>';
     }).join('');
     return '<p class="viewhead">'+esc(v.basho)+' · final</p>'+
-      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Golf</th><th class="num">Pts</th></tr></thead>'+
+      '<p class="scorehint">Score = how far your picks landed from the real banzuke, added up. ↓ Lowest wins.</p>'+
+      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Score</th><th class="num">Points</th></tr></thead>'+
       '<tbody>'+rows+'</tbody></table>'+ paceStrip(pace,'thisBasho');
   }
 
@@ -193,7 +200,7 @@
       inner = renderPoints(v.allTime, 'All-time · points');
     }
     body.innerHTML = tabsHTML() + pendingHTML() + inner + ctaHTML() +
-      '<p class="rules">Within a basho, each pick is graded by rank-distance from where the wrestler actually landed (golf — lowest total wins). The closest three crew members earn 3·2·1 toward the season. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
+      '<p class="rules">Within a basho, each pick is graded by rank-distance from where the wrestler actually landed, and the lowest total score wins. The closest three crew members earn 3·2·1 toward the season. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
     body.querySelectorAll('.tabs button').forEach(function(b){
       b.onclick = function(){ state.view = b.dataset.v; render(); };
     });
@@ -203,7 +210,7 @@
     .then(function(r){ return r.json(); })
     .then(function(d){ state.data = d; render(); })
     .catch(function(){
-      body.innerHTML = '<div class="spin">Standings are taking a breather — refresh in a moment.</div>';
+      body.innerHTML = '<div class="spin">Standings are taking a breather. Refresh in a moment.</div>';
     });
 })();
 </script>
