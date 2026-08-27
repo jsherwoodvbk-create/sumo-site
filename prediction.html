@@ -26,8 +26,7 @@
     font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
   h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   a{color:inherit}
-  .wrap{max-width:760px;margin:0 auto;padding:0 16px 64px}
-  .home{display:inline-block;margin:10px 2px 4px;font-size:13px;color:var(--purple);font-weight:700;text-decoration:none}
+  .wrap{max-width:760px;margin:0 auto;padding:14px 16px 64px}
   /* clay header band — same as the rest of the arena */
   header{
     background:
@@ -38,9 +37,15 @@
     color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid #38230f;
     box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -3px 7px rgba(0,0,0,.25)}
   .hbrand{display:flex;align-items:center;gap:15px}
-  .emblem{flex:0 0 auto;border-radius:50%;background:#efe7d5;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
+  .hdicon{width:52px;height:52px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
   header h1{font-size:25px;margin:0 0 3px;letter-spacing:0;font-weight:900}
   header .sub{opacity:.9;font-size:13.5px;margin:0}
+  /* home crest — the site mark, tap to go home */
+  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;
+    background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30), 0 2px 6px rgba(0,0,0,.28);
+    transition:transform .12s ease, box-shadow .12s ease}
+  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 5px 13px rgba(0,0,0,.34)}
+  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
   .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 16px}
   .panel h2{font-size:18px;margin:0 0 10px}
   .panel p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:var(--ink)}
@@ -56,9 +61,9 @@
   /* CTA buttons */
   .ctarow{display:flex;flex-wrap:wrap;gap:11px;margin-top:14px}
   .btn{display:inline-block;font-weight:700;font-size:14.5px;text-decoration:none;padding:11px 22px;border-radius:9px;
-    background:var(--purple);color:#fff;border:1px solid var(--purple);transition:filter .12s ease}
+    background:var(--vermilion);color:#fff;border:1px solid var(--vermilion);transition:filter .12s ease}
   .btn:hover{filter:brightness(1.09)}
-  .btn.ghost{background:transparent;color:var(--purple)}
+  .btn.ghost{background:transparent;color:var(--purple);border-color:var(--purple)}
   /* rank legend */
   .legend{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 16px}
   .legend h3{font-size:13px;margin:0 0 9px;text-transform:uppercase;letter-spacing:.05em;color:var(--clay)}
@@ -71,22 +76,42 @@
 </style>
 </head>
 <body>
-<div class="wrap">
-  <a class="home" href="index.html">‹ Salt Stats &amp; Sumo home</a>
+  <!-- inlined dohyo-coin icon (matches the leaderboard / crew hub) -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <symbol id="ic-prediction" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="none" stroke="#211a12" stroke-width="3"><circle cx="55" cy="66" r="15"/><circle cx="55" cy="66" r="8"/></g>
+        <circle cx="55" cy="66" r="3.4" fill="#b23a2e"/>
+        <line x1="86" y1="37" x2="59" y2="62" stroke="#211a12" stroke-width="3" stroke-linecap="round"/>
+        <path d="M59 62 l8 -1.5 l-3.5 -6.5 Z" fill="#211a12"/>
+        <path d="M86 37 l1 -6 M86 37 l6 -1" stroke="#211a12" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+      </g>
+    </symbol>
+  </defs></svg>
 
+<div class="wrap">
   <header>
     <div class="hbrand">
-      <img class="emblem" src="salt-stats-sumo-badgeold.png" width="66" height="66" alt="Salt Stats & Sumo — a rikishi throwing salt">
+      <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-prediction"/></svg>
       <div>
         <h1>Banzuke Prediction Pool</h1>
-        <p class="sub">Call the next banzuke before it's official — the crew vs. the machine.</p>
+        <p class="sub">Call the next banzuke before it's official. The crew vs. the machine.</p>
       </div>
+      <a class="homecrest" href="/" title="Salt Stats &amp; Sumo — home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
     </div>
   </header>
 
   <div class="panel hero">
     <h2>Think you can read the banzuke better than the rest of us?</h2>
-    <p>Every tournament, before the new rankings are announced, the crew predicts where all 42 makuuchi wrestlers will land. When the banzuke drops, every pick gets scored against the truth — <b>closest call wins.</b> Gumbai, the machine, plays too. Nobody's safe.</p>
+    <p>Every tournament, before the new rankings are announced, the crew predicts where all 42 makuuchi wrestlers will land. When the banzuke drops, every pick gets scored against the truth. <b>Closest call wins.</b> Gumbai, the machine, plays too. Nobody's safe.</p>
     <div class="ctarow">
       <a class="btn" href="/app">Make your picks →</a>
       <a class="btn ghost" href="leaderboard.html">See the standings →</a>
@@ -98,7 +123,7 @@
     <ol class="steps">
       <li>Predict where each of the <b>42 makuuchi wrestlers</b> lands on the next banzuke.</li>
       <li>Your score is the <b>rank-distance</b> between each pick and where the wrestler actually ends up, added up. An exact call is a clean zero.</li>
-      <li><b>Lowest total wins</b> — it's golf, not darts.</li>
+      <li><b>Lowest total wins.</b> Closest to the real banzuke takes it.</li>
       <li>Call the juryo wrestlers getting promoted for <b>bonus points off your score.</b></li>
       <li>Picks lock and everything grades the moment the real banzuke is announced.</li>
     </ol>
@@ -114,11 +139,11 @@
 
   <div class="panel">
     <h2>Play along</h2>
-    <p>The pool is a <b>crew game</b> — members make their picks right in the app, and the standings are public for everyone to watch. Not in yet? Come join the crew.</p>
+    <p>The pool is a <b>crew game</b>. Members make their picks right in the app, and the standings stay public for everyone to watch. Not in yet? Come join the crew.</p>
     <div class="ctarow">
       <a class="btn" href="/app">Join the crew →</a>
     </div>
-    <p class="muted" style="margin-top:12px">Invite-only for now — the crew's a small clubhouse.</p>
+    <p class="muted" style="margin-top:12px">Invite-only for now. The crew's a small clubhouse.</p>
   </div>
 
   <footer>
