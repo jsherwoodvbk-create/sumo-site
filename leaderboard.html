@@ -101,7 +101,7 @@
           <svg class="hdricon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-leaderboard"/></svg>
           <div>
             <h1>Leaderboard</h1>
-            <p class="sub" id="sub">Where the crew stands: this basho, this year, and all-time.</p>
+            <p class="sub" id="sub">The crews ranking this basho, this year, or all-time.</p>
           </div>
           <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
         </div>
@@ -144,7 +144,7 @@
       var overall = (pace.aheadRank!=null) ? ('. It scored '+pace.golf+', good for '+ordinal(pace.aheadRank)+' in the field') : '';
       detail = 'Gumbai, the machine, ran the same race'+overall+'.';
     } else {
-      detail = 'Gumbai, the machine, running the season as the pace car.';
+      detail = 'Gumbai, running the season as the pace car.';
     }
     return '<div class="pacecar"><img class="botimg" src="/gumbai-badge.svg" alt="Gumbai">'+
       '<span class="txt"><b>Gumbai · pace car</b><br>'+esc(detail)+' The crew’s crown is decided among the humans. This is the mark to beat.</span>'+
