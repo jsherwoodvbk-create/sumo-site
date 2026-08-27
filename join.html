@@ -34,9 +34,7 @@
       linear-gradient(160deg,#6e4826,#432a15);
     color:#fff;padding:20px 22px;border-bottom:1px solid #38230f}
   .hbrand{display:flex;align-items:center;gap:14px}
-  .hbrand .badge{width:46px;height:46px;flex:0 0 auto;border-radius:50%;background:#efe7d5;
-    box-shadow:0 0 0 1px rgba(255,255,255,.3), 0 2px 6px rgba(0,0,0,.28);overflow:hidden}
-  .hbrand .badge img{width:100%;height:100%;object-fit:cover;display:block}
+  .hdicon{width:52px;height:52px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
   header h1{margin:0;font-size:22px;font-weight:900}
   header p{margin:2px 0 0;font-size:13px;opacity:.9}
   .body{padding:20px 22px 24px}
@@ -63,12 +61,34 @@
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+  <symbol id="ic-join" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+    <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+    <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+    <g clip-path="url(#coinClip)" filter="url(#inkS)">
+      <g fill="#211a12">
+        <rect x="34" y="42" width="52" height="6" rx="2"/>
+        <rect x="42" y="53" width="36" height="4.5" rx="1.5"/>
+        <rect x="46" y="48" width="6" height="33"/>
+        <rect x="68" y="48" width="6" height="33"/>
+        <rect x="58.5" y="48" width="3" height="6"/>
+      </g>
+      <path d="M47 52 q13 7 26 0" fill="none" stroke="#b23a2e" stroke-width="2.6" stroke-linecap="round"/>
+    </g>
+  </symbol>
+</defs></svg>
 <div class="wrap">
   <a class="home" href="/">‹ Salt Stats &amp; Sumo</a>
   <div class="card">
     <header>
       <div class="hbrand">
-        <span class="badge"><img src="/salt-stats-sumo-badgeold.png" alt=""></span>
+        <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-join"/></svg>
         <div>
           <h1>Join the Crew</h1>
           <p>Request an invite to the sumo clubhouse.</p>
