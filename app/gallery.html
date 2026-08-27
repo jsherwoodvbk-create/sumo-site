@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Crew Gallery — Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c; --win:#227a4b; --loss:#a93327;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1,h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:0 16px 64px}
+  .crewbar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:11px 2px 6px;font-size:13px}
+  .crewbar a{color:var(--purple);font-weight:700}
+  .crewbar .you{color:var(--muted)}
+  header{
+    background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;border-radius:14px;padding:20px 22px;margin-bottom:18px;border:1px solid #38230f;
+    box-shadow:0 8px 22px rgba(50,30,10,.28)}
+  .hbrand{display:flex;align-items:center;gap:14px}
+  .hbrand .icon{width:48px;height:48px;flex:0 0 auto}
+  header h1{font-size:23px;margin:0 0 2px;font-weight:900}
+  header p{margin:0;opacity:.9;font-size:13.5px}
+
+  /* upload panel */
+  .up{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px 18px;margin:0 0 22px}
+  .up h2{font-size:16px;margin:0 0 12px}
+  .row{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12px;font-weight:700;color:var(--muted)}
+  input[type=file]{font:inherit;font-size:13px}
+  input[type=text]{font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);min-width:230px}
+  .vis{display:flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .vis label{font-size:13px;font-weight:600;padding:8px 13px;cursor:pointer;background:var(--bg);color:var(--muted)}
+  .vis input{display:none}
+  .vis input:checked + span{background:var(--purple);color:#fff}
+  .vis label span{display:inline-block;padding:8px 13px;margin:-8px -13px;border-radius:0}
+  .vis label:first-child{border-right:1px solid var(--line)}
+  button.go{font:inherit;font-weight:700;font-size:14px;color:#fff;background:var(--vermilion);border:0;border-radius:8px;padding:10px 20px;cursor:pointer}
+  button.go:disabled{opacity:.55;cursor:default}
+  .hint{font-size:12px;color:var(--muted);margin:10px 0 0;line-height:1.5}
+  .status{font-size:13px;margin:10px 0 0;min-height:1em}
+  .status.ok{color:var(--win)} .status.err{color:var(--loss)}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;position:relative}
+  .card img{display:block;width:100%;height:220px;object-fit:cover;background:var(--clay-soft)}
+  .card .meta{padding:10px 12px}
+  .card .meta p{margin:0;font-size:13.5px}
+  .card .meta .by{color:var(--muted);font-size:12px;margin-top:3px}
+  .vbadge{position:absolute;top:8px;left:8px;font-size:11px;font-weight:800;padding:3px 8px;border-radius:999px;color:#fff}
+  .vbadge.public{background:var(--win)} .vbadge.crew{background:#4a4a55}
+  .del{position:absolute;top:8px;right:8px;background:rgba(169,51,39,.92);color:#fff;border:0;border-radius:999px;
+    font-size:11px;font-weight:700;padding:4px 10px;cursor:pointer}
+  .empty{background:var(--surface);border:1px dashed var(--line);border-radius:14px;padding:40px 24px;text-align:center;color:var(--muted)}
+  .spin{padding:36px;text-align:center;color:var(--muted)}
+  footer{margin-top:30px;text-align:center;font-size:12px;color:var(--muted);border-top:1px solid var(--line);padding-top:16px}
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <symbol id="ic-gallery" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <rect x="37" y="48" width="46" height="30" rx="5" fill="#211a12"/>
+        <path d="M50 48 l3 -6 h14 l3 6 Z" fill="#211a12"/>
+        <circle cx="60" cy="63" r="10" fill="#efe7d5"/>
+        <circle cx="60" cy="63" r="10" fill="none" stroke="#211a12" stroke-width="2.5"/>
+        <circle cx="60" cy="63" r="4.4" fill="#b23a2e"/>
+        <circle cx="76" cy="53" r="2.3" fill="#efe7d5"/>
+      </g>
+    </symbol>
+  </defs></svg>
+
+<div class="wrap">
+  <div class="crewbar">
+    <a href="/app">‹ Crew home</a>
+    <span class="you">Welcome, <b id="who">crew</b> · <a href="/api/auth/logout">Log out</a></span>
+  </div>
+  <header>
+    <div class="hbrand">
+      <svg class="icon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-gallery"/></svg>
+      <div>
+        <h1>Crew Gallery</h1>
+        <p>Your shots from the road. You choose who sees each one.</p>
+      </div>
+    </div>
+  </header>
+
+  <div class="up">
+    <h2>Add a shot</h2>
+    <div class="row">
+      <div class="field">
+        <label for="file">Photo</label>
+        <input id="file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif">
+      </div>
+      <div class="field">
+        <label for="cap">Caption</label>
+        <input id="cap" type="text" placeholder="Aonishiki vs Ura · Paris 2026">
+      </div>
+      <div class="field">
+        <label>Who sees it</label>
+        <div class="vis">
+          <label><input type="radio" name="vis" value="public"><span>🌐 Public</span></label>
+          <label><input type="radio" name="vis" value="crew" checked><span>🔒 Crew only</span></label>
+        </div>
+      </div>
+      <button class="go" id="go">Upload</button>
+    </div>
+    <p class="hint">🌐 <b>Public</b> shows on the site's Fan Gallery for anyone. 🔒 <b>Crew only</b> stays here in the app — only logged-in crew can see it. You can delete your own anytime, and it's gone everywhere.</p>
+    <p class="status" id="status"></p>
+  </div>
+
+  <div id="grid" class="grid"></div>
+  <div id="loading" class="spin">Loading the gallery…</div>
+
+  <footer><b>Salt Stats &amp; Sumo</b> — the crew gallery. Photos live in your crew store; delete yours anytime.</footer>
+</div>
+
+<script>
+(function(){
+  var meEmail = null;
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+  function setStatus(cls,msg){ var el=document.getElementById('status'); el.className='status '+cls; el.textContent=msg; }
+
+  fetch('/api/auth/me',{headers:{'Accept':'application/json'}}).then(function(r){return r.ok?r.json():null;})
+    .then(function(d){ if(d&&d.name) document.getElementById('who').textContent=d.name; if(d) meEmail=d.email; });
+
+  function load(){
+    fetch('/api/app/gallery',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+      document.getElementById('loading').style.display='none';
+      var photos=(d&&d.photos)||[];
+      var grid=document.getElementById('grid');
+      if(!photos.length){ grid.outerHTML='<div class="empty">No shots yet — add the first one above.</div>'; return; }
+      grid.innerHTML = photos.map(function(p){
+        var badge = p.visibility==='public'
+          ? '<span class="vbadge public">🌐 Public</span>'
+          : '<span class="vbadge crew">🔒 Crew</span>';
+        var del = p.mine ? '<button class="del" data-id="'+esc(p.id)+'">Delete</button>' : '';
+        return '<div class="card">'+badge+del+
+          '<img src="'+esc(p.src)+'" loading="lazy" alt="'+esc(p.caption)+'">'+
+          '<div class="meta"><p>'+esc(p.caption||'')+'</p>'+
+          (p.by?'<div class="by">by '+esc(p.by)+'</div>':'')+'</div></div>';
+      }).join('');
+      grid.querySelectorAll('.del').forEach(function(b){
+        b.onclick=function(){ del(b.dataset.id); };
+      });
+    }).catch(function(){ document.getElementById('loading').textContent='Gallery is taking a breather — refresh in a moment.'; });
+  }
+
+  function del(id){
+    if(!confirm('Delete this photo? It disappears everywhere, right away.')) return;
+    fetch('/api/app/gallery?id='+encodeURIComponent(id),{method:'DELETE',credentials:'same-origin'})
+      .then(function(r){return r.json();}).then(function(d){
+        if(d&&d.ok){ setStatus('ok','Deleted.'); load(); }
+        else setStatus('err','Could not delete: '+((d&&d.error)||'error'));
+      }).catch(function(){ setStatus('err','Delete failed — try again.'); });
+  }
+
+  document.getElementById('go').onclick=function(){
+    var f=document.getElementById('file').files[0];
+    if(!f){ setStatus('err','Pick a photo first.'); return; }
+    var vis=(document.querySelector('input[name=vis]:checked')||{}).value||'crew';
+    var fd=new FormData();
+    fd.append('photo',f); fd.append('caption',document.getElementById('cap').value||''); fd.append('visibility',vis);
+    var btn=document.getElementById('go'); btn.disabled=true; setStatus('','Uploading…');
+    fetch('/api/app/gallery',{method:'POST',body:fd,credentials:'same-origin'})
+      .then(function(r){return r.json();}).then(function(d){
+        btn.disabled=false;
+        if(d&&d.ok){ setStatus('ok','Added'+(vis==='public'?' — live on the public gallery.':' — crew only.'));
+          document.getElementById('file').value=''; document.getElementById('cap').value=''; load(); }
+        else setStatus('err','Upload failed: '+((d&&d.error)||'error'));
+      }).catch(function(){ btn.disabled=false; setStatus('err','Upload failed — try again.'); });
+  };
+
+  load();
+})();
+</script>
+</body>
+</html>
