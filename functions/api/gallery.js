@@ -1,6 +1,6 @@
 // functions/api/gallery.js — PUBLIC gallery feed. No auth.
-// Lists ONLY photos the uploader tagged `public`. Crew-only photos never appear here.
-// Image bytes are served by /api/img (which gates crew-only shots behind a session).
+// Lists ONLY photos tagged `public`. Crew-only photos never appear here.
+// Storage = Cloudflare R2 (binding GALLERY). Bytes served by /api/img (gates crew-only).
 
 export async function onRequestGet(context) {
   const bucket = context.env.GALLERY;
@@ -18,6 +18,7 @@ export async function onRequestGet(context) {
         src: '/api/img?id=' + encodeURIComponent(o.key),
         caption: m.caption || '',
         by: m.ownerName || '',
+        taken: m.taken || '',
         uploaded: m.uploaded || '',
       });
     }
