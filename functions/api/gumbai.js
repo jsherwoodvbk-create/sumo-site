@@ -59,6 +59,8 @@ async function logInteraction(env, { question, reply, gateDay, showFull, usedToo
     'Gate Day':      { number: Number.isInteger(gateDay) ? gateDay : null },
     'Full View':     { checkbox: !!showFull },
     'Tools Used':    { multi_select: (toolNames.length ? toolNames : ['(none)']).map(n => ({ name: n })) },
+    'Tool Calls':    { rich_text: [{ text:{ content:
+      JSON.stringify((usedTools||[]).map(t => ({ name:t.name, input:t.input }))).slice(0, NOTION_TXT) } }] },
     'Answered From': { select: { name: classifyAnswer(capped, usedTools, reply) } },
     'Model':         { rich_text: [{ text:{ content: String(model||'').slice(0, 200) } }] },
     'Turns':         { number: Number.isInteger(turns) ? turns : null },
