@@ -13,6 +13,7 @@
     --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
     --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
     --win:#227a4b; --loss:#a93327; --up:#227a4b; --down:#a93327;
+    --maeg-hi:#46536b; --maeg-lo:#746a52;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
@@ -57,7 +58,11 @@
     text-transform:uppercase;letter-spacing:.03em}
   @media (prefers-color-scheme:dark){thead th{color:var(--clay)}}
   tbody tr:nth-child(even){background:rgba(0,0,0,.03)}
-  td.rank,td.rec{color:var(--muted)}
+  td.rec{color:var(--muted)}
+  .rk{display:inline-block;min-width:30px;text-align:center;font-size:11px;font-weight:800;color:#fff;padding:2px 7px;border-radius:6px;white-space:nowrap}
+  .r-yok{background:var(--purple)} .r-ozeki{background:var(--vermilion)} .r-seki{background:var(--clay)}
+  .r-komu{background:var(--win)} .r-maeg-hi{background:var(--maeg-hi)} .r-maeg-lo{background:var(--maeg-lo)}
+  .r-jur{background:#c4b8a0;color:#5c5342} .r-ret{background:var(--line);color:var(--muted)}
   td.kk{color:var(--win);font-weight:600} td.mk{color:var(--loss);font-weight:600}
   td.delta{font-weight:600;text-align:center;width:52px}
   td.delta.up{color:var(--up)} td.delta.down{color:var(--down)} td.delta.zero{color:var(--muted)}
@@ -130,6 +135,13 @@
     if(r.indexOf('retire')===0||r==='r') return 24;
     return null;
   }
+  // rank → standings tier class (maegashira splits at M8, same as standings/reports)
+  function rankClass(x){
+    var v=rankValue(x); if(v===null) return '';
+    if(v===1) return 'r-yok'; if(v===2) return 'r-ozeki'; if(v===3) return 'r-seki'; if(v===4) return 'r-komu';
+    if(v>=5&&v<=12) return 'r-maeg-hi'; if(v>=13&&v<=22) return 'r-maeg-lo';
+    if(v===23) return 'r-jur'; return 'r-ret';
+  }
 
   var state={ basho:'', roster:[], ranks:{}, bonus:[], dirty:false, savedAt:null };
 
@@ -171,7 +183,8 @@
     state.roster.forEach(function(w){
       var tr=document.createElement('tr');
       var name=document.createElement('td'); name.textContent=w.name;
-      var rank=document.createElement('td'); rank.className='rank'; rank.textContent=w.rank||'';
+      var rank=document.createElement('td'); rank.className='rank';
+      if(w.rank){ var rchip=document.createElement('span'); rchip.className='rk '+rankClass(w.rank); rchip.textContent=w.rank; rank.appendChild(rchip); }
       var rec=document.createElement('td'); rec.className='rec'; rec.textContent=w.record||'';
       var kk=document.createElement('td'); kk.textContent=w.kkmk||''; kk.className=w.kkmk==='KK'?'kk':(w.kkmk==='MK'?'mk':'');
       var pick=document.createElement('td');
