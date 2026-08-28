@@ -168,7 +168,28 @@ function summarize(name, bouts){
     goldStarWins: wins.filter(b=>b.goldStar).length,
   };
 }
+// ── MAWASHI FAMILY — the belt color's LAST WORD is the family (a Notion naming convention,
+// not a bucketer). Fixed word list; green also accepts "teal", grey accepts "gray". A last
+// word not in the list returns null → the tool flags it as unclassified (never miscounts). ──
+const MAWASHI_FAMILY_WORDS = {
+  purple:'purple', blue:'blue', red:'red', green:'green', teal:'green',
+  brown:'brown', black:'black', grey:'grey', gray:'grey', pink:'pink',
+};
+function mawashiFamily(colorText){
+  const t = String(colorText || '').trim();
+  if(!t) return null;
+  return MAWASHI_FAMILY_WORDS[t.split(/\s+/).pop().toLowerCase()] || null;
+}
 
+// ── ROLLUP REGISTRY — each groupable field maps a roster member to a group key.
+// A new consolidation = one row here (source + gate + key fn), never a new tool.
+// gate:'timeless' is gate-invariant; gate:'bouts' would compute over gated bouts. ──
+const ROLLUP_FIELDS = {
+  mawashiFamily: { source:'rikishi', gate:'timeless', validate:true,
+    label:'mawashi color family', key: r => mawashiFamily(r.mawashi) },
+  country:       { source:'rikishi', gate:'timeless',
+    label:'country of origin',   key: r => r.country || null },
+};
 // ── HISTORY HELPERS — past basho (Jan 2025 onward). NEVER gated. ──
 function historyBashoList(gated){
   const h = gated.history && gated.history.basho; if(!h) return [];
@@ -263,6 +284,11 @@ export const TOOLS = [
     name: 'query_leaderboard',
     description: "Cross-wrestler win-loss leaderboard SUMMED over a whole calendar year (or all tracked time), ranked best-first. This is the tool for 'who had the best record in 2025', 'most wins in 2026 so far', 'top records this year', 'year-to-date leader'. Adds up each wrestler's W-L across every tracked basho in that year (makuuchi, since Jan 2025) and ranks by total wins (win pct breaks ties). A completed year (e.g. 2025) is exact; a current year includes the in-progress basho only through the viewer's gated day (flagged). Optional: year (e.g. 2025; defaults to all tracked), top (limit the list).",
     input_schema: { type:'object', properties:{ year:{type:'integer'}, top:{type:'integer'} } }
+  },
+    {
+    name: 'query_rollup',
+    description: "Consolidate the CURRENT makuuchi by a clean field: count the wrestlers in each group, ranked most-first. groupBy accepts 'mawashiFamily' (belt color family) or 'country'. Use for 'most common mawashi color', 'who wears blue', 'the color breakdown', 'how many wrestlers per country'. Every count is exact (colors follow a last-word family convention, so no guessing). Optional top limits the groups returned. If asked to group by something not offered, it returns the available fields instead of a number — say you can't total that one yet rather than inventing it. Current roster, not spoiler-gated. For ONE wrestler's own belt color, use query_rikishi.",
+    input_schema: { type:'object', properties:{ groupBy:{type:'string'}, top:{type:'integer'} } }
   },
   {
     name: 'query_upcoming',
@@ -506,6 +532,37 @@ export function runTool(toolName, input, gated){
         phrases: list.map(c=>({ phrase:c.phrase, announcer:c.announcer||null, daysHeard:c.count, timeless:!!c.timeless, giggle:c.giggle??null, jewel:!!c.jewel })),
         note:'Counts are a FLOOR (at least N days) — the table under-captures, so never claim "his most-used." Giggle (1-5) and jewel are the crew\'s sparse human favorites. Pure booth-personality fun.' };
     }
+        case 'query_rollup': {
+      const field = ROLLUP_FIELDS[input.groupBy];
+      if(!field) return { found:false, error:'unknown_groupBy', requested: input.groupBy || null,
+        available: Object.keys(ROLLUP_FIELDS),
+        note:`I can't total by "${input.groupBy}" from our data. I can group by: ${Object.keys(ROLLUP_FIELDS).join(', ')}.` };
+      const profByName = new Map(gated.rikishi.map(r => [r.name, r]));
+      const roster = gated.banzuke.map(b => profByName.get(b.name)).filter(Boolean);
+      const groups = new Map();
+      const unclassified = [];
+      for(const r of roster){
+        const key = field.key(r);
+        if(key == null){ if(field.validate) unclassified.push({ name:r.name, value: r.mawashi ?? null }); continue; }
+        if(!groups.has(key)) groups.set(key, []);
+        groups.get(key).push(r.name);
+      }
+      let list = [...groups.entries()].map(([key, members]) => ({ key, count: members.length, members }))
+        .sort((a,b) => b.count - a.count || String(a.key).localeCompare(String(b.key)));
+      const total = roster.length;
+      const classified = list.reduce((n,g) => n + g.count, 0);
+      const leader = list.length ? { key:list[0].key, count:list[0].count } : null;
+      if(Number.isInteger(input.top)) list = list.slice(0, input.top);
+      const out = { found:true, scope:'current makuuchi', groupBy: input.groupBy, measure:'count',
+        total, classified, leader, groups: list,
+        ...(field.gate === 'bouts' ? { throughDay: gated.gate } : {}),
+        note:`Counted the ${total} wrestlers in the current makuuchi by ${field.label}, most first. Every count is exact.` };
+      if(field.validate && unclassified.length){
+        out.unclassified = unclassified;
+        out.note += ` NOTE: ${unclassified.length} wrestler(s) have a ${field.label} value off the naming convention and were left out until fixed.`;
+      }
+      return out;
+    }
     default:
       return { error:`unknown tool ${toolName}` };
   }
@@ -552,7 +609,7 @@ WRITE LIKE A REAL PERSON, NOT AN AI. Hard rules: NO em dashes ever (use a period
 
 HARD DON'TS: never curse. Never push Japanese-language learning (a standing crew boundary). Never go stiff or corporate. Never lecture. NEVER offer or tease a follow-up you can't actually deliver from a tool. Before you say "want me to pull X," be sure X is something a tool returns. When you're riffing on lore (Lane 2), do NOT imply the crew's data holds a stat it doesn't — there is no salt-throw distance, no "biggest salt thrower," etc. Only offer follow-ups you can genuinely produce.
 
-TOOLS: query_rikishi, query_banzuke, query_match_log, query_standings, query_kimarite, query_career, query_yusho, query_leaderboard, query_upcoming, query_condition, query_storylines, query_catchphrases. For ANY Lane 1 question call the relevant tool before answering. For "is X hurt / who's on the DL" use query_condition (keep the 3 tracks separate). For "what was the story / any drama" use query_storylines. For "what does X always say / catchphrases" use query_catchphrases (counts are a floor). For ONE wrestler's history use query_career; for who WON a basho use query_yusho. For a cross-wrestler YEAR total or "who had the best record / most wins in 2025 / 2026 so far / this year," use query_leaderboard (it sums and ranks for you — do NOT say you can't total a year). Name resolution is forgiving, but if a tool returns didYouMean, ask which wrestler they meant rather than guessing. When a tool hands you a computed number, quote it directly.
+TOOLS: query_rikishi, query_banzuke, query_match_log, query_standings, query_kimarite, query_career, query_yusho, query_leaderboard, query_upcoming, query_condition, query_storylines, query_catchphrases, query_rollup. For ANY Lane 1 question call the relevant tool before answering. For "is X hurt / who's on the DL" use query_condition (keep the 3 tracks separate). For "what was the story / any drama" use query_storylines. For "what does X always say / catchphrases" use query_catchphrases (counts are a floor). For ONE wrestler's history use query_career; for who WON a basho use query_yusho. For a cross-wrestler YEAR total or "who had the best record / most wins in 2025 / 2026 so far / this year," use query_leaderboard (it sums and ranks for you — do NOT say you can't total a year). Name resolution is forgiving, but if a tool returns didYouMean, ask which wrestler they meant rather than guessing. When a tool hands you a computed number, quote it directly.For "most common mawashi color / who wears blue / the color breakdown / how many per country" use query_rollup (groupBy: mawashiFamily or country); it counts and ranks the roster for you, exactly, so quote its number. If it comes back with found:false and an available list, that grouping isn't in our data yet — say you can't total that one rather than guessing.
 
 HONESTY: our data spans Jan 2025 to the present, across many bashos. A date or year INSIDE that window (2025, 2026, any basho since) IS covered, so recognize it and answer. Never imply an in-window date is out of range. You now HAVE a year leaderboard: "who had the best record in 2025," "most wins in 2026 so far," "top records this year" all go to query_leaderboard, which sums and ranks across the year — so answer them for real, do not deflect or claim you can't total a year. A completed year (2025) is exact; the current year includes the in-progress basho only through the viewer's gated day, so flag that ("2026 so far, through your day"). If a specific cut genuinely isn't something any tool produces, say what you CAN give instead and frame it as a slice, never as the date being unavailable. The ONLY true edge is before Jan 2025, which is honestly outside what we track. Never dress a partial number up as complete.
 
