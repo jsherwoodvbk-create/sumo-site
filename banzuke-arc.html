@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Banzuke Arc · Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --charcoal:#2b2b31;
+    --purple:#6a3d9a; --vermilion:#cf5a2c; --win:#227a4b; --gold:#c8962f;
+    --maeg-hi:#46536b; --maeg-lo:#746a52;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --gold:#e0b558;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1,h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:14px 16px 64px}
+  header{background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;border-radius:14px;padding:20px 22px;margin-bottom:18px;border:1px solid #38230f;
+    box-shadow:0 8px 22px rgba(50,30,10,.28)}
+  .hbrand{display:flex;align-items:center;gap:15px}
+  .hdicon{width:54px;height:54px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
+  header h1{font-size:24px;margin:0 0 2px;font-weight:900}
+  header p{margin:0;opacity:.9;font-size:13.5px}
+  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;
+    background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);
+    transition:transform .12s ease, box-shadow .12s ease}
+  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
+  .sechead{font-family:'Zen Old Mincho',Georgia,serif;font-size:15px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--clay);margin:8px 2px 6px;display:flex;align-items:center;gap:12px}
+  .sechead::after{content:"";flex:1;height:1px;background:var(--line)}
+  .subnote{font-size:12.5px;color:var(--muted);margin:0 2px 14px;line-height:1.5}
+  .legend{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;margin:0 2px 14px;font-size:11.5px;color:var(--muted)}
+  .legend .sw{display:inline-block;width:13px;height:13px;border-radius:4px;vertical-align:-2px;margin-right:5px}
+  .scroller{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table.heat{border-collapse:separate;border-spacing:0;width:100%;font-variant-numeric:tabular-nums}
+  table.heat th.col{position:sticky;top:0;z-index:2;background:var(--clay-soft);color:var(--ink);
+    text-align:center;padding:6px 2px;font-weight:700;min-width:62px;line-height:1.15;border-bottom:1px solid var(--line)}
+  table.heat th.col .cb{display:block;font-size:10.5px}
+  table.heat th.col .cy{display:block;font-size:9.5px;color:var(--muted);font-weight:600}
+  table.heat th.corner{position:sticky;left:0;top:0;z-index:3;background:var(--clay-soft);
+    border-bottom:1px solid var(--line);border-right:1px solid var(--line);
+    text-align:left;padding:6px 10px;font-size:10.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;min-width:112px}
+  th.rk-name{position:sticky;left:0;z-index:1;background:var(--surface);text-align:left;
+    padding:0 10px;font-weight:600;font-size:13px;white-space:nowrap;min-width:112px;
+    border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+  td.cell{text-align:center;font-size:12px;font-weight:800;height:32px;min-width:62px;color:#fff;
+    border-bottom:1px solid var(--surface);border-right:1px solid var(--surface);position:relative;white-space:nowrap}
+  td.cell .rk{vertical-align:middle}
+  td.cell.empty{background:repeating-linear-gradient(45deg,transparent 0 5px,rgba(0,0,0,.035) 5px 6px)}
+  td.cell.won{box-shadow:inset 0 0 0 2px var(--gold)}
+  td.cell .cup{font-size:8px;position:absolute;top:1px;right:2px;color:var(--gold)}
+  .dl{font-size:8.5px;font-weight:800;margin-left:3px;vertical-align:1px;letter-spacing:0}
+  .dl.up{color:#d6f5df} .dl.dn{color:#f7d2c9} .dl.sm{opacity:.55}
+  .dl.in{color:#fff;background:rgba(255,255,255,.22);padding:0 3px;border-radius:4px}
+  .foot{margin-top:22px;font-size:12px;color:var(--muted);line-height:1.55;border-top:1px solid var(--line);padding-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="hbrand">
+      <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true">
+        <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+        <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+        <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+        <polyline points="34,74 50,58 66,66 88,42" fill="none" stroke="#211a12" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M80 42 h10 v10" fill="none" stroke="#b23a2e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <h1>Banzuke Arc</h1>
+        <p>Every rank, every basho, since the crew got in.</p>
+      </div>
+      <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+    </div>
+  </header>
+
+  <h2 class="sechead">The whole division, tournament by tournament</h2>
+  <p class="subnote">Everyone on the current banzuke, and where they ranked each tournament. Newest is on the left, so where they stand now reads first. On the last year of columns, the ▲▼ arrows show how far they moved from the basho before, and <b>IN</b> marks a jump up into the top division. ★ means they won it. A <b>blank</b> is a basho they spent out of makuuchi.</p>
+  <div class="legend">
+    <span><span class="sw" style="background:#6a3d9a"></span>Yokozuna</span>
+    <span><span class="sw" style="background:#cf5a2c"></span>Ozeki</span>
+    <span><span class="sw" style="background:#a9742c"></span>Sekiwake</span>
+    <span><span class="sw" style="background:#227a4b"></span>Komusubi</span>
+    <span><span class="sw" style="background:#46536b"></span>Maegashira 1–8</span>
+    <span><span class="sw" style="background:#746a52"></span>Maegashira 9–18</span>
+    <span style="color:var(--gold)">★ yusho</span>
+  </div>
+  <div class="scroller"><table class="heat" id="heat"></table></div>
+
+  <p class="foot"><b>How to read it:</b> "all-time" means since Hatsu 2025, when the crew got in, which is every basho in the Banzuke database. We only track the top division, so a blank cell is a basho someone spent in Juryo or below, not a hole in the data. Ranks are the published banzuke, pulled from Notion.</p>
+</div>
+
+<script>
+  /* BANZUKE_DATA — generated by build-banzuke-arc.mjs from the Notion Banzuke DB. Do not hand-edit. */
+  const BANZUKE_DATA = {"tournaments":["Hatsu 2025","Haru 2025","Natsu 2025","Nagoya 2025","Aki 2025","Kyushu 2025","Hatsu 2026","Haru 2026","Natsu 2026","Nagoya 2026"],"yusho":{"Hatsu 2025":"Hoshoryu","Haru 2025":"Onosato","Natsu 2025":"Onosato","Nagoya 2025":"Kotoshoho","Aki 2025":"Onosato","Kyushu 2025":"Aonishiki","Hatsu 2026":"Aonishiki","Haru 2026":"Kirishima","Natsu 2026":"Wakatakakage","Nagoya 2026":"Aonishiki"},"data":{"Hatsu 2025":{"Ura":"M4","Oshoma":"M9","Shodai":"M4","Atamifuji":"M2","Mitakeumi":"M7","Kayo":"J","Abi":"Komusubi","Terunofuji":"Yokozuna","Sadanoumi":"J","Tobizaru":"M2","Kitanowaka":"M15","Onokatsu":"M12","Shiden":"J","Kirishima":"M1","Takayasu":"M6","Kotozakura":"Ozeki","Meisei":"M10","Gonoyama":"M3","Tamashoho":"M16","Endo":"M7","Chiyoshoma":"M5","Hakuoho":"M15","Nishikifuji":"M17","Churanoumi":"M9","Daieisho":"Sekiwake","Takerufuji":"M11","Wakatakakage":"Komusubi","Takarafuji":"M8","Shonannoumi":"M13","Hiradoumi":"M5","Kinbozan":"M14","Tamawashi":"M10","Hoshoryu":"Ozeki","Kotoshoho":"M13","Kagayaki":"M16","Nishikigi":"M12","Takanosho":"M1","Hokutofuji":"M14","Ichiyamamoto":"M6","Roga":"M8","Tokihayate":"M17","Midorifuji":"M11","Oho":"M3","Wakamotoharu":"Sekiwake","Onosato":"Ozeki"},"Haru 2025":{"Wakatakakage":"M1","Kagayaki":"J","Gonoyama":"M2","Oho":"Sekiwake","Hoshoryu":"Yokozuna","Chiyoshoma":"M2","Hiradoumi":"M6","Onosato":"Ozeki","Meisei":"M11","Wakamotoharu":"M1","Aonishiki":"M15","Kirishima":"Komusubi","Tamashoho":"J","Shishi":"M13","Shonannoumi":"M10","Mitakeumi":"M17","Shiden":"J","Takayasu":"M4","Shirokuma":"M17","Daieisho":"Sekiwake","Abi":"Komusubi","Roga":"J","Shodai":"M7","Kotoshoho":"M16","Ichiyamamoto":"M4","Takanosho":"M3","Nishikifuji":"M13","Oshoma":"M8","Midorifuji":"M11","Ura":"M5","Asakoryu":"M16","Onokatsu":"M12","Nishikigi":"M10","Hakuoho":"M9","Fujiseiun":"J","Kayo":"J","Endo":"M9","Kotozakura":"Ozeki","Atamifuji":"M8","Tamawashi":"M7","Ryuden":"M14","Tokihayate":"M18","Sadanoumi":"M15","Churanoumi":"M14","Tobizaru":"M3","Takerufuji":"M6","Takarafuji":"M12","Kinbozan":"M5"},"Natsu 2025":{"Kirishima":"Sekiwake","Kusano":"J","Hakuoho":"M7","Takerufuji":"M4","Oshoma":"M6","Hidenoumi":"J","Ichiyamamoto":"M4","Tamawashi":"M3","Gonoyama":"M2","Aonishiki":"M9","Atamifuji":"M12","Kayo":"M16","Takayasu":"Komusubi","Churanoumi":"M7","Oho":"M1","Kotozakura":"Ozeki","Tokihayate":"M13","Endo":"M11","Kotoshoho":"M14","Roga":"M14","Shodai":"M10","Daieisho":"Sekiwake","Chiyoshoma":"M5","Shishi":"M11","Ryuden":"M15","Hiradoumi":"M3","Asakoryu":"M17","Sadanoumi":"M13","Onosato":"Ozeki","Meisei":"M10","Hoshoryu":"Yokozuna","Tamashoho":"M17","Wakatakakage":"Komusubi","Onokatsu":"M8","Kinbozan":"M8","Fujiseiun":"J","Nishikigi":"M16","Wakamotoharu":"M1","Takarafuji":"J","Midorifuji":"M9","Tochitaikai":"M18","Ura":"M5","Tobizaru":"M6","Mitakeumi":"J","Abi":"M2","Takanosho":"M12","Shonannoumi":"M15"},"Nagoya 2025":{"Tokihayate":"M11","Hidenoumi":"M15","Kayo":"M16","Hoshoryu":"Yokozuna","Tamashoho":"J","Fujinokawa":"M14","Mitakeumi":"M16","Kotozakura":"Ozeki","Tamawashi":"M4","Shonannoumi":"J","Onosato":"Yokozuna","Shodai":"M13","Asakoryu":"M12","Daieisho":"Sekiwake","Midorifuji":"M12","Tomokaze":"J","Kotoshoho":"M15","Nishikigi":"J","Sadanoumi":"M8","Shishi":"M17","Tobizaru":"M7","Kinbozan":"M3","Takanosho":"M11","Takayasu":"Komusubi","Churanoumi":"M13","Kusano":"M14","Takerufuji":"M6","Roga":"M10","Wakatakakage":"Sekiwake","Meisei":"M5","Ryuden":"J","Kotoeiho":"M17","Abi":"M2","Ura":"M9","Ichiyamamoto":"M8","Hakuoho":"M4","Wakamotoharu":"M1","Oshoumi":"J","Aonishiki":"M1","Kirishima":"Sekiwake","Gonoyama":"M6","Hiradoumi":"M5","Chiyoshoma":"M9","Atamifuji":"M10","Endo":"M7","Onokatsu":"M3","Oshoma":"Komusubi","Oho":"M2"},"Aki 2025":{"Aonishiki":"Komusubi","Takanosho":"M7","Kotoeiho":"J","Tokihayate":"M13","Kusano":"M6","Churanoumi":"M10","Kagayaki":"J","Shodai":"M11","Sadanoumi":"M14","Oho":"M2","Hitoshi":"M17","Kinbozan":"M8","Abi":"M1","Roga":"M11","Onokatsu":"M6","Shonannoumi":"M15","Chiyoshoma":"J","Kotoshoho":"M5","Daieisho":"M10","Fujinokawa":"M9","Nishikigi":"M16","Fujiseiun":"J","Ryuden":"M17","Wakatakakage":"Sekiwake","Gonoyama":"M3","Meisei":"M13","Asakoryu":"M14","Hakuoho":"M2","Kotozakura":"Ozeki","Kirishima":"Sekiwake","Midorifuji":"M9","Onosato":"Yokozuna","Wakamotoharu":"M4","Tamawashi":"M1","Hoshoryu":"Yokozuna","Nishikifuji":"J","Mita":"J","Oshoumi":"J","Shishi":"M18","Hiradoumi":"M4","Daiseizan":"J","Mitakeumi":"M12","Oshoma":"M7","Ichiyamamoto":"M5","Tobizaru":"M15","Ura":"M8","Atamifuji":"M3","Takayasu":"Komusubi","Tochitaikai":"J","Tomokaze":"M16","Takerufuji":"M12"},"Kyushu 2025":{"Yoshinofuji":"M5","Takanosho":"Komusubi","Asahakuryu":"J","Ryuden":"M14","Shonannoumi":"M15","Shodai":"M5","Takayasu":"Komusubi","Kotoshoho":"M10","Asakoryu":"M17","Fujinokawa":"M12","Atamifuji":"M6","Fujiseiun":"J","Tamawashi":"M4","Churanoumi":"M7","Midorifuji":"M9","Hoshoryu":"Yokozuna","Hiradoumi":"M3","Sadanoumi":"M16","Kotoeiho":"J","Ura":"M3","Chiyoshoma":"M17","Kotozakura":"Ozeki","Tomokaze":"M12","Tokihayate":"M14","Meisei":"M18","Kinbozan":"M8","Tobizaru":"M9","Oho":"Sekiwake","Nishikifuji":"M15","Oshoma":"M4","Daieisho":"M10","Oshoumi":"M16","Roga":"M11","Tochitaikai":"J","Onokatsu":"M6","Hitoshi":"J","Ichiyamamoto":"M8","Mitakeumi":"M13","Abi":"M7","Kirishima":"M2","Daiseizan":"J","Gonoyama":"M13","Hakuoho":"M1","Wakamotoharu":"M2","Asanoyama":"J","Wakatakakage":"M1","Onosato":"Yokozuna","Hatsuyama":"J","Kagayaki":"J","Shishi":"M11","Aonishiki":"Sekiwake"},"Hatsu 2026":{"Kinbozan":"M8","Tamawashi":"M5","Asahakuryu":"M17","Oho":"Komusubi","Aonishiki":"Ozeki","Kirishima":"Sekiwake","Takayasu":"Sekiwake","Ura":"M2","Asanoyama":"M16","Ryuden":"M15","Kotoshoho":"M10","Nishikifuji":"M11","Asakoryu":"M15","Hatsuyama":"M17","Oshoumi":"M16","Ichiyamamoto":"M1","Sadanoumi":"J","Hoshoryu":"Yokozuna","Onokatsu":"M6","Yoshinofuji":"M1","Takanosho":"M3","Hiradoumi":"M6","Mitakeumi":"M14","Daieisho":"M4","Chiyoshoma":"M11","Onosato":"Yokozuna","Wakamotoharu":"Komusubi","Tomokaze":"M13","Shodai":"M8","Churanoumi":"M5","Hakunofuji":"M3","Atamifuji":"M4","Midorifuji":"M12","Fujinokawa":"M7","Oshoma":"M7","Wakatakakage":"M2","Kotozakura":"Ozeki","Shishi":"M14","Gonoyama":"M9","Kotoeiho":"J","Tokihayate":"M10","Abi":"M12","Roga":"M9","Tobizaru":"M13"},"Haru 2026":{"Nishikifuji":"M14","Tamawashi":"M9","Ura":"M8","Shodai":"M8","Tokihayate":"M9","Churanoumi":"M2","Hiradoumi":"M3","Abi":"M5","Fujiryoga":"M17","Hakunofuji":"M7","Asakoryu":"M12","Kotozakura":"Ozeki","Onosato":"Yokozuna","Takayasu":"Sekiwake","Yoshinofuji":"M1","Shishi":"M11","Takanosho":"M4","Kotoeiho":"M17","Asahakuryu":"M16","Chiyoshoma":"M14","Oshoma":"M7","Asanoyama":"M12","Tobizaru":"M13","Oho":"M3","Hoshoryu":"Yokozuna","Onokatsu":"M6","Oshoumi":"M11","Wakatakakage":"M1","Ichiyamamoto":"M6","Atamifuji":"Komusubi","Kotoshoho":"M5","Midorifuji":"M15","Daieisho":"M4","Roga":"M10","Ryuden":"J","Mitakeumi":"M15","Fujiseiun":"M13","Aonishiki":"Ozeki","Kirishima":"Sekiwake","Wakamotoharu":"Komusubi","Fujinokawa":"M2","Gonoyama":"M10","Kinbozan":"M16"},"Natsu 2026":{"Aonishiki":"Ozeki","Shodai":"M5","Wakanosho":"M16","Asanoyama":"M10","Kinbozan":"M11","Nishikifuji":"M9","Atamifuji":"Sekiwake","Kotoeiho":"M13","Wakamotoharu":"M5","Yoshinofuji":"M2","Ichiyamamoto":"M2","Kirishima":"Ozeki","Hiradoumi":"M3","Tokihayate":"M12","Oho":"M3","Kotozakura":"Ozeki","Fujiryoga":"M17","Mitakeumi":"M14","Hakunofuji":"M10","Daieisho":"M4","Churanoumi":"M6","Takayasu":"Komusubi","Fujinokawa":"M1","Asahakuryu":"M8","Chiyoshoma":"M7","Oshoumi":"M15","Roga":"M14","Abi":"M9","Ryuden":"M16","Tobizaru":"M15","Onosato":"Yokozuna","Asakoryu":"M7","Wakatakakage":"Komusubi","Takanosho":"M1","Kotoshoho":"Sekiwake","Shishi":"M12","Hoshoryu":"Yokozuna","Fujiseiun":"M6","Gonoyama":"M4","Oshoma":"M8","Ura":"M11","Tamawashi":"M13"},"Nagoya 2026":{"Hoshoryu":"Yokozuna","Onosato":"Yokozuna","Kirishima":"Ozeki","Kotozakura":"Ozeki","Atamifuji":"Sekiwake","Kotoshoho":"Sekiwake","Wakatakakage":"Sekiwake","Aonishiki":"Sekiwake","Yoshinofuji":"Komusubi","Oho":"Komusubi","Fujinokawa":"M1","Takanosho":"M1","Gonoyama":"M2","Churanoumi":"M2","Hiradoumi":"M3","Hakunofuji":"M3","Daieisho":"M4","Ichiyamamoto":"M4","Ura":"M5","Oshoma":"M5","Shodai":"M6","Fujiseiun":"M6","Kotoeiho":"M7","Takayasu":"M7","Wakamotoharu":"M8","Roga":"M8","Fujiryoga":"M9","Tobizaru":"M9","Asanoyama":"M10","Chiyoshoma":"M10","Wakanosho":"M11","Mitakeumi":"M11","Asahakuryu":"M12","Abi":"M12","Nishikifuji":"M13","Takerufuji":"M13","Kinbozan":"M14","Shishi":"M14","Onokatsu":"M15","Kazuma":"M15","Daiseizan":"M16","Asakoryu":"M16"}}};
+
+  const ORDER=['Yokozuna','Ozeki','Sekiwake','Komusubi'];
+  for(let i=1;i<=18;i++) ORDER.push('M'+i);
+  ORDER.push('J');
+  const ORD={}; ORDER.forEach((r,i)=>ORD[r]=i+1);
+  const RECENT_YEAR=6;
+  function rankNum(r){ return ORD[r]||null; }
+  function tierColor(r){
+    if(r==='Yokozuna')return'#6a3d9a'; if(r==='Ozeki')return'#cf5a2c';
+    if(r==='Sekiwake')return'#a9742c'; if(r==='Komusubi')return'#227a4b';
+    if(r&&r[0]==='M')return (+r.slice(1))<=8?'#46536b':'#746a52';
+    return null;
+  }
+  function chip(r){ return ({Yokozuna:'Y',Ozeki:'O',Sekiwake:'S',Komusubi:'K'})[r]||r; }
+  function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+  function colHead(t){ const p=t.split(' '); const yr=p.pop(); return [p.join(' '), "'"+yr.slice(2)]; }
+  function deltaHtml(curr,prev){
+    if(curr==null) return '';
+    if(prev==null) return '<span class="dl in">IN</span>';
+    const d=rankNum(prev)-rankNum(curr);
+    if(d>0) return '<span class="dl up">▲'+d+'</span>';
+    if(d<0) return '<span class="dl dn">▼'+(-d)+'</span>';
+    return '<span class="dl sm">—</span>';
+  }
+  (function(){
+    const D=BANZUKE_DATA, T=D.tournaments, Y=D.yusho, DATA=D.data;
+    if(!T||!T.length){ return; }
+    const current=DATA[T[T.length-1]]||{};
+    // roster = the current banzuke's makuuchi only (a juryo entry riding along is not on the ladder)
+    const roster=Object.keys(current).filter(n=>current[n]&&current[n]!=='J').sort((a,b)=>(rankNum(current[a])||99)-(rankNum(current[b])||99));
+    const COLS=T.slice().reverse();
+    let thead='<tr><th class="corner">Rikishi</th>';
+    COLS.forEach(t=>{ const c=colHead(t); thead+='<th class="col"><span class="cb">'+esc(c[0])+'</span><span class="cy">'+c[1]+'</span></th>'; });
+    thead+='</tr>';
+    let rows='';
+    roster.forEach(name=>{
+      let cells='';
+      COLS.forEach((t,j)=>{
+        let r=(DATA[t]||{})[name]; if(r==='J') r=null;
+        const won=Y[t]===name;
+        if(r==null){ cells+='<td class="cell empty"></td>'; return; }
+        const col=tierColor(r);
+        let dl='';
+        if(j<RECENT_YEAR && j+1<COLS.length){ let prev=(DATA[COLS[j+1]]||{})[name]; if(prev==='J') prev=null; dl=deltaHtml(r,prev); }
+        const star=won?'<span class="cup">★</span>':'';
+        cells+='<td class="cell'+(won?' won':'')+'" style="background:'+col+'"><span class="rk">'+esc(chip(r))+'</span>'+dl+star+'</td>';
+      });
+      rows+='<tr><th class="rk-name" scope="row">'+esc(name)+'</th>'+cells+'</tr>';
+    });
+    document.getElementById('heat').innerHTML='<thead>'+thead+'</thead><tbody>'+rows+'</tbody>';
+  })();
+</script>
+<script>
+/* surface-aware home crest: "home" follows the surface you're browsing (app hub vs public site),
+   not your login. Referrer says where you came from; sessionStorage remembers it across refreshes. */
+(function(){
+  var s=null;
+  try{ if(document.referrer){ var u=new URL(document.referrer);
+    if(u.origin===location.origin && u.pathname!==location.pathname)
+      s = u.pathname.indexOf('/app')===0 ? 'app' : 'site'; } }catch(e){}
+  if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
+  else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
+  if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
+})();
+</script>
+</body>
+</html>
