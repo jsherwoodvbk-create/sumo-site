@@ -1,0 +1,38 @@
+# .github/workflows/publish-reports.yml
+# Rebuilds the Banzuke Arc report (banzuke-arc.html) from the Notion Banzuke DB.
+# Separate from publish.yml so it never touches the working standings pipeline.
+# The report only changes when a new banzuke is added to Notion, so the git-diff gate
+# means this commits ~once per basho even though it runs on a schedule.
+name: publish-reports
+
+on:
+  workflow_dispatch:            # manual "Run workflow" button (use this right after adding a new banzuke)
+  schedule:
+    - cron: '0 23 * * *'        # daily 23:00 UTC, after the standings publish; commits only if changed
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build Banzuke Arc report
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node build-banzuke-arc.mjs
+      - name: Commit if changed
+        run: |
+          if git diff --quiet banzuke-arc.html; then
+            echo "banzuke-arc.html unchanged — nothing to publish."
+          else
+            git config user.name  "sumo-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git add banzuke-arc.html
+            git commit -m "Rebuild Banzuke Arc report"
+            git push
+          fi
