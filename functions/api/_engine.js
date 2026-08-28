@@ -22,7 +22,7 @@
 // logged day. Until then they get body-part + gated severity + status "ongoing".
 // Bump this whenever the engine changes. Exposed at GET /api/gumbai so you can confirm, from a URL,
 // exactly which engine is live (no more guessing whether a deploy took).
-export const ENGINE_VERSION = 'gumbai-engine 2026-08-02 · champion-reveal + basho-complete + query_leaderboard';
+export const ENGINE_VERSION = 'gumbai-engine 2026-08-28 · champion-reveal + basho-complete + query_leaderboard + query_rollup';
 
 function gateInjury(c, gate){
   const onset = Number.isInteger(c.onsetDay) ? c.onsetDay : (c.severity && c.severity[0] ? c.severity[0].day : 99);
