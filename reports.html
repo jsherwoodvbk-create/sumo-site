@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Reports · Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c; --win:#227a4b;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  a{color:inherit;text-decoration:none}
+  .wrap{max-width:1000px;margin:0 auto;padding:14px 16px 64px}
+  header{background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;border-radius:14px;padding:20px 22px;margin-bottom:20px;border:1px solid #38230f;
+    box-shadow:0 8px 22px rgba(50,30,10,.28)}
+  .hbrand{display:flex;align-items:center;gap:15px}
+  .hdicon{width:54px;height:54px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
+  header h1{font-size:24px;margin:0 0 2px;font-weight:900}
+  header p{margin:0;opacity:.9;font-size:13.5px}
+  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;
+    background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);
+    transition:transform .12s ease, box-shadow .12s ease}
+  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
+  .intro{font-size:14px;color:var(--muted);line-height:1.55;margin:0 2px 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+  .card{display:block;background-color:var(--surface);border:1px solid var(--line);border-radius:14px;
+    padding:18px 18px 16px;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease}
+  .card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(0,0,0,.09);border-color:var(--clay)}
+  .card .ico svg{width:34px;height:34px;display:block;margin-bottom:10px}
+  .card h3{margin:0 0 5px;font-size:18px;font-weight:700}
+  .card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
+  .coming{margin:18px 2px 0;font-size:12.5px;color:var(--muted);line-height:1.55}
+  .coming b{color:var(--ink);font-weight:700}
+  footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
+  footer b{color:var(--ink)}
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <symbol id="ic-reports" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="#211a12">
+          <rect x="40" y="60" width="8" height="20" rx="1.5"/>
+          <rect x="51" y="50" width="8" height="30" rx="1.5"/>
+          <rect x="62" y="56" width="8" height="24" rx="1.5"/>
+          <rect x="73" y="44" width="8" height="36" rx="1.5"/>
+        </g>
+        <path d="M44 56 L55 46 L66 52 L77 40" fill="none" stroke="#b23a2e" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="77" cy="40" r="3.2" fill="#b23a2e"/>
+      </g>
+    </symbol>
+    <symbol id="ic-arc" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <polyline points="34,74 50,58 66,66 88,42" fill="none" stroke="#211a12" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M80 42 h10 v10" fill="none" stroke="#b23a2e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
+    </symbol>
+  </defs></svg>
+
+<div class="wrap">
+  <header>
+    <div class="hbrand">
+      <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-reports"/></svg>
+      <div>
+        <h1>Reports</h1>
+        <p>The stats corner. The numbers behind the basho.</p>
+      </div>
+      <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+    </div>
+  </header>
+
+  <p class="intro">Where the data we log basho by basho gets to show off. More reports land here as the numbers pile up.</p>
+
+  <div class="grid">
+    <a class="card" href="/banzuke-arc.html">
+      <div class="ico"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-arc"/></svg></div>
+      <h3>Banzuke Arc</h3>
+      <p>Every wrestler's rank, every basho. Who's climbing, who's sliding, and who clawed back from Juryo, since the crew got in.</p>
+    </a>
+  </div>
+
+  <p class="coming"><b>On the way:</b> a superlatives rack (the real technique king, best and worst records, the henka wall of shame), milestone alerts, and the birthday-curse check.</p>
+
+  <footer><b>Salt Stats &amp; Sumo</b>, a Staves &amp; Hoop production for the crew.</footer>
+</div>
+<script>
+/* surface-aware home crest: "home" follows the surface you're browsing (app hub vs public site),
+   not your login. Referrer says where you came from; sessionStorage remembers it across refreshes. */
+(function(){
+  var s=null;
+  try{ if(document.referrer){ var u=new URL(document.referrer);
+    if(u.origin===location.origin && u.pathname!==location.pathname)
+      s = u.pathname.indexOf('/app')===0 ? 'app' : 'site'; } }catch(e){}
+  if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
+  else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
+  if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
+})();
+</script>
+</body>
+</html>
