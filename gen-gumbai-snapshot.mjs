@@ -201,6 +201,14 @@ async function main() {
   const rikishi = [...rosterIds].map(id => mrProfById.get(id)).filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name));
 
+    // mawashi color must end in a family word (last-word convention) — warn on any that don't.
+  const FAM_WORDS = ['purple','blue','red','green','teal','brown','black','grey','gray','pink'];
+  for(const r of rikishi){
+    if(!r.mawashi) continue;
+    const last = String(r.mawashi).trim().split(/\s+/).pop().toLowerCase();
+    if(!FAM_WORDS.includes(last)) warn.push(`mawashi color off-convention (last word "${last}"): ${r.name} = "${r.mawashi}"`);
+  }
+
   // ── kimarite glossary ──
   const kimarite = kmPages.map(p => {
     const name = textOf(p, 'Kimarite'); if (!name) return null;
