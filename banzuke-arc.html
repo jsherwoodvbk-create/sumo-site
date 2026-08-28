@@ -162,12 +162,16 @@
 </script>
 <script>
 /* surface-aware home crest: "home" follows the surface you're browsing (app hub vs public site),
-   not your login. Referrer says where you came from; sessionStorage remembers it across refreshes. */
+   not your login. Only an /app referrer means "app", and only the homepage means "site"; any other
+   internal page (e.g. /reports) is surface-ambiguous, so inherit the remembered surface instead of
+   resetting it. That keeps app -> reports -> banzuke-arc all pointing home to /app. */
 (function(){
   var s=null;
   try{ if(document.referrer){ var u=new URL(document.referrer);
-    if(u.origin===location.origin && u.pathname!==location.pathname)
-      s = u.pathname.indexOf('/app')===0 ? 'app' : 'site'; } }catch(e){}
+    if(u.origin===location.origin && u.pathname!==location.pathname){
+      if(u.pathname.indexOf('/app')===0) s='app';
+      else if(u.pathname==='/' || u.pathname==='/index.html') s='site';
+    } } }catch(e){}
   if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
   else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
   if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
