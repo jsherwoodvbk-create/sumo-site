@@ -1,0 +1,48 @@
+# .github/workflows/setup-basho.yml
+# NEW-BASHO SETUP — pull the announced banzuke from sumo-api and create the ranked Banzuke
+# entries (+ newcomer Master Rikishi pages) in Notion. Manual-only: run it once, right after a
+# new banzuke drops (~2 weeks before Day 1). Defaults to a DRY census; set dry_run=false to write.
+# This is Phase 1 of the Banzuke-Drop Runbook, automated.
+name: setup-basho
+
+on:
+  workflow_dispatch:
+    inputs:
+      basho:
+        description: 'sumo-api basho code YYYYMM (e.g. 202609 = Aki 2026)'
+        required: true
+        default: '202609'
+      basho_label:
+        description: 'Banzuke entry-title label — must match sync-notion/build-standings char-for-char'
+        required: true
+        default: 'Aki 2026'
+      tournament_page_id:
+        description: 'Notion Bashos page ID for this basho (dashed UUID)'
+        required: true
+        default: '3351ade1-241f-8011-8987-d959538f54a0'
+      dry_run:
+        description: 'true = census only (no writes); false = write to Notion'
+        required: true
+        default: 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Setup basho roster in Notion
+        env:
+          # WRITE-scoped token (sumo-notion-sync), the SAME secret sync-notion.yml uses — this
+          # script creates Master Rikishi + Banzuke pages, so the read-only NOTION_TOKEN would 403.
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
+          BASHO: ${{ inputs.basho }}
+          BASHO_LABEL: ${{ inputs.basho_label }}
+          TOURNAMENT_PAGE_ID: ${{ inputs.tournament_page_id }}
+          DRY_RUN: ${{ inputs.dry_run == 'true' && '1' || '0' }}
+        run: node setup-basho.mjs
