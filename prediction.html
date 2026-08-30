@@ -1,169 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>Salt Stats &amp; Sumo · Banzuke Prediction Pool</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Aki 2026 · Prediction Grade</title>
 <style>
-  :root{
-    --bg:#f1e9db; --surface:#fbf7ef; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
-    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c;
-    --win:#227a4b; --loss:#a93327;
-    --maeg-hi:#46536b; --maeg-lo:#746a52;
-  }
-  @media (prefers-color-scheme:dark){
-    :root{--bg:#171719; --surface:#212127; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
-      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;}
-    body{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='wd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23wd)' opacity='0.05'/%3E%3C/svg%3E")}
-    .panel,.legend{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='wcd'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.92 0 0 0 0 0.87 0 0 0 0 0.78 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23wcd)' opacity='0.04'/%3E%3C/svg%3E")}
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background-color:var(--bg);color:var(--ink);
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='w'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0.16 0 0 0 0 0.11 0 0 0 0 0.06 0 0 0 0.6 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23w)' opacity='0.35'/%3E%3C/svg%3E");
-    font:16px/1.55 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  h1,h2,h3{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
-  a{color:inherit}
-  .wrap{max-width:760px;margin:0 auto;padding:14px 16px 64px}
-  /* clay header band — same as the rest of the arena */
-  header{
-    background:
-      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
-      repeating-linear-gradient(182deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px),
-      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
-      linear-gradient(160deg,#6e4826,#432a15);
-    color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid #38230f;
-    box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -3px 7px rgba(0,0,0,.25)}
-  .hbrand{display:flex;align-items:center;gap:15px}
-  .hdicon{width:52px;height:52px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
-  header h1{font-size:25px;margin:0 0 3px;letter-spacing:0;font-weight:900}
-  header .sub{opacity:.9;font-size:13.5px;margin:0}
-  /* home crest — the site mark, tap to go home */
-  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;
-    background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30), 0 2px 6px rgba(0,0,0,.28);
-    transition:transform .12s ease, box-shadow .12s ease}
-  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55), 0 5px 13px rgba(0,0,0,.34)}
-  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
-  .panel{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px 20px;margin:0 0 16px}
-  .panel h2{font-size:18px;margin:0 0 10px}
-  .panel p{margin:0 0 10px;font-size:14.5px;line-height:1.6;color:var(--ink)}
-  .panel p:last-child{margin-bottom:0}
-  .panel .muted{color:var(--muted);font-size:13.5px}
-  /* hero pitch panel */
-  .hero{border-left:4px solid var(--vermilion)}
-  .hero h2{font-size:21px;line-height:1.25}
-  .hero b{color:var(--vermilion)}
-  .steps{margin:6px 0 0;padding-left:20px;font-size:14.5px;line-height:1.65}
-  .steps li{margin:3px 0}
-  .steps b{color:var(--purple)}
-  /* CTA buttons */
-  .ctarow{display:flex;flex-wrap:wrap;gap:11px;margin-top:14px}
-  .btn{display:inline-block;font-weight:700;font-size:14.5px;text-decoration:none;padding:11px 22px;border-radius:9px;
-    background:var(--vermilion);color:#fff;border:1px solid var(--vermilion);transition:filter .12s ease}
-  .btn:hover{filter:brightness(1.09)}
-  .btn.ghost{background:transparent;color:var(--purple);border-color:var(--purple)}
-  /* rank legend */
-  .legend{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 18px;margin:0 0 16px}
-  .legend h3{font-size:13px;margin:0 0 9px;text-transform:uppercase;letter-spacing:.05em;color:var(--clay)}
-  .codes{display:flex;flex-wrap:wrap;gap:6px}
-  .codes .c{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;background:var(--surface);
-    border:1px solid var(--line);border-radius:8px;padding:3px 9px 3px 4px;font-variant-numeric:tabular-nums}
-  .codes .c b{display:inline-block;min-width:19px;text-align:center;color:#fff;font-size:11px;font-weight:800;padding:2px 5px;border-radius:5px}
-  .codes .yk{background:var(--purple)} .codes .oz{background:var(--vermilion)} .codes .sk{background:var(--clay)}
-  .codes .km{background:var(--win)} .codes .mg1{background:var(--maeg-hi)} .codes .mg2{background:var(--maeg-lo)} .codes .jr{background:#c4b8a0;color:#5c5342}
-  footer{margin-top:22px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:14px;line-height:1.5}
-  footer b{color:var(--ink)}
+:root{--bg:#efe1c2;--bg2:#e6d3ab;--panel:#fdf7e9;--card:#fbf1d9;--line:#c9b184;--ink:#3d2713;--muted:#8c7550;--gold:#c8912b;--vermilion:#cf4b2a;--win:#227a4b;--purple:#8a5cc0;}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--ink);font-family:'Trebuchet MS',Verdana,sans-serif;line-height:1.4}
+.wrap{max-width:1040px;margin:0 auto;padding:22px 14px 60px}
+header.site{background:repeating-linear-gradient(178deg,rgba(0,0,0,.14) 0 1px,transparent 1px 4px),linear-gradient(160deg,#6e4826,#432a15);color:#fff;border-radius:14px;padding:18px 22px;border:1px solid #38230f;box-shadow:0 8px 22px rgba(50,30,10,.28);margin-bottom:14px}
+header.site h1{margin:0 0 3px;font-size:23px}header.site p{margin:0;color:#f0e6d0;opacity:.9;font-size:13.5px}
+h2{font-size:16px;margin:22px 0 8px;color:var(--ink)}
+.note{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:13px;margin:10px 0}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px}
+thead th{background:#efe0bd;text-align:left;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:2px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid #efe3c6}
+.board td.pl{width:44px;font-weight:800;color:var(--muted)}.board td.nm{font-weight:700}.board .n{text-align:right;font-variant-numeric:tabular-nums}.board .fin{font-weight:800;font-size:15px}
+.board tr.lead{background:#fbf4df}.ai{font-size:11px;color:var(--purple);font-weight:700}
+.board .pts{font-weight:800;color:var(--gold)}
+.pacecar{display:flex;align-items:center;gap:12px;background:#f3ecda;border:1px solid #d8c79e;border-radius:10px;padding:11px 15px;margin:10px 0}
+.pacecar .pcimg{font-size:26px;flex:0 0 auto}.pacecar .pctxt{font-size:13px;color:#5f5340;line-height:1.45}.pacecar .pctxt b{color:var(--purple)}
+.pacecar .pcp{margin-left:auto;text-align:center;flex:0 0 auto}.pacecar .pcp .pn{font-weight:800;font-size:20px;color:var(--purple)}.pacecar .pcp .pl2{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a8a66}
+.grid{overflow-x:auto}
+.grid th.pcol,.grid td.pk{text-align:center}
+.grid td.wr{font-weight:700;white-space:nowrap}.grid td.ac{text-align:center;font-weight:800;background:#f3e7c9}
+.fell{font-size:10px;color:var(--vermilion);font-weight:700}
+.pk .c{font-weight:700;display:block;font-size:13px}.pk .d{display:block;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
+.pk.hit{background:#dcefd6}.pk.hit .d{color:var(--win);font-weight:800}
+.pk.close{background:#f2eecb}.pk.far{background:#f6ddd3}.pk.far .d{color:var(--vermilion);font-weight:700}
+.bonus{display:flex;flex-wrap:wrap;gap:14px}.bcol{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:190px}
+.bcol h4{margin:0 0 6px}.bcol ul{margin:0;padding:0;list-style:none;font-size:13px}.bcol li{padding:2px 0}
+.br{color:var(--muted);font-weight:700}.bhit{color:var(--win);font-weight:700}.bmiss{color:var(--muted)}
+.legend{font-size:12px;color:var(--muted);margin-top:8px}.legend b{color:var(--ink)}
 </style>
-</head>
-<body>
-  <!-- inlined dohyo-coin icon (matches the leaderboard / crew hub) -->
-  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
-    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
-      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
-      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
-    </filter>
-    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
-    <symbol id="ic-prediction" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
-      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
-      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
-      <g clip-path="url(#coinClip)" filter="url(#inkS)">
-        <g fill="none" stroke="#211a12" stroke-width="3"><circle cx="55" cy="66" r="15"/><circle cx="55" cy="66" r="8"/></g>
-        <circle cx="55" cy="66" r="3.4" fill="#b23a2e"/>
-        <line x1="86" y1="37" x2="59" y2="62" stroke="#211a12" stroke-width="3" stroke-linecap="round"/>
-        <path d="M59 62 l8 -1.5 l-3.5 -6.5 Z" fill="#211a12"/>
-        <path d="M86 37 l1 -6 M86 37 l6 -1" stroke="#211a12" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-      </g>
-    </symbol>
-  </defs></svg>
-
 <div class="wrap">
-  <header>
-    <div class="hbrand">
-      <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-prediction"/></svg>
-      <div>
-        <h1>Banzuke Prediction Pool</h1>
-        <p class="sub">Call the next banzuke before it's official. The crew vs. the machine.</p>
-      </div>
-      <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
-    </div>
-  </header>
+<header class="site"><h1>🏵️ Aki 2026 · Prediction Grade</h1><p>Everyone's banzuke picks vs. where the wrestlers actually landed. Lower score wins (golf) — each pick is graded by how many rungs it missed by.</p></header>
 
-  <div class="panel hero">
-    <h2>Think you can read the banzuke better than the rest of us?</h2>
-    <p>Every tournament, before the new rankings are announced, the crew predicts where all 42 makuuchi wrestlers will land. When the banzuke drops, every pick gets scored against the truth. <b>Closest call wins.</b> Gumbai, the machine, plays too. Nobody's safe.</p>
-    <div class="ctarow">
-      <a class="btn ghost" href="leaderboard.html">See the standings →</a>
-    </div>
-  </div>
+<h2>Leaderboard · the crew's crown</h2>
+<table class="board"><thead><tr><th>#</th><th>Player</th><th class="n">Score</th><th class="n">Bonus</th><th class="n">Final</th><th class="n">Points</th></tr></thead><tbody>
+<tr class="lead"><td class="pl">🥇</td><td class="nm">Sherry</td><td class="n">33</td><td class="n">—</td><td class="n fin">33</td><td class="n pts">3</td></tr>
+<tr class=""><td class="pl">🥈</td><td class="nm">MJ</td><td class="n">34</td><td class="n">—</td><td class="n fin">34</td><td class="n pts">2</td></tr>
+<tr class=""><td class="pl">🥉</td><td class="nm">Jennie</td><td class="n">36</td><td class="n">—</td><td class="n fin">36</td><td class="n pts">1</td></tr>
+<tr class=""><td class="pl">4</td><td class="nm">James</td><td class="n">46</td><td class="n">—</td><td class="n fin">46</td><td class="n pts">0</td></tr>
+</tbody></table>
+<div class="pacecar"><span class="pcimg">🤖</span><div class="pctxt"><b>Gumbai · the pace car.</b> Shot <b>26</b> — the lowest score of anyone, human or machine. It's the AI benchmark: scored and shown, but out of the human crown — it never bumps a human down a spot. It earns the medal its own finish lands on.</div><div class="pcp"><div class="pn">3</div><div class="pl2">pace pts</div></div></div>
+<p class="legend">Within the basho, lowest <b>Score</b> wins (golf: Σ rung-distance across 42 wrestlers). The top three <b>humans</b> earn <b>3·2·1</b> toward the season crown. <b>Bonus</b> = −1 per correctly-called juryo→makuuchi promotion. Gumbai plays too, as the pace car — beat the bot.</p>
 
-  <div class="panel">
-    <h2>How it works</h2>
-    <ol class="steps">
-      <li>Predict where each of the <b>42 makuuchi wrestlers</b> lands on the next banzuke.</li>
-      <li>Your score is the <b>rank-distance</b> between each pick and where the wrestler actually ends up, added up. An exact call is a clean zero.</li>
-      <li><b>Lowest total wins.</b> Closest to the real banzuke takes it.</li>
-      <li>Call the juryo wrestlers getting promoted for <b>bonus points off your score.</b></li>
-      <li>Picks lock and everything grades the moment the real banzuke is announced.</li>
-    </ol>
-  </div>
+<h2>The full board — every pick, every miss</h2>
+<div class="note">Each cell shows a player's <b>pick</b> and how far it landed from the real rank (<b>✓</b> = nailed it, <b>+n</b> = off by n rungs). The <b>Actual</b> column is where they really placed. The four wrestlers who fell to Juryo are graded at the smart-juryo value (22).</div>
+<div class="grid"><table><thead><tr><th>Wrestler</th><th class="pcol">Actual</th><th class="pcol">Jennie</th><th class="pcol">MJ</th><th class="pcol">Sherry</th><th class="pcol">James</th><th class="pcol">Gumbai</th></tr></thead><tbody>
+<tr><td class="wr">Hoshoryu</td><td class="ac">Y</td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Onosato</td><td class="ac">Y</td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Y</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Aonishiki</td><td class="ac">O</td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk close"><span class="c">S</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Kirishima</td><td class="ac">O</td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Kotozakura</td><td class="ac">O</td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td><td class="pk hit"><span class="c">O</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Atamifuji</td><td class="ac">S</td><td class="pk hit"><span class="c">S</span><span class="d">✓</span></td><td class="pk hit"><span class="c">S</span><span class="d">✓</span></td><td class="pk hit"><span class="c">S</span><span class="d">✓</span></td><td class="pk hit"><span class="c">S</span><span class="d">✓</span></td><td class="pk hit"><span class="c">S</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Fujinokawa</td><td class="ac">S</td><td class="pk close"><span class="c">K</span><span class="d">+1</span></td><td class="pk close"><span class="c">K</span><span class="d">+1</span></td><td class="pk close"><span class="c">K</span><span class="d">+1</span></td><td class="pk hit"><span class="c">S</span><span class="d">✓</span></td><td class="pk close"><span class="c">K</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Daieisho</td><td class="ac">K</td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td><td class="pk close"><span class="c">S</span><span class="d">+1</span></td><td class="pk close"><span class="c">S</span><span class="d">+1</span></td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Hakunofuji</td><td class="ac">K</td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td><td class="pk hit"><span class="c">K</span><span class="d">✓</span></td><td class="pk hit"><span class="c">K</span><span class="d">✓</span></td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td><td class="pk hit"><span class="c">K</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Kotoeiho</td><td class="ac">M1</td><td class="pk "><span class="c">M3</span><span class="d">+2</span></td><td class="pk hit"><span class="c">M1</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M1</span><span class="d">✓</span></td><td class="pk close"><span class="c">K</span><span class="d">+1</span></td><td class="pk close"><span class="c">M2</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Kotoshoho</td><td class="ac">M1</td><td class="pk close"><span class="c">K</span><span class="d">+1</span></td><td class="pk close"><span class="c">M2</span><span class="d">+1</span></td><td class="pk close"><span class="c">M2</span><span class="d">+1</span></td><td class="pk "><span class="c">M3</span><span class="d">+2</span></td><td class="pk hit"><span class="c">M1</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Takayasu</td><td class="ac">M2</td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td><td class="pk close"><span class="c">M1</span><span class="d">+1</span></td><td class="pk "><span class="c">K</span><span class="d">+2</span></td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Yoshinofuji</td><td class="ac">M2</td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M2</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Churanoumi</td><td class="ac">M3</td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td><td class="pk close"><span class="c">M2</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Gonoyama</td><td class="ac">M3</td><td class="pk close"><span class="c">M4</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M3</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Fujiryoga</td><td class="ac">M4</td><td class="pk close"><span class="c">M5</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td><td class="pk close"><span class="c">M5</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Takanosho</td><td class="ac">M4</td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M4</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Oshoma</td><td class="ac">M5</td><td class="pk close"><span class="c">M6</span><span class="d">+1</span></td><td class="pk close"><span class="c">M6</span><span class="d">+1</span></td><td class="pk close"><span class="c">M6</span><span class="d">+1</span></td><td class="pk close"><span class="c">M4</span><span class="d">+1</span></td><td class="pk close"><span class="c">M6</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Roga</td><td class="ac">M5</td><td class="pk hit"><span class="c">M5</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M5</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M5</span><span class="d">✓</span></td><td class="pk close"><span class="c">M6</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M5</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Asanoyama</td><td class="ac">M6</td><td class="pk "><span class="c">M8</span><span class="d">+2</span></td><td class="pk "><span class="c">M8</span><span class="d">+2</span></td><td class="pk "><span class="c">M8</span><span class="d">+2</span></td><td class="pk close"><span class="c">M7</span><span class="d">+1</span></td><td class="pk close"><span class="c">M7</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Ichiyamamoto</td><td class="ac">M6</td><td class="pk hit"><span class="c">M6</span><span class="d">✓</span></td><td class="pk close"><span class="c">M7</span><span class="d">+1</span></td><td class="pk close"><span class="c">M7</span><span class="d">+1</span></td><td class="pk close"><span class="c">M5</span><span class="d">+1</span></td><td class="pk close"><span class="c">M7</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Fujiseiun</td><td class="ac">M7</td><td class="pk hit"><span class="c">M7</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M7</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M7</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M7</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M7</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Nishikifuji</td><td class="ac">M7</td><td class="pk "><span class="c">M10</span><span class="d">+3</span></td><td class="pk "><span class="c">M9</span><span class="d">+2</span></td><td class="pk "><span class="c">M9</span><span class="d">+2</span></td><td class="pk "><span class="c">M11</span><span class="d">+4</span></td><td class="pk close"><span class="c">M8</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Hiradoumi</td><td class="ac">M8</td><td class="pk hit"><span class="c">M8</span><span class="d">✓</span></td><td class="pk "><span class="c">M10</span><span class="d">+2</span></td><td class="pk "><span class="c">M10</span><span class="d">+2</span></td><td class="pk hit"><span class="c">M8</span><span class="d">✓</span></td><td class="pk "><span class="c">M10</span><span class="d">+2</span></td></tr>
+<tr><td class="wr">Takerufuji</td><td class="ac">M8</td><td class="pk "><span class="c">M11</span><span class="d">+3</span></td><td class="pk close"><span class="c">M9</span><span class="d">+1</span></td><td class="pk close"><span class="c">M9</span><span class="d">+1</span></td><td class="pk "><span class="c">M11</span><span class="d">+3</span></td><td class="pk hit"><span class="c">M8</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Shishi</td><td class="ac">M9</td><td class="pk "><span class="c">M12</span><span class="d">+3</span></td><td class="pk close"><span class="c">M8</span><span class="d">+1</span></td><td class="pk close"><span class="c">M8</span><span class="d">+1</span></td><td class="pk close"><span class="c">M10</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M9</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Ura</td><td class="ac">M9</td><td class="pk hit"><span class="c">M9</span><span class="d">✓</span></td><td class="pk close"><span class="c">M10</span><span class="d">+1</span></td><td class="pk close"><span class="c">M10</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M9</span><span class="d">✓</span></td><td class="pk close"><span class="c">M10</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Kinbozan</td><td class="ac">M10</td><td class="pk "><span class="c">M12</span><span class="d">+2</span></td><td class="pk "><span class="c">M12</span><span class="d">+2</span></td><td class="pk close"><span class="c">M11</span><span class="d">+1</span></td><td class="pk "><span class="c">M13</span><span class="d">+3</span></td><td class="pk close"><span class="c">M11</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Oho</td><td class="ac">M10</td><td class="pk "><span class="c">M7</span><span class="d">+3</span></td><td class="pk "><span class="c">M6</span><span class="d">+4</span></td><td class="pk "><span class="c">M6</span><span class="d">+4</span></td><td class="pk "><span class="c">M6</span><span class="d">+4</span></td><td class="pk "><span class="c">M8</span><span class="d">+2</span></td></tr>
+<tr><td class="wr">Shodai</td><td class="ac">M11</td><td class="pk close"><span class="c">M10</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M11</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M11</span><span class="d">✓</span></td><td class="pk "><span class="c">M9</span><span class="d">+2</span></td><td class="pk hit"><span class="c">M11</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Wakamotoharu</td><td class="ac">M11</td><td class="pk hit"><span class="c">M11</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M11</span><span class="d">✓</span></td><td class="pk close"><span class="c">M12</span><span class="d">+1</span></td><td class="pk close"><span class="c">M10</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M11</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Asahakuryu</td><td class="ac">M12</td><td class="pk "><span class="c">M14</span><span class="d">+2</span></td><td class="pk close"><span class="c">M13</span><span class="d">+1</span></td><td class="pk close"><span class="c">M13</span><span class="d">+1</span></td><td class="pk "><span class="c">M15</span><span class="d">+3</span></td><td class="pk close"><span class="c">M13</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Wakatakakage</td><td class="ac">M12</td><td class="pk "><span class="c">M9</span><span class="d">+3</span></td><td class="pk far"><span class="c">M5</span><span class="d">+7</span></td><td class="pk far"><span class="c">M5</span><span class="d">+7</span></td><td class="pk "><span class="c">M8</span><span class="d">+4</span></td><td class="pk far"><span class="c">M6</span><span class="d">+6</span></td></tr>
+<tr><td class="wr">Abi</td><td class="ac">M13</td><td class="pk close"><span class="c">M14</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M13</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M13</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M13</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M13</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Asakoryu</td><td class="ac">M13</td><td class="pk hit"><span class="c">M13</span><span class="d">✓</span></td><td class="pk close"><span class="c">M12</span><span class="d">+1</span></td><td class="pk close"><span class="c">M12</span><span class="d">+1</span></td><td class="pk close"><span class="c">M14</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M13</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Chiyoshoma</td><td class="ac">M14</td><td class="pk close"><span class="c">M15</span><span class="d">+1</span></td><td class="pk close"><span class="c">M15</span><span class="d">+1</span></td><td class="pk close"><span class="c">M15</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M14</span><span class="d">✓</span></td><td class="pk close"><span class="c">M15</span><span class="d">+1</span></td></tr>
+<tr><td class="wr">Tobizaru</td><td class="ac">M14</td><td class="pk close"><span class="c">M13</span><span class="d">+1</span></td><td class="pk hit"><span class="c">M14</span><span class="d">✓</span></td><td class="pk hit"><span class="c">M14</span><span class="d">✓</span></td><td class="pk "><span class="c">M12</span><span class="d">+2</span></td><td class="pk hit"><span class="c">M14</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Wakanosho</td><td class="ac">M16</td><td class="pk close"><span class="c">M15</span><span class="d">+1</span></td><td class="pk "><span class="c">M14</span><span class="d">+2</span></td><td class="pk "><span class="c">M14</span><span class="d">+2</span></td><td class="pk "><span class="c">M12</span><span class="d">+4</span></td><td class="pk "><span class="c">M12</span><span class="d">+4</span></td></tr>
+<tr><td class="wr">Daiseizan <span class="fell">↓ Juryo</span></td><td class="ac">Jd</td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Kazuma <span class="fell">↓ Juryo</span></td><td class="ac">Jd</td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Mitakeumi <span class="fell">↓ Juryo</span></td><td class="ac">Jd</td><td class="pk close"><span class="c">M17</span><span class="d">+1</span></td><td class="pk close"><span class="c">M17</span><span class="d">+1</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk close"><span class="c">R</span><span class="d">+1</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td></tr>
+<tr><td class="wr">Onokatsu <span class="fell">↓ Juryo</span></td><td class="ac">Jd</td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td><td class="pk hit"><span class="c">Jd</span><span class="d">✓</span></td></tr>
+</tbody></table></div>
 
-  <div class="legend">
-    <h3>The rank ladder</h3>
-    <div class="codes">
-      <span class="c"><b class="yk">Y</b> Yokozuna</span><span class="c"><b class="oz">O</b> Ozeki</span><span class="c"><b class="sk">S</b> Sekiwake</span>
-      <span class="c"><b class="km">K</b> Komusubi</span><span class="c"><b class="mg1">M1–M8</b> Upper Maegashira</span><span class="c"><b class="mg2">M9–M18</b> Lower Maegashira</span><span class="c"><b class="jr">J</b> Juryo</span>
-    </div>
-  </div>
+<h2>Bonus round · juryo → makuuchi promotions</h2>
+<div class="note">The real newcomers this basho: <b>Asasuiryu</b> M15 · <b>Tokihayate</b> M15 · <b>Toshinofuji</b> M16 · <b>Shonannoumi</b> M17. A bonus needs the name <i>and</i> the rank exact.</div>
+<div class="bonus"><div class="bcol"><h4>Jennie</h4><ul><li class="bmiss">Shonannoumi <span class="br">M16</span> ✗</li><li class="bmiss">Asasuiryu <span class="br">M16</span> ✗</li><li class="bmiss">Toshinofuji <span class="br">M17</span> ✗</li><li class="bmiss">Arashifuji <span class="br">M17</span> ✗</li></ul></div><div class="bcol"><h4>Sherry</h4><ul><li class="bmiss">Asasoiryu <span class="br">M15</span> ✗</li><li class="bmiss">Tokihoyate <span class="br">M16</span> ✗</li><li class="bmiss">Toshinofiju <span class="br">M16</span> ✗</li><li class="bmiss">Shananoumi <span class="br">M17</span> ✗</li></ul></div></div>
 
-  <div class="panel">
-    <h2>Play along</h2>
-    <p>The pool is a <b>crew game</b>. Members make their picks right in the app, and the standings stay public for everyone to watch. Not in yet? Come join the crew.</p>
-    <div class="ctarow">
-      <a class="btn" href="/join">Join the crew →</a>
-    </div>
-    <p class="muted" style="margin-top:12px">Invite-only for now. The crew's a small clubhouse.</p>
-  </div>
-
-  <footer>
-    <p><b>Salt Stats &amp; Sumo</b>, a Staves &amp; Hoop production for the crew. The prediction pool runs basho by basho; the machine has opinions.</p>
-  </footer>
+<p class="legend" style="margin-top:22px">Rank codes: Y·O·S·K = the named ranks, M1–M17 = Maegashira, Jd = fell to Juryo, R = predicted retired. Frozen picks from the crew's sheet; actual ranks from the Notion Banzuke.</p>
 </div>
-<script>
-/* surface-aware home crest: "home" follows the surface you're browsing (app hub vs public site),
-   not your login. Referrer says where you came from; sessionStorage remembers it across refreshes. */
-(function(){
-  var s=null;
-  try{ if(document.referrer){ var u=new URL(document.referrer);
-    if(u.origin===location.origin && u.pathname!==location.pathname)
-      s = u.pathname.indexOf('/app')===0 ? 'app' : 'site'; } }catch(e){}
-  if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
-  else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
-  if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
-})();
-</script>
-</body>
-</html>
