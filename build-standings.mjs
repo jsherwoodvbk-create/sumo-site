@@ -10,7 +10,7 @@ import fs from 'node:fs';
 // HT_WT map below: add rows for any newly-promoted Makuuchi wrestlers, or their
 //   height/weight columns show blank. (Age auto-fetches from sumo-api, so age is fine.)
 // Full step-by-step: see the "Tournament Rollover" checklist in the project.
-const BASHO = process.env.BASHO || "202607";
+const BASHO = process.env.BASHO || "202609";
 const DIVISION = "Makuuchi";
 const TOTAL_DAYS = 15;
 const TARGET = process.env.TARGET || "standings.html";
