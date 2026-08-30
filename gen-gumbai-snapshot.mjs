@@ -275,13 +275,23 @@ async function main() {
 
   const maxDay = Math.max(0, ...bouts.map(b => b.day));
 
+    const maxDay = Math.max(0, ...bouts.map(b => b.day));
+
+  // A brand-new basho (banzuke announced, Day 1 not yet fought) legitimately has 0 bouts / maxDay 0.
+  // Detect that so the "no bouts = broken pull" guard doesn't misfire at the banzuke drop.
+  const preStart = banzuke.length > 0 && bouts.length === 0;
+
   // ── validate CORE before writing (fail safe: never commit a broken snapshot) ──
   const problems = [];
-  if (!bouts.length) problems.push('0 bouts');
+  if (!banzuke.length) problems.push('0 banzuke');   // the true "is this basho set up" signal
   if (!rikishi.length) problems.push('0 rikishi');
-  if (!banzuke.length) problems.push('0 banzuke');
-  if (maxDay < 1) problems.push('maxDay < 1');
+  // Bouts/maxDay only matter once the basho is underway; a pre-start basho is a valid rosters-only snapshot.
+  if (!preStart) {
+    if (!bouts.length) problems.push('0 bouts');
+    if (maxDay < 1) problems.push('maxDay < 1');
+  }
   if (problems.length) { console.error('ABORT — core snapshot looks broken: ' + problems.join(', ')); process.exit(1); }
+  if (preStart) console.log('ℹ️ pre-start basho: banzuke present, 0 bouts — rosters-only snapshot (results begin Day 1).');
   // Soft-data lanes are advisory: warn if empty but DO NOT abort (Gumbai still runs on results).
   if (!days.length) warn.push('days[] empty (storylines/scorekeeper notes absent)');
   if (!injuries.length) warn.push('injuries[] empty');
