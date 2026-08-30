@@ -37,7 +37,7 @@
 //   Log bouts to their Day rows (creates any missing Day rows), writes NO new bouts, and returns.
 //   Run it once per basho whose bouts predate the Day relation (e.g. Nagoya 2026). Honors DRY_RUN.
 //
-// ENV: NOTION_TOKEN (write key) · BASHO (default 202607) · DRY_RUN (default "1") ·
+// ENV: NOTION_TOKEN (write key) · BASHO (default 202609) · DRY_RUN (default "1") ·
 //      PROBE_NAME (opt) · BACKFILL_DAY_LINKS (opt, "1" = one-time Day-link backfill)
 
 import process from 'node:process';
@@ -50,12 +50,12 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN;
 //                       is just a fallback. The workflow (sync-notion.yml) sets the live value.
 //   TOURNAMENT_PAGE_ID: the Notion Tournament page for THIS basho. MUST exist before the first
 //                       sync — the scoped dedup read and every bout write both point at it.
-//   BASHO_LABEL       : exact text used in Banzuke "Entry" titles, e.g. "Aonishiki — Nagoya 2026".
-//                       Also used as the Day-row title prefix, e.g. "Nagoya 2026 · Day 6".
+//   BASHO_LABEL       : exact text used in Banzuke "Entry" titles, e.g. "Aonishiki — Aki 2026".
+//                       Also used as the Day-row title prefix, e.g. "Aki 2026 · Day 6".
 // Full step-by-step: see the "Tournament Rollover" checklist in the project.
 const BASHO = process.env.BASHO || '202607';
-const TOURNAMENT_PAGE_ID = '3351ade1-241f-80fb-b4ef-d2bef497b295';
-const BASHO_LABEL = 'Nagoya 2026';
+const TOURNAMENT_PAGE_ID = '3351ade1-241f-8011-8987-d959538f54a0';
+const BASHO_LABEL = 'Aki 2026';
 // ─────────────────────────────────────────────────────────────────────────────────────
 
 const DIVISION = 'Makuuchi';
