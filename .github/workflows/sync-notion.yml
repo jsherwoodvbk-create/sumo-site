@@ -45,7 +45,7 @@ jobs:
       - name: Sync results into Notion
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
-          BASHO: "202607"    # PER-BASHO: change each tournament (also in build-standings.mjs + sync-notion.mjs config block). See project "Tournament Rollover" checklist.
+          BASHO: "202609"    # PER-BASHO: change each tournament (also in build-standings.mjs + sync-notion.mjs config block). See project "Tournament Rollover" checklist.
           PROBE_NAME: ${{ github.event.inputs.probe }}
           # One-time Day-link backfill (manual only). "1" activates the backfill branch in the script.
           BACKFILL_DAY_LINKS: ${{ github.event.inputs.backfill_day_links == 'true' && '1' || '0' }}
