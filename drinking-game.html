@@ -26,6 +26,8 @@ header.site p{margin:0;color:#f0e6d0;opacity:.9;font-size:13.5px}
 .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
 .drinknote{margin:12px 0;padding:9px 14px;background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;font-size:13.5px}
 .drinknote b{color:var(--vermilion)}
+ .betweenbasho{margin:12px 0;padding:14px 18px;background:linear-gradient(160deg,#f7edd3,#f0e0b8);border:1px solid var(--gold);border-left:6px solid var(--vermilion);border-radius:12px;font-size:14px;line-height:1.5}
+.betweenbasho b{color:var(--vermilion)} .betweenbasho .bb-emoji{font-size:18px;margin-right:4px} 
 .tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0}
 .tab{background:var(--panel);color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:7px 13px;font:inherit;font-weight:700;font-size:13px;cursor:pointer}
 .tab:hover{border-color:var(--gold);color:var(--ink)} .tab.active{background:var(--gold);color:#38240c;border-color:var(--gold)}
@@ -101,7 +103,7 @@ header.site p{margin:0;color:#f0e6d0;opacity:.9;font-size:13.5px}
     <p>Nagoya 2026 · pick a day, pour along with the booth.</p></div>
     <a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
   </div>
-</header>
+</header><div class="betweenbasho" id="betweenBasho" hidden></div>
 <div class="drinknote">🥤 <b>Your pour, your rules.</b> The glasses show <b>how much</b>: a sip, two, or bottoms-up.
 Fill them with water, iced tea, beer, sake, barley tea, your legal beverage of choice. Play kind, play hydrated.</div>
 <div class="drinknote" style="border-left-color:var(--liq2)">👑 <b>Cast your vote.</b> Think a Two Sips call out-funnied the day's Jewel? Tap <b>👑 my pick</b> on it (one pick per day). Heard a good one we missed? Drop it in <b>Your Favorite Quote of the Day</b>. Your picks help crown the real Jewels.</div>
@@ -298,7 +300,22 @@ Fill them with water, iced tea, beer, sake, barley tea, your legal beverage of c
   <div class="gaterow" id="gaterow"></div>
   <p class="gatefoot">Change it any time: pick the next day when you sit down, or jump ahead as you binge to catch up!</p>
 </div></div>
-<script>
+<script>// ── BETWEEN-BASHO NOTICE (set by the banzuke-drop skill) ──────────────
+// At a banzuke drop the new basho has no catchphrase data yet, so the board still shows last
+// basho's game. This reframes it as a replay + announces the new basho. The catchphrase regen
+// clears it (BETWEEN_BASHO=false) once the new basho's first game exists.
+var BETWEEN_BASHO = true;
+var NEXT_BASHO   = 'Aki 2026';
+var NEXT_START   = 'September 13';
+var SHOWN_BASHO  = 'Nagoya 2026';
+(function(){
+  if(!BETWEEN_BASHO) return;
+  var el=document.getElementById('betweenBasho'); if(!el) return;
+  el.innerHTML='<span class="bb-emoji">🎐</span><b>'+NEXT_BASHO+' starts '+NEXT_START+'.</b> '+
+    'The booth\'s between basho — you\'re replaying last tournament ('+SHOWN_BASHO+') until then. '+
+    'Fresh calls land here once '+NEXT_BASHO.split(' ')[0]+' gets rolling. Kanpai!';
+  el.hidden=false;
+})();
 var L1POOL={"1": [{"t": "Get into his kitchen", "today": 0}, {"t": "Has no answer", "today": 1}, {"t": "Guns blazing", "today": 1}, {"t": "A big, big upset here on Shonichi", "today": 1}, {"t": "A run for his money", "today": 0}], "2": [{"t": "A pesky customer", "today": 1}, {"t": "A walk in the park", "today": 0}, {"t": "Hardly breaks a sweat", "today": 0}, {"t": "Has no answer", "today": 0}, {"t": "Steps on the gas", "today": 0}], "3": [{"t": "Now you see me, now you don't", "today": 1}, {"t": "The excitement machine", "today": 0}, {"t": "A pretty comfortable day at the office", "today": 0}, {"t": "A touch of class here today", "today": 0}, {"t": "A walk in the park", "today": 0}], "4": [{"t": "Beats anybody, loses to anybody", "today": 0}, {"t": "My own style of sumo", "today": 0}, {"t": "A grappler against a pusher-thruster", "today": 0}, {"t": "An easy day at the office", "today": 0}, {"t": "Big versus small", "today": 0}], "5": [{"t": "Hug and chug / hugs and chugs", "today": 0}, {"t": "Now you see me, now you don't", "today": 0}, {"t": "A pretty comfortable day at the office", "today": 0}, {"t": "A touch of class here today", "today": 0}, {"t": "Absolute entertainment package", "today": 0}], "6": [{"t": "Hug and chug / hugs and chugs", "today": 0}, {"t": "A pretty comfortable day at the office", "today": 0}, {"t": "A touch of class here today", "today": 0}, {"t": "A walk in the park", "today": 0}, {"t": "Absolute entertainment package", "today": 0}], "7": [{"t": "My own style of sumo", "today": 1}, {"t": "Has no answer", "today": 0}, {"t": "Guns blazing", "today": 0}, {"t": "A big, big upset here on Shonichi", "today": 0}, {"t": "A run for his money", "today": 1}], "8": [{"t": "A pesky customer", "today": 1}, {"t": "A walk in the park", "today": 0}, {"t": "Fights like a 26-year-old", "today": 0}, {"t": "Guns blazing, bang, bang, bang", "today": 0}, {"t": "Hardly breaks a sweat", "today": 1}], "9": [{"t": "My own style of sumo", "today": 1}, {"t": "A chip off the old block", "today": 0}, {"t": "A grappler against a pusher-thruster", "today": 0}, {"t": "An easy day at the office", "today": 0}, {"t": "Big versus small", "today": 1}], "10": [{"t": "Hug and chug / hugs and chugs", "today": 1}, {"t": "Now you see me, now you don't", "today": 0}, {"t": "The excitement machine", "today": 0}, {"t": "A touch of class here today", "today": 0}, {"t": "A walk in the park", "today": 0}], "11": [{"t": "A walk in the park", "today": 1}, {"t": "Brought his A-game (and then some)", "today": 0}, {"t": "Fights like a 26-year-old", "today": 0}, {"t": "Guns blazing, bang, bang, bang", "today": 0}, {"t": "Has no answer", "today": 1}], "12": [{"t": "My own style of sumo", "today": 1}, {"t": "A chip off the old block", "today": 0}, {"t": "A grappler against a pusher-thruster", "today": 1}, {"t": "An easy day at the office", "today": 1}, {"t": "Big versus small", "today": 0}], "13": [{"t": "Hug and chug / hugs and chugs", "today": 0}, {"t": "Now you see me, now you don't", "today": 0}, {"t": "The excitement machine", "today": 0}, {"t": "A pretty comfortable day at the office", "today": 0}, {"t": "A walk in the park", "today": 0}], "14": [{"t": "A pesky customer", "today": 0}, {"t": "A walk in the park", "today": 1}, {"t": "Brought his A-game (and then some)", "today": 0}, {"t": "Guns blazing, bang, bang, bang", "today": 1}, {"t": "Hardly breaks a sweat", "today": 0}], "15": [{"t": "Get into his kitchen", "today": 1}, {"t": "Guns blazing", "today": 1}, {"t": "A big, big upset here on Shonichi", "today": 0}, {"t": "A run for his money", "today": 0}, {"t": "A walk in the park", "today": 0}]};
 var L1STEIN="<svg viewBox=\"0 0 70 92\" class=\"stein\"><clipPath id=\"c332127\"><path d=\"M12 16 h44 v60 a8 8 0 0 1 -8 8 h-28 a8 8 0 0 1 -8 -8 z\"/></clipPath><rect x=\"12\" y=\"60.0\" width=\"44\" height=\"20.0\" fill=\"var(--liq1)\" clip-path=\"url(#c332127)\" opacity=\"0.9\"/><g clip-path=\"url(#c332127)\"><ellipse cx=\"26\" cy=\"70.0\" rx=\"5\" ry=\"7\" fill=\"#fff\" opacity=\"0.18\"/><ellipse cx=\"42\" cy=\"82.0\" rx=\"4\" ry=\"6\" fill=\"#fff\" opacity=\"0.13\"/></g><path d=\"M12 16 h44 v60 a8 8 0 0 1 -8 8 h-28 a8 8 0 0 1 -8 -8 z\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"2.5\"/><path d=\"M56 30 h7 a6 6 0 0 1 6 6 v14 a6 6 0 0 1 -6 6 h-7\" fill=\"none\" stroke=\"var(--ink)\" stroke-width=\"2.5\"/></svg>";
 function esc(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
