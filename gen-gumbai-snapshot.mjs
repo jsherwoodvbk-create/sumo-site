@@ -275,8 +275,6 @@ async function main() {
 
   const maxDay = Math.max(0, ...bouts.map(b => b.day));
 
-    const maxDay = Math.max(0, ...bouts.map(b => b.day));
-
   // A brand-new basho (banzuke announced, Day 1 not yet fought) legitimately has 0 bouts / maxDay 0.
   // Detect that so the "no bouts = broken pull" guard doesn't misfire at the banzuke drop.
   const preStart = banzuke.length > 0 && bouts.length === 0;
