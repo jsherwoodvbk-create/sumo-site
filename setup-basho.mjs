@@ -50,10 +50,20 @@ const API_THROTTLE_MS = 400;   // polite pacing on sumo-api (free, one-person AP
 const DB = {
   masterRikishi: 'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
+  stables:       '772d1e51-7941-4518-950b-be0eb1695494',
 };
 
 const COUNTRIES = ['Japan','Bulgaria','Egypt','Georgia','Kazakhstan','Kyrgyzstan','Mongolia','Russia','Ukraine','China'];
 const validRank = r => /^(Yokozuna|Ozeki|Sekiwake|Komusubi|M\d{1,2})$/.test(String(r || ''));
+
+// Master Rikishi's "Highest Rank" is a TIER-level select (Yokozuna/Ozeki/Sekiwake/Komusubi/
+// Maegashira/Juryo), not the numbered rank. A newcomer's entry rank IS their career peak.
+function rankTier(rank) {
+  if (rank === 'Yokozuna' || rank === 'Ozeki' || rank === 'Sekiwake' || rank === 'Komusubi') return rank;
+  if (/^M\d{1,2}$/.test(rank)) return 'Maegashira';
+  if (rank === 'J') return 'Juryo';
+  return null;
+}
 
 if (!NOTION_TOKEN) { console.error('FATAL: NOTION_TOKEN not set'); process.exit(1); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -173,6 +183,11 @@ async function main() {
   const MR = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p.id]));
   const BZ = new Set(bzPages.map(p => titleOf(p, 'Entry')));
 
+  // Stables lookup — used only when creating newcomers (live run), so skip the query in DRY.
+  // Maps lowercased stable Name -> page id, so we can LINK the Stable relation instead of a Note.
+  const STABLE = new Map();
+  if (!DRY) { for (const p of await queryAll(DB.stables)) STABLE.set(titleOf(p, 'Name').toLowerCase(), p.id); }
+
   const flags = [];
   const newcomers = [];
   let bzCreate = 0, mrCreate = 0, skipEntry = 0;
@@ -189,21 +204,29 @@ async function main() {
       if (DRY) { mrId = `dry-mr-${name}`; }
       else {
         const d = await fetchRikishiDetail(r.rikishiID); await sleep(API_THROTTLE_MS);
-        const notes = [`New Makuuchi entrant — added by setup-basho (first seen ${BASHO_LABEL}).`];
-        if (d?.shikonaJp) notes.push(`Kanji: ${d.shikonaJp}.`);
-        if (d?.heya) notes.push(`Stable (heya): ${d.heya} — link by hand.`);
-        if (!d) { notes.push('sumo-api enrichment unavailable — profile blank.'); flags.push(`"${name}": enrichment failed; created name-only.`); }
-        notes.push('Real Name + Photo pending (JSA-only); run onboard-rikishi for the head-crop.');
         const props = {
           'Ring Name': { title: [{ text: { content: name } }] },
           'Active': { checkbox: true },
-          'Notes': { rich_text: [{ text: { content: notes.join(' ') } }] },
         };
+        // Enrichment lands in its OWN FIELDS, not a Notes dump (Jennie, 2026-08-30).
         if (d?.heightCm) props['Height (cm)'] = { number: d.heightCm };
         if (d?.birthDate) props['Birthday'] = { date: { start: d.birthDate } };
         const country = mapCountry(d?.shusshin);
         if (country) { props['Country of Origin'] = { select: { name: country } }; if (country === 'Other') flags.push(`"${name}": origin "${d?.shusshin}" -> Other, verify.`); }
         if (d?.nskId) { props['JSA ID'] = { rich_text: [{ text: { content: String(d.nskId) } }] }; flags.push(`"${name}": JSA ID ${d.nskId} from sumo-api nskId — VERIFY.`); }
+        // Highest Rank — a newcomer's entry rank IS their career peak (tier-level select).
+        const tier = rankTier(rank);
+        if (tier) props['Highest Rank'] = { select: { name: tier } };
+        // Stable — LINK the relation when the heya matches a Stables page; only flag for a hand-link on a miss.
+        const stableId = d?.heya ? STABLE.get(String(d.heya).trim().toLowerCase()) : null;
+        if (stableId) props['Stable'] = { relation: [{ id: stableId }] };
+        else if (d?.heya) flags.push(`"${name}": stable "${d.heya}" not matched in Stables DB — link by hand.`);
+        // Notes now carries ONLY what has no field of its own: the kanji (source for the Translation draft) + the human-pending flags.
+        const notes = [`New Makuuchi entrant — added by setup-basho (first seen ${BASHO_LABEL}).`];
+        if (d?.shikonaJp) notes.push(`Kanji: ${d.shikonaJp} (source for the Translation field).`);
+        if (!d) { notes.push('sumo-api enrichment unavailable — profile blank.'); flags.push(`"${name}": enrichment failed; created name-only.`); }
+        notes.push('Pending (human): Real Name + Photo from JSA, Translation (Claude-drafted), then run onboard-rikishi for the head-crop.');
+        props['Notes'] = { rich_text: [{ text: { content: notes.join(' ') } }] };
         const p = await notion('/pages', 'POST', { parent: { database_id: DB.masterRikishi }, properties: props });
         mrId = p.id; await sleep(WRITE_THROTTLE_MS);
       }
