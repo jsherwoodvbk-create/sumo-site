@@ -96,8 +96,22 @@ async function getJson(url) {
 }
 // The banzuke endpoint — the SAME one build-standings.mjs reads live. east/west arrays,
 // each entry: { rikishiID, shikonaEn, rank ("Maegashira 1 East" / "Yokozuna 1 East"), rankValue }.
+// PREFLIGHT-AWARE: distinguishes "banzuke not posted yet" (404, or 200-with-empty-roster — a benign
+// STOP-and-wait) from an actual fetch failure. Never throws; returns a tagged result the caller gates on.
 async function getBanzuke() {
-  return getJson(`${API}/basho/${BASHO}/banzuke/${DIVISION}`);
+  const url = `${API}/basho/${BASHO}/banzuke/${DIVISION}`;
+  let res;
+  try {
+    res = await fetch(url, { headers: { 'User-Agent': UA, 'Accept': 'application/json' } });
+  } catch (e) {
+    return { error: `network error reaching sumo-api: ${e.message}` };
+  }
+  if (res.status === 404) return { notPosted: true };
+  if (!res.ok) return { error: `sumo-api ${res.status}: ${(await res.text()).slice(0, 200)}` };
+  let j;
+  try { j = await res.json(); } catch (e) { return { error: `sumo-api returned non-JSON: ${e.message}` }; }
+  const all = [...(j.east || []), ...(j.west || [])];
+  return { all };
 }
 // rankInfo — verbatim from build-standings.mjs. Returns the Notion short rank in .rank.
 function rankInfo(rankStr) {
@@ -136,11 +150,24 @@ async function main() {
   console.log(`setup-basho: ${BASHO_LABEL} (${BASHO}) · DRY_RUN=${DRY ? 'ON (census only, no writes, no enrichment)' : 'OFF (WRITING)'}`);
   console.log(`  Tournament page: ${TOURNAMENT_PAGE_ID}`);
 
+  // ── PREFLIGHT: is the banzuke even posted? Runs BEFORE any Notion query or write. ──
   const b = await getBanzuke();
-  const all = [...(b.east || []), ...(b.west || [])];
-  if (!all.length) { console.error(`ABORT — sumo-api returned an EMPTY banzuke for ${BASHO}. Has it dropped yet?`); process.exit(1); }
+  if (b.error) {
+    console.error(`\n✗ Could NOT reach sumo-api — this is a fetch problem, not a "banzuke missing" result:`);
+    console.error(`    ${b.error}`);
+    console.error(`  Nothing was done. Wait a moment and re-run.`);
+    process.exit(1);
+  }
+  if (b.notPosted || !b.all || !b.all.length) {
+    console.log(`\n⏸  BANZUKE NOT POSTED YET — ${BASHO_LABEL} (${BASHO}).`);
+    console.log(`   sumo-api has no Makuuchi banzuke for this basho yet — it hasn't dropped.`);
+    console.log(`   ✋ This is NOT an error. Nothing was written and no Notion call was made.`);
+    console.log(`   STOP HERE. Do not run any other banzuke-drop step. Re-run this once the banzuke is up.`);
+    process.exit(0);   // clean exit: the check ran fine; the answer is "not yet."
+  }
+  const all = b.all;
   all.sort((x, y) => (x.rankValue - y.rankValue) || String(x.shikonaEn).localeCompare(String(y.shikonaEn)));
-  console.log(`  banzuke: ${all.length} Makuuchi wrestlers`);
+  console.log(`  ✓ banzuke IS posted: ${all.length} Makuuchi wrestlers.`);
 
   const [mrPages, bzPages] = await Promise.all([queryAll(DB.masterRikishi), queryAll(DB.banzuke)]);
   const MR = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p.id]));
