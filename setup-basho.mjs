@@ -190,6 +190,7 @@ async function main() {
 
   const flags = [];
   const newcomers = [];
+  const weightBlank = [];
   let bzCreate = 0, mrCreate = 0, skipEntry = 0;
 
   for (const r of all) {
@@ -197,13 +198,26 @@ async function main() {
     const rank = rankInfo(r.rank).rank;
     if (!validRank(rank)) { flags.push(`${name}: unexpected rank "${r.rank}" -> "${rank}" — VERIFY (entry still created).`); }
 
+    // Per-wrestler sumo-api detail (height/weight/JSA/etc). Fetched AT MOST ONCE per wrestler and
+    // only when actually needed — a newcomer Master to build, or a new Banzuke entry to weigh.
+    // Memoized so the newcomer branch and the Weight (kg) write share the single call; skipped
+    // entirely in DRY (no enrichment) and on idempotent re-runs where the entry already exists.
+    let _detail, _detailFetched = false;
+    async function detail() {
+      if (_detailFetched || DRY) { _detailFetched = true; return _detail ?? null; }
+      _detailFetched = true;
+      _detail = await fetchRikishiDetail(r.rikishiID);
+      await sleep(API_THROTTLE_MS);
+      return _detail;
+    }
+
     // 1) Master Rikishi — create + enrich only if the wrestler is new. Never touch an existing page.
     let mrId = MR.get(name);
     if (!mrId) {
       mrCreate++; newcomers.push(`${name} (${rank})`);
       if (DRY) { mrId = `dry-mr-${name}`; }
       else {
-        const d = await fetchRikishiDetail(r.rikishiID); await sleep(API_THROTTLE_MS);
+        const d = await detail();
         const props = {
           'Ring Name': { title: [{ text: { content: name } }] },
           'Active': { checkbox: true },
@@ -244,6 +258,12 @@ async function main() {
         'Rikishi': { relation: [{ id: mrId }] },
         'Tournament': { relation: [{ id: TOURNAMENT_PAGE_ID }] },
       };
+      // Weight (kg) — from the per-rikishi detail (sumo-api refreshes it from the posted banzuke
+      // measurements), the SAME source + field name sync-notion uses for Juryo visitors. Honors the
+      // weigh-in rule: write it only when sourced; leave blank (never faked) when the API has none.
+      const d = await detail();
+      if (d?.weightKg) props['Weight (kg)'] = { number: d.weightKg };
+      else weightBlank.push(name);
       await notion('/pages', 'POST', { parent: { database_id: DB.banzuke }, properties: props });
       await sleep(WRITE_THROTTLE_MS);
     }
@@ -253,6 +273,7 @@ async function main() {
   console.log(`\n──────── ${DRY ? 'CENSUS (nothing written)' : 'DONE'} ────────`);
   console.log(`Banzuke entries to create: ${bzCreate} · already present (skipped): ${skipEntry} · newcomer Master pages: ${mrCreate}`);
   if (newcomers.length) { console.log(`\nNEWCOMERS (new Master Rikishi — pull Real Name + Photo from JSA, run onboard-rikishi):`); for (const n of newcomers) console.log('  - ' + n); }
+  if (!DRY && weightBlank.length) { console.log(`\n⚖️  WEIGHT BLANK — sumo-api had no weight for these (left blank, NOT faked — source by hand):`); for (const n of weightBlank) console.log('  - ' + n); }
   if (flags.length) { console.log('\n⚠️  FLAGS:'); for (const f of [...new Set(flags)]) console.log('  - ' + f); }
   else console.log('No flags.');
   if (DRY) console.log('\nDRY RUN. Review the census + newcomers, then re-run with DRY_RUN=0.');
