@@ -15,6 +15,14 @@ const DIVISION = "Makuuchi";
 const TOTAL_DAYS = 15;
 const TARGET = process.env.TARGET || "standings.html";
 
+// Basho label DERIVED from the BASHO code, so the header is never hand-edited each drop.
+const BASHO_NAMES = { "01":"Hatsu", "03":"Haru", "05":"Natsu", "07":"Nagoya", "09":"Aki", "11":"Kyushu" };
+function bashoLabel(code){
+  const s = String(code || "");
+  const nm = BASHO_NAMES[s.slice(4,6)], yr = s.slice(0,4);
+  return (nm && /^\d{4}$/.test(yr)) ? `${nm} ${yr}` : null;
+}
+
 // height/weight aren't in the banzuke endpoint; keep a static map (ft/in, lb). New wrestlers -> blank.
 const HT_WT = {"Hoshoryu": {"ht": "6'2\"", "wt": 331}, "Asasuiryu": {"ht": "5'9\"", "wt": 265}, "Tokihayate": {"ht": "5'10\"", "wt": 300}, "Toshinofuji": {"ht": "6'5\"", "wt": 333}, "Shonannoumi": {"ht": "6'4\"", "wt": 403},"Onosato": {"ht": "6'4\"", "wt": 417}, "Kirishima": {"ht": "6'1\"", "wt": 331}, "Kotozakura": {"ht": "6'2\"", "wt": 392}, "Aonishiki": {"ht": "6'0\"", "wt": 313}, "Atamifuji": {"ht": "6'2\"", "wt": 434}, "Kotoshoho": {"ht": "6'3\"", "wt": 379}, "Wakatakakage": {"ht": "6'0\"", "wt": 304}, "Yoshinofuji": {"ht": "6'1\"", "wt": 346}, "Oho": {"ht": "6'4\"", "wt": 408}, "Fujinokawa": {"ht": "5'10\"", "wt": 271}, "Takanosho": {"ht": "6'0\"", "wt": 381}, "Churanoumi": {"ht": "5'10\"", "wt": 333}, "Gonoyama": {"ht": "5'10\"", "wt": 344}, "Hiradoumi": {"ht": "5'10\"", "wt": 311}, "Hakunofuji": {"ht": "5'11\"", "wt": 351}, "Daieisho": {"ht": "6'0\"", "wt": 353}, "Ichiyamamoto": {"ht": "6'3\"", "wt": 353}, "Oshoma": {"ht": "6'3\"", "wt": 366}, "Ura": {"ht": "5'9\"", "wt": 306}, "Shodai": {"ht": "6'0\"", "wt": 370}, "Fujiseiun": {"ht": "6'1\"", "wt": 331}, "Kotoeiho": {"ht": "6'0\"", "wt": 313}, "Takayasu": {"ht": "6'2\"", "wt": 381}, "Wakamotoharu": {"ht": "6'2\"", "wt": 315}, "Roga": {"ht": "6'0\"", "wt": 353}, "Fujiryoga": {"ht": "5'11\"", "wt": 399}, "Tobizaru": {"ht": "5'8\"", "wt": 298}, "Asanoyama": {"ht": "6'2\"", "wt": 386}, "Chiyoshoma": {"ht": "6'0\"", "wt": 309}, "Mitakeumi": {"ht": "6'0\"", "wt": 386}, "Wakanosho": {"ht": "5'10\"", "wt": 320}, "Abi": {"ht": "6'2\"", "wt": 368}, "Asahakuryu": {"ht": "6'1\"", "wt": 335}, "Nishikifuji": {"ht": "6'0\"", "wt": 342}, "Takerufuji": {"ht": "6'2\"", "wt": 326}, "Kinbozan": {"ht": "6'5\"", "wt": 395}, "Shishi": {"ht": "6'4\"", "wt": 390}, "Onokatsu": {"ht": "6'1\"", "wt": 364}, "Kazuma": {"ht": "6'1\"", "wt": 452}, "Asakoryu": {"ht": "5'10\"", "wt": 276}, "Daiseizan": {"ht": "6'4\"", "wt": 362}};
 
@@ -141,11 +149,18 @@ async function main(){
     champion = { name: champName, playoff: maxW > 0 && tiedAtTop > 1 };
   }
 
-  const html = fs.readFileSync(TARGET,"utf8");
-  // Match MAX_DAY + CHAMPION + DATA as one block so re-runs stay idempotent (CHAMPION seeded as null in the template).
+   let out = fs.readFileSync(TARGET,"utf8");
   const re = /const MAX_DAY=\d+;\r?\nconst CHAMPION=[\s\S]*?;\r?\nconst DATA=\[[\s\S]*?\];/;
-  if(!re.test(html)) throw new Error("data block not found in "+TARGET+" (expected MAX_DAY / CHAMPION / DATA lines)");
-  fs.writeFileSync(TARGET, html.replace(re, `const MAX_DAY=${MAX_DAY};\nconst CHAMPION=${JSON.stringify(champion)};\nconst DATA=${JSON.stringify(DATA)};`));
+  if(!re.test(out)) throw new Error("data block not found in "+TARGET+" (expected MAX_DAY / CHAMPION / DATA lines)");
+  out = out.replace(re, `const MAX_DAY=${MAX_DAY};\nconst CHAMPION=${JSON.stringify(champion)};\nconst DATA=${JSON.stringify(DATA)};`);
+  // Header basho label — derived from BASHO, stamped into title/h1/gate every publish. Idempotent.
+  const LABEL = bashoLabel(BASHO);
+  if(LABEL){
+    out = out.replace(/(<title>Salt Stats & Sumo · ).*?( Standings<\/title>)/, `$1${LABEL}$2`)
+             .replace(/(<h1>).*?( · Makuuchi Standings<\/h1>)/,               `$1${LABEL}$2`)
+             .replace(/(<h2>).*?( is in progress<\/h2>)/,                     `$1${LABEL}$2`);
+  } else console.warn(`header not stamped — BASHO ${BASHO} didn't resolve to a name`);
+  fs.writeFileSync(TARGET, out);
   console.log(`OK roster=${DATA.length} maxDay=${MAX_DAY} champion=${champion?champion.name+(champion.playoff?" (playoff)":""):"none"} (source: sumo-api ${BASHO})`);
 
   // Keep the homepage badge's day in sync. index.html has a hardcoded "· in progress · Day N";
