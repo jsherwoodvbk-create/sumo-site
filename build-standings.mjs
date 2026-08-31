@@ -7,6 +7,7 @@ import fs from 'node:fs';
 // BASHO: sumo-api basho code YYYYMM. This is the LIVE value — publish.yml does not
 //   override it, so edit it right here. Must also change in sync-notion.yml and
 //   sync-notion.mjs (the config block up top there).
+//   NOTE: the standings HEADER (title / h1 / gate) is now DERIVED from BASHO — no hand-edit.
 // HT_WT map below: add rows for any newly-promoted Makuuchi wrestlers, or their
 //   height/weight columns show blank. (Age auto-fetches from sumo-api, so age is fine.)
 // Full step-by-step: see the "Tournament Rollover" checklist in the project.
@@ -16,6 +17,7 @@ const TOTAL_DAYS = 15;
 const TARGET = process.env.TARGET || "standings.html";
 
 // Basho label DERIVED from the BASHO code, so the header is never hand-edited each drop.
+// Odd months (02/04/…) or a malformed code → null, and the stamp is skipped (header left as-is).
 const BASHO_NAMES = { "01":"Hatsu", "03":"Haru", "05":"Natsu", "07":"Nagoya", "09":"Aki", "11":"Kyushu" };
 function bashoLabel(code){
   const s = String(code || "");
@@ -24,15 +26,8 @@ function bashoLabel(code){
 }
 
 // height/weight aren't in the banzuke endpoint; keep a static map (ft/in, lb). New wrestlers -> blank.
-const HT_WT = {"Hoshoryu": {"ht": "6'2\"", "wt": 331}, "Asasuiryu": {"ht": "5'9\"", "wt": 265}, "Tokihayate": {"ht": "5'10\"", "wt": 300}, "Toshinofuji": {"ht": "6'5\"", "wt": 333}, "Shonannoumi": {"ht": "6'4\"", "wt": 403},"Onosato": {"ht": "6'4\"", "wt": 417}, "Kirishima": {"ht": "6'1\"", "wt": 331}, "Kotozakura": {"ht": "6'2\"", "wt": 392}, "Aonishiki": {"ht": "6'0\"", "wt": 313}, "Atamifuji": {"ht": "6'2\"", "wt": 434}, "Kotoshoho": {"ht": "6'3\"", "wt": 379}, "Wakatakakage": {"ht": "6'0\"", "wt": 304}, "Yoshinofuji": {"ht": "6'1\"", "wt": 346}, "Oho": {"ht": "6'4\"", "wt": 408}, "Fujinokawa": {"ht": "5'10\"", "wt": 271}, "Takanosho": {"ht": "6'0\"", "wt": 381}, "Churanoumi": {"ht": "5'10\"", "wt": 333}, "Gonoyama": {"ht": "5'10\"", "wt": 344}, "Hiradoumi": {"ht": "5'10\"", "wt": 311}, "Hakunofuji": {"ht": "5'11\"", "wt": 351}, "Daieisho": {"ht": "6'0\"", "wt": 353}, "Ichiyamamoto": {"ht": "6'3\"", "wt": 353}, "Oshoma": {"ht": "6'3\"", "wt": 366}, "Ura": {"ht": "5'9\"", "wt": 306}, "Shodai": {"ht": "6'0\"", "wt": 370}, "Fujiseiun": {"ht": "6'1\"", "wt": 331}, "Kotoeiho": {"ht": "6'0\"", "wt": 313}, "Takayasu": {"ht": "6'2\"", "wt": 381}, "Wakamotoharu": {"ht": "6'2\"", "wt": 315}, "Roga": {"ht": "6'0\"", "wt": 353}, "Fujiryoga": {"ht": "5'11\"", "wt": 399}, "Tobizaru": {"ht": "5'8\"", "wt": 298}, "Asanoyama": {"ht": "6'2\"", "wt": 386}, "Chiyoshoma": {"ht": "6'0\"", "wt": 309}, "Mitakeumi": {"ht": "6'0\"", "wt": 386}, "Wakanosho": {"ht": "5'10\"", "wt": 320}, "Abi": {"ht": "6'2\"", "wt": 368}, "Asahakuryu": {"ht": "6'1\"", "wt": 335}, "Nishikifuji": {"ht": "6'0\"", "wt": 342}, "Takerufuji": {"ht": "6'2\"", "wt": 326}, "Kinbozan": {"ht": "6'5\"", "wt": 395}, "Shishi": {"ht": "6'4\"", "wt": 390}, "Onokatsu": {"ht": "6'1\"", "wt": 364}, "Kazuma": {"ht": "6'1\"", "wt": 452}, "Asakoryu": {"ht": "5'10\"", "wt": 276}, "Daiseizan": {"ht": "6'4\"", "wt": 362}};
+const HT_WT = {"Hoshoryu": {"ht": "6'2\"", "wt": 331}, "Onosato": {"ht": "6'4\"", "wt": 417}, "Kirishima": {"ht": "6'1\"", "wt": 331}, "Kotozakura": {"ht": "6'2\"", "wt": 392}, "Aonishiki": {"ht": "6'0\"", "wt": 313}, "Atamifuji": {"ht": "6'2\"", "wt": 434}, "Kotoshoho": {"ht": "6'3\"", "wt": 379}, "Wakatakakage": {"ht": "6'0\"", "wt": 304}, "Yoshinofuji": {"ht": "6'1\"", "wt": 346}, "Oho": {"ht": "6'4\"", "wt": 408}, "Fujinokawa": {"ht": "5'10\"", "wt": 271}, "Takanosho": {"ht": "6'0\"", "wt": 381}, "Churanoumi": {"ht": "5'10\"", "wt": 333}, "Gonoyama": {"ht": "5'10\"", "wt": 344}, "Hiradoumi": {"ht": "5'10\"", "wt": 311}, "Hakunofuji": {"ht": "5'11\"", "wt": 351}, "Daieisho": {"ht": "6'0\"", "wt": 353}, "Ichiyamamoto": {"ht": "6'3\"", "wt": 353}, "Oshoma": {"ht": "6'3\"", "wt": 366}, "Ura": {"ht": "5'9\"", "wt": 306}, "Shodai": {"ht": "6'0\"", "wt": 370}, "Fujiseiun": {"ht": "6'1\"", "wt": 331}, "Kotoeiho": {"ht": "6'0\"", "wt": 313}, "Takayasu": {"ht": "6'2\"", "wt": 381}, "Wakamotoharu": {"ht": "6'2\"", "wt": 315}, "Roga": {"ht": "6'0\"", "wt": 353}, "Fujiryoga": {"ht": "5'11\"", "wt": 399}, "Tobizaru": {"ht": "5'8\"", "wt": 298}, "Asanoyama": {"ht": "6'2\"", "wt": 386}, "Chiyoshoma": {"ht": "6'0\"", "wt": 309}, "Mitakeumi": {"ht": "6'0\"", "wt": 386}, "Wakanosho": {"ht": "5'10\"", "wt": 320}, "Abi": {"ht": "6'2\"", "wt": 368}, "Asahakuryu": {"ht": "6'1\"", "wt": 335}, "Nishikifuji": {"ht": "6'0\"", "wt": 342}, "Takerufuji": {"ht": "6'2\"", "wt": 326}, "Kinbozan": {"ht": "6'5\"", "wt": 395}, "Shishi": {"ht": "6'4\"", "wt": 390}, "Onokatsu": {"ht": "6'1\"", "wt": 364}, "Kazuma": {"ht": "6'1\"", "wt": 452}, "Asakoryu": {"ht": "5'10\"", "wt": 276}, "Daiseizan": {"ht": "6'4\"", "wt": 362}, "Asasuiryu": {"ht": "5'9\"", "wt": 265}, "Tokihayate": {"ht": "5'10\"", "wt": 300}, "Toshinofuji": {"ht": "6'5\"", "wt": 333}, "Shonannoumi": {"ht": "6'4\"", "wt": 403}};
 
-// Mawashi (belt) colors → drawn as a dot on standings, after the name and before height.
-// SOURCE OF TRUTH is the "Mawashi Color" text field in the Master Rikishi Notion DB, where the
-// crew logs the color in words ("cherry blossom pink", "British racing green", "dark muted raspberry").
-// This map is that field translated to hex — regenerate it when new colors are logged (query Master
-// Rikishi's Ring Name + Mawashi Color, run each word through the crew's word→hex reads). A wrestler
-// with no entry here simply gets a faint empty ring on standings. (Kept hand-maintained like HT_WT so
-// the publish stays a pure sumo-api pull — no Notion call in the hot path.)
 const MAWASHI = {"Abi":"#191970","Aonishiki":"#004225","Asahakuryu":"#16305c","Asakoryu":"#b7302a","Asanoyama":"#5a2a52","Atamifuji":"#7e3a4f","Chiyoshoma":"#a9762f","Churanoumi":"#6a3d9a","Daieisho":"#932c50","Daiseizan":"#5d2e8e","Fujinokawa":"#2f6fc0","Fujiryoga":"#16305c","Fujiseiun":"#191970","Gonoyama":"#191970","Hakunofuji":"#8a7b68","Hiradoumi":"#2b1a47","Hoshoryu":"#10132e","Ichiyamamoto":"#17a088","Kazuma":"#191970","Kinbozan":"#8c8c8c","Kirishima":"#3a2b3a","Kotoeiho":"#5b73a0","Kotoshoho":"#aebfca","Kotozakura":"#7fd8cf","Mitakeumi":"#bf3d67","Nishikifuji":"#c096bf","Oho":"#47215e","Onokatsu":"#9a9a9a","Onosato":"#191970","Oshoma":"#c6c6c6","Roga":"#302a63","Sadanoumi":"#7d8894","Shishi":"#1c1c1c","Shodai":"#1c1c1c","Takanosho":"#b7302a","Takayasu":"#16305c","Takerufuji":"#ab8fd0","Tobizaru":"#adbccb","Ura":"#ffb7c5","Wakamotoharu":"#1c1c1c","Wakanosho":"#191970","Wakatakakage":"#16215e","Yoshinofuji":"#2b1a47"};
 
 const RESULT = { "win":"w", "fusen win":"w", "loss":"l", "fusen loss":"l", "absent":"a", "":"" };
@@ -55,10 +50,6 @@ async function getBanzuke(){
   return res.json();
 }
 
-// The yusho (Makuuchi champion) — from sumo-api's basho endpoint. The `yusho` array is EMPTY
-// until the tournament is officially over, so mid-basho this returns null and no champion is ever
-// baked into the page. That's the data-layer half of the spoiler defense; the client ALSO gates the
-// crown behind the viewer's final-day watch-guard (defense in depth). CHAMPION_NAME is a test hook.
 async function fetchChampionName(){
   if(process.env.CHAMPION_NAME !== undefined) return process.env.CHAMPION_NAME || null;
   try{
@@ -71,7 +62,6 @@ async function fetchChampionName(){
   }catch(e){ return null; }
 }
 
-// Age = static fact, never gated. Pulled per-wrestler from sumo-api; blank on any miss.
 async function fetchBirth(id){
   try{
     const res = await fetch(`https://www.sumo-api.com/api/rikishi/${id}`);
@@ -94,10 +84,9 @@ async function main(){
   const all = [...(b.east||[]), ...(b.west||[])];
   all.sort((x,y)=> (x.rankValue-y.rankValue) || String(x.shikonaEn).localeCompare(String(y.shikonaEn)));
 
-  // ages fetched in parallel from the rikishi endpoint (aligned to `all` by index)
   const ages = await Promise.all(all.map(r => fetchBirth(r.rikishiID).then(ageFrom)));
 
-  const dayDecided = Array(TOTAL_DAYS).fill(0); // decided (win/loss, incl. fusen) results per day across the roster
+  const dayDecided = Array(TOTAL_DAYS).fill(0);
   const DATA = all.map((r,idx)=>{
     const {rank, rc} = rankInfo(r.rank);
     const days = Array(TOTAL_DAYS).fill("");
@@ -105,28 +94,17 @@ async function main(){
       if(i>=TOTAL_DAYS) return;
       const code = RESULT[rec.result] ?? "";
       days[i] = code;
-      if(code==="w"||code==="l") dayDecided[i]++;   // only real results advance the day; "absent"/"" do not
+      if(code==="w"||code==="l") dayDecided[i]++;
     });
     const hw = HT_WT[r.shikonaEn] || {ht:"", wt:""};
     const mc = MAWASHI[r.shikonaEn];
-    // Head-crop avatar: attach only if build-headshots has already committed one for this wrestler.
-    // slug must match build-headshots.mjs (lowercase, strip accents + non-alphanumerics).
     const slug = String(r.shikonaEn).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
     const shotPath = `img/headshots/${slug}.png`;
     const shot = fs.existsSync(shotPath) ? shotPath : null;
     return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt, age:ages[idx], ...(mc?{color:mc}:{}), ...(shot?{shot}:{}) };
   });
-  // A day with ZERO decided bouts hasn't been fought yet (the whole basho pre-Day-1, or a day not
-  // yet posted). sumo-api marks those days "absent", which renders as kyujo/out — wrong. Blank every
-  // wrestler's cell on any undecided day so it reads as "not played," never absent.
-  for(let i=0;i<TOTAL_DAYS;i++){
-    if(dayDecided[i]===0){ for(const row of DATA) row.days[i]=""; }
-  }
-  // MAX_DAY = last day that's actually CONTESTED and essentially complete, so the day-picker never
-  // offers a day that's only been *scheduled* (absent markers appear before bouts are fought) or is
-  // still mid-population. "Complete" = decided-bout count near the fullest day, or a later day has data.
   const fullSlate = Math.max(0, ...dayDecided);
-  const rosterFloor = Math.floor(all.length / 2); // full Makuuchi day ≈ roster/2; floors the first-day case
+  const rosterFloor = Math.floor(all.length / 2);
   const expectedFull = Math.max(fullSlate, rosterFloor);
   const DAY_TOL = 3;
   let MAX_DAY = 1;
@@ -136,10 +114,6 @@ async function main(){
     if(cnt>0 && ((cnt >= expectedFull - DAY_TOL) || laterHasData)) MAX_DAY = d;
   }
 
-  // ── Champion (yusho) ──────────────────────────────────────────────────────
-  // Name comes from the API (correct even after a playoff — records alone can't name a playoff winner).
-  // The `playoff` flag is DERIVED from the roster we just built: if more than one wrestler finished on
-  // the top win-count, a playoff decided it. record is left to the page (single source: it re-sums DATA).
   const champName = await fetchChampionName();
   let champion = null;
   if(champName){
@@ -149,24 +123,30 @@ async function main(){
     champion = { name: champName, playoff: maxW > 0 && tiedAtTop > 1 };
   }
 
-   let out = fs.readFileSync(TARGET,"utf8");
+  let out = fs.readFileSync(TARGET,"utf8");
+  // Match MAX_DAY + CHAMPION + DATA as one block so re-runs stay idempotent (CHAMPION seeded as null in the template).
   const re = /const MAX_DAY=\d+;\r?\nconst CHAMPION=[\s\S]*?;\r?\nconst DATA=\[[\s\S]*?\];/;
   if(!re.test(out)) throw new Error("data block not found in "+TARGET+" (expected MAX_DAY / CHAMPION / DATA lines)");
   out = out.replace(re, `const MAX_DAY=${MAX_DAY};\nconst CHAMPION=${JSON.stringify(champion)};\nconst DATA=${JSON.stringify(DATA)};`);
-  // Header basho label — derived from BASHO, stamped into title/h1/gate every publish. Idempotent.
+
+  // Header basho label — DERIVED from BASHO and stamped into title / h1 / gate every publish, so it
+  // never freezes on the old basho. Anchors on the FIXED surrounding text (not the old basho name),
+  // so it's idempotent and doesn't care what's currently there. Skipped if the code doesn't resolve.
   const LABEL = bashoLabel(BASHO);
   if(LABEL){
+    const before = out;
     out = out.replace(/(<title>Salt Stats & Sumo · ).*?( Standings<\/title>)/, `$1${LABEL}$2`)
              .replace(/(<h1>).*?( · Makuuchi Standings<\/h1>)/,               `$1${LABEL}$2`)
              .replace(/(<h2>).*?( is in progress<\/h2>)/,                     `$1${LABEL}$2`);
-  } else console.warn(`header not stamped — BASHO ${BASHO} didn't resolve to a name`);
+    console.log(out!==before ? `header stamped -> ${LABEL}` : `header already ${LABEL} (or anchors not found)`);
+  } else {
+    console.warn(`header not stamped — BASHO ${BASHO} didn't resolve to a name (odd month?)`);
+  }
+
   fs.writeFileSync(TARGET, out);
   console.log(`OK roster=${DATA.length} maxDay=${MAX_DAY} champion=${champion?champion.name+(champion.playoff?" (playoff)":""):"none"} (source: sumo-api ${BASHO})`);
 
-  // Keep the homepage badge's day in sync. index.html has a hardcoded "· in progress · Day N";
-  // the publish pipeline otherwise only rebuilds standings.html, so the front page would freeze
-  // at whatever day it was last hand-edited (that's the "stuck on Day 6" bug). Non-fatal: if the
-  // file or pattern is missing, we log and move on rather than break the standings publish.
+  // Keep the homepage badge's day in sync.
   try {
     const IDX = 'index.html';
     if (fs.existsSync(IDX)) {
