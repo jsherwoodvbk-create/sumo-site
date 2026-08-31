@@ -217,10 +217,13 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["","","","",
   const _defDir={rank:1,name:1,ht:-1,wt:-1,age:-1,record:-1};
   let sortKey="record",sortDir=-1;
   function render(){
+        // Before Day 1 everyone has 0 bouts — that's "not fought yet," not kyujo. A real kyujo needs
+    // the basho actually under way (someone, somewhere, has a decided result).
+    const STARTED = DATA.some(x=>(x.days||[]).some(v=>v==='w'||v==='l'));
     const rows=DATA.map(x=>{
       let win=0,loss=0,bouts=0;
       for(let d=0;d<thruDay;d++){const r=x.days[d];if(r==='w'){win++;bouts++;}else if(r==='l'){loss++;bouts++;}}
-      return {...x,win,loss,kyujo:bouts===0};
+      return {...x,win,loss,kyujo:STARTED&&bouts===0};
     });
     rows.sort((a,b)=>(a.kyujo-b.kyujo)||(sortDir*_base[sortKey](a,b))||a.name.localeCompare(b.name));
     // Champion (yusho) is a final-day RESULT: reveal ONLY when the viewer is caught up to the last day
@@ -235,8 +238,10 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["","","","",
         if(d>=thruDay){strip+='<span class="cell hidden"></span>';}
         else{const v=r.days[d];strip+= v==='w'?'<span class="cell w"></span>':v==='l'?'<span class="cell l"></span>':'<span class="cell abs" title="no bout"></span>';}
       }
-      let cls="",badge="",rec;
-      if(r.kyujo){
+            let cls="",badge="",rec;
+      if(!STARTED){
+        rec='<td class="rec"></td>';   // pre-start: no bouts fought yet — blank, not "out"
+      }else if(r.kyujo){
         cls=" ky";badge='<span class="badge">kyujo</span>';
         rec='<td class="rec ky"><span class="kyt">out</span>'+badge+'</td>';
       }else{
