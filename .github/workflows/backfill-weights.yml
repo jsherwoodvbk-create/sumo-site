@@ -1,0 +1,47 @@
+# .github/workflows/backfill-weights.yml
+# ONE-TIME (per basho, as needed) — fill Weight (kg) on Banzuke entries that were created without it.
+# Safe + idempotent: writes ONLY Weight (kg), ONLY where currently empty, never overwrites. Defaults
+# to a DRY census; set dry_run=false to write. Delete this workflow after Aki if you like — the fixed
+# setup-basho.mjs handles weight for all future drops, so this is only for retroactive fills.
+name: backfill-weights
+
+on:
+  workflow_dispatch:
+    inputs:
+      basho:
+        description: 'sumo-api basho code YYYYMM (e.g. 202609 = Aki 2026)'
+        required: true
+        default: '202609'
+      basho_label:
+        description: 'Banzuke entry-title label — must match char-for-char'
+        required: true
+        default: 'Aki 2026'
+      tournament_page_id:
+        description: 'Notion Bashos page ID for this basho (dashed UUID)'
+        required: true
+        default: '3351ade1-241f-8011-8987-d959538f54a0'
+      dry_run:
+        description: 'true = census only (no writes); false = write to Notion'
+        required: true
+        default: 'true'
+
+permissions:
+  contents: read
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Backfill Banzuke Weight (kg)
+        env:
+          # WRITE-scoped token — this PATCHes Banzuke pages, so the read-only NOTION_TOKEN would 403.
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN_WRITE }}
+          BASHO: ${{ inputs.basho }}
+          BASHO_LABEL: ${{ inputs.basho_label }}
+          TOURNAMENT_PAGE_ID: ${{ inputs.tournament_page_id }}
+          DRY_RUN: ${{ inputs.dry_run == 'true' && '1' || '0' }}
+        run: node backfill-weights.mjs
