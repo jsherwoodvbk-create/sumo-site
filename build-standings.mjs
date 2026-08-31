@@ -108,6 +108,12 @@ async function main(){
     const shot = fs.existsSync(shotPath) ? shotPath : null;
     return { name:r.shikonaEn, rank, rc, days, ht:hw.ht, wt:hw.wt, age:ages[idx], ...(mc?{color:mc}:{}), ...(shot?{shot}:{}) };
   });
+  // A day with ZERO decided bouts hasn't been fought yet (the whole basho pre-Day-1, or a day not
+  // yet posted). sumo-api marks those days "absent", which renders as kyujo/out — wrong. Blank every
+  // wrestler's cell on any undecided day so it reads as "not played," never absent.
+  for(let i=0;i<TOTAL_DAYS;i++){
+    if(dayDecided[i]===0){ for(const row of DATA) row.days[i]=""; }
+  }
   // MAX_DAY = last day that's actually CONTESTED and essentially complete, so the day-picker never
   // offers a day that's only been *scheduled* (absent markers appear before bouts are fought) or is
   // still mid-population. "Complete" = decided-bout count near the fullest day, or a later day has data.
