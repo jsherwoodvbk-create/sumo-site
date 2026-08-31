@@ -6,6 +6,10 @@
 .wrap{max-width:1040px;margin:0 auto;padding:22px 14px 60px}
 header.site{background:repeating-linear-gradient(178deg,rgba(0,0,0,.14) 0 1px,transparent 1px 4px),linear-gradient(160deg,#6e4826,#432a15);color:#fff;border-radius:14px;padding:18px 22px;border:1px solid #38230f;box-shadow:0 8px 22px rgba(50,30,10,.28);margin-bottom:14px}
 header.site h1{margin:0 0 3px;font-size:23px}header.site p{margin:0;color:#f0e6d0;opacity:.9;font-size:13.5px}
+.hbrand{display:flex;align-items:center;gap:14px}
+.homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease,box-shadow .12s ease}
+.homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+.homecrest img{width:100%;height:100%;object-fit:cover;display:block}
 h2{font-size:16px;margin:22px 0 8px;color:var(--ink)}
 .note{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:13px;margin:10px 0}
 table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px}
@@ -30,7 +34,7 @@ td{padding:7px 8px;border-bottom:1px solid #efe3c6}
 .legend{font-size:12px;color:var(--muted);margin-top:8px}.legend b{color:var(--ink)}
 </style>
 <div class="wrap">
-<header class="site"><h1>🏵️ Aki 2026 · Prediction Grade</h1><p>Everyone's banzuke picks next to where the wrestlers actually landed. Lowest score wins: each pick counts the rungs it missed by.</p></header>
+<header class="site"><div class="hbrand"><div><h1>🏵️ Aki 2026 · Prediction Grade</h1><p>Everyone's banzuke picks next to where the wrestlers actually landed. Lowest score wins: each pick counts the rungs it missed by.</p></div><a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a></div></header>
 
 <h2>Leaderboard · the crew's crown</h2>
 <table class="board"><thead><tr><th>#</th><th>Player</th><th class="n">Score</th><th class="n">Bonus</th><th class="n">Final</th><th class="n">Points</th></tr></thead><tbody>
@@ -95,3 +99,15 @@ td{padding:7px 8px;border-bottom:1px solid #efe3c6}
 
 <p class="legend" style="margin-top:22px">Rank codes: Y·O·S·K = the named ranks, M1–M17 = Maegashira, Jd = fell to Juryo, R = predicted retired. Frozen picks from the crew's sheet; actual ranks from the Notion Banzuke.</p>
 </div>
+<script>
+/* surface-aware home crest: home follows the surface you're browsing (app hub vs public site). */
+(function(){
+  var s=null;
+  try{ if(document.referrer){ var u=new URL(document.referrer);
+    if(u.origin===location.origin && u.pathname!==location.pathname)
+      s = u.pathname.indexOf('/app')===0 ? 'app' : 'site'; } }catch(e){}
+  if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
+  else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
+  if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
+})();
+</script>
