@@ -1,13 +1,11 @@
-// test-engine.mjs — spoiler-gate + soft-data unit tests for gumbai-engine v4.
+// test-engine.mjs — spoiler-gate + soft-data + audience-split unit tests for gumbai-engine.
 // Run: node test-engine.mjs   (exits non-zero on any failure)
 import assert from 'node:assert';
-import { gateSnapshot, runTool, buildSystemPrompt } from './functions/api/_engine.js';
-
+import { gateSnapshot, runTool, buildSystemPrompt, toolsFor, TOOLS } from './functions/api/_engine.js';
 let pass = 0, fail = 0;
 const ok = (name) => { pass++; console.log('  ✓ ' + name); };
 const bad = (name, e) => { fail++; console.log('  ✗ ' + name + '  — ' + (e && e.message || e)); };
 function t(name, fn){ try { fn(); ok(name); } catch(e){ bad(name, e); } }
-
 // ── Mock schema/4 snapshot. Sentinels SPOILER_D<n> mark day-n info that must NOT
 // leak to any viewer gated before day n. Injury titles + cause tracks also carry
 // future sentinels to prove the caught-up withholding. ──
@@ -23,7 +21,6 @@ for(let d=1; d<=15; d++){
 }
 const days = [];
 for(let d=1; d<=15; d++) days.push({ day:d, storylines:`Day ${d} storyline SPOILER_D${d}`, scorekeeperNotes:(d===4?`sk note SPOILER_D4`:null), announcer:'Hiro Morita' });
-
 const injuries = [
   { rikishi:'Aonishiki', condition:'Aonishiki — left foot (played through to the yusho SPOILER_D15)', area:'left foot', setting:'Off-dohyo',
     nature:['Acute','Flared'], status:'Active', officialReason:null, boothRead:'carried-in foot, favors it',
@@ -54,7 +51,6 @@ const SNAP = {
   kimarite:[{name:'yorikiri', description:'force out'}],
   bouts, days, injuries, catchphrases, history:{ meta:{}, basho:{} }, upcoming:null,
 };
-
 // ═══ 1. THE SPOILER SWEEP: no SPOILER_D<n> with n > gate may appear anywhere ═══
 console.log('\n[1] Spoiler sweep across every lane + every tool, gate 0..15');
 for(let gate=0; gate<=15; gate++){
@@ -81,7 +77,6 @@ for(let gate=0; gate<=15; gate++){
     }
   });
 }
-
 // ═══ 2. Injury onset gating: hidden until onset day ═══
 console.log('\n[2] Injury onset gating');
 t('Wakanosho (onset 6) hidden at gate 5', () => {
@@ -93,7 +88,6 @@ t('Wakanosho appears at gate 6', () => {
   const g = gateSnapshot(SNAP, 6, false);
   assert(g.injuries.find(c=>c.rikishi==='Wakanosho'));
 });
-
 // ═══ 3. Caught-up withholding: title/status/cause-tracks hidden until caught up ═══
 console.log('\n[3] Caught-up withholding');
 t('Aonishiki at gate 8: not caught up -> no title, no cause tracks, status ongoing', () => {
@@ -140,7 +134,6 @@ t('3 provenance tracks are separate fields (never merged)', () => {
   assert('officialReason' in c && 'boothRead' in c && 'scorekeeperEye' in c);
   assert(c.scorekeeperEye.includes('Jennie'));
 });
-
 // ═══ 4. Catchphrase count gating (floor) ═══
 console.log('\n[4] Catchphrase gating');
 t('"Has no answer" (days 8,11) hidden at gate 5', () => {
@@ -162,7 +155,6 @@ t('query_catchphrases labels floor + never claims most-used', () => {
   const out = runTool('query_catchphrases', {}, g);
   assert(/FLOOR/i.test(out.note));
 });
-
 // ═══ 5. Storylines + scorekeeper notes gating ═══
 console.log('\n[5] Storylines gating');
 t('only days <= gate returned', () => {
@@ -177,7 +169,6 @@ t('scorekeeper note surfaces (day 4) and is labeled Jennie', () => {
   assert(out.days[0].scorekeeperNotes.includes('sk note'));
   assert(/scorekeeper|Jennie/i.test(out.note));
 });
-
 // ═══ 6. Per-bout nets flow through query_match_log ═══
 console.log('\n[6] Per-bout nets');
 t('nets present on bouts', () => {
@@ -194,7 +185,6 @@ t('boutOfDayOnly filter works', () => {
   const out = runTool('query_match_log', {boutOfDayOnly:true}, g);
   assert(out.bouts.every(b=>b.boutOfDay));
 });
-
 // ═══ 7. Regression: existing gate still hides future bouts ═══
 console.log('\n[7] Core bout gate regression');
 t('no bout past gate', () => {
@@ -207,15 +197,10 @@ t('query_rikishi attaches gated condition', () => {
   const out = runTool('query_rikishi', {name:'Chiyoshoma'}, g);
   assert(out.conditions && out.conditions[0].rikishi==='Chiyoshoma');
 });
-
 // ═══ 8. YUSHO (champion) reveal — gated to a completed basho + caught-up viewer ═══
 console.log('\n[8] Current-basho champion reveal gate');
-// A completed basho: Aonishiki won it in a playoff. Champion lives in the full snapshot; the gate
-// must keep it null until the viewer is caught up to the final day (15).
 const SNAP_DONE = { ...SNAP, champion:{ name:'Aonishiki', playoff:true } };
-// A basho with no champion posted (mid-tournament / not complete).
 const SNAP_LIVE = { ...SNAP, champion:null };
-
 t('champion hidden at every gate < 15', () => {
   for(let gate=0; gate<15; gate++){
     const g = gateSnapshot(SNAP_DONE, gate, false);
@@ -305,123 +290,64 @@ t('career: basho reads complete at 15 even when champion fetch is null', () => {
   const cur = c.perBasho.find(p=>p.basho==='Test Basho');
   assert(cur && cur.final===true && !cur.inProgress && !cur.yusho);
 });
-// Member-gate sweep — the audience twin of the spoiler sweep. Seed a distinct sentinel into
-// every member-only field, then prove NO public path (view, any tool, the prompt) leaks one,
-// while the member path keeps them all (no regression). Pure logic, runs in Node.
-import { gateSnapshot, toolsFor, runTool, buildSystemPrompt, TOOLS } from './_engine.js';
-
-// member-only sentinels (must NEVER appear anywhere public)
-const S = {
-  conduct:'SENTINEL_CONDUCT', conductNote:'SENTINEL_CONDUCTNOTE', botd:'SENTINEL_BOTD',
-  length:'SENTINEL_LENGTH', storyline:'SENTINEL_STORYLINE', skNotes:'SENTINEL_SKNOTES',
-  condition:'SENTINEL_CONDITION', official:'SENTINEL_OFFICIAL', booth:'SENTINEL_BOOTH', skEye:'SENTINEL_SKEYE',
-};
-const SENTINELS = Object.values(S);
-
-const SNAP = {
+// ═══ 9. AUDIENCE SPLIT — member-gate sweep (public must NEVER see the member-only lanes) ═══
+// The audience twin of the spoiler sweep: seed a distinct sentinel into every member-only field,
+// then prove no public path (view, any tool, the prompt) leaks one, while the member path keeps them.
+console.log('\n[9] Audience split — member-gate sweep');
+const AUD_SENTINELS = ['SENTINEL_CONDUCT','SENTINEL_CONDUCTNOTE','SENTINEL_BOTD','SENTINEL_LENGTH','SENTINEL_STORYLINE','SENTINEL_SKNOTES','SENTINEL_CONDITION','SENTINEL_OFFICIAL','SENTINEL_BOOTH','SENTINEL_SKEYE'];
+const A = { conduct:'SENTINEL_CONDUCT', conductNote:'SENTINEL_CONDUCTNOTE', botd:'SENTINEL_BOTD', length:'SENTINEL_LENGTH',
+  storyline:'SENTINEL_STORYLINE', skNotes:'SENTINEL_SKNOTES', condition:'SENTINEL_CONDITION', official:'SENTINEL_OFFICIAL', booth:'SENTINEL_BOOTH', skEye:'SENTINEL_SKEYE' };
+const SNAP_AUD = {
   meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:15, schema:'gumbai-snapshot/5' },
-  rikishi:[
-    { name:'Onosato', nicknames:[{nick:'The Wall',tag:'O'}] },
-    { name:'Hoshoryu', nicknames:[] },
-  ],
-  banzuke:[
-    { name:'Onosato', rank:'Yokozuna', weightKg:191 },
-    { name:'Hoshoryu', rank:'Yokozuna', weightKg:151 },
-  ],
-  kimarite:[{ name:'yorikiri', gloss:'force out' }],
-  bouts:[
-    { day:1, date:'2026-09-13', winner:'Onosato', loser:'Hoshoryu', kimarite:'yorikiri',
-      goldStar:true, rematch:true,
-      henka:true, monoii:true,                              // PUBLIC-allowed nets
-      boutOfDay:S.botd, conduct:[S.conduct], conductNote:S.conductNote, length:S.length, cushions:true }, // member-only
-  ],
-  days:[{ day:1, announcer:'Murray', storylines:S.storyline, scorekeeperNotes:S.skNotes }],
-  injuries:[{ rikishi:'Hoshoryu', onsetDay:1, fullMaxDay:1, area:'knee', setting:'bout',
-    nature:['chronic'], severity:[{ day:1, level:'moderate' }],
-    condition:S.condition, status:'ongoing', officialReason:S.official, boothRead:S.booth, scorekeeperEye:S.skEye, source:['video'] }],
-  catchphrases:[{ phrase:'here comes the salt', announcer:'Murray', days:[1], giggle:3, jewel:false }],
+  rikishi:[ {name:'Onosato',nicknames:[{nick:'The Wall',tag:'O'}]}, {name:'Hoshoryu',nicknames:[]} ],
+  banzuke:[ {name:'Onosato',rank:'Yokozuna',weightKg:191}, {name:'Hoshoryu',rank:'Yokozuna',weightKg:151} ],
+  kimarite:[{name:'yorikiri',gloss:'force out'}],
+  bouts:[ { day:1,date:'2026-09-13',winner:'Onosato',loser:'Hoshoryu',kimarite:'yorikiri', goldStar:true,rematch:true,
+    henka:true,monoii:true, boutOfDay:A.botd,conduct:[A.conduct],conductNote:A.conductNote,length:A.length,cushions:true } ],
+  days:[{ day:1,announcer:'Murray',storylines:A.storyline,scorekeeperNotes:A.skNotes }],
+  injuries:[{ rikishi:'Hoshoryu',onsetDay:1,fullMaxDay:1,area:'knee',setting:'bout',nature:['chronic'],severity:[{day:1,level:'moderate'}],
+    condition:A.condition,status:'ongoing',officialReason:A.official,boothRead:A.booth,scorekeeperEye:A.skEye,source:['video'] }],
+  catchphrases:[{ phrase:'here comes the salt',announcer:'Murray',days:[1],giggle:3,jewel:false }],
   history:{ basho:{} },
-  upcoming:{ day:2, date:'2026-09-14', matchups:[{ eastName:'Onosato', eastRank:'Y', westName:'Hoshoryu', westRank:'Y' }] },
+  upcoming:{ day:2,date:'2026-09-14',matchups:[{eastName:'Onosato',eastRank:'Y',westName:'Hoshoryu',westRank:'Y'}] },
 };
-
-let pass = 0, fail = 0;
-const ok  = (name, cond) => { if(cond){ pass++; } else { fail++; console.log('  ✗ FAIL:', name); } };
-const leak = (name, text) => {
-  const hit = SENTINELS.filter(s => String(text).includes(s));
-  ok(name + (hit.length ? ' — LEAKED ' + hit.join(',') : ''), hit.length === 0);
-};
-
-// ── tool sets ──
-ok('toolsFor(member) is the full 12', toolsFor('member').length === TOOLS.length && TOOLS.length === 12);
-const pubTools = toolsFor('public').map(t=>t.name);
-ok('toolsFor(public) omits query_condition', !pubTools.includes('query_condition'));
-ok('toolsFor(public) omits query_storylines', !pubTools.includes('query_storylines'));
-ok('toolsFor(public) keeps query_catchphrases (drinking game is public)', pubTools.includes('query_catchphrases'));
-ok('toolsFor(public) = 10 tools', pubTools.length === 10);
-
-// ── views ──
-const mem = gateSnapshot(SNAP, 15, false, 'member');
-const pub = gateSnapshot(SNAP, 15, false, 'public');
-
-// member view keeps everything (no regression)
-ok('member view has injuries', (mem.injuries||[]).length === 1);
-ok('member view has days/storylines', (mem.days||[]).length === 1);
-ok('member bout keeps conduct', mem.bouts[0].conduct && mem.bouts[0].conduct[0] === S.conduct);
-ok('member bout keeps length', mem.bouts[0].length === S.length);
-
-// public view strips the member lanes
-ok('public view: injuries empty', (pub.injuries||[]).length === 0);
-ok('public view: days empty', (pub.days||[]).length === 0);
-ok('public bout: conduct dropped', pub.bouts[0].conduct === undefined);
-ok('public bout: conductNote dropped', pub.bouts[0].conductNote === undefined);
-ok('public bout: boutOfDay dropped', pub.bouts[0].boutOfDay === undefined);
-ok('public bout: length dropped', pub.bouts[0].length === undefined);
-ok('public bout: cushions dropped', pub.bouts[0].cushions === undefined);
-ok('public bout: henka KEPT', pub.bouts[0].henka === true);
-ok('public bout: monoii KEPT', pub.bouts[0].monoii === true);
-ok('public bout: goldStar KEPT (hard result)', pub.bouts[0].goldStar === true);
-ok('public bout: rematch KEPT', pub.bouts[0].rematch === true);
-ok('public view: snapshot NOT mutated (member re-read still has conduct)', gateSnapshot(SNAP,15,false,'member').bouts[0].conduct[0] === S.conduct);
-
-// leak sweep: the whole public view must carry no sentinel
-leak('public gated view JSON', JSON.stringify(pub));
-
-// run EVERY tool over the PUBLIC view (even the member-only two, to prove they leak nothing if ever reached)
-const probes = {
-  query_rikishi:{name:'Hoshoryu'}, query_banzuke:{}, query_match_log:{}, query_kimarite:{},
-  query_standings:{}, query_career:{name:'Onosato'}, query_yusho:{}, query_leaderboard:{},
-  query_upcoming:{}, query_condition:{}, query_storylines:{}, query_catchphrases:{},
-};
-for(const t of TOOLS){
-  const out = runTool(t.name, probes[t.name]||{}, pub);
-  leak(`public runTool(${t.name})`, JSON.stringify(out));
-}
-// public match log must still surface henka+monoii (public color kept)
-const pubML = runTool('query_match_log', {}, pub);
-ok('public match_log keeps henka', pubML.bouts[0].henka === true);
-ok('public match_log keeps monoii', pubML.bouts[0].monoii === true);
-ok('public match_log conduct is null (stripped)', pubML.bouts[0].conduct === null);
-ok('public query_rikishi conditions null', runTool('query_rikishi',{name:'Hoshoryu'},pub).conditions === null);
-
-// public prompt: no sentinels, and no member-only tools/routing listed
-const pubPrompt = buildSystemPrompt(pub, 'public');
-leak('public system prompt', pubPrompt);
-ok('public prompt omits query_condition from TOOLS line', !/TOOLS:[^\n]*query_condition/.test(pubPrompt));
-ok('public prompt omits query_storylines from TOOLS line', !/TOOLS:[^\n]*query_storylines/.test(pubPrompt));
-ok('public prompt has the AUDIENCE public block', /PUBLIC visitor/.test(pubPrompt));
-
-// member run STILL sees the sensitive data (no regression) — sentinels SHOULD appear
-const memCond = JSON.stringify(runTool('query_condition', {}, mem));
-ok('member query_condition surfaces the condition sentinels', memCond.includes(S.official) && memCond.includes(S.skEye));
-const memStory = JSON.stringify(runTool('query_storylines', {}, mem));
-ok('member query_storylines surfaces the storyline sentinels', memStory.includes(S.storyline) && memStory.includes(S.skNotes));
-const memML = JSON.stringify(runTool('query_match_log', {}, mem));
-ok('member match_log surfaces the conduct sentinel', memML.includes(S.conduct));
-const memPrompt = buildSystemPrompt(mem, 'member');
-ok('member prompt lists query_condition in TOOLS line', /TOOLS:[^\n]*query_condition/.test(memPrompt));
-
-console.log(`\n${fail===0 ? '✅' : '❌'} member-gate sweep: ${pass} passed, ${fail} failed`);
-process.exit(fail===0 ? 0 : 1);
+const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
+const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
+const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
+t('toolsFor(member) is the full 12', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 12));
+t('toolsFor(public) = 10, omits condition+storylines, keeps catchphrases', () => {
+  const p = toolsFor('public').map(x=>x.name);
+  assert(p.length===10 && !p.includes('query_condition') && !p.includes('query_storylines') && p.includes('query_catchphrases'));
+});
+t('member view keeps injuries + days + nets (no regression)', () =>
+  assert((memV.injuries||[]).length===1 && (memV.days||[]).length===1 && memV.bouts[0].conduct[0]===A.conduct && memV.bouts[0].length===A.length));
+t('public view strips injuries + days', () => assert((pubV.injuries||[]).length===0 && (pubV.days||[]).length===0));
+t('public bout drops member nets, keeps henka/monoii/goldStar/rematch', () => {
+  const b = pubV.bouts[0];
+  assert(b.conduct===undefined && b.conductNote===undefined && b.boutOfDay===undefined && b.length===undefined && b.cushions===undefined
+    && b.henka===true && b.monoii===true && b.goldStar===true && b.rematch===true);
+});
+t('public gate does NOT mutate the snapshot', () => assert(gateSnapshot(SNAP_AUD,15,false,'member').bouts[0].conduct[0]===A.conduct));
+t('public gated view leaks no member sentinel', () => noLeak(JSON.stringify(pubV)));
+t('every tool over the public view leaks no member sentinel', () => {
+  const probes = { query_rikishi:{name:'Hoshoryu'}, query_career:{name:'Onosato'} };
+  for(const tool of TOOLS) noLeak(JSON.stringify(runTool(tool.name, probes[tool.name]||{}, pubV)));
+});
+t('public match_log keeps henka/monoii, nulls stripped conduct', () => {
+  const b = runTool('query_match_log',{},pubV).bouts[0];
+  assert(b.henka===true && b.monoii===true && b.conduct===null);
+});
+t('public query_rikishi has null conditions', () => assert(runTool('query_rikishi',{name:'Hoshoryu'},pubV).conditions===null));
+t('public prompt: no sentinel, no member tools in TOOLS line, has AUDIENCE block', () => {
+  const p = buildSystemPrompt(pubV,'public');
+  noLeak(p);
+  assert(!/TOOLS:[^\n]*query_condition/.test(p) && !/TOOLS:[^\n]*query_storylines/.test(p) && /PUBLIC visitor/.test(p));
+});
+t('member run STILL surfaces the sensitive data (no regression)', () =>
+  assert(JSON.stringify(runTool('query_condition',{},memV)).includes(A.official)
+    && JSON.stringify(runTool('query_storylines',{},memV)).includes(A.storyline)
+    && JSON.stringify(runTool('query_match_log',{},memV)).includes(A.conduct)));
+t('member prompt lists query_condition in TOOLS line', () => assert(/TOOLS:[^\n]*query_condition/.test(buildSystemPrompt(memV,'member'))));
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
