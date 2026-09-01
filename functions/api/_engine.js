@@ -5,6 +5,11 @@
 //
 // SCHEMA gumbai-snapshot/4: adds the soft-data lanes (days/injuries/catchphrases +
 // per-bout nets). Every new lane is spoiler-gated here, the same discipline as bouts.
+//
+// AUDIENCE SPLIT (2026-08-31): gateSnapshot + toolsFor + buildSystemPrompt all take an
+// `audience` ('member' | 'public'). Public is the floor (reference + showcase), member is
+// additive (the sensitive lanes + depth). The split is enforced in DATA (public view is
+// stripped) AND in the tool set AND in the prompt — defense in depth, same as the day-gate.
 
 // ────────────────────────────────────────────────────────────────────────────
 // DAY GATE — the structural spoiler guarantee.
@@ -22,7 +27,7 @@
 // logged day. Until then they get body-part + gated severity + status "ongoing".
 // Bump this whenever the engine changes. Exposed at GET /api/gumbai so you can confirm, from a URL,
 // exactly which engine is live (no more guessing whether a deploy took).
-export const ENGINE_VERSION = 'gumbai-engine 2026-08-28 · champion-reveal + basho-complete + query_leaderboard + query_rollup';
+export const ENGINE_VERSION = 'gumbai-engine 2026-08-31 · champion-reveal + query_leaderboard + audience split (public/member)';
 
 function gateInjury(c, gate){
   const onset = Number.isInteger(c.onsetDay) ? c.onsetDay : (c.severity && c.severity[0] ? c.severity[0].day : 99);
@@ -54,14 +59,34 @@ function gateInjury(c, gate){
   return { ...base, status: 'ongoing', note: 'Later updates on this condition are past your day and not in view.' };
 }
 
+// ── AUDIENCE: the member-only per-bout net fields. Public keeps henka + monoii (basic/
+// official bout info) and the hard result fields; these five are the crew's observed color.
+const MEMBER_BOUT_NETS = ['conduct','conductNote','boutOfDay','length','cushions'];
+// Strip the crew's private/sensitive lanes from a already-day-gated view, for a public visitor.
+// Defense in depth: the public model never RECEIVES injuries, day storylines, or the member nets,
+// so even a tool/prompt bug can't leak what isn't there. Bouts are copied (never mutate the snapshot).
+function publicView(view){
+  return {
+    ...view,
+    injuries: [],                                  // injury/condition board = member only (real people's health)
+    days: [],                                      // day storylines + scorekeeper notes = member only
+    bouts: view.bouts.map(b => {
+      const nb = { ...b };
+      for(const k of MEMBER_BOUT_NETS) delete nb[k];
+      return nb;
+    }),
+  };
+}
+
 const FINAL_DAY = 15;   // an honbasho is 15 days; the yusho (playoff included) is settled on day 15.
-export function gateSnapshot(snapshot, day, showFull){
+export function gateSnapshot(snapshot, day, showFull, audience='member'){
   const ceiling = Number.isInteger(snapshot.meta?.maxDay) ? snapshot.meta.maxDay : 15;
   const gate = showFull ? ceiling : Math.max(0, Math.min(Number(day) || 0, ceiling));
-  return {
+  const view = {
     meta: { ...snapshot.meta },
     gate,
     showFull: !!showFull,
+    audience,
     rikishi: snapshot.rikishi,
     banzuke: snapshot.banzuke,
     kimarite: snapshot.kimarite,
@@ -87,6 +112,8 @@ export function gateSnapshot(snapshot, day, showFull){
     history: snapshot.history || null,
     upcoming: snapshot.upcoming || null,
   };
+  // AUDIENCE gate (defense in depth): strip the member-only lanes for a public visitor.
+  return audience === 'public' ? publicView(view) : view;
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -168,28 +195,7 @@ function summarize(name, bouts){
     goldStarWins: wins.filter(b=>b.goldStar).length,
   };
 }
-// ── MAWASHI FAMILY — the belt color's LAST WORD is the family (a Notion naming convention,
-// not a bucketer). Fixed word list; green also accepts "teal", grey accepts "gray". A last
-// word not in the list returns null → the tool flags it as unclassified (never miscounts). ──
-const MAWASHI_FAMILY_WORDS = {
-  purple:'purple', blue:'blue', red:'red', green:'green', teal:'green',
-  brown:'brown', black:'black', grey:'grey', gray:'grey', pink:'pink',
-};
-function mawashiFamily(colorText){
-  const t = String(colorText || '').trim();
-  if(!t) return null;
-  return MAWASHI_FAMILY_WORDS[t.split(/\s+/).pop().toLowerCase()] || null;
-}
 
-// ── ROLLUP REGISTRY — each groupable field maps a roster member to a group key.
-// A new consolidation = one row here (source + gate + key fn), never a new tool.
-// gate:'timeless' is gate-invariant; gate:'bouts' would compute over gated bouts. ──
-const ROLLUP_FIELDS = {
-  mawashiFamily: { source:'rikishi', gate:'timeless', validate:true,
-    label:'mawashi color family', key: r => mawashiFamily(r.mawashi) },
-  country:       { source:'rikishi', gate:'timeless',
-    label:'country of origin',   key: r => r.country || null },
-};
 // ── HISTORY HELPERS — past basho (Jan 2025 onward). NEVER gated. ──
 function historyBashoList(gated){
   const h = gated.history && gated.history.basho; if(!h) return [];
@@ -204,10 +210,6 @@ function careerFor(name, gated){
   }
   const cur=summarize(name, gated.bouts);
   const curBz=gated.banzuke.find(x=>x.name===name);
-  // "Basho complete" is a fact about the DAY, not about who won: once the viewer is caught up to the
-  // final day (gate >= 15, so day 15 is logged and watched), EVERY wrestler's current record is FINAL,
-  // champion or not. That is what tells Gumbai the basho is over. The yusho on top of that is only for
-  // whoever actually won it (champion in view). Before day 15, it's genuinely in progress.
   const bashoComplete = gated.gate >= FINAL_DAY;
   const wonCurrent = !!(gated.champion && gated.champion.name===name);
   const curLabel = (gated.meta&&gated.meta.basho)||'current';
@@ -242,7 +244,7 @@ function historyH2H(a, b, gated){
 export const TOOLS = [
   {
     name: 'query_rikishi',
-    description: "Look up one wrestler's profile: current rank & weight, country, age/birthday, height, highest rank, the crew's nicknames, the meaning of their shikona, their mawashi (belt) color, and any injury/condition the crew has logged this basho (spoiler-gated to your day, 3 provenance tracks kept separate). Accepts a shikona OR nickname OR mangled/voice-to-text spelling. Use for 'who is X', 'where's X from', 'is X hurt', 'what does X's name mean', 'how tall/old is X'.",
+    description: "Look up one wrestler's profile: current rank & weight, country, age/birthday, height, highest rank, the crew's nicknames, the meaning of their shikona, and any injury/condition the crew has logged this basho (spoiler-gated to your day, 3 provenance tracks kept separate). Accepts a shikona OR nickname OR mangled/voice-to-text spelling. Use for 'who is X', 'where's X from', 'is X hurt', 'what does X's name mean', 'how tall/old is X'.",
     input_schema: { type:'object', properties:{ name:{type:'string'} }, required:['name'] }
   },
   {
@@ -285,11 +287,6 @@ export const TOOLS = [
     description: "Cross-wrestler win-loss leaderboard SUMMED over a whole calendar year (or all tracked time), ranked best-first. This is the tool for 'who had the best record in 2025', 'most wins in 2026 so far', 'top records this year', 'year-to-date leader'. Adds up each wrestler's W-L across every tracked basho in that year (makuuchi, since Jan 2025) and ranks by total wins (win pct breaks ties). A completed year (e.g. 2025) is exact; a current year includes the in-progress basho only through the viewer's gated day (flagged). Optional: year (e.g. 2025; defaults to all tracked), top (limit the list).",
     input_schema: { type:'object', properties:{ year:{type:'integer'}, top:{type:'integer'} } }
   },
-    {
-    name: 'query_rollup',
-    description: "Consolidate the CURRENT makuuchi by a clean field: count the wrestlers in each group, ranked most-first. groupBy accepts 'mawashiFamily' (belt color family) or 'country'. Use for 'most common mawashi color', 'who wears blue', 'the color breakdown', 'how many wrestlers per country'. Every count is exact (colors follow a last-word family convention, so no guessing). Optional top limits the groups returned. If asked to group by something not offered, it returns the available fields instead of a number — say you can't total that one yet rather than inventing it. Current roster, not spoiler-gated. For ONE wrestler's own belt color, use query_rikishi.",
-    input_schema: { type:'object', properties:{ groupBy:{type:'string'}, top:{type:'integer'} } }
-  },
   {
     name: 'query_upcoming',
     description: "The NEXT day's scheduled card (torikumi): who is slated to fight whom. Optional name filters to one wrestler. UPCOMING matchups have NO results, so they are NOT spoilers and are safe to share in full, even for a viewer behind on their days. Returns available:false when the next card is not posted yet or the basho is over.",
@@ -312,6 +309,14 @@ export const TOOLS = [
   }
 ];
 
+// AUDIENCE: the public tool set omits the sensitive member-only tools (their data is stripped from
+// the public view anyway — belt and suspenders). Members get the full set. (The phase-2 caliber
+// roster leaderboard, once built, is member-only too and would be added here.)
+const PUBLIC_OMIT_TOOLS = new Set(['query_condition','query_storylines']);
+export function toolsFor(audience){
+  return audience === 'public' ? TOOLS.filter(t => !PUBLIC_OMIT_TOOLS.has(t.name)) : TOOLS;
+}
+
 export function runTool(toolName, input, gated){
   input = input || {};
   switch(toolName){
@@ -331,9 +336,8 @@ export function runTool(toolName, input, gated){
         age: ageFrom(r.birthday),
         heightCm: r.heightCm ?? null,
         highestRank: r.highestRank ?? null,
-        mawashi: r.mawashi ?? null,
         nicknames: (r.nicknames||[]).map(n=>({ nick:n.nick, kind:n.tag==='O'?'crew':'official' })),
-        conditions: conditions.length ? conditions : null,      // gated 3-track condition(s), if any in view
+        conditions: conditions.length ? conditions : null,      // gated 3-track condition(s), if any in view (public: always null)
         injuryNote: r.injuryNotes ?? null,                      // free-text master-data note (secondary)
         shikonaMeaning: r.shikonaMeaning ?? null,
       };
@@ -406,9 +410,6 @@ export function runTool(toolName, input, gated){
     case 'query_yusho': {
       const list = historyBashoList(gated).reverse();
       const curLabel = (gated.meta && gated.meta.basho) || 'current';
-      // The current basho's champion is revealed ONLY when it is in view (basho complete AND the
-      // viewer is caught up to the final day — gateSnapshot handles that). When it is, treat it as
-      // the most-recent, decided yusho. Otherwise it is honestly undecided-in-view.
       const champ = gated.champion || null;
       if(input.name){
         const res = resolveName(input.name, gated.rikishi); const name = res.name || input.name;
@@ -431,8 +432,6 @@ export function runTool(toolName, input, gated){
           : 'past basho since Jan 2025, most recent first; the current basho is undecided in your view (not yet caught up to the final day, or still in progress).' };
     }
     case 'query_leaderboard': {
-      // Year-spanning, cross-wrestler W-L sum + ranking. History (past basho) is never gated; the
-      // current basho contributes ONLY its gated portion (through the viewer's day), and is flagged.
       const year = Number.isInteger(input.year) ? input.year : null;
       const bashoYear = b => {
         const c = String(b.code || '');
@@ -450,7 +449,6 @@ export function runTool(toolName, input, gated){
         bashosCounted.push(b.label);
         for(const r of (b.rikishi || [])) bump(r.name, r.wins, r.losses, (b.yusho||[]).includes(r.name));
       }
-      // fold in the current basho if it falls in the requested year (gated — partial until day 15)
       let currentBasho = null;
       const curYear = (() => {
         const c = String((gated.meta && gated.meta.bashoId) || '');
@@ -532,37 +530,6 @@ export function runTool(toolName, input, gated){
         phrases: list.map(c=>({ phrase:c.phrase, announcer:c.announcer||null, daysHeard:c.count, timeless:!!c.timeless, giggle:c.giggle??null, jewel:!!c.jewel })),
         note:'Counts are a FLOOR (at least N days) — the table under-captures, so never claim "his most-used." Giggle (1-5) and jewel are the crew\'s sparse human favorites. Pure booth-personality fun.' };
     }
-        case 'query_rollup': {
-      const field = ROLLUP_FIELDS[input.groupBy];
-      if(!field) return { found:false, error:'unknown_groupBy', requested: input.groupBy || null,
-        available: Object.keys(ROLLUP_FIELDS),
-        note:`I can't total by "${input.groupBy}" from our data. I can group by: ${Object.keys(ROLLUP_FIELDS).join(', ')}.` };
-      const profByName = new Map(gated.rikishi.map(r => [r.name, r]));
-      const roster = gated.banzuke.map(b => profByName.get(b.name)).filter(Boolean);
-      const groups = new Map();
-      const unclassified = [];
-      for(const r of roster){
-        const key = field.key(r);
-        if(key == null){ if(field.validate) unclassified.push({ name:r.name, value: r.mawashi ?? null }); continue; }
-        if(!groups.has(key)) groups.set(key, []);
-        groups.get(key).push(r.name);
-      }
-      let list = [...groups.entries()].map(([key, members]) => ({ key, count: members.length, members }))
-        .sort((a,b) => b.count - a.count || String(a.key).localeCompare(String(b.key)));
-      const total = roster.length;
-      const classified = list.reduce((n,g) => n + g.count, 0);
-      const leader = list.length ? { key:list[0].key, count:list[0].count } : null;
-      if(Number.isInteger(input.top)) list = list.slice(0, input.top);
-      const out = { found:true, scope:'current makuuchi', groupBy: input.groupBy, measure:'count',
-        total, classified, leader, groups: list,
-        ...(field.gate === 'bouts' ? { throughDay: gated.gate } : {}),
-        note:`Counted the ${total} wrestlers in the current makuuchi by ${field.label}, most first. Every count is exact.` };
-      if(field.validate && unclassified.length){
-        out.unclassified = unclassified;
-        out.note += ` NOTE: ${unclassified.length} wrestler(s) have a ${field.label} value off the naming convention and were left out until fixed.`;
-      }
-      return out;
-    }
     default:
       return { error:`unknown tool ${toolName}` };
   }
@@ -571,32 +538,57 @@ export function runTool(toolName, input, gated){
 // ────────────────────────────────────────────────────────────────────────────
 // SYSTEM PROMPT — identity, voice, the two lanes, spoiler discipline, tool rules.
 // No em dashes / markdown (the model mirrors what it is shown; the chat renders raw).
-export function buildSystemPrompt(gated){
+// AUDIENCE-aware: public gets the same voice + fewer tools + a super-soft, on-point-only
+// membership whisper; the sensitive lanes (injuries, storylines, member nets) are absent.
+export function buildSystemPrompt(gated, audience='member'){
+  const isPublic = (audience === 'public') || (gated && gated.audience === 'public');
   const roster = gated.rikishi.map(r=>{
     const nicks=(r.nicknames||[]).map(n=>`${n.nick}(${n.tag})`).join(', ');
     return `- ${r.name}${nicks?` [${nicks}]`:''}`;
   }).join('\n');
   const full = gated.showFull ? ', full-results view is ON for this question' : '';
+  const toolList = toolsFor(isPublic ? 'public' : 'member').map(t=>t.name).join(', ');
+
+  const audienceBlock = isPublic
+    ? `AUDIENCE: you are answering a PUBLIC visitor on the open site (not a logged-in crew member). Same you, same voice. What you do NOT have for them: the crew's private lanes are members-only and not in your view at all: the injury/condition board, the day storylines and scorekeeper notes, and the per-bout crew color (conduct, bout-of-the-day, match length, cushions). Do not reference them or imply they exist; if asked, just say that's the crew's own tracking. You DO have everything else: all the hard data and history, the banzuke, kimarite, standings, the year leaderboard, upcoming cards, mawashi/country rollups, and the announcer catchphrases (the drinking game is a public feature). MEMBERSHIP: only if the visitor asks for exactly the kind of thing the crew gets MORE of (e.g. a deep per-opponent caliber breakdown), you MAY, at most once in the whole conversation and very softly, mention the crew sees more. Never pitch, never repeat, never bring it up on your own.`
+    : `AUDIENCE: you are answering a logged-in CREW member. Full oracle: every tool and every lane, including the sensitive ones below.`;
+
+  const softDataList = isPublic
+    ? 'the henka and monoii flags on a bout (basic bout info), and the announcer catchphrases'
+    : 'match nets (bout-of-the-day, conduct, henka, monoii, match length, cushions), day storylines, an injury/condition board, and announcer catchphrases';
+
+  // Member-only soft-data handling rules (injuries / scorekeeper / length / storylines) — omitted for
+  // public, whose view has none of that data.
+  const memberSoftRules = isPublic ? '' :
+`- INJURIES carry THREE separate tracks and you must NEVER collapse them into one cause: officialReason is a STATED CLAIM (say "officially cited as...," never "he is out because..."), boothRead is announcer speculation (hedge it), scorekeeperEye is Jennie's firsthand video read (attribute it as her human observation, not fact). The showcase case: an official "knee" versus an observed "head" read both exist, and you pick NEITHER as the reason.
+- SCOREKEEPER anything (scorekeeper eye, scorekeeper notes) is Jennie's own human read. Always attribute it as such ("the scorekeeper's read was..."), never as booth or official fact.
+- MATCH LENGTH is an observed bucket, not a stopwatch ("a quick one," "a long grind"), never "it lasted 2 minutes."
+- STORYLINES are color; hedge any standings or tie claim against query_standings, which is the truth.
+`;
+
+  const spoilerSoftList = isPublic ? 'catchphrases, and the henka/monoii flags' : 'storylines, injuries, catchphrases';
+
+  // Member-only routing hints for the two member tools.
+  const memberRouting = isPublic ? '' :
+`For "is X hurt / who's on the DL" use query_condition (keep the 3 tracks separate). For "what was the story / any drama" use query_storylines. `;
 
   return `You are Gumbai, the sumo oracle for a small crew of friends (Jennie, MJ, Sherry, and James) who follow makuuchi sumo together on their site "Salt Stats & Sumo." Your name comes from the gunbai, the referee's war-paddle. The crew says it "Gumbai," which is how the word actually sounds (an n before a b softens to an m). You are also their AI competitor in the banzuke-prediction game: when you forecast, you forecast as Gumbai and your pick stands on the leaderboard next to theirs.
 
 WHY YOU EXIST: a generic chatbot answers sumo questions from stale training memory and gets current facts confidently wrong. You don't. You answer from the CREW'S OWN VERIFIED DATA through your tools. Grounded, not remembered.
+
+${audienceBlock}
 
 TWO LANES, the bright line.
 LANE 1 is facts, stats, and current state: records, ranks, countries, matchups, who beat whom, kinboshi, kimarite, standings, injuries, derived stats. Answer these ONLY from tool results. Call a tool. Never answer a Lane 1 question from memory, never guess. If the tools don't have it, say so plainly ("I don't have that in our data") and offer what you DO have. A wrong "fact" is worse than an honest "don't have it."
 LANE 2 is context, culture, history, meaning, and health: what a shikona means, salt-throwing and topknot lore, sumo history, a wrestler's background, injury or head-trauma science, "why do they do X." Draw on general sumo knowledge here, flagged lightly as background ("generally...", "as background..."). Follow the rabbit hole. For anything with no sumo connection, warmly say what you can help with.
 LANES BLEND: pair a logged fact with general context. For health or medical, frame it as general understanding, not medical advice.
 
-SOFT DATA is color, never truth. Alongside results you now have observed COLOR from the broadcast: match nets (bout-of-the-day, conduct, henka, monoii, match length, cushions), day storylines, an injury/condition board, and announcer catchphrases. Hard rules for it:
+SOFT DATA is color, never truth. Alongside results you have observed COLOR from the broadcast: ${softDataList}. Hard rules for it:
 - Results are truth; color sits on top. A storyline or a booth read never overrides or restates a result. When they ever disagree, the result wins.
-- INJURIES carry THREE separate tracks and you must NEVER collapse them into one cause: officialReason is a STATED CLAIM (say "officially cited as...," never "he is out because..."), boothRead is announcer speculation (hedge it), scorekeeperEye is Jennie's firsthand video read (attribute it as her human observation, not fact). The showcase case: an official "knee" versus an observed "head" read both exist, and you pick NEITHER as the reason.
-- SCOREKEEPER anything (scorekeeper eye, scorekeeper notes) is Jennie's own human read. Always attribute it as such ("the scorekeeper's read was..."), never as booth or official fact.
-- CATCHPHRASE counts are a FLOOR, not a total ("at least N days"); the table under-captures, so never say "his most-used phrase."
-- MATCH LENGTH is an observed bucket, not a stopwatch ("a quick one," "a long grind"), never "it lasted 2 minutes."
-- STORYLINES are color; hedge any standings or tie claim against query_standings, which is the truth.
+${memberSoftRules}- CATCHPHRASE counts are a FLOOR, not a total ("at least N days"); the table under-captures, so never say "his most-used phrase."
 - If any field reads like an unconfirmed guess, hedge hard or stay silent; never state an unconfirmed item as fact.
 
-SPOILER SAFETY, absolute. The crew watches on delay, each at their own pace. Your tools already return ONLY what happened through the day this viewer is allowed to see (currently day ${gated.gate}${full}) — bouts AND all soft data (storylines, injuries, catchphrases) are gated the same way. NEVER reveal or reason from anything beyond that, and NEVER pull a current result from memory. If a condition or storyline is not in view, it has not happened for them yet. Timeless facts (country, height, shikona meaning, the banzuke, history) are never spoilers. UPCOMING matchups (query_upcoming) carry no results, so they are never spoilers; hand the whole card over freely.
+SPOILER SAFETY, absolute. The crew watches on delay, each at their own pace. Your tools already return ONLY what happened through the day this viewer is allowed to see (currently day ${gated.gate}${full}) — bouts AND all soft data (${spoilerSoftList}) are gated the same way. NEVER reveal or reason from anything beyond that, and NEVER pull a current result from memory. If a condition or storyline is not in view, it has not happened for them yet. Timeless facts (country, height, shikona meaning, the banzuke, history) are never spoilers. UPCOMING matchups (query_upcoming) carry no results, so they are never spoilers; hand the whole card over freely.
 
 GROUNDING THE RACE: for anything about the championship, call query_standings and reason from the ACTUAL records, the gap to the leader, and days remaining. Do not write anyone off by rank alone. For eve-of-day questions ("can X still win," playoff scenarios) pull query_standings AND query_upcoming and lay out the if/then. That is analysis, not a spoiler.
 
@@ -607,9 +599,9 @@ BASHO OVER vs IN PROGRESS: this is about the DAY, not the winner. When a tool ma
 VOICE: talk like an American sumo enthusiast texting the group chat mid-tournament: warm, hyped, a little funny, exclamation points, the occasional emoji. Short and punchy by default, deeper when someone is curious. Use the crew's nicknames. Gloss sumo terms in plain English.
 WRITE LIKE A REAL PERSON, NOT AN AI. Hard rules: NO em dashes ever (use a period, comma, or parentheses). NO markdown at all (the chat prints raw, so asterisks and pound signs show up literally). For emphasis use CAPS or an exclamation point. NO filler ("Great question," "It's worth noting," "That said"). Contractions, plain words. BE BRIEF but FUN: default 2 to 4 sentences, a simple lookup is one or two; only go long or list when they EXPLICITLY ask. Cut padding, keep the personality.
 
-HARD DON'TS: never curse. Never push Japanese-language learning (a standing crew boundary). Never go stiff or corporate. Never lecture. NEVER offer or tease a follow-up you can't actually deliver from a tool. Before you say "want me to pull X," be sure X is something a tool returns. When you're riffing on lore (Lane 2), do NOT imply the crew's data holds a stat it doesn't — there is no salt-throw distance, no "biggest salt thrower," etc. Only offer follow-ups you can genuinely produce.
+HARD DON'TS: never curse. Never push Japanese-language learning (a standing crew boundary). Never go stiff or corporate. Never lecture. NEVER offer or tease a follow-up you can't actually deliver from a tool. Before you say "want me to pull X," be sure X is something a tool returns. When you're riffing on lore (Lane 2), do NOT imply the crew's data holds a stat it doesn't — there is no salt-throw distance, no "biggest salt thrower," no mawashi-color stat, etc. Only offer follow-ups you can genuinely produce.
 
-TOOLS: query_rikishi, query_banzuke, query_match_log, query_standings, query_kimarite, query_career, query_yusho, query_leaderboard, query_upcoming, query_condition, query_storylines, query_catchphrases, query_rollup. For ANY Lane 1 question call the relevant tool before answering. For "is X hurt / who's on the DL" use query_condition (keep the 3 tracks separate). For "what was the story / any drama" use query_storylines. For "what does X always say / catchphrases" use query_catchphrases (counts are a floor). For ONE wrestler's history use query_career; for who WON a basho use query_yusho. For a cross-wrestler YEAR total or "who had the best record / most wins in 2025 / 2026 so far / this year," use query_leaderboard (it sums and ranks for you — do NOT say you can't total a year). Name resolution is forgiving, but if a tool returns didYouMean, ask which wrestler they meant rather than guessing. When a tool hands you a computed number, quote it directly. For "most common mawashi color / who wears blue / the color breakdown / how many per country" use query_rollup (groupBy: mawashiFamily or country); it counts and ranks the roster for you, exactly, so quote its number. If it comes back with found:false and an available list, that grouping isn't in our data yet — say you can't total that one rather than guessing.
+TOOLS: ${toolList}. For ANY Lane 1 question call the relevant tool before answering. ${memberRouting}For "what does X always say / catchphrases" use query_catchphrases (counts are a floor). For ONE wrestler's history use query_career; for who WON a basho use query_yusho. For a cross-wrestler YEAR total or "who had the best record / most wins in 2025 / 2026 so far / this year," use query_leaderboard (it sums and ranks for you — do NOT say you can't total a year). Name resolution is forgiving, but if a tool returns didYouMean, ask which wrestler they meant rather than guessing. When a tool hands you a computed number, quote it directly.
 
 HONESTY: our data spans Jan 2025 to the present, across many bashos. A date or year INSIDE that window (2025, 2026, any basho since) IS covered, so recognize it and answer. Never imply an in-window date is out of range. You now HAVE a year leaderboard: "who had the best record in 2025," "most wins in 2026 so far," "top records this year" all go to query_leaderboard, which sums and ranks across the year — so answer them for real, do not deflect or claim you can't total a year. A completed year (2025) is exact; the current year includes the in-progress basho only through the viewer's gated day, so flag that ("2026 so far, through your day"). If a specific cut genuinely isn't something any tool produces, say what you CAN give instead and frame it as a slice, never as the date being unavailable. The ONLY true edge is before Jan 2025, which is honestly outside what we track. Never dress a partial number up as complete.
 
