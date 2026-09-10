@@ -1,0 +1,436 @@
+<title>Rikishi Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zilla+Slab:wght@500;600;700&family=Public+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#f5f3ee; --surface:#ffffff; --surface-2:#faf8f4;
+  --ink:#1d1b17; --muted:#6d675c; --faint:#98917f; --line:#e7e2d8;
+  --yokozuna:#6a3d9a; --ozeki:#cf5a2c; --sekiwake:#a9742c; --komusubi:#227a4b;
+  --maeg-hi:#46536b; --maeg-lo:#746a52; --win:#227a4b; --loss:#b4472f;
+  --accent:var(--ozeki); --radius:12px;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --ground:#141210; --surface:#1f1c18; --surface-2:#1a1714;
+  --ink:#efe9dd; --muted:#a49c8c; --faint:#7b7364; --line:#332e27;
+  --yokozuna:#b08cd6; --ozeki:#e78a5f; --sekiwake:#cf9f52; --komusubi:#4fae76;
+  --maeg-hi:#8593ad; --maeg-lo:#b0a582; --win:#4fae76; --loss:#e0765c;
+}}
+:root[data-theme="dark"]{
+  --ground:#141210; --surface:#1f1c18; --surface-2:#1a1714;
+  --ink:#efe9dd; --muted:#a49c8c; --faint:#7b7364; --line:#332e27;
+  --yokozuna:#b08cd6; --ozeki:#e78a5f; --sekiwake:#cf9f52; --komusubi:#4fae76;
+  --maeg-hi:#8593ad; --maeg-lo:#b0a582; --win:#4fae76; --loss:#e0765c;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:"Public Sans",system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;}
+.tnum{font-variant-numeric:tabular-nums;}
+.sampleflag{display:flex;gap:11px;align-items:flex-start;background:var(--surface-2);
+  border:1px dashed var(--line);border-radius:10px;padding:11px 13px;margin-bottom:20px;
+  font-size:12.5px;color:var(--muted);}
+.sampleflag b{color:var(--ink);font-weight:600;}
+.sampleflag .dot{width:20px;height:20px;flex:none;border-radius:6px;background:var(--accent);color:#fff;
+  display:grid;place-items:center;font-weight:700;font-family:"Zilla Slab",serif;}
+
+/* ---- TOP ROW: photo | name | bio ---- */
+.top{display:grid;grid-template-columns:150px 1fr 200px;gap:20px;align-items:stretch;margin-bottom:16px;}
+.photo{border:1px solid var(--line);border-radius:var(--radius);background:
+   linear-gradient(160deg,var(--surface-2),color-mix(in srgb,var(--accent) 10%,var(--surface-2)));
+   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:200px;color:var(--faint);overflow:hidden;}
+.photo img{width:100%;height:100%;object-fit:cover;}
+.photo svg{width:56px;height:56px;opacity:.5}
+.photo span{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.1em;text-transform:uppercase;}
+.namecard{display:flex;flex-direction:column;}
+.rankchip{align-self:flex-start;display:inline-flex;align-items:center;gap:7px;font-family:"IBM Plex Mono",monospace;
+  font-size:11.5px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:#fff;background:var(--accent);
+  padding:4px 11px;border-radius:999px;}
+.topline{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.unittoggle{display:inline-flex;border:1px solid var(--line);border-radius:7px;overflow:hidden;flex:none;}
+.unittoggle button{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.03em;padding:3px 9px;
+  border:0;background:var(--surface-2);color:var(--muted);cursor:pointer;}
+.unittoggle button.on{background:var(--ink);color:var(--ground);}
+h1{font-family:"Zilla Slab",serif;font-weight:700;font-size:clamp(34px,6vw,52px);line-height:1;
+  margin:11px 0 3px;letter-spacing:-.01em;}
+.origin{color:var(--muted);font-size:14px;margin:0 0 14px;}
+.namestats{display:grid;grid-template-columns:repeat(auto-fit,minmax(78px,1fr));gap:12px 18px;margin-top:auto;}
+.ns .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);margin-bottom:2px;}
+.ns .v{font-family:"Zilla Slab",serif;font-weight:600;font-size:18px;}
+.ns .v small{font-family:"Public Sans",sans-serif;font-weight:400;font-size:12px;color:var(--muted);}
+.biocard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:15px 16px;
+  display:flex;flex-direction:column;}
+.biocard .eyebrow{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:0 0 4px;}
+.biocard h3{font-family:"Zilla Slab",serif;font-weight:600;font-size:15px;margin:0 0 12px;}
+.bdaybig{font-family:"Zilla Slab",serif;font-weight:700;font-size:38px;line-height:1;}
+.bdaysub{font-size:12.5px;color:var(--muted);margin-top:4px;}
+.hidepill{margin-top:12px;font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--faint);
+  border-top:1px dashed var(--line);padding-top:9px;line-height:1.4;}
+.hidepill b{color:var(--sekiwake);}
+
+/* ---- RECORDS BAND ---- */
+.band{display:flex;flex-wrap:wrap;align-items:center;gap:0;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--radius);padding:4px 4px;margin-bottom:16px;}
+.bcell{flex:1 1 auto;padding:11px 16px;display:flex;flex-direction:column;gap:3px;min-width:110px;
+  border-right:1px solid var(--line);}
+.bcell:last-child{border-right:0;}
+.bcell .k{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);}
+.bcell .v{font-family:"Zilla Slab",serif;font-weight:700;font-size:21px;line-height:1;}
+.bcell .v small{font-size:12px;font-weight:400;color:var(--muted);font-family:"Public Sans",sans-serif;}
+.rankbadge{display:inline-block;padding:1px 9px;border-radius:6px;color:#fff;font-size:14px;font-family:"Zilla Slab",serif;font-weight:600;}
+.recnote{font-size:11.5px;color:var(--faint);font-style:italic;margin:-6px 2px 14px;}
+
+/* ---- CHART PANELS ---- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:17px 18px 15px;margin-bottom:16px;}
+.phead{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:12px;}
+.phead h2{font-family:"Zilla Slab",serif;font-weight:600;font-size:16px;margin:0;}
+.tag{font-family:"IBM Plex Mono",monospace;font-size:9.5px;letter-spacing:.07em;font-weight:500;text-transform:uppercase;
+  padding:2px 7px;border-radius:5px;border:1px solid var(--line);color:var(--muted);white-space:nowrap;}
+.tag.hard{color:var(--komusubi);border-color:color-mix(in srgb,var(--komusubi) 40%,var(--line));}
+.tag.soft{color:var(--sekiwake);border-color:color-mix(in srgb,var(--sekiwake) 40%,var(--line));}
+.tag.member{color:var(--yokozuna);border-color:color-mix(in srgb,var(--yokozuna) 45%,var(--line));background:color-mix(in srgb,var(--yokozuna) 8%,transparent);}
+.note{font-size:11.5px;color:var(--faint);margin:11px 0 0;font-style:italic;}
+.charts2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+svg{display:block;max-width:100%;height:auto;}
+.pierow{display:flex;gap:18px;align-items:center;flex-wrap:wrap;}
+.pielegend{display:flex;flex-direction:column;gap:7px;font-size:13px;flex:1;min-width:130px;}
+.pielegend .li{display:flex;align-items:center;gap:8px;}
+.pielegend .sw{width:11px;height:11px;border-radius:3px;flex:none;}
+.pielegend .nm{color:var(--muted);flex:1;}
+.pielegend .pc{font-family:"IBM Plex Mono",monospace;font-size:12px;}
+.maw{display:flex;flex-wrap:wrap;gap:8px;}
+.swatch{text-align:center;}
+.swatch i{display:block;width:38px;height:30px;border-radius:6px;border:1px solid rgba(0,0,0,.14);position:relative;}
+.swatch.chg i::after{content:"";position:absolute;inset:-4px;border:2px solid var(--accent);border-radius:9px;}
+.swatch span{font-family:"IBM Plex Mono",monospace;font-size:8.5px;color:var(--faint);margin-top:4px;display:block;}
+.src{font-size:10.5px;color:var(--faint);}
+.bashosel{display:flex;gap:5px;margin-bottom:13px;flex-wrap:wrap;}
+.bashosel button{font-family:"IBM Plex Mono",monospace;font-size:10.5px;padding:3px 9px;border-radius:6px;
+  border:1px solid var(--line);background:var(--surface-2);color:var(--muted);cursor:pointer;}
+.bashosel button.on{background:var(--accent);color:#fff;border-color:var(--accent);}
+.cal{display:flex;flex-direction:column;gap:10px;}
+.calrow{display:grid;grid-template-columns:64px 1fr auto;align-items:center;gap:10px;}
+.calrow .lab{font-size:12.5px;} .calrow .lab small{display:block;color:var(--faint);font-size:10px;}
+.wl{display:flex;height:12px;border-radius:6px;overflow:hidden;background:var(--surface-2);}
+.wl .w{background:var(--win);} .wl .l{background:var(--loss);}
+.calrow .rec{font-family:"IBM Plex Mono",monospace;font-size:12.5px;}
+.cmp{display:flex;flex-direction:column;gap:16px;}
+.cmprow .lab{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-bottom:7px;}
+.cmprow .lab b{font-family:"Zilla Slab",serif;font-size:16px;}
+.cmptrack{position:relative;height:12px;background:var(--surface-2);border-radius:6px;}
+.cmptrack .his{position:absolute;left:0;top:0;bottom:0;border-radius:6px;}
+.cmptrack .avg{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:2px;}
+.cmpnote{font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--faint);margin-top:6px;}
+.bfrom{display:block;font-family:"IBM Plex Mono",monospace;font-size:9.5px;color:var(--muted);margin-top:5px;font-weight:400;letter-spacing:.02em;font-variant-numeric:tabular-nums;}
+.keng{display:block;font-family:"Public Sans",sans-serif;font-size:10.5px;color:var(--muted);letter-spacing:.005em;line-height:1.1;margin-top:-1px;}
+.story{background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:15px 20px;margin-bottom:16px;}
+.story .eyebrow{display:flex;align-items:center;gap:8px;font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:0 0 8px;}
+.story .body{font-family:"Zilla Slab",serif;font-size:16.5px;line-height:1.55;margin:0;color:var(--ink);max-width:80ch;}
+.story .body .who{color:var(--accent);font-weight:600;}
+.biofull{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 32px;}
+.biofull .row{border-top:1px solid var(--line);padding-top:9px;}
+.biofull .row:first-child,.biofull .row:nth-child(2){border-top:0;padding-top:0;}
+.biofull .k{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);margin-bottom:3px;}
+.biofull .v{font-size:14px;line-height:1.45;}
+@media(max-width:800px){ .biofull{grid-template-columns:1fr;} }
+.footer{margin-top:22px;display:flex;flex-wrap:wrap;gap:14px 24px;align-items:center;padding-top:15px;
+  border-top:1px solid var(--line);font-size:12px;color:var(--muted);}
+.legend{display:flex;gap:15px;flex-wrap:wrap;}
+.legend .li{display:flex;align-items:center;gap:6px;}
+.spoiler{margin-left:auto;display:flex;align-items:center;gap:7px;font-family:"IBM Plex Mono",monospace;font-size:11px;color:var(--faint);}
+.spoiler i{width:8px;height:8px;border-radius:50%;background:var(--loss);display:inline-block;}
+@media(max-width:800px){ .top{grid-template-columns:1fr;} .charts2{grid-template-columns:1fr;} }
+.missing{opacity:.5;}
+/* ---- SITE HEADER (shared site nav placeholder — replace with the real site partial at build) ---- */
+.sitehdr{background:var(--surface);border-bottom:1px solid var(--line);}
+.sitebar{max-width:1080px;margin:0 auto;padding:11px 22px;display:flex;align-items:center;gap:16px;}
+.crest{display:inline-flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink);}
+.crest .coin{width:34px;height:34px;flex:none;border-radius:50%;background:var(--ink);color:var(--ground);
+  display:grid;place-items:center;font-family:"Zilla Slab",serif;font-weight:700;font-size:16px;}
+.crest .wm{font-family:"Zilla Slab",serif;font-weight:700;font-size:15.5px;line-height:1;letter-spacing:.01em;}
+.crest .wm small{display:block;font-family:"IBM Plex Mono",monospace;font-size:8px;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--faint);font-weight:400;margin-top:3px;}
+.sitenav{margin-left:auto;display:flex;align-items:center;gap:7px;}
+.sitenav a{font-family:"IBM Plex Mono",monospace;font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;
+  color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:7px;border:1px solid transparent;}
+.sitenav a:hover{color:var(--ink);background:var(--surface-2);}
+.sitenav a.back{color:var(--ink);border-color:var(--line);}
+</style>
+
+<!-- SITE HEADER: at build, replace this block with the real shared site-header partial (home crest + Return to Standings carrying watched-day + Home). Kept inline here so the template renders standalone. -->
+<header class="sitehdr">
+  <div class="sitebar">
+    <a class="crest" href="/"><span class="coin">塩</span><span class="wm">Salt Stats &amp; Sumo<small>Rikishi Dashboard</small></span></a>
+    <nav class="sitenav">
+      <a class="back" id="backStandings" href="/standings" title="carries your watched-day so it opens spoiler-safe">&larr; Standings</a>
+      <a href="/">Home</a>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap" id="app"></div>
+
+<script>
+/* =====================================================================
+   METRICS SNAPSHOT — the contract this template renders.
+   The generator (gen-rikishi-metrics.mjs, run on the Action) produces one
+   record per current-banzuke rikishi, keyed by sumo-api id, and injects it
+   here (replacing the METRICS object) or serves it as JSON the page picks by ?r=<id>.
+   Below: Aonishiki, arc + vitals REAL, records/specials/kimarite/mawashi/
+   caliber/henka/soft-bio still SAMPLE (marked sample:true) until the live pull runs.
+   ===================================================================== */
+const METRICS = {
+  "aonishiki": {
+    id:"aonishiki", name:"Aonishiki", sample:true,
+    rank:{ current:"Ozeki", basho:"Aki 2026" },
+    highestRank:"Ozeki",
+    photo:null,                                   // full-portrait URL; null → placeholder
+    origin:{ city:"Vinnytsia", country:"Ukraine", flag:"🇺🇦" },
+    vitals:{ heightCm:182, weightKg:142, age:22, bday:{mon:"Mar", day:23, yy:"’04"}, stable:"Ajigawa" },
+    birthday:{ inWindow:true, record:"1–2", n:3, on:"Mar 23" },
+    records:{
+      allDivision:{ w:205, l:95, pct:".683" },
+      makuuchi:{ w:118, l:62, pct:".656" },
+      crew:{ w:118, l:62, pct:".656" },
+      note:"For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+    },
+    specials:[
+      { jp:"Kinboshi",    en:"Gold Star",         count:3, basho:["25Nt","25Ng","25Ak"] },
+      { jp:"Shukun-sho",  en:"Outstanding Perf.",  count:0, basho:[] },
+      { jp:"Kanto-sho",   en:"Fighting Spirit",    count:2, basho:["25Ky","26Ht"] },
+      { jp:"Gino-sho",    en:"Technique",          count:1, basho:["26Ng"] },
+      { jp:"Yusho",       en:"Emperor's Cup",      count:3, basho:["25Ky","26Ht","26Ng"] }
+    ],
+    story:{
+      html:'<span class="who">Aonishiki</span> went from Maegashira 15 to Ozeki in six bashos, one of the fastest climbs in our records. He won two Emperor\'s Cups before he turned 22 and a third at 22. Two of the three came as a Sekiwake. The first was Kyushu 2025, on the way up. He took the second as an Ozeki at Hatsu 2026. The third came at Nagoya 2026, the same tournament he had dropped to Sekiwake after losing his Ozeki rank; he won the Cup and took the rank straight back for Aki.',
+      source:"Built from our banzuke and yusho records (no web). Crew edits the prose."
+    },
+    arc:{ fromJuryo:true, from:"from Juryo", points:[
+      {b:"Hru25",v:19,r:"M15"},{b:"Ntu25",v:13,r:"M9"},{b:"Ngy25",v:5,r:"M1"},
+      {b:"Aki25",v:4,r:"K"},{b:"Kyu25",v:3,r:"S"},{b:"Hts26",v:2,r:"O"},{b:"Hru26",v:2,r:"O"},
+      {b:"Ntu26",v:2,r:"O"},{b:"Ngy26",v:3,r:"S"},{b:"Aki26",v:2,r:"O"} ]},
+    kimarite:{ window:"since Jan 2025", totalWins:118, slices:[
+      {name:"Yorikiri",pct:30,color:"#cf5a2c"},{name:"Oshidashi",pct:19,color:"#2f8f5b"},
+      {name:"Tsukiotoshi",pct:12,color:"#7a4fb0"},{name:"Uwatenage",pct:9,color:"#4a7fb5"},
+      {name:"Hatakikomi",pct:8,color:"#c99a2e"},{name:"Sukuinage",pct:7,color:"#b5566f"},
+      {name:"Yoritaoshi",pct:7,color:"#3a9aa0"},{name:"Other",pct:8,color:"#8a8168",moves:5} ]},
+    mawashi:[ {b:"Aki25",c:"#2b3a67",chg:0},{b:"Kyu25",c:"#2b3a67",chg:0},{b:"Hts26",c:"#6a2f2f",chg:1},
+      {b:"Hru26",c:"#6a2f2f",chg:0},{b:"Ntu26",c:"#3a5a40",chg:1},{b:"Ngy26",c:"#6a2f2f",chg:1},{b:"Aki26",c:"#8a6d2f",chg:1} ],
+    caliber:{ default:"Aki26", bashos:{
+      "Aki26":[["Named","Y·O·S·K",3,3],["High M","M1–8",4,1],["Low M","M9+ · Juryo",2,0]],
+      "Ngy26":[["Named","Y·O·S·K",2,4],["High M","M1–8",5,2],["Low M","M9+ · Juryo",3,0]],
+      "Ntu26":[["Named","Y·O·S·K",4,2],["High M","M1–8",6,1],["Low M","M9+ · Juryo",1,0]] }},
+    henka:[ {label:"Full",his:0.6,avg:1.8,n:"1 in 180 bouts"},{label:"Partial",his:1.1,avg:2.4,n:"2 in 180 bouts"} ],
+    bio:[
+      {k:"Shusshin", v:"Vinnytsia, Ukraine 🇺🇦", src:"sumo-api"},
+      {k:"Born", v:"23 Mar 2004 · age 22", src:"sumo-api"},
+      {k:"Entry path", v:"<b>Amateur / independent.</b> Came up through Ukrainian and European amateur sumo, not a stable school", src:"✓✓ corroborated · sample"},
+      {k:"Family", v:"Single", src:"as of 2026 · volatile, re-checked · sample"},
+      {k:"Languages", v:"Ukrainian, Russian, learning Japanese fast", src:"✓✓ corroborated · sample"},
+      {k:"Special talents", v:"Unusual balance and mid-bout recovery; a belt technician despite giving up height and weight to most Ozeki", src:"sample"},
+      {k:"Known for", v:'The booth calls it "old-man sumo in a young body": patient, hard to rush at the edge', src:"[booth claim]"},
+      {k:"Fun facts", v:"Fell for sumo watching clips online in Ukraine before he'd ever stepped in a ring", src:"single-source, flagged for review"},
+      {k:"Nicknames", v:"None on file yet", src:"human-owned field; crew adds (J) official / (O) ours"}
+    ]
+  }
+};
+
+/* ---- pick the rikishi: ?r=<id>, else the first in METRICS ---- */
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const params = new URLSearchParams(location.search);
+const rid = params.get('r');
+const SNAP = METRICS[rid] || METRICS[Object.keys(METRICS)[0]];
+
+/* carry the watched-day context onto the Return-to-Standings link (spoiler-safe) */
+(function(){
+  const d = params.get('d'); if(d){ document.getElementById('backStandings').href = '/standings?d='+encodeURIComponent(d); }
+})();
+
+/* ---- rank → tier color ---- */
+function tierColorForRank(label){
+  const s=String(label||'');
+  if(/^Y/.test(s)) return cssv('--yokozuna');
+  if(/^O/.test(s)) return cssv('--ozeki');
+  if(/^S/.test(s)) return cssv('--sekiwake');
+  if(/^K/.test(s)) return cssv('--komusubi');
+  const m=s.match(/M\D*(\d+)/); if(m) return cssv(+m[1]<=8?'--maeg-hi':'--maeg-lo');
+  return cssv('--maeg-lo');
+}
+const esc = s => String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const dash = a => (a&&a.length)? a.join(', ') : '—';
+
+/* ==================== RENDER ==================== */
+function render(R){
+  const app=document.getElementById('app');
+  const sampleBanner = R.sample ? `<div class="sampleflag"><span class="dot">塩</span>
+    <div><b>Template on a sample snapshot.</b> Rank arc &amp; vitals are ${esc(R.name)}'s real data; records, specials, charts and soft bio are sample figures until <code>gen-rikishi-metrics.mjs</code> runs on the Action and injects the live snapshot.</div></div>` : '';
+
+  const photo = R.photo
+    ? `<div class="photo"><img src="${esc(R.photo)}" alt="${esc(R.name)} full portrait"></div>`
+    : `<div class="photo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Zm-2.4 6h4.8a2 2 0 0 1 2 2v5.5h-1.8V22h-5.2v-5.9H7.6V10.5a2 2 0 0 1 2-2Z"/></svg><span>Full portrait</span></div>`;
+
+  const V=R.vitals, chipCol=tierColorForRank(R.rank.current);
+  const bday = R.birthday && R.birthday.inWindow
+    ? `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
+        <div class="bdaybig tnum">${esc(R.birthday.record)}</div>
+        <div class="bdaysub">in ${R.birthday.n} bout${R.birthday.n===1?'':'s'} fought on ${esc(R.birthday.on)}</div>
+        <div class="hidepill">✱ <b>Hidden</b> when his birthday doesn't fall inside a basho, so it never shows an empty stat.</div></div>`
+    : `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
+        <div class="bdaysub missing">No birthday bout inside a basho window — panel hidden in production.</div></div>`;
+
+  const rec=R.records;
+  const band1 = `<div class="band">
+    <div class="bcell"><span class="k">Current rank</span><span class="v"><span class="rankbadge" style="background:${tierColorForRank(R.rank.current)}">${esc(R.rank.current)}</span></span></div>
+    <div class="bcell"><span class="k">Highest rank</span><span class="v"><span class="rankbadge" style="background:${tierColorForRank(R.highestRank)}">${esc(R.highestRank)}</span></span></div>
+    <div class="bcell"><span class="k">All-time (all div)</span><span class="v tnum">${rec.allDivision.w}–${rec.allDivision.l} <small>${esc(rec.allDivision.pct)}</small></span></div>
+    <div class="bcell"><span class="k">Makuuchi (career)</span><span class="v tnum">${rec.makuuchi.w}–${rec.makuuchi.l} <small>${esc(rec.makuuchi.pct)}</small></span></div>
+    <div class="bcell"><span class="k">Crew (Jan 2025+)</span><span class="v tnum">${rec.crew.w}–${rec.crew.l} <small>${esc(rec.crew.pct)}</small></span></div>
+  </div>${rec.note?`<p class="recnote">${esc(rec.note)}</p>`:''}`;
+
+  const band2 = `<div class="band">${R.specials.map(s=>`
+    <div class="bcell"><span class="k">${esc(s.jp)}</span><span class="keng">${esc(s.en)}</span>
+      <span class="v tnum">${s.count}</span><span class="bfrom">${esc(dash(s.basho))}</span></div>`).join('')}
+  </div><p class="recnote">Under each honor, the basho it was won in (2-digit year + basho code, e.g. 25Ky = Kyushu 2025). A dash means none.</p>`;
+
+  const story = `<section class="story"><p class="eyebrow">The story <span class="tag soft">Soft · narrative</span></p>
+    <p class="body">${R.story.html} <span class="src">${esc(R.story.source)}</span></p></section>`;
+
+  const arcPanel = `<section class="panel"><div class="phead"><h2>Banzuke rank over time</h2><span class="tag hard">Hard · full career</span></div>
+    <svg id="arc" viewBox="0 0 1000 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rank over time"></svg>
+    <p class="note">Oldest → newest · marker color = rank tier${R.arc.fromJuryo?' · dashed lead-in = entered makuuchi from Juryo':''}.</p></section>`;
+
+  const charts2a = `<div class="charts2">
+    <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Kimarite: how he wins</h2><span class="tag hard">Hard</span></div>
+      <div class="pierow"><svg id="pie" viewBox="0 0 160 160" width="160" height="160" role="img" aria-label="Winning techniques"></svg><div class="pielegend" id="pieleg"></div></div>
+      <p class="note">Share of ${R.kimarite.totalWins} wins ${esc(R.kimarite.window)}. Each technique above the threshold gets a slice; only the long tail folds into Other, capped at 10%.</p></section>
+    <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Mawashi change history</h2><span class="tag soft">Soft</span></div>
+      <div class="maw" id="mawashi"></div><p class="note">Only where the crew watched · ring = basho he changed color.</p></section></div>`;
+
+  const charts2b = `<div class="charts2" style="margin-top:16px">
+    <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Schedule caliber, by basho</h2><span class="tag member">Member</span></div>
+      <div class="bashosel" id="bsel"></div><div class="cal" id="caliber"></div>
+      <p class="note">Record vs opponent tier, one basho at a time · current basho gates to your day.</p></section>
+    <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Henka: him vs the field</h2><span class="tag soft">Soft</span></div>
+      <div class="cmp" id="henka"></div><p class="note">His henka rate vs the makuuchi average · bar = him, tick = field · booth call + Scorekeeper eye.</p></section></div>`;
+
+  const bio = `<section class="panel"><div class="phead"><h2>The person: bio, talents, fun facts</h2>
+    <span class="tag hard">Hard</span><span class="tag soft">+ Soft</span></div>
+    <div class="biofull">${R.bio.map(b=>`<div class="row"><div class="k">${esc(b.k)}</div>
+      <div class="v">${b.v} ${b.src?`<span class="src">· ${esc(b.src)}</span>`:''}</div></div>`).join('')}</div></section>`;
+
+  const footer = `<div class="footer"><div class="legend">
+      <span class="li"><span class="tag hard">Hard</span> auto from sumo-api</span>
+      <span class="li"><span class="tag soft">Soft</span> crew-curated + graded</span>
+      <span class="li"><span class="tag member">Member</span> member-only depth</span></div>
+    <span class="spoiler"><i></i> current-basho stats show through your watched day</span></div>`;
+
+  app.innerHTML = sampleBanner + `<div class="top">${photo}
+    <div class="namecard"><div class="topline">
+      <span class="rankchip">● ${esc(R.rank.current)} · ${esc(R.rank.basho)}</span>
+      <div class="unittoggle" id="utog"><button data-u="std">ft · lb</button><button data-u="metric">cm · kg</button></div></div>
+      <h1>${esc(R.name)}</h1>
+      <p class="origin">${esc(R.origin.city)}, ${esc(R.origin.country)} ${R.origin.flag||''}</p>
+      <div class="namestats">
+        <div class="ns"><div class="k">Height</div><div class="v tnum" id="vHt"></div></div>
+        <div class="ns"><div class="k">Weight</div><div class="v tnum" id="vWt"></div></div>
+        <div class="ns"><div class="k">Age</div><div class="v tnum">${V.age}</div></div>
+        <div class="ns"><div class="k">B-day</div><div class="v">${esc(V.bday.mon)} ${V.bday.day}<small> ${esc(V.bday.yy)}</small></div></div>
+        <div class="ns"><div class="k">Stable</div><div class="v">${esc(V.stable)}</div></div>
+      </div></div>${bday}</div>`
+    + band1 + band2 + story + arcPanel + charts2a + charts2b + bio + footer;
+
+  drawArc(R); drawPie(R); drawMawashi(R); drawCaliber(R); drawHenka(R); initUnits(R);
+}
+
+/* ---- rank arc ---- */
+function drawArc(R){
+  const ARC=R.arc.points, W=1000,H=240,padL=68,padR=22,padT=16,padB=32,yTop=1,yBot=21;
+  const x=i=>padL+(W-padL-padR)*(i/(ARC.length-1));
+  const y=v=>padT+(H-padT-padB)*((v-yTop)/(yBot-yTop));
+  const line=cssv('--line'),faint=cssv('--faint'),ink=cssv('--muted');
+  const tcol=v=>{ if(v<=1)return cssv('--yokozuna'); if(v<=2)return cssv('--ozeki'); if(v<=3)return cssv('--sekiwake'); if(v<=4)return cssv('--komusubi'); return cssv(v<=12?'--maeg-hi':'--maeg-lo'); };
+  let s='';
+  [['Yokozuna',1],['Ozeki',2],['Sekiwake',3],['Komusubi',4],['M1',5],['M9',13],['M17',21]].forEach(([lab,v])=>{
+    s+=`<line x1="${padL}" y1="${y(v)}" x2="${W-padR}" y2="${y(v)}" stroke="${line}" stroke-width="1"/>`;
+    s+=`<text x="${padL-8}" y="${y(v)+3.5}" text-anchor="end" font-family="IBM Plex Mono,monospace" font-size="10" fill="${faint}">${lab}</text>`;});
+  const step=(W-padL-padR)/(ARC.length-1);
+  if(R.arc.fromJuryo){
+    s+=`<path d="M ${x(0)-step*0.7} ${y(22.4)} L ${x(0)} ${y(ARC[0].v)}" stroke="${ink}" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity=".55"/>`;
+    s+=`<text x="${x(0)-step*0.7}" y="${y(22.4)+15}" font-family="IBM Plex Mono,monospace" font-size="9" fill="${faint}">${esc(R.arc.from||'from Juryo')}</text>`;
+  }
+  s+=`<path d="M ${ARC.map((p,i)=>`${x(i)} ${y(p.v)}`).join(' L ')}" fill="none" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  ARC.forEach((p,i)=>{ const c=tcol(p.v);
+    s+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="5.5" fill="${c}" stroke="${cssv('--surface')}" stroke-width="2"/>`;
+    s+=`<text x="${x(i)}" y="${H-padB+17}" text-anchor="middle" font-family="IBM Plex Mono,monospace" font-size="9.5" fill="${faint}">${esc(p.b)}</text>`;
+    if(i===ARC.length-1||i===0||(p.r==='O'&&ARC[i-1]&&ARC[i-1].r!=='O'))
+      s+=`<text x="${x(i)}" y="${y(p.v)-11}" text-anchor="middle" font-family="Zilla Slab,serif" font-weight="600" font-size="11" fill="${c}">${esc(p.r)}</text>`;});
+  document.getElementById('arc').innerHTML=s;
+}
+
+/* ---- kimarite pie ---- */
+function drawPie(R){
+  const KIM=R.kimarite.slices, cx=80,cy=80,r=62,ir=34; let a=-Math.PI/2,s='';
+  KIM.forEach(k=>{ const pc=k.pct??k[1]??0; const col=k.color; const a2=a+pc/100*2*Math.PI;
+    const x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
+    const xi2=cx+ir*Math.cos(a2),yi2=cy+ir*Math.sin(a2),xi1=cx+ir*Math.cos(a),yi1=cy+ir*Math.sin(a),big=(a2-a)>Math.PI?1:0;
+    s+=`<path d="M ${x1} ${y1} A ${r} ${r} 0 ${big} 1 ${x2} ${y2} L ${xi2} ${yi2} A ${ir} ${ir} 0 ${big} 0 ${xi1} ${yi1} Z" fill="${col}" stroke="${cssv('--surface')}" stroke-width="2"/>`;
+    a=a2;});
+  document.getElementById('pie').innerHTML=s;
+  document.getElementById('pieleg').innerHTML=KIM.map(k=>{ const pc=k.pct??k[1];
+    return `<div class="li"><span class="sw" style="background:${k.color}"></span><span class="nm">${esc(k.name)}${k.moves?` <span class="src">(${k.moves} moves)</span>`:''}</span><span class="pc tnum">${pc}%</span></div>`;}).join('');
+}
+/* accept both {name,pct} and legacy [name,pct,color] — normalize on read */
+(function normalizeKim(){ for(const id in METRICS){ const s=METRICS[id].kimarite&&METRICS[id].kimarite.slices; if(!s)continue;
+  METRICS[id].kimarite.slices=s.map(k=>Array.isArray(k)?{name:k[0],pct:k[1],color:k[2],moves:k[3]}:k); } })();
+
+/* ---- mawashi ---- */
+function drawMawashi(R){
+  document.getElementById('mawashi').innerHTML=R.mawashi.map(m=>
+    `<div class="swatch ${m.chg?'chg':''}"><i style="background:${m.c}"></i><span>${esc(m.b)}</span></div>`).join('');
+}
+
+/* ---- caliber (interactive per-basho) ---- */
+function drawCaliber(R){
+  const C=R.caliber; const bsel=document.getElementById('bsel');
+  bsel.innerHTML=Object.keys(C.bashos).map(b=>`<button data-b="${b}">${b}</button>`).join('');
+  function draw(b){
+    document.getElementById('caliber').innerHTML=C.bashos[b].map(row=>{
+      const [lab,sub,w,l]=row, t=(w+l)||1, wp=Math.round(w/t*100);
+      return `<div class="calrow"><span class="lab">${esc(lab)}<small>${esc(sub)}</small></span>
+        <span class="wl"><span class="w" style="width:${wp}%"></span><span class="l" style="width:${100-wp}%"></span></span>
+        <span class="rec tnum">${w}–${l}</span></div>`;}).join('');
+    bsel.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.b===b));
+  }
+  bsel.querySelectorAll('button').forEach(x=>x.onclick=()=>draw(x.dataset.b));
+  draw(C.default||Object.keys(C.bashos)[0]);
+}
+
+/* ---- henka vs field ---- */
+function drawHenka(R){
+  const max=4;
+  document.getElementById('henka').innerHTML=R.henka.map(d=>{
+    const good=d.his<=d.avg, col=good?cssv('--win'):cssv('--loss');
+    const hisW=Math.min(d.his/max*100,100), avgL=Math.min(d.avg/max*100,100);
+    return `<div class="cmprow"><div class="lab"><span>${esc(d.label)} henka <span class="src">· ${esc(d.n)}</span></span><b class="tnum" style="color:${col}">${d.his}%</b></div>
+      <div class="cmptrack"><div class="his" style="width:${hisW}%;background:${col}"></div><div class="avg" style="left:${avgL}%" title="field avg"></div></div>
+      <div class="cmpnote">${good?'▼ cleaner than the field':'▲ dirtier than the field'} · field avg ${d.avg}%</div></div>`;}).join('');
+}
+
+/* ---- units ---- */
+function initUnits(R){
+  const HT_CM=R.vitals.heightCm, WT_KG=R.vitals.weightKg;
+  const ftin=cm=>{const t=Math.round(cm/2.54);return `${Math.floor(t/12)}'${t%12}"`;};
+  function renderUnits(u){
+    const h=document.getElementById('vHt'),w=document.getElementById('vWt');
+    if(u==='metric'){ h.innerHTML=`${HT_CM}<small> cm</small>`; w.innerHTML=`${WT_KG}<small> kg</small>`; }
+    else{ h.innerHTML=ftin(HT_CM); w.innerHTML=`${Math.round(WT_KG*2.20462)}<small> lb</small>`; }
+    document.querySelectorAll('#utog button').forEach(b=>b.classList.toggle('on',b.dataset.u===u));
+  }
+  const region=(navigator.language||'en-US').split('-')[1]||'US';
+  const guess=['US','LR','MM'].includes(region)?'std':'metric';
+  document.querySelectorAll('#utog button').forEach(b=>b.onclick=()=>renderUnits(b.dataset.u));
+  renderUnits(guess);
+}
+
+render(SNAP);
+</script>
