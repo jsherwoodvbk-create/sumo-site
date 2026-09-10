@@ -11,6 +11,9 @@
 // server-side — never a client flag. Public is the floor; member is additive.
 //   - DATA: public view is stripped of injuries, day storylines, and the member-only per-bout nets.
 //   - TOOLS: public omits query_condition + query_storylines.
+//   - MODEL: member stays on Opus (MODEL_DEFAULT); public runs a cheaper model (MODEL_PUBLIC_DEFAULT).
+//     The floor of the oracle is grounded-in-tools either way, so the public site doesn't need Opus —
+//     the tools do the reasoning; the model just voices it. (2026-09-10)
 //   - BUDGET: public gets a smaller max_tokens + fewer tool hops (protect the crew's monthly budget).
 //   - LOGGING: member turns → Notion interaction log (as before); PUBLIC turns → Cloudflare Analytics
 //     Engine, so no public traffic ever touches Notion (Notion's rate limit is per-token = the lock-out
@@ -18,7 +21,8 @@
 //
 // Secrets/config (Cloudflare Pages → Settings → Environment variables / Bindings):
 //   ANTHROPIC_API_KEY   (required, encrypted)  — from console.anthropic.com
-//   GUMBAI_MODEL        (optional)             — model slug; defaults below.
+//   GUMBAI_MODEL        (optional)             — MEMBER model slug; defaults to MODEL_DEFAULT below.
+//   GUMBAI_MODEL_PUBLIC (optional)             — PUBLIC/site model slug; defaults to MODEL_PUBLIC_DEFAULT.
 //   GUMBAI_LOG_DB       (optional)             — Notion database id for the MEMBER interaction log.
 //   GUMBAI_LOG_TOKEN    (optional)             — Notion integration token (falls back to NOTION_TOKEN).
 //   GUMBAI_AE           (optional binding)     — Analytics Engine dataset for PUBLIC turn logs.
@@ -30,13 +34,23 @@ import SNAP from './_snapshot.js';
 import { gateSnapshot, buildSystemPrompt, toolsFor, TOOLS, runTool, ENGINE_VERSION } from './_engine.js';
 import { getSession } from './auth/_session.js';
 
-const MODEL_DEFAULT = 'claude-opus-4-8';   // confirm exact slug in the Anthropic console
+const MODEL_DEFAULT = 'claude-opus-4-8';       // MEMBER oracle — keep the crew's app on Opus. Confirm exact slug in the Anthropic console.
+const MODEL_PUBLIC_DEFAULT = 'claude-haiku-4-5'; // PUBLIC/site oracle — cheaper model. CONFIRM the exact current slug in the Anthropic console (or just set GUMBAI_MODEL_PUBLIC in Cloudflare).
 const MAX_TOOL_HOPS = 6;                    // safety bound on the agent loop (member)
 const PUBLIC_TOOL_HOPS = 4;                 // tighter loop for public (cheaper per answer)
 const MAX_TOKENS_MEMBER = 1024;
 const MAX_TOKENS_PUBLIC = 640;              // smaller per-turn budget for public — stretches the monthly cap
 const MAX_MESSAGES  = 40;                   // conversational memory window we accept
 const MAX_CHARS     = 4000;                 // per user message (abuse guard)
+
+// Resolve the model for an audience. Member honors GUMBAI_MODEL (its long-standing override) and
+// otherwise Opus. Public honors GUMBAI_MODEL_PUBLIC and otherwise the cheaper default — it deliberately
+// does NOT fall back to GUMBAI_MODEL, so setting the member override can never accidentally re-upgrade
+// the public site.
+function modelFor(env, audience){
+  if(audience === 'public') return (env && env.GUMBAI_MODEL_PUBLIC) || MODEL_PUBLIC_DEFAULT;
+  return (env && env.GUMBAI_MODEL) || MODEL_DEFAULT;
+}
 
 const FAN_DOWN =
   "🪭 Gumbai's fan is down for the month — no tachiai till the calendar flips. " +
@@ -142,7 +156,7 @@ export async function onRequestPost(ctx){
   const system = [
     { type:'text', text: buildSystemPrompt(gated, audience), cache_control:{ type:'ephemeral' } } // prompt caching = cheaper repeats
   ];
-  const model  = (env.GUMBAI_MODEL || MODEL_DEFAULT);
+  const model  = modelFor(env, audience);       // member → Opus (or GUMBAI_MODEL); public → cheaper model (or GUMBAI_MODEL_PUBLIC)
   const tools  = toolsFor(audience);
   const maxTokens = audience === 'public' ? MAX_TOKENS_PUBLIC : MAX_TOKENS_MEMBER;
   const maxHops   = audience === 'public' ? PUBLIC_TOOL_HOPS  : MAX_TOOL_HOPS;
@@ -230,6 +244,8 @@ export async function onRequestGet(ctx){
     audienceSplit: true,
     publicTools: toolsFor('public').map(t=>t.name),   // the reduced public set (proves the split shipped)
     memberToolCount: TOOLS.length,                    // full set size (should be publicTools + 2)
+    memberModel: modelFor(env, 'member'),         // model the crew app runs on
+    publicModel: modelFor(env, 'public'),         // model the public site runs on (proves the downgrade shipped)
     snapshotHasChampion: !!SNAP.champion,         // true once the snapshot regenerated on a completed basho (no name = no spoiler)
     memberLoggingConfigured: !!(env.GUMBAI_LOG_DB && (env.GUMBAI_LOG_TOKEN || env.NOTION_TOKEN)), // Notion (member) log wired?
     publicLoggingConfigured: !!(env.GUMBAI_AE),   // Analytics Engine (public) log wired?
