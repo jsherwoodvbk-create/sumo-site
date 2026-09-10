@@ -21,6 +21,14 @@
 //     a "Photo pending (JSA-only)" note. Real Name + Photo stay HUMAN-owned (pull from JSA, run
 //     onboard-rikishi for the head-crop). Enrichment NEVER overwrites an existing Master page.
 //   - The Tournament page must already exist in the Bashos DB (it does for all 2026 basho).
+//   - HIGHEST RANK REFRESH (live pass, 2026-09-10): on the LIVE run, after the roster is created,
+//     every RETURNING wrestler's Master "Highest Rank" is raised to their true sumo-api career
+//     peak. That Notion field is a tier-level select setup-basho writes ONCE at onboarding (entry
+//     rank) and nothing updates after — so it drifts stale both for climbers (onboarded low, now
+//     high) AND, per Jennie, for DECLINERS (still stored at entry rank, below the peak they hit).
+//     Gumbai reads this field, so a stale value gives the wrong peak. The refresh RAISES only,
+//     never lowers, and skips newcomers (whose Highest Rank was just set to their entry = peak).
+//     Reads /rikishi/{id}?ranks=true — the same career rank history the per-rikishi dashboard uses.
 //
 // ENV: NOTION_TOKEN (required) · DRY_RUN (default "1") ·
 //      BASHO / BASHO_LABEL / TOURNAMENT_PAGE_ID (default to Aki 2026 below; override per basho)
@@ -64,6 +72,8 @@ function rankTier(rank) {
   if (rank === 'J') return 'Juryo';
   return null;
 }
+// Tier ordering for the Highest Rank refresh — higher number = higher rank. Used to RAISE only.
+const TIER_ORDER = { Yokozuna: 6, Ozeki: 5, Sekiwake: 4, Komusubi: 3, Maegashira: 2, Juryo: 1 };
 
 if (!NOTION_TOKEN) { console.error('FATAL: NOTION_TOKEN not set'); process.exit(1); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -147,6 +157,34 @@ async function fetchRikishiDetail(sumoId) {
     };
   } catch (e) { console.warn(`  rikishi ${sumoId} enrichment failed: ${e.message}`); return null; }
 }
+// Career-peak TIER from sumo-api's rank history (/rikishi/{id}?ranks=true). Lower rankValue = higher
+// rank, so the peak is the entry with the MIN rankValue; we map its rank string to the tier select.
+// Fail-safe: returns null (→ no write) on any miss, and — the FIRST time it can't find a rank-history
+// array — logs the actual response keys so a field-name mismatch is a one-glance fix, not silent data
+// corruption. (The write path is raise-only, so a null here can only ever mean "leave the field as is.")
+async function fetchHighestRankTier(sumoId) {
+  if (!sumoId) return null;
+  try {
+    const r = await getJson(`${API}/rikishi/${sumoId}?ranks=true`);
+    const hist = Array.isArray(r.rankHistory) ? r.rankHistory : (Array.isArray(r.ranks) ? r.ranks : []);
+    if (!hist.length) {
+      if (!fetchHighestRankTier._diag) {
+        fetchHighestRankTier._diag = true;
+        console.warn(`  ⚠️ Highest Rank refresh: no rank-history array on /rikishi/${sumoId}?ranks=true — response keys: [${Object.keys(r).join(', ')}]. If this fires for everyone, the field name differs; adjust "hist" in fetchHighestRankTier (no data was changed).`);
+      }
+      return null;
+    }
+    let peak = null;
+    for (const e of hist) {
+      const rv = Number(e.rankValue);
+      if (!Number.isFinite(rv)) continue;
+      if (peak === null || rv < peak.rankValue) peak = { rankValue: rv, rank: e.rank };
+    }
+    if (!peak) return null;
+    const tier = rankTier(rankInfo(peak.rank).rank);   // "Ozeki 1 East" -> "Ozeki"; "Maegashira 3 East" -> "M3" -> "Maegashira"
+    return tier ? { tier, rankStr: peak.rank } : null;
+  } catch (e) { console.warn(`  highest-rank fetch failed for ${sumoId}: ${e.message}`); return null; }
+}
 function mapCountry(shusshin) {
   if (!shusshin) return null;
   const s = String(shusshin);
@@ -181,6 +219,7 @@ async function main() {
 
   const [mrPages, bzPages] = await Promise.all([queryAll(DB.masterRikishi), queryAll(DB.banzuke)]);
   const MR = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p.id]));
+  const MRPAGE = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p]));   // full pages, for the Highest Rank refresh
   const BZ = new Set(bzPages.map(p => titleOf(p, 'Entry')));
 
   // Stables lookup — used only when creating newcomers (live run), so skip the query in DRY.
@@ -190,7 +229,7 @@ async function main() {
 
   const flags = [];
   const newcomers = [];
-  const weightBlank = [];
+  const newSet = new Set();   // names created this run — skipped by the Highest Rank refresh (their peak == entry rank)
   let bzCreate = 0, mrCreate = 0, skipEntry = 0;
 
   for (const r of all) {
@@ -198,26 +237,13 @@ async function main() {
     const rank = rankInfo(r.rank).rank;
     if (!validRank(rank)) { flags.push(`${name}: unexpected rank "${r.rank}" -> "${rank}" — VERIFY (entry still created).`); }
 
-    // Per-wrestler sumo-api detail (height/weight/JSA/etc). Fetched AT MOST ONCE per wrestler and
-    // only when actually needed — a newcomer Master to build, or a new Banzuke entry to weigh.
-    // Memoized so the newcomer branch and the Weight (kg) write share the single call; skipped
-    // entirely in DRY (no enrichment) and on idempotent re-runs where the entry already exists.
-    let _detail, _detailFetched = false;
-    async function detail() {
-      if (_detailFetched || DRY) { _detailFetched = true; return _detail ?? null; }
-      _detailFetched = true;
-      _detail = await fetchRikishiDetail(r.rikishiID);
-      await sleep(API_THROTTLE_MS);
-      return _detail;
-    }
-
     // 1) Master Rikishi — create + enrich only if the wrestler is new. Never touch an existing page.
     let mrId = MR.get(name);
     if (!mrId) {
-      mrCreate++; newcomers.push(`${name} (${rank})`);
+      mrCreate++; newcomers.push(`${name} (${rank})`); newSet.add(name);
       if (DRY) { mrId = `dry-mr-${name}`; }
       else {
-        const d = await detail();
+        const d = await fetchRikishiDetail(r.rikishiID); await sleep(API_THROTTLE_MS);
         const props = {
           'Ring Name': { title: [{ text: { content: name } }] },
           'Active': { checkbox: true },
@@ -258,26 +284,47 @@ async function main() {
         'Rikishi': { relation: [{ id: mrId }] },
         'Tournament': { relation: [{ id: TOURNAMENT_PAGE_ID }] },
       };
-      // Weight (kg) — from the per-rikishi detail (sumo-api refreshes it from the posted banzuke
-      // measurements), the SAME source + field name sync-notion uses for Juryo visitors. Honors the
-      // weigh-in rule: write it only when sourced; leave blank (never faked) when the API has none.
-      const d = await detail();
-      if (d?.weightKg) props['Weight (kg)'] = { number: d.weightKg };
-      else weightBlank.push(name);
       await notion('/pages', 'POST', { parent: { database_id: DB.banzuke }, properties: props });
       await sleep(WRITE_THROTTLE_MS);
     }
     BZ.add(entryTitle);
   }
 
+  // ── HIGHEST RANK REFRESH (live only) — raise each RETURNING wrestler's Master "Highest Rank"
+  //    to their true sumo-api career peak so Gumbai (which reads this field) has the real peak.
+  //    Raise-only, never lower. Newcomers skipped (just set to entry = peak). No writes in DRY.
+  const hrRaised = [];
+  let hrChecked = 0, hrBlank = 0;
+  if (!DRY) {
+    console.log(`\nHighest Rank refresh — checking career peak for ${all.length - newSet.size} returning wrestlers …`);
+    for (const r of all) {
+      const name = r.shikonaEn;
+      if (newSet.has(name)) continue;                 // just onboarded at entry rank = peak
+      const page = MRPAGE.get(name);
+      if (!page) { flags.push(`"${name}": no Master page found for the Highest Rank refresh — skipped.`); continue; }
+      const stored = page.properties?.['Highest Rank']?.select?.name || null;
+      const peak = await fetchHighestRankTier(r.rikishiID); await sleep(API_THROTTLE_MS);
+      hrChecked++;
+      if (!peak) { hrBlank++; continue; }             // no usable rank history — leave the field as is
+      if ((TIER_ORDER[peak.tier] || 0) > (TIER_ORDER[stored] || 0)) {
+        await notion(`/pages/${page.id}`, 'PATCH', { properties: { 'Highest Rank': { select: { name: peak.tier } } } });
+        await sleep(WRITE_THROTTLE_MS);
+        hrRaised.push(`${name}: ${stored || '(blank)'} → ${peak.tier}  (peak ${peak.rankStr})`);
+        console.log(`  ⬆️ HIGHEST RANK ${name}: ${stored || '(blank)'} → ${peak.tier}`);
+      }
+    }
+  }
+
   console.log(`\n──────── ${DRY ? 'CENSUS (nothing written)' : 'DONE'} ────────`);
   console.log(`Banzuke entries to create: ${bzCreate} · already present (skipped): ${skipEntry} · newcomer Master pages: ${mrCreate}`);
+  if (!DRY) console.log(`Highest Rank: checked ${hrChecked} returning wrestlers · raised ${hrRaised.length} · no rank history ${hrBlank}.`);
+  else console.log(`Highest Rank refresh: runs on the LIVE pass only (reads sumo-api rank history for the returning wrestlers and raises any stale Notion "Highest Rank"; no reads or writes in DRY).`);
+  if (hrRaised.length) { console.log('\n⬆️  HIGHEST RANK RAISED:'); for (const h of hrRaised) console.log('  - ' + h); }
   if (newcomers.length) { console.log(`\nNEWCOMERS (new Master Rikishi — pull Real Name + Photo from JSA, run onboard-rikishi):`); for (const n of newcomers) console.log('  - ' + n); }
-  if (!DRY && weightBlank.length) { console.log(`\n⚖️  WEIGHT BLANK — sumo-api had no weight for these (left blank, NOT faked — source by hand):`); for (const n of weightBlank) console.log('  - ' + n); }
   if (flags.length) { console.log('\n⚠️  FLAGS:'); for (const f of [...new Set(flags)]) console.log('  - ' + f); }
   else console.log('No flags.');
   if (DRY) console.log('\nDRY RUN. Review the census + newcomers, then re-run with DRY_RUN=0.');
-  else console.log(`\n✓ ${BASHO_LABEL} banzuke roster is in Notion. Next: flip the config (Phase 2) and dry-run the sync.`);
+  else console.log(`\n✓ ${BASHO_LABEL} banzuke roster is in Notion (+ Highest Rank refreshed). Next: flip the config (Phase 2) and dry-run the sync.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
