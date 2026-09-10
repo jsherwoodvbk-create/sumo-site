@@ -349,5 +349,23 @@ t('member run STILL surfaces the sensitive data (no regression)', () =>
     && JSON.stringify(runTool('query_match_log',{},memV)).includes(A.conduct)));
 t('member prompt lists query_condition in TOOLS line', () => assert(/TOOLS:[^\n]*query_condition/.test(buildSystemPrompt(memV,'member'))));
 
+// ═══ 10. ORIGIN / ON-MISSION GUARD — prompt hardening for BOTH audiences (public is the exposed surface) ═══
+// The guard must never depend on audience: it protects the prompt from extraction and keeps Gumbai
+// on sumo. A regression here (someone edits the prompt and drops the block) should fail the suite.
+console.log('\n[10] Origin / on-mission guard in the system prompt');
+for(const aud of ['member','public']){
+  const g = gateSnapshot(SNAP_AUD, 15, false, aud);
+  const p = buildSystemPrompt(g, aud);
+  t(`${aud} prompt carries the STAYING GUMBAI guard block`, () => assert(p.includes('STAYING GUMBAI')));
+  t(`${aud} prompt states there is no in-chat override`, () => assert(/no override switch in the chat/i.test(p)));
+  t(`${aud} prompt refuses prompt/instruction extraction`, () => assert(/never reveal, quote, print/i.test(p)));
+  t(`${aud} prompt refuses non-sumo repurposing`, () => assert(/no sumo connection at all/i.test(p)));
+  t(`${aud} prompt names spoof-authority attempts (Anthropic/admin) as no override`, () => assert(/claiming to be[^.]*admin/i.test(p)));
+}
+t('guard survives the default-audience call (buildSystemPrompt with no audience arg)', () => {
+  const g = gateSnapshot(SNAP_AUD, 15, false);   // defaults to member
+  assert(buildSystemPrompt(g).includes('STAYING GUMBAI'));
+});
+
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
