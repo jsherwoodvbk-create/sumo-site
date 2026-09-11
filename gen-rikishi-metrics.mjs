@@ -55,6 +55,8 @@ function diag(where, obj){                                      // log response 
   console.warn(`[diag] ${where}: could not find expected field; response keys = ${obj && typeof obj==='object' ? Object.keys(obj).join(',') : typeof obj}`);
 }
 const num = v => (v==null || v==='' || isNaN(+v)) ? null : +v;
+// URL slug for the ?r=<id> key — MUST match the slug() in standings.html so the name links resolve.
+const slug = s => String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'');
 const pct = (w,l) => (w+l>0) ? ('.'+String(Math.round(w/(w+l)*1000)).padStart(3,'0')) : null;
 
 // ── sumo-api ──────────────────────────────────────────────────────────────
@@ -173,7 +175,7 @@ async function buildRecord(entry){
   const crew = entry.crew || null;   // { w, l } computed by tallyMatchLog(); null until wired
 
   const rec = {
-    id: entry.slug || String(id||entry.name).toLowerCase().replace(/\s+/g,''),
+    id: slug(entry.name),   // keyed by name-slug to match the standings link (?r=<id>)
     name: entry.name, sample:false,
     rank: { current: entry.rank || null, basho: entry.bashoLabel || null },
     highestRank: arc.highest,
