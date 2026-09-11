@@ -15,7 +15,9 @@
 //   B. Notion (system of record where it IS authoritative):
 //      - Banzuke (current entry)   current rank, current weight, yusho/sansho fields + provenance
 //      - Match Log                 crew record (Jan2025+, makuuchi), kimarite, kinboshi, henka, birthday bouts
-//      - Master Rikishi            SOFT fields (family/talents/fun-facts/nicknames/entry-path/mawashi), sumo-api id
+//      - Master Rikishi            SOFT fields (family/talents/fun-facts/nicknames/entry-path/mawashi), sumo-api id,
+//                                  and the FULL PORTRAIT (confirmed 2026-09-11: the standing-shot lives on the Rikishi
+//                                  table in Notion — NOT the img/headshots head-crops, which are the standings avatars).
 //
 // DISCIPLINE (carried from setup-basho's Highest Rank refresh):
 //   - We could NOT verify the sumo-api response schema from the sandbox, so this is DEFENSIVE + SELF-
