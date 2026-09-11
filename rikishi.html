@@ -319,8 +319,7 @@ function render(R){
   const bday = R.birthday && R.birthday.inWindow
     ? `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
         <div class="bdaybig tnum">${esc(R.birthday.record)}</div>
-        <div class="bdaysub">in ${R.birthday.n} bout${R.birthday.n===1?'':'s'} fought on ${esc(R.birthday.on)}</div>
-        <div class="hidepill">✱ <b>Hidden</b> when his birthday doesn't fall inside a basho, so it never shows an empty stat.</div></div>`
+        <div class="bdaysub">in ${R.birthday.n} bout${R.birthday.n===1?'':'s'} fought on ${esc(R.birthday.on)}</div></div>`
     : `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
         <div class="bdaysub missing">No birthday bout inside a basho window — panel hidden in production.</div></div>`;
 
@@ -357,7 +356,7 @@ function render(R){
       <div class="bashosel" id="bsel"></div><div class="cal" id="caliber"></div>
       <p class="note">Record vs opponent tier, one basho at a time · current basho gates to your day.</p></section>
     <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Henka: him vs the field</h2><span class="tag soft">Soft</span></div>
-      <div class="cmp" id="henka"></div><p class="note">His henka rate vs the makuuchi average · bar = him, tick = field · booth call + Scorekeeper eye.</p></section></div>`;
+      <div class="cmp" id="henka"></div><p class="note">His henka rate vs the makuuchi average.</p></section></div>`;
 
   const bio = `<section class="panel"><div class="phead"><h2>The person: bio, talents, fun facts</h2>
     <span class="tag hard">Hard</span><span class="tag soft">+ Soft</span></div>
@@ -480,17 +479,14 @@ function initUnits(R){
 
 /* Load the generated metrics JSON if present (production); fall back to the embedded sample
    (so the page never breaks if the JSON is missing, or when opened over file://). */
-async function loadMetrics(){
-  try{
-    const res = await fetch('/rikishi-metrics.json', {cache:'no-store'});
-    if(res.ok){ const j = await res.json(); if(j && typeof j==='object' && Object.keys(j).length){ console.info('[metrics] source: live rikishi-metrics.json'); return j; } }
-  }catch(e){/* file:// or missing JSON → embedded fallback */}
-  console.info('[metrics] source: embedded sample (fallback)');
-  return METRICS;
-}
-(async()=>{
-  const data = normalizeKim(await loadMetrics());
-  const SNAP = data[rid] || data[Object.keys(data)[0]];
-  render(SNAP);
-})();
+function pickFrom(data){ return data[rid] || data[Object.keys(data)[0]]; }
+// Render IMMEDIATELY from the embedded sample so the page is never blank. Do NOT gate the
+// render on the fetch: some preview/CSP sandboxes block or hang a same-origin fetch with no
+// error to catch, which would otherwise leave the page empty.
+render(pickFrom(normalizeKim(METRICS)));
+// Then upgrade to the generated JSON in the background, if it loads.
+fetch('/rikishi-metrics.json', {cache:'no-store'})
+  .then(r => r.ok ? r.json() : null)
+  .then(j => { if(j && typeof j==='object' && Object.keys(j).length){ const s = pickFrom(normalizeKim(j)); if(s){ console.info('[metrics] upgraded to live rikishi-metrics.json'); render(s); } } })
+  .catch(() => { /* keep the embedded sample */ });
 </script>
