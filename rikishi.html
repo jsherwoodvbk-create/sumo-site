@@ -239,7 +239,6 @@ const METRICS = {
 const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const params = new URLSearchParams(location.search);
 const rid = params.get('r');
-const SNAP = METRICS[rid] || METRICS[Object.keys(METRICS)[0]];
 
 /* carry the watched-day context onto the Return-to-Standings link (spoiler-safe) */
 (function(){
@@ -380,8 +379,8 @@ function drawPie(R){
     return `<div class="li"><span class="sw" style="background:${k.color}"></span><span class="nm">${esc(k.name)}${k.moves?` <span class="src">(${k.moves} moves)</span>`:''}</span><span class="pc tnum">${pc}%</span></div>`;}).join('');
 }
 /* accept both {name,pct} and legacy [name,pct,color] — normalize on read */
-(function normalizeKim(){ for(const id in METRICS){ const s=METRICS[id].kimarite&&METRICS[id].kimarite.slices; if(!s)continue;
-  METRICS[id].kimarite.slices=s.map(k=>Array.isArray(k)?{name:k[0],pct:k[1],color:k[2],moves:k[3]}:k); } })();
+function normalizeKim(data){ for(const id in data){ const s=data[id].kimarite&&data[id].kimarite.slices; if(!s)continue;
+  data[id].kimarite.slices=s.map(k=>Array.isArray(k)?{name:k[0],pct:k[1],color:k[2],moves:k[3]}:k); } return data; }
 
 /* ---- mawashi ---- */
 function drawMawashi(R){
@@ -432,5 +431,19 @@ function initUnits(R){
   renderUnits(guess);
 }
 
-render(SNAP);
+/* Load the generated metrics JSON if present (production); fall back to the embedded sample
+   (so the page never breaks if the JSON is missing, or when opened over file://). */
+async function loadMetrics(){
+  try{
+    const res = await fetch('/rikishi-metrics.json', {cache:'no-store'});
+    if(res.ok){ const j = await res.json(); if(j && typeof j==='object' && Object.keys(j).length){ console.info('[metrics] source: live rikishi-metrics.json'); return j; } }
+  }catch(e){/* file:// or missing JSON → embedded fallback */}
+  console.info('[metrics] source: embedded sample (fallback)');
+  return METRICS;
+}
+(async()=>{
+  const data = normalizeKim(await loadMetrics());
+  const SNAP = data[rid] || data[Object.keys(data)[0]];
+  render(SNAP);
+})();
 </script>
