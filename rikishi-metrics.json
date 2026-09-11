@@ -1,0 +1,368 @@
+{
+  "aonishiki": {
+    "id": "aonishiki",
+    "name": "Aonishiki",
+    "sample": true,
+    "rank": {
+      "current": "Ozeki",
+      "basho": "Aki 2026"
+    },
+    "highestRank": "Ozeki",
+    "photo": null,
+    "origin": {
+      "city": "Vinnytsia",
+      "country": "Ukraine",
+      "flag": "🇺🇦"
+    },
+    "vitals": {
+      "heightCm": 182,
+      "weightKg": 142,
+      "age": 22,
+      "bday": {
+        "mon": "Mar",
+        "day": 23,
+        "yy": "’04"
+      },
+      "stable": "Ajigawa"
+    },
+    "birthday": {
+      "inWindow": true,
+      "record": "1–2",
+      "n": 3,
+      "on": "Mar 23"
+    },
+    "records": {
+      "allDivision": {
+        "w": 205,
+        "l": 95,
+        "pct": ".683"
+      },
+      "makuuchi": {
+        "w": 118,
+        "l": 62,
+        "pct": ".656"
+      },
+      "crew": {
+        "w": 118,
+        "l": 62,
+        "pct": ".656"
+      },
+      "note": "For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+    },
+    "specials": [
+      {
+        "jp": "Kinboshi",
+        "en": "Gold Star",
+        "count": 3,
+        "basho": [
+          "25Nt",
+          "25Ng",
+          "25Ak"
+        ]
+      },
+      {
+        "jp": "Shukun-sho",
+        "en": "Outstanding Perf.",
+        "count": 0,
+        "basho": []
+      },
+      {
+        "jp": "Kanto-sho",
+        "en": "Fighting Spirit",
+        "count": 2,
+        "basho": [
+          "25Ky",
+          "26Ht"
+        ]
+      },
+      {
+        "jp": "Gino-sho",
+        "en": "Technique",
+        "count": 1,
+        "basho": [
+          "26Ng"
+        ]
+      },
+      {
+        "jp": "Yusho",
+        "en": "Emperor's Cup",
+        "count": 3,
+        "basho": [
+          "25Ky",
+          "26Ht",
+          "26Ng"
+        ]
+      }
+    ],
+    "story": {
+      "html": "<span class=\"who\">Aonishiki</span> went from Maegashira 15 to Ozeki in six bashos, one of the fastest climbs in our records. He won two Emperor's Cups before he turned 22 and a third at 22. Two of the three came as a Sekiwake. The first was Kyushu 2025, on the way up. He took the second as an Ozeki at Hatsu 2026. The third came at Nagoya 2026, the same tournament he had dropped to Sekiwake after losing his Ozeki rank; he won the Cup and took the rank straight back for Aki.",
+      "source": "Built from our banzuke and yusho records (no web). Crew edits the prose."
+    },
+    "arc": {
+      "fromJuryo": true,
+      "from": "from Juryo",
+      "points": [
+        {
+          "b": "Hru25",
+          "v": 19,
+          "r": "M15"
+        },
+        {
+          "b": "Ntu25",
+          "v": 13,
+          "r": "M9"
+        },
+        {
+          "b": "Ngy25",
+          "v": 5,
+          "r": "M1"
+        },
+        {
+          "b": "Aki25",
+          "v": 4,
+          "r": "K"
+        },
+        {
+          "b": "Kyu25",
+          "v": 3,
+          "r": "S"
+        },
+        {
+          "b": "Hts26",
+          "v": 2,
+          "r": "O"
+        },
+        {
+          "b": "Hru26",
+          "v": 2,
+          "r": "O"
+        },
+        {
+          "b": "Ntu26",
+          "v": 2,
+          "r": "O"
+        },
+        {
+          "b": "Ngy26",
+          "v": 3,
+          "r": "S"
+        },
+        {
+          "b": "Aki26",
+          "v": 2,
+          "r": "O"
+        }
+      ]
+    },
+    "kimarite": {
+      "window": "since Jan 2025",
+      "totalWins": 118,
+      "slices": [
+        {
+          "name": "Yorikiri",
+          "pct": 30,
+          "color": "#cf5a2c"
+        },
+        {
+          "name": "Oshidashi",
+          "pct": 19,
+          "color": "#2f8f5b"
+        },
+        {
+          "name": "Tsukiotoshi",
+          "pct": 12,
+          "color": "#7a4fb0"
+        },
+        {
+          "name": "Uwatenage",
+          "pct": 9,
+          "color": "#4a7fb5"
+        },
+        {
+          "name": "Hatakikomi",
+          "pct": 8,
+          "color": "#c99a2e"
+        },
+        {
+          "name": "Sukuinage",
+          "pct": 7,
+          "color": "#b5566f"
+        },
+        {
+          "name": "Yoritaoshi",
+          "pct": 7,
+          "color": "#3a9aa0"
+        },
+        {
+          "name": "Other",
+          "pct": 8,
+          "color": "#8a8168",
+          "moves": 5
+        }
+      ]
+    },
+    "mawashi": [
+      {
+        "b": "Aki25",
+        "c": "#2b3a67",
+        "chg": 0
+      },
+      {
+        "b": "Kyu25",
+        "c": "#2b3a67",
+        "chg": 0
+      },
+      {
+        "b": "Hts26",
+        "c": "#6a2f2f",
+        "chg": 1
+      },
+      {
+        "b": "Hru26",
+        "c": "#6a2f2f",
+        "chg": 0
+      },
+      {
+        "b": "Ntu26",
+        "c": "#3a5a40",
+        "chg": 1
+      },
+      {
+        "b": "Ngy26",
+        "c": "#6a2f2f",
+        "chg": 1
+      },
+      {
+        "b": "Aki26",
+        "c": "#8a6d2f",
+        "chg": 1
+      }
+    ],
+    "caliber": {
+      "default": "Aki26",
+      "bashos": {
+        "Aki26": [
+          [
+            "Named",
+            "Y·O·S·K",
+            3,
+            3
+          ],
+          [
+            "High M",
+            "M1–8",
+            4,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            2,
+            0
+          ]
+        ],
+        "Ngy26": [
+          [
+            "Named",
+            "Y·O·S·K",
+            2,
+            4
+          ],
+          [
+            "High M",
+            "M1–8",
+            5,
+            2
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            3,
+            0
+          ]
+        ],
+        "Ntu26": [
+          [
+            "Named",
+            "Y·O·S·K",
+            4,
+            2
+          ],
+          [
+            "High M",
+            "M1–8",
+            6,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ]
+      }
+    },
+    "henka": [
+      {
+        "label": "Full",
+        "his": 0.6,
+        "avg": 1.8,
+        "n": "1 in 180 bouts"
+      },
+      {
+        "label": "Partial",
+        "his": 1.1,
+        "avg": 2.4,
+        "n": "2 in 180 bouts"
+      }
+    ],
+    "bio": [
+      {
+        "k": "Shusshin",
+        "v": "Vinnytsia, Ukraine 🇺🇦",
+        "src": "sumo-api"
+      },
+      {
+        "k": "Born",
+        "v": "23 Mar 2004 · age 22",
+        "src": "sumo-api"
+      },
+      {
+        "k": "Entry path",
+        "v": "<b>Amateur / independent.</b> Came up through Ukrainian and European amateur sumo, not a stable school",
+        "src": "✓✓ corroborated · sample"
+      },
+      {
+        "k": "Family",
+        "v": "Single",
+        "src": "as of 2026 · volatile, re-checked · sample"
+      },
+      {
+        "k": "Languages",
+        "v": "Ukrainian, Russian, learning Japanese fast",
+        "src": "✓✓ corroborated · sample"
+      },
+      {
+        "k": "Special talents",
+        "v": "Unusual balance and mid-bout recovery; a belt technician despite giving up height and weight to most Ozeki",
+        "src": "sample"
+      },
+      {
+        "k": "Known for",
+        "v": "The booth calls it \"old-man sumo in a young body\": patient, hard to rush at the edge",
+        "src": "[booth claim]"
+      },
+      {
+        "k": "Fun facts",
+        "v": "Fell for sumo watching clips online in Ukraine before he'd ever stepped in a ring",
+        "src": "single-source, flagged for review"
+      },
+      {
+        "k": "Nicknames",
+        "v": "None on file yet",
+        "src": "human-owned field; crew adds (J) official / (O) ours"
+      }
+    ]
+  }
+}
