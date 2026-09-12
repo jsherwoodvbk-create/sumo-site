@@ -11,10 +11,19 @@
 //   severity log), catchphrases[] (per announcer, day-tagged). The Function's gate
 //   (_engine.js) filters all of it per-viewer-day — the snapshot holds every day.
 //
+// SCHEMA gumbai-snapshot/6 (2026-09-12): profiles now carry stable/hometown/knownFor/
+//   realName/pastRingNames/active alongside mawashi; and a NEW top-level `master` lane holds
+//   the WHOLE Master Rikishi roster (name + timeless background fields) so Gumbai can roll up
+//   by stable/country/hometown/knownFor/highestRank across everyone, not just the current
+//   banzuke. All of it is timeless background → the engine never gates it. Closes the
+//   coverage gap that had Gumbai swearing it doesn't track stables (see
+//   state/gumbai-coverage-audit.md). NEW rule: a Notion schema change triggers a snapshot
+//   coverage check (state/naming-conventions.md).
+//
 // SAFETY: validates the CORE (bouts/rikishi/banzuke) before writing; a broken core pull
-// exits non-zero and writes nothing. The four soft-data pulls are each wrapped so a missing
-// integration share (the classic Kimarite 404) degrades that ONE lane to empty + a warning,
-// never aborting the snapshot.
+// exits non-zero and writes nothing. The soft-data + stables pulls are each wrapped so a
+// missing integration share (the classic Kimarite 404) degrades that ONE lane to empty +
+// a warning, never aborting the snapshot.
 //
 // ENV: NOTION_TOKEN (required) · BASHO (default 202607) · OUT (default functions/api/_snapshot.js)
 import fs from 'node:fs';
@@ -37,6 +46,7 @@ const DB = {
   masterRikishi: 'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
   kimarite:      '2591d1eb-2146-4745-ab0a-72ba57bfd213',
+  stables:       'eff4e763-c792-422d-9c90-943f9315cb41',   // 🏠 Stables — resolves the Master Rikishi `Stable` relation to a name (schema/6)
   // soft-data lanes (schema/4) — each must be shared with the sumo-site-publisher integration:
   days:          'eb0597c9-7259-49cd-babb-889f3b28f33d',
   injuryLog:     '7a44f06d-389d-4bd6-aa84-314225d06085',
@@ -124,12 +134,17 @@ async function main() {
   ]);
   console.log(`pulled CORE: rikishi=${mrPages.length} banzuke=${bzPages.length} kimarite=${kmPages.length} matchlog=${mlPages.length}`);
 
-  // SOFT-DATA pull (schema/4) — each resilient (empty + warn on failure).
+  // SOFT-DATA pull (schema/4) + Stables (schema/6) — each resilient (empty + warn on failure).
   const dayPages   = await queryLane('days', DB.days, scopedBasho, warn);
   const injPages   = await queryLane('injuries', DB.injuryLog, undefined, warn);   // no basho field; scoped below by 26Ng stamp
   const cpPages    = await queryLane('catchphrases', DB.catchphrases, undefined, warn);
   const annPages   = await queryLane('announcers', DB.announcers, undefined, warn);
-  console.log(`pulled SOFT: days=${dayPages.length} injuries=${injPages.length} catchphrases=${cpPages.length} announcers=${annPages.length}`);
+  const stPages    = await queryLane('stables', DB.stables, undefined, warn);       // 🏠 Stables (schema/6) — resolves the Stable relation
+  console.log(`pulled SOFT: days=${dayPages.length} injuries=${injPages.length} catchphrases=${cpPages.length} announcers=${annPages.length} stables=${stPages.length}`);
+
+  // Stable page id -> stable name (resolves Master Rikishi's `Stable` relation).
+  const stableNameById = new Map();
+  for (const p of stPages) { const n = titleOf(p, 'Name'); if (n) stableNameById.set(idNoDash(p.id), n); }
 
   // id -> canonical shikona (Master Rikishi), and id -> full profile
   const mrNameById = new Map();
@@ -137,14 +152,22 @@ async function main() {
   for (const p of mrPages) {
     const name = titleOf(p, 'Ring Name'); if (!name) continue;
     mrNameById.set(idNoDash(p.id), name);
+    const stId = rel1(p, 'Stable');
     mrProfById.set(idNoDash(p.id), {
       name,
       nicknames: parseNicknames(textOf(p, 'Nicknames')),
       country: selOf(p, 'Country of Origin'),
+      hometown: textOf(p, 'Hometown') || null,       // ← schema/6: granular origin (city/prefecture)
       birthday: dateOf(p, 'Birthday'),
       highestRank: selOf(p, 'Highest Rank'),
       heightCm: numOf(p, 'Height (cm)'),
-      mawashi: textOf(p, 'Mawashi Color') || null,   // ← ADD: current mawashi color (words), same field standings' hex map comes from
+      mawashi: textOf(p, 'Mawashi Color') || null,   // current mawashi color (words), same field standings' hex map comes from
+      stable: (stId && stableNameById.get(stId)) || null,   // ← schema/6: resolved stable name (the crew's Isegahama gap)
+      knownFor: multiOf(p, 'Known For'),             // ← schema/6: curated trademarks (multi-select; [] when none)
+      knownForNotes: textOf(p, 'Known For Notes') || null,  // ← schema/6
+      realName: textOf(p, 'Real Name') || null,      // ← schema/6
+      pastRingNames: textOf(p, 'Past Ring Names') || null,  // ← schema/6
+      active: boolOf(p, 'Active'),                    // ← schema/6: still competing
       injuryNotes: textOf(p, 'Notes') || null,
       shikonaMeaning: textOf(p, 'Translation') || null,
     });
@@ -200,6 +223,19 @@ async function main() {
   for (const p of bzPages) { const rid = rel1(p, 'Rikishi'); if (rid) rosterIds.add(rid); }
   const rikishi = [...rosterIds].map(id => mrProfById.get(id)).filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name));
+
+  // ── master[] : the WHOLE Master Rikishi roster (schema/6), slim + TIMELESS background only.
+  //    Powers query_rollup's "master" scope and "on the master" questions beyond the current
+  //    banzuke (retirees included). No results here, so the engine never gates it.
+  const master = [...mrProfById.values()].map(r => ({
+    name: r.name,
+    stable: r.stable,
+    country: r.country,
+    hometown: r.hometown,
+    knownFor: r.knownFor,
+    highestRank: r.highestRank,
+    active: r.active,
+  })).sort((a, b) => a.name.localeCompare(b.name));
 
     // mawashi color must end in a family word (last-word convention) — warn on any that don't.
   const FAM_WORDS = ['purple','blue','red','green','teal','brown','black','grey','gray','pink'];
@@ -294,6 +330,8 @@ async function main() {
   if (!days.length) warn.push('days[] empty (storylines/scorekeeper notes absent)');
   if (!injuries.length) warn.push('injuries[] empty');
   if (!catchphrases.length) warn.push('catchphrases[] empty');
+  if (!master.length) warn.push('master[] empty (Master Rikishi pull returned nothing?)');
+  if (!stableNameById.size) warn.push('stables[] empty — Stable relation will not resolve (is 🏠 Stables shared with sumo-site-publisher?)');
 
   // ── fold in the static historical layer (past basho; NEVER gated) ──
   let history = null;
@@ -353,9 +391,10 @@ async function main() {
     meta: {
       basho: BASHO_LABEL, bashoId: BASHO,
       horizon: 'Live data is the current basho; history goes back to Jan 2025 (when the crew got into sumo).',
-      maxDay, schema: 'gumbai-snapshot/5', source: 'notion',
+      maxDay, schema: 'gumbai-snapshot/6', source: 'notion',
     },
     rikishi, banzuke, kimarite, bouts,
+    master,                            // schema/6: whole Master Rikishi roster (timeless) for rollups & "on the master"
     days, injuries, catchphrases,     // schema/4 soft-data lanes
     champion,                          // schema/5: current-basho yusho (null until complete; engine gates reveal)
     history,
@@ -370,7 +409,7 @@ async function main() {
   fs.writeFileSync(OUT, banner + 'export default ' + JSON.stringify(snapshot) + ';\n');
 
   console.log(`✓ wrote ${OUT}`);
-  console.log(`  basho=${BASHO_LABEL} maxDay=${maxDay} rikishi=${rikishi.length} banzuke=${banzuke.length} kimarite=${kimarite.length} bouts=${bouts.length}`);
+  console.log(`  basho=${BASHO_LABEL} maxDay=${maxDay} rikishi=${rikishi.length} master=${master.length} banzuke=${banzuke.length} kimarite=${kimarite.length} bouts=${bouts.length}`);
   console.log(`  soft: days=${days.length} injuries=${injuries.length} catchphrases=${catchphrases.length}`);
   if (warn.length) { console.log('⚠️ warnings:'); for (const w of [...new Set(warn)]) console.log('  - ' + w); }
 }
