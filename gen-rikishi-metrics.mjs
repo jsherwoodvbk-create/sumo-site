@@ -238,7 +238,7 @@ let _statsDumped = false;
 // sansho lookup across the shape variants sumo-api might use.
 function sanshoCount(obj, keys){ if (!obj || typeof obj !== 'object') return 0; for (const k of keys) if (obj[k] != null) return num(obj[k]) || 0; return 0; }
 async function fetchCareer(id){
-  const s = await getJson(`${API}/rikishi/${id}/stats`); if (!s) return { allDivision: null, makuuchi: null, yushoAll: null, sansho: {} };
+  const s = await getJson(`${API}/rikishi/${id}/stats`); if (!s) return { allDivision: null, makuuchi: null, yushoMak: 0, sansho: {} };
   // One-time raw dump on a DRY run so a wrong shape is a one-glance fix (the makuuchi split was
   // mis-keyed on the first live run: it lives under winsByDivision/lossByDivision, not totalByDivision).
   if (DRY && !_statsDumped) { _statsDumped = true;
@@ -251,7 +251,10 @@ async function fetchCareer(id){
   const mkW = num(winsDiv.Makuuchi ?? winsDiv.makuuchi);
   const mkL = num(lossDiv.Makuuchi ?? lossDiv.makuuchi);
   const mak = (mkW != null || mkL != null) ? { w: mkW ?? 0, l: mkL ?? 0 } : null;
-  const yushoAll = num(s.yusho ?? s.yushoCount);
+  // Yusho: MAKUUCHI ONLY (crew rule — we don't count lower-division championships). sumo-api's top-level
+  // `yusho` is all-divisions (that's why Asanoyama read 5); the makuuchi count lives in yushoByDivision.
+  const yushoByDiv = s.yushoByDivision || {};
+  const yushoMak = num(yushoByDiv.Makuuchi ?? yushoByDiv.makuuchi) ?? 0;
   const sansho = {
     shukun: sanshoCount(s.sansho, ['Shukun-sho','Shukunsho','shukun','Outstanding Performance']),
     kanto:  sanshoCount(s.sansho, ['Kanto-sho','Kantosho','kanto','Fighting Spirit']),
@@ -262,7 +265,7 @@ async function fetchCareer(id){
   return {
     allDivision: total ? { w: total.w, l: total.l, pct: pctStr(total.w, total.l) } : null,
     makuuchi:    mak   ? { w: mak.w,   l: mak.l,   pct: pctStr(mak.w, mak.l) }     : null,
-    yushoAll, sansho,
+    yushoMak, sansho,
   };
 }
 
@@ -276,12 +279,14 @@ function bdayParts(bd){ if (!bd) return null; const b = new Date(bd); if (isNaN(
 function parseShusshin(s){ if (!s) return { city: null, country: null, flag: '' };
   const parts = String(s).split(',').map(x => x.trim()); return { city: parts[0] || null, country: parts[1] || parts[0] || null, flag: '' }; }
 
-// mawashi color-name → hex (soft, best-effort; unknown names fall back to a neutral clay).
-const MAWA_HEX = { navy:'#2b3a67', blue:'#3a5a8f', royal:'#3a5a8f', maroon:'#6a2f2f', red:'#8a2f2f', crimson:'#7a2230',
-  green:'#3a5a40', forest:'#2f4a36', gold:'#8a6d2f', yellow:'#b59b3a', mustard:'#9a7d2e', purple:'#5b3a7a', violet:'#5b3a7a',
-  black:'#222222', white:'#e7ddc8', pink:'#c96f8a', 'sakura':'#ffb7c5', orange:'#c2662f', brown:'#6b4a2b', teal:'#2f6f6f',
-  gray:'#7b7264', grey:'#7b7264', silver:'#b8b0a2', 'sky':'#6f97c2', 'light blue':'#6f97c2' };
-function mawaHex(name){ const k = String(name || '').trim().toLowerCase(); return MAWA_HEX[k] || '#8a7a5a'; }
+// Mawashi color → hex. The Notion "Mawashi Color" note is descriptive free text ("deep plum purple",
+// "midnight blue"); the crew's convention (gen_mawashi.py / the Mawashi Colors report) is that the
+// FAMILY is the LAST WORD. Reuse that exact family map + palette so the dashboard swatch agrees with
+// the report — "deep plum purple" → purple → #6a3d9a, not a fallback gray.
+const MAWA_FAMILY = { purple:'purple', blue:'blue', red:'red', green:'green', teal:'green', brown:'brown', black:'black', grey:'grey', gray:'grey', pink:'pink' };
+const MAWA_HEX = { blue:'#3a4a6b', purple:'#6a3d9a', red:'#9b3b52', green:'#2f8f6b', brown:'#7a5230', black:'#26262b', grey:'#8c8c92', pink:'#e59ab5' };
+function mawaHex(name){ const t = String(name || '').trim(); if (!t) return '#8a7a5a';
+  const fam = MAWA_FAMILY[t.split(/\s+/).pop().toLowerCase()]; return fam ? MAWA_HEX[fam] : '#8a7a5a'; }
 // "Navy → Maroon → Green" or comma/newline list → ordered [{b:'',c:hex,chg}] (b left blank: Notion
 // holds no per-basho stamp for mawashi; the crew fills basho labels when known).
 function buildMawashi(currentColor, pastText){
@@ -322,7 +327,9 @@ async function main(){
   for (const p of mrPages) { const nm = titleOf(p, 'Ring Name'); if (!nm) continue;
     const k = nkey(nm); mrByKey.set(k, p); mrIdByKey.set(k, idNoDash(p.id)); mrKeyById.set(idNoDash(p.id), k); }
   // Kimarite id → JP name.
-  const kmById = new Map(); for (const p of kmPages) { const n = textOf(p, 'Kimarite'); if (n) kmById.set(idNoDash(p.id), n); }
+  // Kimarite id → ENGLISH name for the pie (the "NHK Label" = the English broadcast term, e.g.
+  // Yorikiri → "Frontal force out"); fall back to the Japanese name only if a label is blank.
+  const kmById = new Map(); for (const p of kmPages) { const en = textOf(p, 'NHK Label') || textOf(p, 'Kimarite'); if (en) kmById.set(idNoDash(p.id), en); }
 
   // Banzuke: rank per (masterId, tournamentId) for the caliber opponent-tier join; honors per masterId;
   // current-basho weight per masterId.
@@ -413,7 +420,7 @@ async function main(){
       mkSpecial('Shukun-sho', 'Outstanding Perf.', car.sansho?.shukun,   opChips, 'career'),
       mkSpecial('Kanto-sho',  'Fighting Spirit',   car.sansho?.kanto,    fsChips, 'career'),
       mkSpecial('Gino-sho',   'Technique',         car.sansho?.gino,     teChips, 'career'),
-      mkSpecial('Yusho',      "Emperor's Cup",     car.yushoAll,         yuChips, 'career'),
+      mkSpecial('Yusho',      "Emperor's Cup",     car.yushoMak,        yuChips, 'career'),
     ];
 
     // kimarite mix (crew-era wins). Promote techniques largest-first into their own slice until the
