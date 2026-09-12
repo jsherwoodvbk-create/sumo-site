@@ -213,37 +213,37 @@
       "totalWins": 90,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 32,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 26,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 13,
           "color": "#7a4fb0"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 9,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 3,
           "color": "#b5566f"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -254,27 +254,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Uwatehineri",
+              "name": "Twisting Over Arm Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kirikaeshi",
+              "name": "Twisting Backward Knee Trip",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             }
@@ -285,7 +285,7 @@
     "mawashi": [
       {
         "b": "midnight blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -582,12 +582,12 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 5,
+        "count": 3,
         "basho": [
           "26Hr"
         ],
         "era": "career",
-        "pre": 4
+        "pre": 2
       }
     ],
     "story": {
@@ -940,37 +940,37 @@
       "totalWins": 102,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 26,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 15,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 10,
           "color": "#7a4fb0"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 6,
           "color": "#b5566f"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -981,82 +981,82 @@
           "moves": 16,
           "tail": [
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 4,
               "pct": 4
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 4,
               "pct": 4
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 3,
               "pct": 3
             },
             {
-              "name": "Tottari",
+              "name": "Arm Bar Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Utchari",
+              "name": "Backward Pivot Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sakatottari",
+              "name": "Arm Bar Throw Counter",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukihiza",
+              "name": "Knee Touch Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Okuritaoshi",
+              "name": "Rear Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kubinage",
+              "name": "Head Lock Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sotogake",
+              "name": "Outside Leg Trip",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Katasukashi",
+              "name": "Under Shoulder Swing Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "okurinage",
+              "name": "rear throw-down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             }
@@ -1067,7 +1067,7 @@
     "mawashi": [
       {
         "b": "deep  brownish purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -1389,14 +1389,14 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 5,
+        "count": 3,
         "basho": [
           "25Ky",
           "26Ht",
           "26Ng"
         ],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -1504,37 +1504,37 @@
       "totalWins": 87,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 32,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 20,
           "color": "#2f8f5b"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 6,
           "color": "#7a4fb0"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 6,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Kirikaeshi",
+          "name": "Twisting Backward Knee Trip",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "uchimuso",
+          "name": "inner-thigh propping twist-down",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -1545,57 +1545,57 @@
           "moves": 11,
           "tail": [
             {
-              "name": "Watashikomi",
+              "name": "Thigh Grabbing Push Down",
               "n": 3,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 3,
               "pct": 3
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 3,
               "pct": 3
             },
             {
-              "name": "Kubinage",
+              "name": "Head Lock Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Hatakikomi",
+              "name": "Slap Down",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Shitatehineri",
+              "name": "Twisting Underarm Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "okurinage",
+              "name": "rear throw-down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Katasukashi",
+              "name": "Under Shoulder Swing Down",
               "n": 1,
               "pct": 1
             }
@@ -1606,7 +1606,7 @@
     "mawashi": [
       {
         "b": "British racing green",
-        "c": "#8a7a5a",
+        "c": "#2f8f6b",
         "chg": 0
       }
     ],
@@ -1892,10 +1892,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -2088,37 +2088,37 @@
       "totalWins": 85,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 38,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 35,
           "color": "#2f8f5b"
         },
         {
-          "name": "Kotenage",
+          "name": "Arm Lock Throw",
           "pct": 7,
           "color": "#7a4fb0"
         },
         {
-          "name": "Kimedashi",
+          "name": "Arm Barring Force Out",
           "pct": 5,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 2,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 2,
           "color": "#b5566f"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 2,
           "color": "#3a9aa0"
         },
@@ -2129,32 +2129,32 @@
           "moves": 6,
           "tail": [
             {
-              "name": "Hatakikomi",
+              "name": "Slap Down",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -2165,7 +2165,7 @@
     "mawashi": [
       {
         "b": "dark muted raspberry red",
-        "c": "#8a7a5a",
+        "c": "#9b3b52",
         "chg": 0
       }
     ],
@@ -2482,10 +2482,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -2618,37 +2618,37 @@
       "totalWins": 79,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 38,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 24,
           "color": "#2f8f5b"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 6,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -2659,32 +2659,32 @@
           "moves": 6,
           "tail": [
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatehineri",
+              "name": "Twisting Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kirikaeshi",
+              "name": "Twisting Backward Knee Trip",
               "n": 1,
               "pct": 1
             }
@@ -2695,7 +2695,7 @@
     "mawashi": [
       {
         "b": "medium grey brown",
-        "c": "#8a7a5a",
+        "c": "#7a5230",
         "chg": 0
       }
     ],
@@ -3019,12 +3019,12 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 4,
+        "count": 1,
         "basho": [
           "25Ng"
         ],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -3302,37 +3302,37 @@
       "totalWins": 77,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 23,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 22,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 12,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 10,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -3343,42 +3343,42 @@
           "moves": 8,
           "tail": [
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kubinage",
+              "name": "Head Lock Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             }
@@ -3389,7 +3389,7 @@
     "mawashi": [
       {
         "b": "light blue grey",
-        "c": "#8a7a5a",
+        "c": "#8c8c92",
         "chg": 0
       }
     ],
@@ -3708,10 +3708,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -4229,37 +4229,37 @@
       "totalWins": 79,
       "slices": [
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 15,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 15,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 15,
           "color": "#7a4fb0"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 10,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 9,
           "color": "#c99a2e"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 8,
           "color": "#b5566f"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -4270,62 +4270,62 @@
           "moves": 12,
           "tail": [
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Uwatehineri",
+              "name": "Twisting Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sakatottari",
+              "name": "Arm Bar Throw Counter",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kainahineri",
+              "name": "Two Handed Arm Twist Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "uchimuso",
+              "name": "inner-thigh propping twist-down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fumidashi",
+              "name": "Rear Step Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Watashikomi",
+              "name": "Thigh Grabbing Push Down",
               "n": 1,
               "pct": 1
             }
@@ -4336,7 +4336,7 @@
     "mawashi": [
       {
         "b": "dark blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -4658,10 +4658,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -4849,37 +4849,37 @@
       "totalWins": 70,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 54,
           "color": "#cf5a2c"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 10,
           "color": "#2f8f5b"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 7,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 7,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -4890,27 +4890,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Hikkake",
+              "name": "Arm Grabbing Force Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             }
@@ -4921,7 +4921,7 @@
     "mawashi": [
       {
         "b": "midnight blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -5747,37 +5747,37 @@
       "totalWins": 70,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 41,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 17,
           "color": "#2f8f5b"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 16,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 6,
           "color": "#4a7fb5"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 3,
           "color": "#b5566f"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -5788,27 +5788,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tsukihiza",
+              "name": "Knee Touch Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             }
@@ -5819,7 +5819,7 @@
     "mawashi": [
       {
         "b": "red",
-        "c": "#8a2f2f",
+        "c": "#9b3b52",
         "chg": 0
       }
     ],
@@ -6136,10 +6136,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -6387,37 +6387,37 @@
       "totalWins": 62,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 37,
           "color": "#cf5a2c"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 16,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Uwatedashinage",
+          "name": "Pulling Over Arm Throw",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -6428,32 +6428,32 @@
           "moves": 6,
           "tail": [
             {
-              "name": "Oshidashi",
+              "name": "Frontal Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Makiotoshi",
+              "name": "Twist Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 2
             }
@@ -6464,7 +6464,7 @@
     "mawashi": [
       {
         "b": "dark blue purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -6781,10 +6781,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 5,
+        "count": 1,
         "basho": [],
         "era": "career",
-        "pre": 5
+        "pre": 1
       }
     ],
     "story": {
@@ -7117,27 +7117,27 @@
       "totalWins": 34,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 47,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 24,
           "color": "#2f8f5b"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 9,
           "color": "#7a4fb0"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 9,
           "color": "#4a7fb5"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 3,
           "color": "#c99a2e"
         },
@@ -7148,17 +7148,17 @@
           "moves": 3,
           "tail": [
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 3
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 3
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 3
             }
@@ -7169,7 +7169,7 @@
     "mawashi": [
       {
         "b": "deep plum purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -7386,10 +7386,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 4,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 4
+        "pre": 0
       }
     ],
     "story": {
@@ -7572,37 +7572,37 @@
       "totalWins": 25,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 44,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 16,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Kirikaeshi",
+          "name": "Twisting Backward Knee Trip",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 8,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukitaoshi",
+          "name": "Frontal Thrust Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -7613,12 +7613,12 @@
           "moves": 2,
           "tail": [
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 4
             },
             {
-              "name": "Sotogake",
+              "name": "Outside Leg Trip",
               "n": 1,
               "pct": 4
             }
@@ -7629,7 +7629,7 @@
     "mawashi": [
       {
         "b": "midnight blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -7886,10 +7886,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 5,
+        "count": 1,
         "basho": [],
         "era": "career",
-        "pre": 5
+        "pre": 1
       }
     ],
     "story": {
@@ -8027,32 +8027,32 @@
       "totalWins": 42,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 36,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 33,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 7,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 5,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 5,
           "color": "#b5566f"
         },
@@ -8063,22 +8063,22 @@
           "moves": 4,
           "tail": [
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 2
             }
@@ -8089,7 +8089,7 @@
     "mawashi": [
       {
         "b": "medium lilac purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -8359,10 +8359,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 5,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 5
+        "pre": 0
       }
     ],
     "story": {
@@ -8720,37 +8720,37 @@
       "totalWins": 69,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 36,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 14,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 9,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 4,
           "color": "#4a7fb5"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Katasukashi",
+          "name": "Under Shoulder Swing Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -8761,57 +8761,57 @@
           "moves": 11,
           "tail": [
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tsutaezori",
+              "name": "Underarm Forward Body Drop",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tottari",
+              "name": "Arm Bar Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Watashikomi",
+              "name": "Thigh Grabbing Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             }
@@ -8822,7 +8822,7 @@
     "mawashi": [
       {
         "b": "cherry blossom pink",
-        "c": "#8a7a5a",
+        "c": "#e59ab5",
         "chg": 0
       }
     ],
@@ -9139,10 +9139,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -9415,37 +9415,37 @@
       "totalWins": 71,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 35,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 17,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 7,
           "color": "#7a4fb0"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 7,
           "color": "#4a7fb5"
         },
         {
-          "name": "Katasukashi",
+          "name": "Under Shoulder Swing Down",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -9456,52 +9456,52 @@
           "moves": 10,
           "tail": [
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kimedashi",
+              "name": "Arm Barring Force Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 1
             }
@@ -9512,7 +9512,7 @@
     "mawashi": [
       {
         "b": "dark purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -9829,10 +9829,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -10290,37 +10290,37 @@
       "totalWins": 67,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 33,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 19,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 9,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 9,
           "color": "#4a7fb5"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -10331,42 +10331,42 @@
           "moves": 8,
           "tail": [
             {
-              "name": "Utchari",
+              "name": "Backward Pivot Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatehineri",
+              "name": "Twisting Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Katasukashi",
+              "name": "Under Shoulder Swing Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -10377,7 +10377,7 @@
     "mawashi": [
       {
         "b": "black",
-        "c": "#222222",
+        "c": "#26262b",
         "chg": 0
       }
     ],
@@ -10701,12 +10701,12 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 6,
+        "count": 2,
         "basho": [
           "26Nt"
         ],
         "era": "career",
-        "pre": 5
+        "pre": 1
       }
     ],
     "story": {
@@ -11009,37 +11009,37 @@
       "totalWins": 80,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 38,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 20,
           "color": "#2f8f5b"
         },
         {
-          "name": "Katasukashi",
+          "name": "Under Shoulder Swing Down",
           "pct": 9,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 5,
           "color": "#4a7fb5"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -11050,47 +11050,47 @@
           "moves": 9,
           "tail": [
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hatakikomi",
+              "name": "Slap Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tsuridashi",
+              "name": "Frontal Lift Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Okuritaoshi",
+              "name": "Rear Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Utchari",
+              "name": "Backward Pivot Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kubinage",
+              "name": "Head Lock Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -11101,7 +11101,7 @@
     "mawashi": [
       {
         "b": "deep navy blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -11401,10 +11401,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -11587,37 +11587,37 @@
       "totalWins": 66,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 39,
           "color": "#cf5a2c"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 18,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 6,
           "color": "#4a7fb5"
         },
         {
-          "name": "Kotenage",
+          "name": "Arm Lock Throw",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 6,
           "color": "#b5566f"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -11628,32 +11628,32 @@
           "moves": 6,
           "tail": [
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hatakikomi",
+              "name": "Slap Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tsukite",
+              "name": "Hand Touch Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Okurihikiotoshi",
+              "name": "Rear Pull Down",
               "n": 1,
               "pct": 2
             }
@@ -11664,7 +11664,7 @@
     "mawashi": [
       {
         "b": "red",
-        "c": "#8a2f2f",
+        "c": "#9b3b52",
         "chg": 0
       }
     ],
@@ -12334,37 +12334,37 @@
       "totalWins": 65,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 20,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 17,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 15,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 12,
           "color": "#4a7fb5"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 8,
           "color": "#c99a2e"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Kekaeshi",
+          "name": "Minor Inner Foot Sweep",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -12375,42 +12375,42 @@
           "moves": 8,
           "tail": [
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Isamiashi",
+              "name": "Forward Step Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Katasukashi",
+              "name": "Under Shoulder Swing Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Sotogake",
+              "name": "Outside Leg Trip",
               "n": 1,
               "pct": 2
             }
@@ -12421,7 +12421,7 @@
     "mawashi": [
       {
         "b": "light grey blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -12829,12 +12829,12 @@
       "totalWins": 2,
       "slices": [
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 50,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 50,
           "color": "#2f8f5b"
         }
@@ -13021,10 +13021,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -13182,22 +13182,22 @@
       "totalWins": 14,
       "slices": [
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 50,
           "color": "#cf5a2c"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 21,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 14,
           "color": "#7a4fb0"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 7,
           "color": "#4a7fb5"
         },
@@ -13208,7 +13208,7 @@
           "moves": 1,
           "tail": [
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 7
             }
@@ -13219,7 +13219,7 @@
     "mawashi": [
       {
         "b": "navy blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -13396,10 +13396,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -13787,37 +13787,37 @@
       "totalWins": 27,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 30,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 15,
           "color": "#2f8f5b"
         },
         {
-          "name": "Kotenage",
+          "name": "Arm Lock Throw",
           "pct": 11,
           "color": "#7a4fb0"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 11,
           "color": "#4a7fb5"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 7,
           "color": "#c99a2e"
         },
         {
-          "name": "Uwatedashinage",
+          "name": "Pulling Over Arm Throw",
           "pct": 7,
           "color": "#b5566f"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 7,
           "color": "#3a9aa0"
         },
@@ -13828,17 +13828,17 @@
           "moves": 3,
           "tail": [
             {
-              "name": "Yorikiri",
+              "name": "Frontal Force Out",
               "n": 1,
               "pct": 4
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 1,
               "pct": 4
             },
             {
-              "name": "Kimedashi",
+              "name": "Arm Barring Force Out",
               "n": 1,
               "pct": 4
             }
@@ -14083,12 +14083,12 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 2,
         "basho": [
           "25Ht"
         ],
         "era": "career",
-        "pre": 2
+        "pre": 1
       }
     ],
     "story": {
@@ -14361,37 +14361,37 @@
       "totalWins": 83,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 22,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 11,
           "color": "#2f8f5b"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 10,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Kubinage",
+          "name": "Head Lock Throw",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -14402,87 +14402,87 @@
           "moves": 17,
           "tail": [
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Tottari",
+              "name": "Arm Bar Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Uwatehineri",
+              "name": "Twisting Over Arm Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Watashikomi",
+              "name": "Thigh Grabbing Push Down",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Kakenage",
+              "name": "Hooking Inner Thigh Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "okurinage",
+              "name": "rear throw-down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Ashitori",
+              "name": "Leg Pick",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sotogake",
+              "name": "Outside Leg Trip",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Koshikudake",
+              "name": "Inadvertant Collapse",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Okuritaoshi",
+              "name": "Rear Push Down",
               "n": 1,
               "pct": 1
             }
@@ -14493,7 +14493,7 @@
     "mawashi": [
       {
         "b": "dark navy blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -14813,10 +14813,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 1,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 1
       }
     ],
     "story": {
@@ -15154,37 +15154,37 @@
       "totalWins": 75,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 25,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 20,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 7,
           "color": "#4a7fb5"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 7,
           "color": "#c99a2e"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Uwatedashinage",
+          "name": "Pulling Over Arm Throw",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -15195,57 +15195,57 @@
           "moves": 11,
           "tail": [
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Sotogake",
+              "name": "Outside Leg Trip",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsuridashi",
+              "name": "Frontal Lift Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Katasukashi",
+              "name": "Under Shoulder Swing Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatehineri",
+              "name": "Twisting Over Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -15256,7 +15256,7 @@
     "mawashi": [
       {
         "b": "light turquoise green",
-        "c": "#8a7a5a",
+        "c": "#2f8f6b",
         "chg": 0
       }
     ],
@@ -15575,10 +15575,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -15706,37 +15706,37 @@
       "totalWins": 58,
       "slices": [
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 16,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 14,
           "color": "#2f8f5b"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 12,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 10,
           "color": "#4a7fb5"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 10,
           "color": "#c99a2e"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 9,
           "color": "#b5566f"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 7,
           "color": "#3a9aa0"
         },
@@ -15747,47 +15747,47 @@
           "moves": 9,
           "tail": [
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 3,
               "pct": 5
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Kakenage",
+              "name": "Hooking Inner Thigh Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Kubinage",
+              "name": "Head Lock Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Tsuridashi",
+              "name": "Frontal Lift Out",
               "n": 1,
               "pct": 2
             }
@@ -15798,7 +15798,7 @@
     "mawashi": [
       {
         "b": "medium blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -16065,10 +16065,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 4,
+        "count": 1,
         "basho": [],
         "era": "career",
-        "pre": 4
+        "pre": 1
       }
     ],
     "story": {
@@ -16521,37 +16521,37 @@
       "totalWins": 78,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 21,
           "color": "#cf5a2c"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 21,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 19,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 17,
           "color": "#4a7fb5"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 8,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukitaoshi",
+          "name": "Frontal Thrust Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -16562,27 +16562,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Okuritaoshi",
+              "name": "Rear Push Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 1,
               "pct": 1
             }
@@ -16593,7 +16593,7 @@
     "mawashi": [
       {
         "b": "dark raspberry red",
-        "c": "#8a7a5a",
+        "c": "#9b3b52",
         "chg": 0
       }
     ],
@@ -16892,10 +16892,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -17053,37 +17053,37 @@
       "totalWins": 39,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 38,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 18,
           "color": "#2f8f5b"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 10,
           "color": "#7a4fb0"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 8,
           "color": "#c99a2e"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Kotenage",
+          "name": "Arm Lock Throw",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -17094,17 +17094,17 @@
           "moves": 3,
           "tail": [
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 3
             },
             {
-              "name": "okurinage",
+              "name": "rear throw-down",
               "n": 1,
               "pct": 3
             },
             {
-              "name": "Kirikaeshi",
+              "name": "Twisting Backward Knee Trip",
               "n": 1,
               "pct": 3
             }
@@ -17115,7 +17115,7 @@
     "mawashi": [
       {
         "b": "medium slate blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -17382,10 +17382,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -17478,37 +17478,37 @@
       "totalWins": 61,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 36,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 18,
           "color": "#2f8f5b"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 11,
           "color": "#7a4fb0"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 7,
           "color": "#4a7fb5"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 3,
           "color": "#b5566f"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -17519,42 +17519,42 @@
           "moves": 8,
           "tail": [
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Sotogake",
+              "name": "Outside Leg Trip",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Kubinage",
+              "name": "Head Lock Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Tsuridashi",
+              "name": "Frontal Lift Out",
               "n": 1,
               "pct": 2
             }
@@ -17565,7 +17565,7 @@
     "mawashi": [
       {
         "b": "midnight purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -17842,10 +17842,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -18173,37 +18173,37 @@
       "totalWins": 74,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 43,
           "color": "#cf5a2c"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 16,
           "color": "#2f8f5b"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 12,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 7,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 5,
           "color": "#c99a2e"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Fusensho",
+          "name": "Forfeit - Withdrawal",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -18214,37 +18214,37 @@
           "moves": 7,
           "tail": [
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatehineri",
+              "name": "Twisting Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Makiotoshi",
+              "name": "Twist Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Hikkake",
+              "name": "Arm Grabbing Force Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 1,
               "pct": 1
             }
@@ -18255,7 +18255,7 @@
     "mawashi": [
       {
         "b": "purple",
-        "c": "#5b3a7a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -18572,10 +18572,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -18638,32 +18638,32 @@
       "totalWins": 27,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 33,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 26,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 11,
           "color": "#7a4fb0"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 11,
           "color": "#4a7fb5"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 7,
           "color": "#c99a2e"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 4,
           "color": "#b5566f"
         },
@@ -18674,12 +18674,12 @@
           "moves": 2,
           "tail": [
             {
-              "name": "Watashikomi",
+              "name": "Thigh Grabbing Push Down",
               "n": 1,
               "pct": 4
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 4
             }
@@ -18690,7 +18690,7 @@
     "mawashi": [
       {
         "b": "dark blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -18867,10 +18867,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -19038,37 +19038,37 @@
       "totalWins": 71,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 30,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 20,
           "color": "#2f8f5b"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 13,
           "color": "#7a4fb0"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 8,
           "color": "#c99a2e"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 6,
           "color": "#b5566f"
         },
         {
-          "name": "Kotenage",
+          "name": "Arm Lock Throw",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -19079,27 +19079,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -19110,7 +19110,7 @@
     "mawashi": [
       {
         "b": "light grey",
-        "c": "#8a7a5a",
+        "c": "#8c8c92",
         "chg": 0
       }
     ],
@@ -19427,10 +19427,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -19733,37 +19733,37 @@
       "totalWins": 69,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 32,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 14,
           "color": "#2f8f5b"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 14,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 13,
           "color": "#4a7fb5"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 10,
           "color": "#c99a2e"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 6,
           "color": "#b5566f"
         },
         {
-          "name": "Sukuinage",
+          "name": "Beltless Arm Throw",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -19774,27 +19774,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Okuritaoshi",
+              "name": "Rear Push Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 1,
               "pct": 1
             }
@@ -19805,7 +19805,7 @@
     "mawashi": [
       {
         "b": "jade green",
-        "c": "#8a7a5a",
+        "c": "#2f8f6b",
         "chg": 0
       }
     ],
@@ -20125,10 +20125,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 4,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 4
+        "pre": 0
       }
     ],
     "story": {
@@ -20441,37 +20441,37 @@
       "totalWins": 49,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 37,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 27,
           "color": "#2f8f5b"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 10,
           "color": "#7a4fb0"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 4,
           "color": "#4a7fb5"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -20482,27 +20482,27 @@
           "moves": 5,
           "tail": [
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Komatasukui",
+              "name": "Over Thigh Scooping Body Drop",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 2
             }
@@ -20513,7 +20513,7 @@
     "mawashi": [
       {
         "b": "light plum purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -21134,32 +21134,32 @@
       "totalWins": 69,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 52,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 22,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 6,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 6,
           "color": "#4a7fb5"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 4,
           "color": "#b5566f"
         },
@@ -21170,17 +21170,17 @@
           "moves": 3,
           "tail": [
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Hikiotoshi",
+              "name": "Hand Pull Down",
               "n": 1,
               "pct": 1
             }
@@ -21191,7 +21191,7 @@
     "mawashi": [
       {
         "b": "midnight purple",
-        "c": "#8a7a5a",
+        "c": "#6a3d9a",
         "chg": 0
       }
     ],
@@ -21511,10 +21511,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -21722,37 +21722,37 @@
       "totalWins": 67,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 34,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 21,
           "color": "#2f8f5b"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 9,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 6,
           "color": "#4a7fb5"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 4,
           "color": "#3a9aa0"
         },
@@ -21763,37 +21763,37 @@
           "moves": 7,
           "tail": [
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kimedashi",
+              "name": "Arm Barring Force Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -21804,7 +21804,7 @@
     "mawashi": [
       {
         "b": "black",
-        "c": "#222222",
+        "c": "#26262b",
         "chg": 0
       }
     ],
@@ -22101,10 +22101,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -22272,37 +22272,37 @@
       "totalWins": 74,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 26,
           "color": "#cf5a2c"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 22,
           "color": "#2f8f5b"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 12,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 9,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 9,
           "color": "#c99a2e"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Oshitaoshi",
+          "name": "Frontal Push Down",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -22313,52 +22313,52 @@
           "moves": 10,
           "tail": [
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Abisetaoshi",
+              "name": "Backward Force Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Tsuridashi",
+              "name": "Frontal Lift Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatenage",
+              "name": "Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Shitatehineri",
+              "name": "Twisting Underarm Throw",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 1
             }
@@ -22369,7 +22369,7 @@
     "mawashi": [
       {
         "b": "grey",
-        "c": "#7b7264",
+        "c": "#8c8c92",
         "chg": 0
       }
     ],
@@ -22686,10 +22686,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 4,
+        "count": 1,
         "basho": [],
         "era": "career",
-        "pre": 4
+        "pre": 1
       }
     ],
     "story": {
@@ -23077,37 +23077,37 @@
       "totalWins": 67,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 18,
           "color": "#cf5a2c"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 16,
           "color": "#2f8f5b"
         },
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 10,
           "color": "#7a4fb0"
         },
         {
-          "name": "Yoritaoshi",
+          "name": "Frontal Crush Out",
           "pct": 9,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 7,
           "color": "#c99a2e"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 7,
           "color": "#b5566f"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 6,
           "color": "#3a9aa0"
         },
@@ -23118,42 +23118,42 @@
           "moves": 8,
           "tail": [
             {
-              "name": "Kotenage",
+              "name": "Arm Lock Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Katasukashi",
+              "name": "Under Shoulder Swing Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Makiotoshi",
+              "name": "Twist Down",
               "n": 1,
               "pct": 1
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 1
             }
@@ -23164,7 +23164,7 @@
     "mawashi": [
       {
         "b": "black",
-        "c": "#222222",
+        "c": "#26262b",
         "chg": 0
       }
     ],
@@ -23481,10 +23481,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 3,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 3
+        "pre": 0
       }
     ],
     "story": {
@@ -23612,22 +23612,22 @@
       "totalWins": 31,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 61,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 19,
           "color": "#2f8f5b"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 6,
           "color": "#7a4fb0"
         },
         {
-          "name": "Uwatedashinage",
+          "name": "Pulling Over Arm Throw",
           "pct": 3,
           "color": "#4a7fb5"
         },
@@ -23638,17 +23638,17 @@
           "moves": 3,
           "tail": [
             {
-              "name": "Uwatenage",
+              "name": "Over Arm Throw",
               "n": 1,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 3
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 3
             }
@@ -23659,7 +23659,7 @@
     "mawashi": [
       {
         "b": "dark blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -23876,10 +23876,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 8,
+        "count": 1,
         "basho": [],
         "era": "career",
-        "pre": 8
+        "pre": 1
       }
     ],
     "story": {
@@ -24292,37 +24292,37 @@
       "totalWins": 63,
       "slices": [
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 27,
           "color": "#cf5a2c"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 19,
           "color": "#2f8f5b"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 10,
           "color": "#7a4fb0"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 10,
           "color": "#4a7fb5"
         },
         {
-          "name": "Tsukidashi",
+          "name": "Frontal Thrust Out",
           "pct": 10,
           "color": "#c99a2e"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 8,
           "color": "#b5566f"
         },
         {
-          "name": "Hikiotoshi",
+          "name": "Hand Pull Down",
           "pct": 8,
           "color": "#3a9aa0"
         },
@@ -24333,22 +24333,22 @@
           "moves": 4,
           "tail": [
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 3,
               "pct": 5
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Tsukitaoshi",
+              "name": "Frontal Thrust Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 2
             }
@@ -24359,7 +24359,7 @@
     "mawashi": [
       {
         "b": "midnight blue",
-        "c": "#8a7a5a",
+        "c": "#3a4a6b",
         "chg": 0
       }
     ],
@@ -24686,10 +24686,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
@@ -25207,37 +25207,37 @@
       "totalWins": 58,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 19,
           "color": "#cf5a2c"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 17,
           "color": "#2f8f5b"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 12,
           "color": "#7a4fb0"
         },
         {
-          "name": "Hatakikomi",
+          "name": "Slap Down",
           "pct": 10,
           "color": "#4a7fb5"
         },
         {
-          "name": "Katasukashi",
+          "name": "Under Shoulder Swing Down",
           "pct": 7,
           "color": "#c99a2e"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Okuridashi",
+          "name": "Rear Push Out",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -25248,47 +25248,47 @@
           "moves": 9,
           "tail": [
             {
-              "name": "Tottari",
+              "name": "Arm Bar Throw",
               "n": 3,
               "pct": 5
             },
             {
-              "name": "Tsukiotoshi",
+              "name": "Thrust Down",
               "n": 3,
               "pct": 5
             },
             {
-              "name": "Tsukidashi",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Watashikomi",
+              "name": "Thigh Grabbing Push Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Kirikaeshi",
+              "name": "Twisting Backward Knee Trip",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Uwatedashinage",
+              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Fusensho",
+              "name": "Forfeit - Withdrawal",
               "n": 1,
               "pct": 2
             }
@@ -25299,7 +25299,7 @@
     "mawashi": [
       {
         "b": "golden brown",
-        "c": "#8a7a5a",
+        "c": "#7a5230",
         "chg": 0
       }
     ],
@@ -25623,10 +25623,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 2,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 2
+        "pre": 0
       }
     ],
     "story": {
@@ -25864,37 +25864,37 @@
       "totalWins": 64,
       "slices": [
         {
-          "name": "Yorikiri",
+          "name": "Frontal Force Out",
           "pct": 36,
           "color": "#cf5a2c"
         },
         {
-          "name": "Oshidashi",
+          "name": "Frontal Push Out",
           "pct": 11,
           "color": "#2f8f5b"
         },
         {
-          "name": "Uwatenage",
+          "name": "Over Arm Throw",
           "pct": 9,
           "color": "#7a4fb0"
         },
         {
-          "name": "Shitatenage",
+          "name": "Underarm Throw",
           "pct": 8,
           "color": "#4a7fb5"
         },
         {
-          "name": "Uwatedashinage",
+          "name": "Pulling Over Arm Throw",
           "pct": 6,
           "color": "#c99a2e"
         },
         {
-          "name": "Tsukiotoshi",
+          "name": "Thrust Down",
           "pct": 6,
           "color": "#b5566f"
         },
         {
-          "name": "Kotenage",
+          "name": "Arm Lock Throw",
           "pct": 6,
           "color": "#3a9aa0"
         },
@@ -25905,32 +25905,32 @@
           "moves": 6,
           "tail": [
             {
-              "name": "Yoritaoshi",
+              "name": "Frontal Crush Out",
               "n": 3,
               "pct": 5
             },
             {
-              "name": "Sukuinage",
+              "name": "Beltless Arm Throw",
               "n": 3,
               "pct": 5
             },
             {
-              "name": "Oshitaoshi",
+              "name": "Frontal Push Down",
               "n": 2,
               "pct": 3
             },
             {
-              "name": "Okuridashi",
+              "name": "Rear Push Out",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Hatakikomi",
+              "name": "Slap Down",
               "n": 1,
               "pct": 2
             },
             {
-              "name": "Shitatedashinage",
+              "name": "Pulling Underarm Throw",
               "n": 1,
               "pct": 2
             }
@@ -26252,10 +26252,10 @@
       {
         "jp": "Yusho",
         "en": "Emperor's Cup",
-        "count": 1,
+        "count": 0,
         "basho": [],
         "era": "career",
-        "pre": 1
+        "pre": 0
       }
     ],
     "story": {
