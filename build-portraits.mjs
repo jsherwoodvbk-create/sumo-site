@@ -16,6 +16,12 @@
 // slug build-headshots uses for /img/headshots; the two coincide for every current shikona (all
 // romanized, no macrons/accents) and only ever diverge on an accented name — at which point the
 // portrait must match the generator, so the generator's slug wins here.
+//
+// SNIP TRIM (added 2026-09-12): JSA portraits are snipped from the JSA site (right-click-save is
+// blocked), so each carries the site's light card frame + margin. trimSnip() peels that light border
+// down to the figure — keeping the FULL body (topknot, arms, feet, and the shikona/copyright block that
+// anchors the bottom so feet are never cut) — and LEAVES ROOM-SHOTS UNTOUCHED (tan-wall/dark-floor shots,
+// where a light-border trim would misbehave). Applied after EXIF-rotate, before the downscale.
 import fs from 'node:fs';
 import path from 'node:path';
 import process from 'node:process';
@@ -60,10 +66,50 @@ const photoUrl = p => {
 // DASHBOARD slug — matches gen-rikishi-metrics.mjs and the standings ?r= link (see SLUG NOTE above).
 const slugify = s => String(s || '').toLowerCase().replace(/[^a-z0-9]+/g, '');
 
-// Downscale the full portrait — auto-orient from EXIF, fit inside the ceiling (never enlarge), JPEG.
+// --- SNIP TRIM (see header note) ---------------------------------------------------------------
+function _cornerAvg(d, W, x0, y0, n = 9) {
+  let r = 0, g = 0, b = 0, c = 0;
+  for (let y = y0; y < y0 + n; y++) for (let x = x0; x < x0 + n; x++) { const i = (y * W + x) * 4; r += d[i]; g += d[i+1]; b += d[i+2]; c++; }
+  return [r/c, g/c, b/c];
+}
+// Room-shot = dark/warm FLOOR in both bottom corners (studio shots are light there). Left untouched.
+function _isRoomShot(d, W, H) {
+  const bl = _cornerAvg(d, W, 0, H - 10), br = _cornerAvg(d, W, W - 10, H - 10);
+  const dw = c => Math.min(c[0],c[1],c[2]) < 185 || (c[0] - c[2]) > 28;
+  return dw(bl) && dw(br);
+}
+// background = near-white/light-grey studio; anything else (hair, skin, colored/white-with-design mawashi, caption) is content.
+const _isBg = (d, i) => { const r = d[i], g = d[i+1], b = d[i+2]; return Math.min(r,g,b) >= 200 && (Math.max(r,g,b) - Math.min(r,g,b)) <= 32; };
+const _MINPX = 4; // a row/col needs >=4 content px to count — ignores stray noise, still catches a topknot tip
+
+// Returns {left,top,width,height} to extract, or null to leave the image untouched (room-shot).
+function computeTrimBox(d, W, H) {
+  if (_isRoomShot(d, W, H)) return null;
+  const capY = Math.floor(H * 0.25), capX = Math.floor(W * 0.25);
+  const rowContent = (y) => { let n = 0; for (let x = 0; x < W; x++) if (!_isBg(d, (y*W+x)*4)) { if (++n >= _MINPX) return true; } return false; };
+  const colContent = (x, t, b) => { let n = 0; for (let y = t; y <= b; y++) if (!_isBg(d, (y*W+x)*4)) { if (++n >= _MINPX) return true; } return false; };
+  let T = 0, B = H - 1, L = 0, R = W - 1;
+  while (T < capY && !rowContent(T)) T++;
+  while ((H - 1 - B) < capY && !rowContent(B)) B--;
+  while (L < capX && !colContent(L, T, B)) L++;
+  while ((W - 1 - R) < capX && !colContent(R, T, B)) R--;
+  const p = 4;
+  L = Math.max(L - p, 0); T = Math.max(T - p, 0); R = Math.min(R + p, W - 1); B = Math.min(B + p, H - 1);
+  return { left: L, top: T, width: R - L + 1, height: B - T + 1 };
+}
+async function trimSnip(buf) {
+  const { data, info } = await sharp(buf).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
+  const box = computeTrimBox(data, info.width, info.height);
+  if (!box) return buf;                        // room-shot → untouched
+  return sharp(buf).extract(box).png().toBuffer();
+}
+
+// Downscale the full portrait — auto-orient from EXIF, TRIM the snip frame, fit inside the ceiling
+// (never enlarge), JPEG.
 async function makePortrait(buf) {
-  return sharp(buf)
-    .rotate()
+  const rotated = await sharp(buf).rotate().toBuffer();   // apply EXIF orientation first
+  const trimmed = await trimSnip(rotated);                // peel the light card frame/margin (skips room-shots)
+  return sharp(trimmed)
     .resize(MAX_W, MAX_H, { fit: 'inside', withoutEnlargement: true })
     .jpeg({ quality: JPEG_Q })
     .toBuffer();
