@@ -532,7 +532,7 @@ async function main(){
       highestRank: arc.highest || (mp ? selOf(mp, 'Highest Rank') : null) || entry.rank,
       photo, origin,
       vitals, birthday, records, specials,
-      story: { html: `<span class="who">${esc(entry.name)}</span> — story drafted from the tracker's banzuke + yusho records. Crew edits the prose.`, source: 'Built from our records (no web). Crew edits the prose.' },
+      story: buildStory(mp ? textOf(mp, 'Story') : '', entry.name),
       arc: arcBlock,
       kimarite,
       mawashi: mp ? buildMawashi(textOf(mp, 'Mawashi Color'), textOf(mp, 'Past Mawashi Colors')) : [],
@@ -561,5 +561,17 @@ function tourneyLabel(bzPages, tid){
 }
 // escape for the strings we drop into the template's innerHTML (bio/story values render as HTML)
 function esc(s){ return String(s ?? '').replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c])); }
+
+// The story panel reads the crew-written "Story" field on Master Rikishi (human-owned, never
+// auto-invented — the firewall rule). Escape it, turn blank lines into paragraph breaks, and accent
+// the first mention of the wrestler's name. Empty → a plain honest placeholder (no fake "drafted" text).
+function buildStory(text, name){
+  const t = String(text || '').trim();
+  if (!t) return { html: `<span class="who">${esc(name)}</span>’s story is not written yet.`, source: 'Crew-written · awaiting a write-up.' };
+  let html = esc(t).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, ' ');
+  const n = esc(name); const i = html.indexOf(n);
+  if (i >= 0) html = html.slice(0, i) + `<span class="who">${n}</span>` + html.slice(i + n.length);
+  return { html, source: 'Crew-written.' };
+}
 
 main().catch(e => { console.error(e); process.exit(1); });
