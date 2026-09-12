@@ -1,0 +1,46 @@
+# .github/workflows/build-portraits.yml
+# FULL PORTRAITS — turn each Master Rikishi's Notion Photo into a downscaled full-body portrait
+# committed to /img/portraits/{slug}.jpg for the per-rikishi dashboard. The sibling of build-headshots:
+# crop-free, catch-up / re-upload tool. names = specific Ring Names, or blank/ALL = whole roster.
+# DRY by default (writes nothing); set dry_run=false to write + commit. Idempotent, git-reversible.
+name: build-portraits
+
+on:
+  workflow_dispatch:
+    inputs:
+      names:
+        description: 'Ring Name(s), comma-separated — or blank/ALL for the whole roster'
+        default: ''
+        required: false
+      dry_run:
+        description: '1 = preview only (writes nothing), 0 = write JPGs + commit'
+        default: '1'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  portraits:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Install sharp
+        run: npm install sharp --no-save
+      - name: Build full portraits
+        run: node build-portraits.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}   # read is enough — only reads the Photo field
+          DRY_RUN: ${{ inputs.dry_run }}
+          NAMES: ${{ inputs.names }}
+      - name: Commit portraits
+        if: ${{ inputs.dry_run == '0' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add img/portraits
+          git commit -m "Build full portraits: ${{ inputs.names || 'ALL' }}" || echo "no portrait changes to commit"
+          git push
