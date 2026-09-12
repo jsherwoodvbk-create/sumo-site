@@ -298,7 +298,7 @@ const AUD_SENTINELS = ['SENTINEL_CONDUCT','SENTINEL_CONDUCTNOTE','SENTINEL_BOTD'
 const A = { conduct:'SENTINEL_CONDUCT', conductNote:'SENTINEL_CONDUCTNOTE', botd:'SENTINEL_BOTD', length:'SENTINEL_LENGTH',
   storyline:'SENTINEL_STORYLINE', skNotes:'SENTINEL_SKNOTES', condition:'SENTINEL_CONDITION', official:'SENTINEL_OFFICIAL', booth:'SENTINEL_BOOTH', skEye:'SENTINEL_SKEYE' };
 const SNAP_AUD = {
-  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:15, schema:'gumbai-snapshot/5' },
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:15, schema:'gumbai-snapshot/6' },
   rikishi:[ {name:'Onosato',nicknames:[{nick:'The Wall',tag:'O'}]}, {name:'Hoshoryu',nicknames:[]} ],
   banzuke:[ {name:'Onosato',rank:'Yokozuna',weightKg:191}, {name:'Hoshoryu',rank:'Yokozuna',weightKg:151} ],
   kimarite:[{name:'yorikiri',gloss:'force out'}],
@@ -314,10 +314,10 @@ const SNAP_AUD = {
 const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
 const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
 const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
-t('toolsFor(member) is the full 12', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 12));
-t('toolsFor(public) = 10, omits condition+storylines, keeps catchphrases', () => {
+t('toolsFor(member) is the full 13', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 13));
+t('toolsFor(public) = 11, omits condition+storylines, keeps catchphrases + rollup', () => {
   const p = toolsFor('public').map(x=>x.name);
-  assert(p.length===10 && !p.includes('query_condition') && !p.includes('query_storylines') && p.includes('query_catchphrases'));
+  assert(p.length===11 && !p.includes('query_condition') && !p.includes('query_storylines') && p.includes('query_catchphrases') && p.includes('query_rollup'));
 });
 t('member view keeps injuries + days + nets (no regression)', () =>
   assert((memV.injuries||[]).length===1 && (memV.days||[]).length===1 && memV.bouts[0].conduct[0]===A.conduct && memV.bouts[0].length===A.length));
@@ -365,6 +365,67 @@ for(const aud of ['member','public']){
 t('guard survives the default-audience call (buildSystemPrompt with no audience arg)', () => {
   const g = gateSnapshot(SNAP_AUD, 15, false);   // defaults to member
   assert(buildSystemPrompt(g).includes('STAYING GUMBAI'));
+});
+
+// ═══ 11. query_rollup + schema/6 profile fields (stable / mawashi / hometown / knownFor) ═══
+// The crew's "how many from Isegahama" gap: Gumbai now rolls up a clean profile field across the
+// WHOLE master (default) or the current banzuke, and surfaces stable/mawashi/hometown/knownFor on a
+// profile. All timeless background → never gated, safe for public (knownFor stays member-only).
+console.log('\n[11] query_rollup + schema/6 profile fields');
+const SNAP_ROLL = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:2 },
+  rikishi:[
+    { name:'Terunofuji', country:'Mongolia', stable:'Isegahama', hometown:'Ulaanbaatar', highestRank:'Yokozuna', knownFor:['Powerhouse'], mawashi:'gold', nicknames:[] },
+    { name:'Takarafuji', country:'Japan', stable:'Isegahama', hometown:'Aomori', highestRank:'Sekiwake', knownFor:['Technician'], mawashi:'navy blue', nicknames:[] },
+  ],
+  banzuke:[ { name:'Terunofuji', rank:'Yokozuna', weightKg:180 }, { name:'Takarafuji', rank:'Maegashira 5', weightKg:150 } ],
+  kimarite:[], bouts:[],
+  master:[
+    { name:'Terunofuji',   stable:'Isegahama',   country:'Mongolia', hometown:'Ulaanbaatar', knownFor:['Powerhouse'], highestRank:'Yokozuna',   active:true },
+    { name:'Takarafuji',   stable:'Isegahama',   country:'Japan',    hometown:'Aomori',      knownFor:['Technician'], highestRank:'Sekiwake',   active:true },
+    { name:'Nishikigi',    stable:'Isegahama',   country:'Japan',    hometown:'Iwate',       knownFor:[],             highestRank:'Maegashira', active:false }, // NOT on the current banzuke
+    { name:'Ichiyamamoto', stable:'Nishonoseki', country:'Japan',    hometown:'Hokkaido',    knownFor:['Showman'],    highestRank:'Maegashira', active:true },
+  ],
+  days:[], injuries:[], catchphrases:[], history:{ meta:{}, basho:{} }, upcoming:null,
+};
+const rollM = gateSnapshot(SNAP_ROLL, 2, false, 'member');
+const rollP = gateSnapshot(SNAP_ROLL, 2, false, 'public');
+t('master lane passes the gate for both audiences (timeless)', () => assert(rollM.master.length===4 && rollP.master.length===4));
+t('query_rikishi surfaces stable + mawashi + hometown', () => {
+  const r = runTool('query_rikishi', {name:'Terunofuji'}, rollM);
+  assert(r.stable==='Isegahama' && r.mawashiColor==='gold' && r.hometown==='Ulaanbaatar');
+});
+t('query_rollup stable=Isegahama master scope = 3 (retiree included)', () => {
+  const o = runTool('query_rollup', {field:'stable', value:'Isegahama'}, rollM);
+  assert(o.found && o.count===3 && o.members.includes('Nishikigi'));
+});
+t('query_rollup stable=Isegahama banzuke scope = 2 (retiree excluded)', () => {
+  assert(runTool('query_rollup', {field:'stable', value:'Isegahama', scope:'banzuke'}, rollM).count===2);
+});
+t('query_rollup tolerates -beya suffix + case', () => {
+  assert(runTool('query_rollup', {field:'stable', value:'Isegahama-beya'}, rollM).count===3
+    && runTool('query_rollup', {field:'stable', value:'isegahama'}, rollM).count===3);
+});
+t('query_rollup country=Mongolia = Terunofuji', () => {
+  assert.deepEqual(runTool('query_rollup', {field:'country', value:'Mongolia'}, rollM).members, ['Terunofuji']);
+});
+t('query_rollup (no value) groups sorted by count desc', () => {
+  const o = runTool('query_rollup', {field:'stable'}, rollM);
+  assert(o.groups[0].value==='Isegahama' && o.groups[0].count===3);
+});
+t('query_rollup knownFor is MEMBER-ONLY (public blocked, member allowed)', () => {
+  assert(runTool('query_rollup', {field:'knownFor', value:'Showman'}, rollM).count===1);
+  assert(runTool('query_rollup', {field:'knownFor', value:'Showman'}, rollP).found===false);
+});
+t('query_rollup stable/country still work for PUBLIC (timeless, non-sensitive)', () => {
+  assert(runTool('query_rollup', {field:'stable', value:'Isegahama'}, rollP).count===3);
+});
+t('query_rollup heya alias -> stable; unknown field rejected cleanly', () => {
+  assert(runTool('query_rollup', {field:'heya', value:'Isegahama'}, rollM).count===3);
+  assert(runTool('query_rollup', {field:'blood type'}, rollM).found===false);
+});
+t('query_rollup registered + offered to both audiences', () => {
+  assert(TOOLS.some(x=>x.name==='query_rollup') && toolsFor('public').some(x=>x.name==='query_rollup'));
 });
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
