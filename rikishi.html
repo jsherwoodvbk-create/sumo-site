@@ -416,7 +416,9 @@ function render(R){
 function drawArc(R){
   const ARC=R.arc.points||[];
   if(ARC.length<2){ document.getElementById('arc').outerHTML='<p class="emptylane" id="arc">Rank history not available yet.</p>'; return; }
-  const W=1000,H=300,padL=68,padR=22,padT=16,padB=32,yTop=1,yBot=28; // yBot 28 = Jonokuchi; makuuchi is 1–21
+  const W=1000,H=300,padL=68,padR=22,padT=26,padB=32,yTop=1,yBot=28; // yBot 28 = Jonokuchi; makuuchi is 1–21
+  // padT=26 (was 16): the top-tier rank label sits 11px ABOVE its point, and at Yokozuna (v=1) that
+  // clipped the glyph on the chart's top edge — it read as a shrunken "Y". The headroom fixes it.
   const x=i=>padL+(W-padL-padR)*(i/(ARC.length-1));
   const y=v=>padT+(H-padT-padB)*((v-yTop)/(yBot-yTop));
   const line=cssv('--line'),faint=cssv('--faint'),ink=cssv('--muted');
@@ -442,9 +444,18 @@ function drawArc(R){
         s+=`<text x="${x(i)}" y="${H-padB+17}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" fill="${faint}">${esc(yr)}</text>`; } }
     else if(i%labelEvery===0 || i===n-1)
         s+=`<text x="${x(i)}" y="${H-padB+17}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" fill="${faint}">${esc(p.b)}</text>`;
-    // rank label at the first, the last, and every tier change (first char of the short label) — thinned when dense
-    if(i===n-1||i===0||(ARC[i-1]&&String(p.r)[0]!==String(ARC[i-1].r)[0] && (!dense || i%2===0)))
+    // rank label at the first, the last, and every tier CHANGE (first char of the short label). Tier
+    // changes are inherently sparse (only Y/O/S/K/M boundary crossings fire — M-to-M doesn't), so we
+    // label them ALL. The old dense `i%2===0` parity gate silently dropped some — e.g. an Ozeki entry
+    // that landed on an odd index read as "S" with no "O" at all (Takayasu, caught 2026-09-12).
+    if(i===n-1||i===0||(ARC[i-1]&&String(p.r)[0]!==String(ARC[i-1].r)[0]))
       s+=`<text x="${x(i)}" y="${y(p.v)-11}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="600" font-size="11" fill="${c}">${esc(p.r)}</text>`;});
+  // Career high, called out explicitly (Jennie, 2026-09-12): ring + caption at the EARLIEST basho of the
+  // top tier the wrestler reached. Caption flips below the point when the peak is too near the top edge.
+  let pk=0; for(let i=1;i<ARC.length;i++){ if(ARC[i].v<ARC[pk].v) pk=i; }
+  const pkc=tcol(ARC[pk].v), pkx=x(pk), pky=y(ARC[pk].v), chAbove=pky-25>padT+2;
+  s+=`<circle cx="${pkx}" cy="${pky}" r="${mr+3.5}" fill="none" stroke="${pkc}" stroke-width="1.5"/>`;
+  s+=`<text x="${pkx}" y="${chAbove?pky-24:pky+20}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="600" font-size="8.5" letter-spacing=".05em" fill="${pkc}">CAREER HIGH</text>`;
   document.getElementById('arc').innerHTML=s;
 }
 
