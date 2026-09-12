@@ -51,6 +51,20 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node gen-gumbai-snapshot.mjs
 
+      - name: Rebuild per-rikishi metrics (once/day)
+        # Refreshes rikishi-metrics.json for the dashboards. Gated to the 08:32 PT cron + manual runs,
+        # NOT all five: the sumo-api career/rank pull (~3 calls x 42 wrestlers) is heavy and basho-STATIC,
+        # while the daily-changing pieces (crew record, kimarite, caliber, henka) come from Notion — so
+        # one refresh a day, after the morning sync has landed the day's results, keeps the dashboards
+        # current without hammering the free one-person sumo-api. Non-fatal: a hiccup or a partial
+        # sumo-api miss leaves the last good JSON in place (the generator is blank-not-faked). The FULL
+        # career refresh also rides the banzuke drop via the gen-rikishi-metrics dispatch.
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '32 15 * * *' }}
+        continue-on-error: true
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node gen-rikishi-metrics.mjs
+
       - name: Commit & push if anything changed
         # FIX 2026-07-30: stage FIRST, then check the staged diff. The old gate used
         # `git diff --quiet -- <paths>`, which only sees TRACKED files — so a regenerated
@@ -60,10 +74,10 @@ jobs:
         run: |
           git config user.name "sumo-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add standings.html index.html functions/api/_snapshot.js
+          git add standings.html index.html functions/api/_snapshot.js rikishi-metrics.json
           if git diff --cached --quiet; then
             echo "No change — nothing to publish."
           else
-            git commit -m "Auto-update standings + homepage + Gumbai snapshot ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git commit -m "Auto-update standings + homepage + Gumbai snapshot + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
