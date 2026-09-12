@@ -39,6 +39,10 @@ body{margin:0;background:var(--ground);color:var(--ink);
 
 /* ---- TOP ROW: photo | name | bio ---- */
 .top{display:grid;grid-template-columns:150px 1fr 200px;gap:20px;align-items:stretch;margin-bottom:16px;}
+.top.nobday{grid-template-columns:150px 1fr;}
+@media(max-width:800px){ .top.nobday{grid-template-columns:1fr;} }
+.bcell .eratag{display:inline-block;font-size:8px;letter-spacing:.03em;text-transform:none;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 3px;margin-left:5px;vertical-align:middle;}
+.limitednote{font-size:13.5px;color:var(--muted);line-height:1.55;margin:2px 0 0;max-width:75ch;}
 .photo{border:1px solid var(--line);border-radius:var(--radius);background:
    linear-gradient(160deg,var(--surface-2),color-mix(in srgb,var(--accent) 10%,var(--surface-2)));
    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:200px;color:var(--faint);overflow:hidden;}
@@ -124,6 +128,7 @@ svg{display:block;max-width:100%;height:auto;}
 .cmptrack .his{position:absolute;left:0;top:0;bottom:0;border-radius:6px;}
 .cmptrack .avg{position:absolute;top:-4px;bottom:-4px;width:2px;background:var(--ink);border-radius:2px;}
 .cmpnote{font-family:'Inter',system-ui,sans-serif;font-size:9.5px;color:var(--faint);margin-top:6px;}
+.emptylane{font-size:12px;color:var(--faint);font-style:italic;padding:6px 2px;}
 .bfrom{display:block;font-family:'Inter',system-ui,sans-serif;font-size:9.5px;color:var(--muted);margin-top:5px;font-weight:400;letter-spacing:.02em;font-variant-numeric:tabular-nums;}
 .keng{display:block;font-family:'Inter',sans-serif;font-size:10.5px;color:var(--muted);letter-spacing:.005em;line-height:1.1;margin-top:-1px;}
 .story{background:var(--surface-2);border-left:3px solid var(--accent);border-radius:0 10px 10px 0;padding:15px 20px;margin-bottom:16px;}
@@ -223,10 +228,10 @@ header .sub{opacity:.9;font-size:13.5px;margin:0;font-family:'Inter',system-ui,s
 /* =====================================================================
    METRICS SNAPSHOT — the contract this template renders.
    The generator (gen-rikishi-metrics.mjs, run on the Action) produces one
-   record per current-banzuke rikishi, keyed by sumo-api id, and injects it
-   here (replacing the METRICS object) or serves it as JSON the page picks by ?r=<id>.
-   Below: Aonishiki, arc + vitals REAL, records/specials/kimarite/mawashi/
-   caliber/henka/soft-bio still SAMPLE (marked sample:true) until the live pull runs.
+   record per current-banzuke rikishi, keyed by name-slug, and serves it as
+   rikishi-metrics.json the page picks by ?r=<slug>.
+   Below: Aonishiki, embedded SAMPLE (sample:true) so the page is never blank
+   even if the JSON is missing or a fetch is sandbox-blocked.
    ===================================================================== */
 const METRICS = {
   "aonishiki": {
@@ -306,6 +311,11 @@ function tierColorForRank(label){
 }
 const esc = s => String(s??'').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
 const dash = a => (a&&a.length)? a.join(', ') : '—';
+/* record cell — tolerant of a null record object or null W/L (a missing sumo-api career pull
+   must degrade to a dash, never blank the whole page). */
+function recCell(o){ return (o && o.w!=null && o.l!=null)
+  ? `${o.w}–${o.l} <small>${esc(o.pct??'')}</small>`
+  : `<span class="missing">—</span>`; }
 
 /* ==================== RENDER ==================== */
 function render(R){
@@ -316,33 +326,38 @@ function render(R){
     : `<div class="photo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Zm-2.4 6h4.8a2 2 0 0 1 2 2v5.5h-1.8V22h-5.2v-5.9H7.6V10.5a2 2 0 0 1 2-2Z"/></svg><span>Full portrait</span></div>`;
 
   const V=R.vitals, chipCol=tierColorForRank(R.rank.current);
+  // Birthday record is a fun bonus stat — shown only when he has a bout on his birthday inside a basho;
+  // otherwise the tile is HIDDEN entirely (the top row collapses to two columns), not shown as a note.
   const bday = R.birthday && R.birthday.inWindow
     ? `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
         <div class="bdaybig tnum">${esc(R.birthday.record)}</div>
         <div class="bdaysub">in ${R.birthday.n} bout${R.birthday.n===1?'':'s'} fought on ${esc(R.birthday.on)}</div></div>`
-    : `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
-        <div class="bdaysub missing">No birthday bout inside a basho window — panel hidden in production.</div></div>`;
+    : '';
 
-  const rec=R.records;
+  const rec=R.records||{};
   const band1 = `<div class="band">
     <div class="bcell"><span class="k">Current rank</span><span class="v"><span class="rankbadge" style="background:${tierColorForRank(R.rank.current)}">${esc(R.rank.current)}</span></span></div>
     <div class="bcell"><span class="k">Highest rank</span><span class="v"><span class="rankbadge" style="background:${tierColorForRank(R.highestRank)}">${esc(R.highestRank)}</span></span></div>
-    <div class="bcell"><span class="k">All-time (all div)</span><span class="v tnum">${rec.allDivision.w}–${rec.allDivision.l} <small>${esc(rec.allDivision.pct)}</small></span></div>
-    <div class="bcell"><span class="k">Makuuchi (career)</span><span class="v tnum">${rec.makuuchi.w}–${rec.makuuchi.l} <small>${esc(rec.makuuchi.pct)}</small></span></div>
-    <div class="bcell"><span class="k">Crew (Jan 2025+)</span><span class="v tnum">${rec.crew.w}–${rec.crew.l} <small>${esc(rec.crew.pct)}</small></span></div>
+    <div class="bcell"><span class="k">All divisions (career)</span><span class="v tnum">${recCell(rec.allDivision)}</span></div>
+    <div class="bcell"><span class="k">Makuuchi (career)</span><span class="v tnum">${recCell(rec.makuuchi)}</span></div>
+    <div class="bcell"><span class="k">Crew (Jan 2025+)</span><span class="v tnum">${recCell(rec.crew)}</span></div>
   </div>${rec.note?`<p class="recnote">${esc(rec.note)}</p>`:''}`;
 
-  const band2 = `<div class="band">${R.specials.map(s=>`
-    <div class="bcell"><span class="k">${esc(s.jp)}</span><span class="keng">${esc(s.en)}</span>
-      <span class="v tnum">${s.count}</span><span class="bfrom">${esc(dash(s.basho))}</span></div>`).join('')}
-  </div><p class="recnote">Under each honor, the basho it was won in (2-digit year + basho code, e.g. 25Ky = Kyushu 2025). A dash means none.</p>`;
+  const band2 = `<div class="band">${(R.specials||[]).map(s=>{
+      const chips = (s.basho&&s.basho.length) ? s.basho.join(', ') : '';
+      const earlier = s.pre>0 ? `${chips?' · ':''}+${s.pre} earlier` : '';
+      const provn = (chips||earlier) ? chips+earlier : '—';
+      const eraTag = s.era==='crew' ? '<span class="eratag">crew era</span>' : '';
+      return `<div class="bcell"><span class="k">${esc(s.jp)}${eraTag}</span><span class="keng">${esc(s.en)}</span>
+      <span class="v tnum">${s.count}</span><span class="bfrom">${esc(provn)}</span></div>`;}).join('')}
+  </div><p class="recnote">Counts are career. The basho chips mark crew-era (2025+) honors we tracked; “+N earlier” is honors before that (no per-basho record on hand). Kinboshi is crew-era only.</p>`;
 
   const story = `<section class="story"><p class="eyebrow">The story <span class="tag soft">Soft · narrative</span></p>
     <p class="body">${R.story.html} <span class="src">${esc(R.story.source)}</span></p></section>`;
 
   const arcPanel = `<section class="panel"><div class="phead"><h2>Banzuke rank over time</h2><span class="tag hard">Hard · full career</span></div>
-    <svg id="arc" viewBox="0 0 1000 240" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rank over time"></svg>
-    <p class="note">Oldest → newest · marker color = rank tier${R.arc.fromJuryo?' · dashed lead-in = entered makuuchi from Juryo':''}.</p></section>`;
+    <svg id="arc" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rank over time"></svg>
+    <p class="note">Oldest → newest · marker color = rank tier · ranks below M17 (Juryo and lower) sit in the compressed band at the bottom, so a fall out of makuuchi shows as a real drop.</p></section>`;
 
   const charts2a = `<div class="charts2">
     <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Kimarite: how he wins</h2><span class="tag hard">Hard</span></div>
@@ -360,7 +375,7 @@ function render(R){
 
   const bio = `<section class="panel"><div class="phead"><h2>The person: bio, talents, fun facts</h2>
     <span class="tag hard">Hard</span><span class="tag soft">+ Soft</span></div>
-    <div class="biofull">${R.bio.map(b=>`<div class="row"><div class="k">${esc(b.k)}</div>
+    <div class="biofull">${(R.bio||[]).map(b=>`<div class="row"><div class="k">${esc(b.k)}</div>
       <div class="v">${b.v} ${b.src?`<span class="src">· ${esc(b.src)}</span>`:''}</div></div>`).join('')}</div></section>`;
 
   const footer = `<div class="footer"><div class="legend">
@@ -369,7 +384,14 @@ function render(R){
       <span class="li"><span class="tag member">Member</span> member-only depth</span></div>
     <span class="spoiler"><i></i> current-basho stats show through your watched day</span></div>`;
 
-  app.innerHTML = `<div class="top">${photo}
+  // A wrestler new to the crew's tracking has no crew data — collapse the empty crew panels into one
+  // honest banner and lean on the sumo-api career data above, instead of four separate empty tiles.
+  const limited = !!R.newToTracking;
+  const limitedBanner = `<section class="panel limited"><div class="phead"><h2>Crew stats</h2><span class="tag member">Crew</span></div>
+    <p class="limitednote">New to our tracking — no bouts logged yet. His career record, rank history, and bio above come straight from sumo-api; the crew stats (kimarite mix, schedule caliber, henka, mawashi, birthday) fill in as he fights in front of us.</p></section>`;
+  const crewPanels = limited ? limitedBanner : (charts2a + charts2b);
+
+  app.innerHTML = `<div class="top${bday?'':' nobday'}">${photo}
     <div class="namecard"><div class="topline">
       <span class="rankchip" style="background:${tierColorForRank(R.rank.current)}">● ${esc(R.rank.current)} · ${esc(R.rank.basho)}</span>
       <div class="unittoggle" id="utog"><button data-u="std">ft · lb</button><button data-u="metric">cm · kg</button></div></div>
@@ -378,43 +400,46 @@ function render(R){
       <div class="namestats">
         <div class="ns"><div class="k">Height</div><div class="v tnum" id="vHt"></div></div>
         <div class="ns"><div class="k">Weight</div><div class="v tnum" id="vWt"></div></div>
-        <div class="ns"><div class="k">Age</div><div class="v tnum">${V.age}</div></div>
+        <div class="ns"><div class="k">Age</div><div class="v tnum">${V.age??'—'}</div></div>
         <div class="ns"><div class="k">B-day</div><div class="v">${esc(V.bday.mon)} ${V.bday.day}<small> ${esc(V.bday.yy)}</small></div></div>
         <div class="ns"><div class="k">Stable</div><div class="v">${esc(V.stable)}</div></div>
       </div></div>${bday}</div>`
-    + band1 + band2 + story + arcPanel + charts2a + charts2b + bio + footer;
+    + band1 + band2 + story + arcPanel + crewPanels + bio + footer;
 
-  drawArc(R); drawPie(R); drawMawashi(R); drawCaliber(R); drawHenka(R); initUnits(R);
+  drawArc(R);
+  if(!limited){ drawPie(R); drawMawashi(R); drawCaliber(R); drawHenka(R); }
+  initUnits(R);
 }
 
 /* ---- rank arc ---- */
 function drawArc(R){
-  const ARC=R.arc.points, W=1000,H=240,padL=68,padR=22,padT=16,padB=32,yTop=1,yBot=21;
+  const ARC=R.arc.points||[];
+  if(ARC.length<2){ document.getElementById('arc').outerHTML='<p class="emptylane" id="arc">Rank history not available yet.</p>'; return; }
+  const W=1000,H=300,padL=68,padR=22,padT=16,padB=32,yTop=1,yBot=28; // yBot 28 = Jonokuchi; makuuchi is 1–21
   const x=i=>padL+(W-padL-padR)*(i/(ARC.length-1));
   const y=v=>padT+(H-padT-padB)*((v-yTop)/(yBot-yTop));
   const line=cssv('--line'),faint=cssv('--faint'),ink=cssv('--muted');
-  const tcol=v=>{ if(v<=1)return cssv('--yokozuna'); if(v<=2)return cssv('--ozeki'); if(v<=3)return cssv('--sekiwake'); if(v<=4)return cssv('--komusubi'); return cssv(v<=12?'--maeg-hi':'--maeg-lo'); };
+  const tcol=v=>{ if(v<=1)return cssv('--yokozuna'); if(v<=2)return cssv('--ozeki'); if(v<=3)return cssv('--sekiwake'); if(v<=4)return cssv('--komusubi'); if(v<=21)return cssv(v<=12?'--maeg-hi':'--maeg-lo'); return cssv('--faint'); };
   let s='';
-  [['Yokozuna',1],['Ozeki',2],['Sekiwake',3],['Komusubi',4],['M1',5],['M9',13],['M17',21]].forEach(([lab,v])=>{
+  // shade the below-makuuchi band so the "lower divisions" zone reads at a glance
+  s+=`<rect x="${padL}" y="${y(21.7)}" width="${W-padL-padR}" height="${y(28)-y(21.7)}" fill="${line}" opacity=".22"/>`;
+  [['Yokozuna',1],['Ozeki',2],['Sekiwake',3],['Komusubi',4],['M1',5],['M9',13],['M17',21],['Juryo',23],['Lower',26.5]].forEach(([lab,v])=>{
     s+=`<line x1="${padL}" y1="${y(v)}" x2="${W-padR}" y2="${y(v)}" stroke="${line}" stroke-width="1"/>`;
     s+=`<text x="${padL-8}" y="${y(v)+3.5}" text-anchor="end" font-family="Inter,system-ui,sans-serif" font-size="10" fill="${faint}">${lab}</text>`;});
-  const step=(W-padL-padR)/(ARC.length-1);
-  if(R.arc.fromJuryo){
-    s+=`<path d="M ${x(0)-step*0.7} ${y(22.4)} L ${x(0)} ${y(ARC[0].v)}" stroke="${ink}" stroke-width="2" stroke-dasharray="4 4" fill="none" opacity=".55"/>`;
-    s+=`<text x="${x(0)-step*0.7}" y="${y(22.4)+15}" font-family="Inter,system-ui,sans-serif" font-size="9" fill="${faint}">${esc(R.arc.from||'from Juryo')}</text>`;
-  }
   s+=`<path d="M ${ARC.map((p,i)=>`${x(i)} ${y(p.v)}`).join(' L ')}" fill="none" stroke="${ink}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
   ARC.forEach((p,i)=>{ const c=tcol(p.v);
     s+=`<circle cx="${x(i)}" cy="${y(p.v)}" r="5.5" fill="${c}" stroke="${cssv('--surface')}" stroke-width="2"/>`;
     s+=`<text x="${x(i)}" y="${H-padB+17}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-size="9.5" fill="${faint}">${esc(p.b)}</text>`;
-    if(i===ARC.length-1||i===0||(p.r==='O'&&ARC[i-1]&&ARC[i-1].r!=='O'))
+    // label the first, the last, and every point where the rank tier changes (first char of the short label)
+    if(i===ARC.length-1||i===0||(ARC[i-1]&&String(p.r)[0]!==String(ARC[i-1].r)[0]))
       s+=`<text x="${x(i)}" y="${y(p.v)-11}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="600" font-size="11" fill="${c}">${esc(p.r)}</text>`;});
   document.getElementById('arc').innerHTML=s;
 }
 
 /* ---- kimarite pie ---- */
 function drawPie(R){
-  const KIM=R.kimarite.slices, cx=80,cy=80,r=62,ir=34; let a=-Math.PI/2,s='';
+  const KIM=(R.kimarite&&R.kimarite.slices)||[]; const cx=80,cy=80,r=62,ir=34; let a=-Math.PI/2,s='';
+  if(!KIM.length){ document.getElementById('pie').innerHTML=''; document.getElementById('pieleg').innerHTML='<div class="emptylane">No technique data yet.</div>'; return; }
   KIM.forEach(k=>{ const pc=k.pct??k[1]??0; const col=k.color; const a2=a+pc/100*2*Math.PI;
     const x1=cx+r*Math.cos(a),y1=cy+r*Math.sin(a),x2=cx+r*Math.cos(a2),y2=cy+r*Math.sin(a2);
     const xi2=cx+ir*Math.cos(a2),yi2=cy+ir*Math.sin(a2),xi1=cx+ir*Math.cos(a),yi1=cy+ir*Math.sin(a),big=(a2-a)>Math.PI?1:0;
@@ -430,14 +455,17 @@ function normalizeKim(data){ for(const id in data){ const s=data[id].kimarite&&d
 
 /* ---- mawashi ---- */
 function drawMawashi(R){
-  document.getElementById('mawashi').innerHTML=R.mawashi.map(m=>
-    `<div class="swatch ${m.chg?'chg':''}"><i style="background:${m.c}"></i><span>${esc(m.b)}</span></div>`).join('');
+  const M=R.mawashi||[];
+  document.getElementById('mawashi').innerHTML = M.length
+    ? M.map(m=>`<div class="swatch ${m.chg?'chg':''}"><i style="background:${m.c}"></i><span>${esc(m.b)}</span></div>`).join('')
+    : '<div class="emptylane">No mawashi colors on file yet.</div>';
 }
 
 /* ---- caliber (interactive per-basho) ---- */
 function drawCaliber(R){
-  const C=R.caliber; const bsel=document.getElementById('bsel');
-  bsel.innerHTML=Object.keys(C.bashos).map(b=>`<button data-b="${b}">${b}</button>`).join('');
+  const C=R.caliber||{bashos:{}}; const bsel=document.getElementById('bsel'); const keys=Object.keys(C.bashos||{});
+  if(!keys.length){ bsel.innerHTML=''; document.getElementById('caliber').innerHTML='<div class="emptylane">No member caliber data yet — fills once bouts are logged against ranked opponents.</div>'; return; }
+  bsel.innerHTML=keys.map(b=>`<button data-b="${b}">${b}</button>`).join('');
   function draw(b){
     document.getElementById('caliber').innerHTML=C.bashos[b].map(row=>{
       const [lab,sub,w,l]=row, t=(w+l)||1, wp=Math.round(w/t*100);
@@ -447,13 +475,14 @@ function drawCaliber(R){
     bsel.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.b===b));
   }
   bsel.querySelectorAll('button').forEach(x=>x.onclick=()=>draw(x.dataset.b));
-  draw(C.default||Object.keys(C.bashos)[0]);
+  draw(C.default||keys[0]);
 }
 
 /* ---- henka vs field ---- */
 function drawHenka(R){
-  const max=4;
-  document.getElementById('henka').innerHTML=R.henka.map(d=>{
+  const HK=R.henka||[]; const max=4;
+  if(!HK.length){ document.getElementById('henka').innerHTML='<div class="emptylane">No henka on record for him in the tracked era.</div>'; return; }
+  document.getElementById('henka').innerHTML=HK.map(d=>{
     const good=d.his<=d.avg, col=good?cssv('--win'):cssv('--loss');
     const hisW=Math.min(d.his/max*100,100), avgL=Math.min(d.avg/max*100,100);
     return `<div class="cmprow"><div class="lab"><span>${esc(d.label)} henka <span class="src">· ${esc(d.n)}</span></span><b class="tnum" style="color:${col}">${d.his}%</b></div>
@@ -467,8 +496,8 @@ function initUnits(R){
   const ftin=cm=>{const t=Math.round(cm/2.54);return `${Math.floor(t/12)}'${t%12}"`;};
   function renderUnits(u){
     const h=document.getElementById('vHt'),w=document.getElementById('vWt');
-    if(u==='metric'){ h.innerHTML=`${HT_CM}<small> cm</small>`; w.innerHTML=`${WT_KG}<small> kg</small>`; }
-    else{ h.innerHTML=ftin(HT_CM); w.innerHTML=`${Math.round(WT_KG*2.20462)}<small> lb</small>`; }
+    if(HT_CM==null){ h.innerHTML='<span class="missing">—</span>'; } else if(u==='metric'){ h.innerHTML=`${HT_CM}<small> cm</small>`; } else { h.innerHTML=ftin(HT_CM); }
+    if(WT_KG==null){ w.innerHTML='<span class="missing">—</span>'; } else if(u==='metric'){ w.innerHTML=`${WT_KG}<small> kg</small>`; } else { w.innerHTML=`${Math.round(WT_KG*2.20462)}<small> lb</small>`; }
     document.querySelectorAll('#utog button').forEach(b=>b.classList.toggle('on',b.dataset.u===u));
   }
   const region=(navigator.language||'en-US').split('-')[1]||'US';
