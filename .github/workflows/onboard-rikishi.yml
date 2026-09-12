@@ -1,10 +1,12 @@
 name: Onboard / Refresh Rikishi
 # One action for the onboarding moment: enrich a wrestler's master data from sumo-api, THEN build their
-# head-crop from the portrait already uploaded to their Notion Photo. Same `names` input drives both.
+# head-crop AND their full-body portrait from the photo already uploaded to their Notion Photo. Same
+# `names` input drives all three.
 #   names = one or more Ring Names  -> onboard/refresh just those
-#   names = ALL                     -> whole roster (data refresh + rebuild every head-crop)
+#   names = ALL                     -> whole roster (data refresh + rebuild every head-crop + portrait)
 # Kept separate from the bulk workflows on purpose: this is the "bring a rikishi into the fold" path.
-# Re-uploading a photo for an existing wrestler (bad crop, yokozuna re-shoot) still uses Build Headshots.
+# Re-uploading a photo for an existing wrestler (bad crop, yokozuna re-shoot) still uses Build Headshots
+# / Build Portraits directly.
 on:
   workflow_dispatch:
     inputs:
@@ -13,7 +15,7 @@ on:
         default: ""
         required: true
       dry_run:
-        description: "1 = preview only (writes nothing), 0 = write to Notion + commit crops"
+        description: "1 = preview only (writes nothing), 0 = write to Notion + commit crops & portraits"
         default: "1"
         required: true
 permissions:
@@ -40,11 +42,17 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
           NAMES: ${{ inputs.names }}
-      - name: Commit crops
+      - name: Build full portrait
+        run: node build-portraits.mjs
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          DRY_RUN: ${{ inputs.dry_run }}
+          NAMES: ${{ inputs.names }}
+      - name: Commit crops & portraits
         if: ${{ inputs.dry_run == '0' }}
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add img/headshots
-          git commit -m "Onboard/refresh head-crops: ${{ inputs.names }}" || echo "no crop changes to commit"
+          git add img/headshots img/portraits
+          git commit -m "Onboard/refresh head-crops + portraits: ${{ inputs.names }}" || echo "no image changes to commit"
           git push
