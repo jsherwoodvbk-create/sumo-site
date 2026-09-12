@@ -422,19 +422,24 @@ async function main(){
     if (ml && ml.w > 0) {
       const rows = [...ml.kim.entries()].map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
       const total = rows.reduce((a, r) => a + r.n, 0) || 1;
+      const MAX_NAMED = 7;   // readable pie ceiling (≈ the strawman: 7 named + Other)
       const slices = []; let acc = 0;
       for (const r of rows) {
         slices.push({ name: r.name, pct: Math.round(r.n / total * 100), color: KIM_PALETTE[slices.length % KIM_PALETTE.length] });
         acc += r.n;
         const tail = total - acc;                       // sum of everything not yet promoted
-        if (tail <= 0.10 * total) break;                // remaining tail will be ≤10% → fold into Other
-        if (slices.length >= KIM_PALETTE.length) break; // palette cap (rare with 12 colors)
+        if (tail <= 0.10 * total) break;                // remaining tail ≤10% → fold into Other (the common case)
+        if (slices.length >= MAX_NAMED) break;          // readability wins over a strict 10% cap for a flat spread
       }
       const promoted = slices.length;
-      const otherN = rows.slice(promoted).reduce((a, r) => a + r.n, 0);
+      const tailRows = rows.slice(promoted);
+      const otherN = tailRows.reduce((a, r) => a + r.n, 0);
       if (otherN > 0) {
         const sumPct = slices.reduce((a, s) => a + s.pct, 0);
-        slices.push({ name: 'Other', pct: Math.max(0, 100 - sumPct), color: OTHER_HEX, moves: rows.length - promoted }); // absorbs rounding so the pie closes
+        // Keep the pie readable (one Other wedge) BUT name every folded technique in `tail`, so a
+        // technician's full repertoire stays visible in the legend instead of vanishing into gray.
+        const tail = tailRows.map(r => ({ name: r.name, n: r.n, pct: Math.round(r.n / total * 100) }));
+        slices.push({ name: 'Other', pct: Math.max(0, 100 - sumPct), color: OTHER_HEX, moves: tailRows.length, tail });
       }
       kimarite.slices = slices;
     }
