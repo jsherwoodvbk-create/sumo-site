@@ -1,0 +1,64 @@
+# .github/workflows/gen-rikishi-metrics.yml
+# PER-RIKISHI METRICS LAYER — pull each current-banzuke wrestler's stats from sumo-api + Notion and
+# write rikishi-metrics.json (one record per wrestler, keyed by name-slug) for the dashboard to fetch.
+# Manual dispatch. Defaults to a DRY run: it pulls + prints the per-wrestler summary and the diag/FLAG
+# lines and writes NOTHING. Read that log first (it's the fix-list for the two unverified sumo-api
+# shapes — /stats and ?ranks), then re-run with dry_run=false to write + commit the JSON.
+#
+# WHY THE ACTION (not the sandbox): sumo-api is egress-blocked in Cowork/CI-sandbox but reachable here,
+# the same wall build-standings / setup-basho / gen-gumbai-snapshot work around. Notion is read-only.
+#
+# Regenerate: on a banzuke drop (change the three basho inputs to match setup-basho) and — once proven —
+# daily during a basho for the day-gated caliber / current pieces. Daily regen is best folded into the
+# existing publish pipeline later; this manual workflow is the prove-it-first path.
+name: gen-rikishi-metrics
+
+on:
+  workflow_dispatch:
+    inputs:
+      basho:
+        description: 'sumo-api basho code YYYYMM (e.g. 202609 = Aki 2026)'
+        required: true
+        default: '202609'
+      basho_label:
+        description: 'Basho label for the record (matches setup-basho/build-standings)'
+        required: true
+        default: 'Aki 2026'
+      tournament_page_id:
+        description: 'Notion Bashos page ID for this basho (dashed UUID)'
+        required: true
+        default: '3351ade1-241f-8011-8987-d959538f54a0'
+      dry_run:
+        description: 'true = pull + report only (writes/commits nothing); false = write rikishi-metrics.json and commit'
+        required: true
+        default: 'true'
+
+permissions:
+  contents: write   # a real run commits rikishi-metrics.json back to the repo (Action bot, same as build-headshots)
+
+jobs:
+  metrics:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Generate rikishi-metrics.json
+        env:
+          # READ-scoped token (the same NOTION_TOKEN gen-gumbai-snapshot uses — already shared with
+          # Master Rikishi / Banzuke / Match Log / Kimarite). The generator only reads Notion.
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          BASHO: ${{ inputs.basho }}
+          BASHO_LABEL: ${{ inputs.basho_label }}
+          TOURNAMENT_PAGE_ID: ${{ inputs.tournament_page_id }}
+          DRY_RUN: ${{ inputs.dry_run == 'true' && '1' || '0' }}
+        run: node gen-rikishi-metrics.mjs
+      - name: Commit rikishi-metrics.json
+        if: ${{ inputs.dry_run == 'false' }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add rikishi-metrics.json
+          git commit -m "Regenerate rikishi-metrics.json (${{ inputs.basho_label }})" || echo "no metrics changes to commit"
+          git push
