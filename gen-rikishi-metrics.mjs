@@ -194,7 +194,9 @@ function rankShort(rankStr){
   return rankStr;
 }
 const rankTier = r => (['Yokozuna','Ozeki','Sekiwake','Komusubi'].includes(r) ? r : (/^M\d{1,2}$/.test(r) ? 'Maegashira' : (r === 'J' ? 'Juryo' : null)));
-// arc y-value + short label the template plots (Y=1 … M17=21).
+// arc y-value + short label the template plots. Makuuchi: Y=1 … M17=21. Lower divisions live in a
+// compressed band below (Juryo=23, Makushita=25 … Jonokuchi=28) so a fall OUT of makuuchi shows as a
+// real plunge, not a gap (template draws a "lower divisions" zone below M17).
 function rankToArc(rankStr){
   const s = rankShort(rankStr);
   if (s === 'Yokozuna') return { v: 1, r: 'Y' };
@@ -202,7 +204,13 @@ function rankToArc(rankStr){
   if (s === 'Sekiwake') return { v: 3, r: 'S' };
   if (s === 'Komusubi') return { v: 4, r: 'K' };
   const m = s.match(/^M(\d+)$/); if (m) return { v: 4 + Math.min(+m[1], 17), r: 'M' + m[1] };
-  return null; // Juryo/below → not plotted (the dashed lead-in covers the gap)
+  const raw = String(rankStr || '');
+  if (s === 'J' || /^Juryo\b/i.test(raw))  return { v: 23, r: 'J' };
+  if (/Makushita/i.test(raw)) return { v: 25, r: 'Ms' };
+  if (/Sandanme/i.test(raw))  return { v: 26, r: 'Sd' };
+  if (/Jonidan/i.test(raw))   return { v: 27, r: 'Jd' };
+  if (/Jonokuchi/i.test(raw)) return { v: 28, r: 'Jk' };
+  return null; // unknown → not plotted
 }
 // sumo-api rankHistory basho code (YYYYMM) → arc x-label ("202509" → "Aki25").
 const CODE2 = { '01':['Hts','Ht'], '03':['Hru','Hr'], '05':['Ntu','Nt'], '07':['Ngy','Ng'], '09':['Aki','Ak'], '11':['Kyu','Ky'] };
@@ -226,18 +234,35 @@ async function fetchArc(id){
   const fromJuryo = rows.some(r2 => /Juryo|Makushita|Sandanme|Jonidan|Jonokuchi/i.test(String(r2.rank)));
   return { points, highest, fromJuryo };
 }
+let _statsDumped = false;
+// sansho lookup across the shape variants sumo-api might use.
+function sanshoCount(obj, keys){ if (!obj || typeof obj !== 'object') return 0; for (const k of keys) if (obj[k] != null) return num(obj[k]) || 0; return 0; }
 async function fetchCareer(id){
-  const s = await getJson(`${API}/rikishi/${id}/stats`); if (!s) return { allDivision: null, makuuchi: null, yusho: null };
+  const s = await getJson(`${API}/rikishi/${id}/stats`); if (!s) return { allDivision: null, makuuchi: null, yushoAll: null, sansho: {} };
+  // One-time raw dump on a DRY run so a wrong shape is a one-glance fix (the makuuchi split was
+  // mis-keyed on the first live run: it lives under winsByDivision/lossByDivision, not totalByDivision).
+  if (DRY && !_statsDumped) { _statsDumped = true;
+    console.log(`[stats keys] ${Object.keys(s).join(', ')}`);
+    console.log(`[stats sample] ${JSON.stringify(s).slice(0, 700)}`); }
   const total = (s.totalWins != null || s.absenceByDivision) ? { w: num(s.totalWins), l: num(s.totalLosses) } : null;
-  const byDiv = s.totalByDivision || s.divisionStats || null;
-  const mk = byDiv && (byDiv.Makuuchi || byDiv.makuuchi) || null;
-  const mak = mk ? { w: num(mk.wins ?? mk.win ?? mk.w), l: num(mk.losses ?? mk.loss ?? mk.l) } : null;
-  const yusho = num(s.yusho ?? s.yushoCount ?? (s.sansho && s.sansho.Yusho));
+  // makuuchi career split — sumo-api keys it winsByDivision / lossByDivision (a number per division).
+  const winsDiv = s.winsByDivision || s.totalByDivision || {};
+  const lossDiv = s.lossByDivision || s.lossesByDivision || {};
+  const mkW = num(winsDiv.Makuuchi ?? winsDiv.makuuchi);
+  const mkL = num(lossDiv.Makuuchi ?? lossDiv.makuuchi);
+  const mak = (mkW != null || mkL != null) ? { w: mkW ?? 0, l: mkL ?? 0 } : null;
+  const yushoAll = num(s.yusho ?? s.yushoCount);
+  const sansho = {
+    shukun: sanshoCount(s.sansho, ['Shukun-sho','Shukunsho','shukun','Outstanding Performance']),
+    kanto:  sanshoCount(s.sansho, ['Kanto-sho','Kantosho','kanto','Fighting Spirit']),
+    gino:   sanshoCount(s.sansho, ['Gino-sho','Ginosho','gino','Technique']),
+  };
   if (total == null) diag('rikishi/{id}/stats', s);
+  else if (mak == null) diag('rikishi/{id}/stats:winsByDivision', s);
   return {
     allDivision: total ? { w: total.w, l: total.l, pct: pctStr(total.w, total.l) } : null,
     makuuchi:    mak   ? { w: mak.w,   l: mak.l,   pct: pctStr(mak.w, mak.l) }     : null,
-    yusho,
+    yushoAll, sansho,
   };
 }
 
@@ -268,7 +293,7 @@ function buildMawashi(currentColor, pastText){
   return out;
 }
 
-const KIM_PALETTE = ['#cf5a2c','#2f8f5b','#7a4fb0','#4a7fb5','#c99a2e','#b5566f','#3a9aa0'];
+const KIM_PALETTE = ['#cf5a2c','#2f8f5b','#7a4fb0','#4a7fb5','#c99a2e','#b5566f','#3a9aa0','#8a7a3a','#5a8f6a','#9a5aa0','#c2662f','#4a6a8f'];
 const OTHER_HEX = '#8a8168';
 
 // ── main ───────────────────────────────────────────────────────────────────────
@@ -377,27 +402,40 @@ async function main(){
     if (records.makuuchi && records.crew && records.makuuchi.w === records.crew.w && records.makuuchi.l === records.crew.l && records.crew.w != null)
       records.note = `For ${entry.name}, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it.`;
 
-    // specials (crew-era honors + provenance; Yusho pinned right)
+    // specials — COUNTS are all-time (sumo-api career), so pre-crew honors count too (e.g. a 2019 yusho);
+    // basho CHIPS are crew-era only (the Banzuke is all we have per-basho provenance for). era='career'
+    // where the count spans the whole career, 'crew' for kinboshi (no all-time source → crew-era count).
+    // `pre` = honors with no chip (count minus what we can chip) so the template can show "+N earlier".
+    const yuChips = H ? prov(H.yu) : [], opChips = H ? prov(H.op) : [], fsChips = H ? prov(H.fs) : [], teChips = H ? prov(H.te) : [], kbChips = H ? prov(H.kb) : [];
+    const mkSpecial = (jp, en, count, chips, era) => ({ jp, en, count: count || 0, basho: chips, era, pre: era === 'career' ? Math.max(0, (count || 0) - chips.length) : 0 });
     const specials = [
-      { jp:'Kinboshi',   en:'Gold Star',        count: H ? H.kinboshi : 0, basho: H ? prov(H.kb) : [] },
-      { jp:'Shukun-sho', en:'Outstanding Perf.', count: H ? H.OP : 0,       basho: H ? prov(H.op) : [] },
-      { jp:'Kanto-sho',  en:'Fighting Spirit',   count: H ? H.FS : 0,       basho: H ? prov(H.fs) : [] },
-      { jp:'Gino-sho',   en:'Technique',         count: H ? H.TE : 0,       basho: H ? prov(H.te) : [] },
-      { jp:'Yusho',      en:"Emperor's Cup",     count: H ? H.yusho : (car.yusho ?? 0), basho: H ? prov(H.yu) : [] },
+      mkSpecial('Kinboshi',   'Gold Star',         H ? H.kinboshi : 0,   kbChips, 'crew'),
+      mkSpecial('Shukun-sho', 'Outstanding Perf.', car.sansho?.shukun,   opChips, 'career'),
+      mkSpecial('Kanto-sho',  'Fighting Spirit',   car.sansho?.kanto,    fsChips, 'career'),
+      mkSpecial('Gino-sho',   'Technique',         car.sansho?.gino,     teChips, 'career'),
+      mkSpecial('Yusho',      "Emperor's Cup",     car.yushoAll,         yuChips, 'career'),
     ];
 
-    // kimarite mix (crew-era wins)
+    // kimarite mix (crew-era wins). Promote techniques largest-first into their own slice until the
+    // leftover tail is ≤10% of wins, then fold that tail into "Other" — so Other never exceeds ~10%.
     let kimarite = { window: 'since Jan 2025', totalWins: ml ? ml.w : 0, slices: [] };
     if (ml && ml.w > 0) {
       const rows = [...ml.kim.entries()].map(([name, n]) => ({ name, n })).sort((a, b) => b.n - a.n);
       const total = rows.reduce((a, r) => a + r.n, 0) || 1;
-      const slices = []; let ci = 0, otherN = 0, otherMoves = 0;
+      const slices = []; let acc = 0;
       for (const r of rows) {
-        const pc = Math.round(r.n / total * 100);
-        if (pc >= 5 && ci < KIM_PALETTE.length) { slices.push({ name: r.name, pct: pc, color: KIM_PALETTE[ci++] }); }
-        else { otherN += r.n; otherMoves++; }
+        slices.push({ name: r.name, pct: Math.round(r.n / total * 100), color: KIM_PALETTE[slices.length % KIM_PALETTE.length] });
+        acc += r.n;
+        const tail = total - acc;                       // sum of everything not yet promoted
+        if (tail <= 0.10 * total) break;                // remaining tail will be ≤10% → fold into Other
+        if (slices.length >= KIM_PALETTE.length) break; // palette cap (rare with 12 colors)
       }
-      if (otherN > 0) slices.push({ name: 'Other', pct: Math.round(otherN / total * 100), color: OTHER_HEX, moves: otherMoves });
+      const promoted = slices.length;
+      const otherN = rows.slice(promoted).reduce((a, r) => a + r.n, 0);
+      if (otherN > 0) {
+        const sumPct = slices.reduce((a, s) => a + s.pct, 0);
+        slices.push({ name: 'Other', pct: Math.max(0, 100 - sumPct), color: OTHER_HEX, moves: rows.length - promoted }); // absorbs rounding so the pie closes
+      }
       kimarite.slices = slices;
     }
 
@@ -475,6 +513,9 @@ async function main(){
 
     const rec = {
       id: slug(entry.name), name: entry.name, sample: false,
+      // new to the crew's tracking (no logged bouts) → the template collapses empty crew panels into
+      // one honest "limited crew history" banner and leans on the sumo-api career data that's always there.
+      newToTracking: !ml || (ml.w + ml.l) === 0,
       rank: { current: entry.rank, basho: BASHO_LABEL },
       highestRank: arc.highest || (mp ? selOf(mp, 'Highest Rank') : null) || entry.rank,
       photo, origin,
