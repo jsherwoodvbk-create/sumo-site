@@ -78,10 +78,11 @@
   .composer .full input{width:15px;height:15px;accent-color:var(--vermilion)}
   .composer .full b{color:var(--vermilion)}
   .composer .send{display:flex;gap:9px;align-items:flex-end}
-  .composer textarea{flex:1;font:inherit;font-size:15px;color:var(--ink);background:var(--bg);
-    border:1px solid var(--line);border-radius:13px;padding:11px 14px;resize:none;max-height:140px;line-height:1.4}
-  .composer textarea:focus{outline:none;border-color:var(--purple)}
-  .composer button{background:var(--purple);color:#fff;border:none;border-radius:12px;padding:11px 20px;
+    .composer textarea{flex:1;font:inherit;font-size:15px;color:var(--ink);background:var(--surface);
+    border:2px solid var(--vermilion);border-radius:13px;padding:11px 14px;resize:none;max-height:140px;line-height:1.4}
+  .composer textarea::placeholder{color:var(--muted)}
+  .composer textarea:focus{outline:none;border-color:var(--vermilion);box-shadow:0 0 0 3px color-mix(in srgb,var(--vermilion) 22%,transparent)}
+  .composer button{background:var(--vermilion);color:#fff;border:none;border-radius:12px;padding:11px 20px;
     font:inherit;font-weight:800;font-size:14px;cursor:pointer;flex:0 0 auto}
   .composer button:disabled{opacity:.5;cursor:default}
   .foot{max-width:760px;margin:0 auto;padding:0 18px 10px;font-size:11px;color:var(--muted);text-align:center;opacity:.8}
@@ -128,16 +129,14 @@
   </div>
   <div class="stream"><div class="inner" id="stream">
     <div class="intro" id="intro">
-      Ask me anything about the basho: records, matchups, who's from where, what a move means,
-      why they throw salt. I only speak from the crew's verified data, gated to the day you've watched.
-      Match records go back to January 2025.
+            I live for this stuff, so ask me anything sumo: the wrestlers and their stables, records and matchups, winning moves, where the tournaments are held, and the history and lore behind it all. My match records go back to January 2025 when the crew started watching, though I've got the wrestlers' backstories from further back too.
       <div class="chips" id="chips"></div>
     </div>
   </div></div>
   <div class="composer"><div class="box">
     <label class="full"><input type="checkbox" id="showFull"> <span>Show <b>full results</b> for this one question (ignore my day gate). Off by default</span></label>
     <div class="send">
-      <textarea id="q" rows="1" placeholder="Ask Gumbai anything about the basho…" autocomplete="off"></textarea>
+      <textarea id="q" rows="1" placeholder="Ask Gumbai anything about sumo…" autocomplete="off"></textarea>
       <button id="ask">Ask</button>
     </div>
     <div class="foot" id="foot">Gumbai answers from Salt Stats &amp; Sumo data · match records from Jan 2025 on · never past your watched day</div>
@@ -152,11 +151,8 @@ const fullBox = document.getElementById('showFull');
 const foot = document.getElementById('foot');
 const intro = document.getElementById('intro');
 const STARTERS = [
-  "How's Atomic doing?",
-  "Who's earned a kinboshi so far?",
-  "List the sanyaku",
   "What does Aonishiki's name mean?",
-  "Who's from Ukraine?",
+  "List the sanyaku",
   "Why do they throw salt?"
 ];
 const chips = document.getElementById('chips');
