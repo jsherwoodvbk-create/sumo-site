@@ -314,10 +314,12 @@ const SNAP_AUD = {
 const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
 const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
 const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
-t('toolsFor(member) is the full 13', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 13));
-t('toolsFor(public) = 11, omits condition+storylines, keeps catchphrases + rollup', () => {
+t('toolsFor(member) is the full 16', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 16));
+t('toolsFor(public) = 14, omits condition+storylines, keeps catchphrases + rollup + the reference tools', () => {
   const p = toolsFor('public').map(x=>x.name);
-  assert(p.length===11 && !p.includes('query_condition') && !p.includes('query_storylines') && p.includes('query_catchphrases') && p.includes('query_rollup'));
+  assert(p.length===14 && !p.includes('query_condition') && !p.includes('query_storylines')
+    && p.includes('query_catchphrases') && p.includes('query_rollup')
+    && p.includes('query_basho') && p.includes('query_glossary') && p.includes('query_library'));
 });
 t('member view keeps injuries + days + nets (no regression)', () =>
   assert((memV.injuries||[]).length===1 && (memV.days||[]).length===1 && memV.bouts[0].conduct[0]===A.conduct && memV.bouts[0].length===A.length));
@@ -426,6 +428,133 @@ t('query_rollup heya alias -> stable; unknown field rejected cleanly', () => {
 });
 t('query_rollup registered + offered to both audiences', () => {
   assert(TOOLS.some(x=>x.name==='query_rollup') && toolsFor('public').some(x=>x.name==='query_rollup'));
+});
+
+// ═══ 12. schema/7 reference lanes — query_basho / query_glossary / query_library + profile fields ═══
+// The completeness pass (Day-1, MJ): the reference tables Gumbai never pulled. All TIMELESS →
+// pass the gate for both audiences. The headline: "which city was the July 2026 basho in" now answers.
+console.log('\n[12] query_basho / query_glossary / query_library + schema/7 profile fields');
+const SNAP_REF = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:2 },
+  rikishi:[
+    { name:'Onosato', country:'Japan', nicknames:[], story:'The Wall arrived fast.', debut:'2023-05-01', retirement:null, pastMawashi:'gold', family:[] },
+    { name:'Asanoryu', country:'Japan', nicknames:[], family:['Asasuiryu'] },   // brothers
+  ],
+  banzuke:[ { name:'Onosato', rank:'Yokozuna', weightKg:191 } ],
+  kimarite:[{ name:'yorikiri', description:'force out' }],
+  bouts:[],
+  master:[],
+  bashos:[
+    { code:'202607', tournamentName:'2026 July - Nagoya', basho:'Nagoya', year:2026, location:'IG Arena - Nagoya', startDate:'2026-07-12', endDate:'2026-07-26' },
+    { code:'202609', tournamentName:'2026 September - Aki', basho:'Aki', year:2026, location:'Ryogoku Kokugikan - Tokyo', startDate:'2026-09-13', endDate:'2026-09-27' },
+    { code:'202511', tournamentName:'2025 November - Kyushu', basho:'Kyushu', year:2025, location:'Fukuoka Kokusai -Kyushu', startDate:'2025-11-09', endDate:'2025-11-23' },
+  ],
+  glossary:[
+    { term:'gunbai', definition:"the referee's war-paddle", type:'term' },
+    { term:'kachikoshi', definition:'a winning record (8+ wins)', type:'term' },
+  ],
+  library:[
+    { title:'The Big Book of Sumo', author:'Sharnoff', year:1993, themes:['History','Culture'], notes:'a classic' },
+  ],
+  days:[], injuries:[], catchphrases:[], history:{ meta:{}, basho:{} }, upcoming:null,
+};
+const refM = gateSnapshot(SNAP_REF, 2, false, 'member');
+const refP = gateSnapshot(SNAP_REF, 2, false, 'public');
+t('reference lanes pass the gate for BOTH audiences (timeless)', () =>
+  assert(refM.bashos.length===3 && refP.bashos.length===3 && refM.glossary.length===2 && refP.glossary.length===2 && refM.library.length===1 && refP.library.length===1));
+// THE headline: MJ's exact question.
+t('query_basho "July 2026" -> Nagoya, IG Arena - Nagoya (the exact MJ question)', () => {
+  const o = runTool('query_basho', {which:'July 2026'}, refM);
+  assert(o.found && o.count===1 && o.bashos[0].city==='IG Arena - Nagoya' && o.bashos[0].basho==='Nagoya');
+});
+t('query_basho handles the full-sentence form too', () => {
+  const o = runTool('query_basho', {which:'which city was the July 2026 basho in'}, refM);
+  assert(o.found && o.bashos[0].city==='IG Arena - Nagoya');
+});
+t('query_basho by name / by code / by year', () => {
+  assert(runTool('query_basho', {which:'Aki'}, refM).bashos.some(b=>b.city==='Ryogoku Kokugikan - Tokyo'));
+  assert(runTool('query_basho', {which:'202511'}, refM).bashos[0].basho==='Kyushu');
+  assert(runTool('query_basho', {which:'2025'}, refM).bashos.every(b=>b.year===2025));
+});
+t('query_basho (no arg) lists every basho with city + dates', () => {
+  const o = runTool('query_basho', {}, refM);
+  assert(o.count===3 && o.bashos.every(b=>b.city && b.startDate));
+});
+t('query_basho works for PUBLIC too (timeless)', () =>
+  assert(runTool('query_basho', {which:'Nagoya 2026'}, refP).bashos[0].city==='IG Arena - Nagoya'));
+t('query_glossary term lookup (forgiving) + list', () => {
+  assert(runTool('query_glossary', {term:'gunbai'}, refM).entry.definition.includes('war-paddle'));
+  assert(runTool('query_glossary', {}, refM).count===2);
+  assert(runTool('query_glossary', {term:'nope'}, refM).found===false);
+});
+t('query_library lists cite-approved books + theme filter', () => {
+  assert(runTool('query_library', {}, refM).count===1);
+  assert(runTool('query_library', {theme:'History'}, refM).books[0].title==='The Big Book of Sumo');
+});
+t('query_rikishi surfaces schema/7 fields (story, debut, family)', () => {
+  const r = runTool('query_rikishi', {name:'Onosato'}, refM);
+  assert(r.story && r.debut==='2023-05-01' && r.pastMawashiColors==='gold');
+  const a = runTool('query_rikishi', {name:'Asanoryu'}, refM);
+  assert(a.family && a.family.includes('Asasuiryu'));
+});
+t('the three reference tools are registered + public', () => {
+  for(const n of ['query_basho','query_glossary','query_library'])
+    assert(TOOLS.some(x=>x.name===n) && toolsFor('public').some(x=>x.name===n));
+});
+
+// ═══ 13. INJURY CARRY-OVER (schema/8) — last basho's injuries stay real until the viewer's Day 1 ═══
+// Jennie's rule: a condition left open last basho is presumed real through the intertournament gap
+// and EXPIRES once the viewer has watched Day 1 (then the live board governs). Prior basho = history,
+// so this is spoiler-safe; the current-basho gate is untouched. Injuries stay members-only.
+console.log('\n[13] Injury carry-over (prior-basho, pre-Day-1)');
+const SNAP_INJ = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:15 },
+  rikishi:[ {name:'Aonishiki', nicknames:[]}, {name:'Onosato', nicknames:[]} ],
+  banzuke:[ {name:'Aonishiki', rank:'Ozeki', weightKg:150}, {name:'Onosato', rank:'Yokozuna', weightKg:191} ],
+  kimarite:[], bouts:[], master:[], bashos:[], glossary:[], library:[],
+  injuries:[
+    // carry-only: last basho's (Nagoya) foot, never re-stamped this basho
+    { rikishi:'Aonishiki', area:'left foot', nature:['chronic'], status:'Active',
+      onsetDay:99, fullMaxDay:99, severity:[],
+      priorCarry:{ basho:'Nagoya 2026', status:'Active', note:'26NgD12 still favoring the foot' } },
+    // current-basho condition (onset Day 3) that ALSO carried from last basho
+    { rikishi:'Onosato', area:'shoulder', nature:['chronic'], status:'Active', condition:'Onosato — shoulder',
+      officialReason:null, boothRead:'rotator cuff', scorekeeperEye:null, source:[],
+      onsetDay:3, fullMaxDay:5,
+      severity:[{day:3,text:'26AkD3 tweaked CURTOKEN3'},{day:5,text:'26AkD5 worse CURTOKEN5'}],
+      priorCarry:{ basho:'Nagoya 2026', status:'Active', note:'26NgD9 shoulder flared' } },
+  ],
+  days:[], catchphrases:[], history:{ basho:{} }, upcoming:null,
+};
+const injPre  = gateSnapshot(SNAP_INJ, 0, false, 'member');   // pre-Day-1 (intertournament / not yet watched)
+const injDay1 = gateSnapshot(SNAP_INJ, 1, false, 'member');   // watched Day 1
+const injDay5 = gateSnapshot(SNAP_INJ, 5, false, 'member');
+const injPub  = gateSnapshot(SNAP_INJ, 0, false, 'public');
+t('pre-Day-1: carry-only injury surfaces as carried, last-known status, from prior basho', () => {
+  const c = injPre.injuries.find(x=>x.rikishi==='Aonishiki');
+  assert(c && c.carried===true && c.fromBasho==='Nagoya 2026' && c.lastKnownStatus==='Active' && /favoring the foot/.test(c.lastNote));
+});
+t('pre-Day-1 carry NEVER leaks current-basho detail', () => {
+  assert(!JSON.stringify(injPre.injuries).includes('CURTOKEN'));
+  const o = injPre.injuries.find(x=>x.rikishi==='Onosato');
+  assert(o && o.carried===true && o.officialReason===undefined && o.severity===undefined);   // carried shape is minimal
+});
+t('query_condition pre-Day-1 finds the carried foot', () => {
+  const r = runTool('query_condition', {name:'Aonishiki'}, injPre);
+  assert(r.found && r.conditions[0].carried===true);
+});
+t('EXPIRES at Day 1: carry-only injury is gone once the viewer has watched Day 1', () => {
+  assert(!injDay1.injuries.find(x=>x.rikishi==='Aonishiki'));           // expired, and no current activity
+  assert(runTool('query_condition', {name:'Aonishiki'}, injDay1).found===false);
+});
+t('current-basho board untouched: Onosato hidden pre-onset (Day 1), full detail once caught up (Day 5)', () => {
+  assert(!injDay1.injuries.find(x=>x.rikishi==='Onosato'));            // onset Day 3 > gate 1, not yet in view
+  const o5 = injDay5.injuries.find(x=>x.rikishi==='Onosato');
+  assert(o5 && o5.caughtUp===true && o5.officialReason!==undefined);   // live board, day-gated as before
+  assert(JSON.stringify(injDay5.injuries).includes('CURTOKEN5'));      // current detail shows once watched
+});
+t('carry is MEMBER-ONLY (public view strips injuries entirely)', () => {
+  assert((injPub.injuries||[]).length===0 && !JSON.stringify(injPub).includes('favoring the foot'));
 });
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
