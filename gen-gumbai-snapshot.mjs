@@ -20,6 +20,21 @@
 //   state/gumbai-coverage-audit.md). NEW rule: a Notion schema change triggers a snapshot
 //   coverage check (state/naming-conventions.md).
 //
+// SCHEMA gumbai-snapshot/7 (2026-09-13): the completeness pass (Day-1, MJ). ADDS three timeless
+//   reference lanes so Gumbai answers from the tracker, not from training memory:
+//   bashos[] (venue/city + dates per tournament — the "which city was the July basho in" gap),
+//   glossary[] (general sumo terms), library[] (books flagged "Gumbai May Cite"). ALSO projects the
+//   last answerable Master Rikishi fields (story/debut/retirement/pastMawashi/family). Default flipped
+//   from "add a table when someone hits the hole" to "project everything answerable." See
+//   state/gumbai-coverage-audit.md.
+//
+// SCHEMA gumbai-snapshot/8 (2026-09-13): injuries CARRY OVER. Each condition now parses ALL its
+//   Severity Log stamps (not just the current basho) and carries the most-recent PRIOR basho's
+//   status as `priorCarry`. A condition left open last basho is treated as still real through the
+//   intertournament gap; the engine surfaces `priorCarry` only before the viewer's Day 1 and expires
+//   it once they've watched Day 1 (then the live board governs). We never infer "healed" — we can't
+//   know until he fights. Prior basho is history, so this leaks nothing (Jennie's rule, 2026-09-13).
+//
 // SAFETY: validates the CORE (bouts/rikishi/banzuke) before writing; a broken core pull
 // exits non-zero and writes nothing. The soft-data + stables pulls are each wrapped so a
 // missing integration share (the classic Kimarite 404) degrades that ONE lane to empty +
@@ -47,6 +62,9 @@ const DB = {
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
   kimarite:      '2591d1eb-2146-4745-ab0a-72ba57bfd213',
   stables:       'eff4e763-c792-422d-9c90-943f9315cb41',   // 🏠 Stables — resolves the Master Rikishi `Stable` relation to a name (schema/6)
+  bashos:        'ae8b304d-8655-4072-934e-d01a43fe11ce',   // 🏆 Bashos — venue/city + dates per tournament (schema/7)
+  glossary:      '3df93d5a-9566-41cf-b44b-59710622cfa7',   // 📖 Glossary — general sumo terms (schema/7)
+  library:       '55cf6479-727e-46f5-a150-7bd0f710a93c',   // 📚 Library — books Gumbai May Cite (schema/7)
   // soft-data lanes (schema/4) — each must be shared with the sumo-site-publisher integration:
   days:          'eb0597c9-7259-49cd-babb-889f3b28f33d',
   injuryLog:     '7a44f06d-389d-4bd6-aa84-314225d06085',
@@ -120,6 +138,29 @@ function parseSeverity(text, stamp) {
   return out.sort((a, b) => a.day - b.day);
 }
 
+// ── PRIOR-BASHO CARRY (schema/8) ──
+// A basho stamp is <YY><Bb> (e.g. 26Ng). Order it so we can find the most-recent PRIOR basho in a
+// Severity Log. An injury left open at the last basho is treated as still real through the
+// intertournament gap and expires at the viewer's Day 1 (the engine's gate does the expiry).
+const BASHO_IDX  = { Ht:0, Hr:1, Nt:2, Ng:3, Ak:4, Ky:5 };
+const BASHO_FULL = { Ht:'Hatsu', Hr:'Haru', Nt:'Natsu', Ng:'Nagoya', Ak:'Aki', Ky:'Kyushu' };
+const stampOrd   = s => { const m = String(s).match(/^(\d\d)(Ht|Hr|Nt|Ng|Ak|Ky)$/); return m ? (+m[1]) * 6 + BASHO_IDX[m[2]] : -1; };
+const stampLabel = s => { const m = String(s).match(/^(\d\d)(Ht|Hr|Nt|Ng|Ak|Ky)$/); return m ? `${BASHO_FULL[m[2]]} 20${m[1]}` : String(s); };
+const CUR_ORD    = stampOrd(BASHO_STAMP);
+// Every stamped severity line, tagged with its basho stamp + ordinal (ALL bashos, not just current).
+function parseAllSeverity(text) {
+  const out = [];
+  if (!text) return out;
+  const re = /(\d\d(?:Ht|Hr|Nt|Ng|Ak|Ky))D(\d+)/;
+  for (const raw of String(text).split('\n')) {
+    const line = raw.trim(); if (!line) continue;
+    const m = line.match(re);
+    if (!m) continue;
+    out.push({ stamp: m[1], day: parseInt(m[2], 10), text: line, ord: stampOrd(m[1]) });
+  }
+  return out;
+}
+
 async function main() {
   const warn = [];
   const scopedTournament = { property: 'Tournament', relation: { contains: TOURNAMENT_PAGE_ID } };
@@ -140,7 +181,10 @@ async function main() {
   const cpPages    = await queryLane('catchphrases', DB.catchphrases, undefined, warn);
   const annPages   = await queryLane('announcers', DB.announcers, undefined, warn);
   const stPages    = await queryLane('stables', DB.stables, undefined, warn);       // 🏠 Stables (schema/6) — resolves the Stable relation
-  console.log(`pulled SOFT: days=${dayPages.length} injuries=${injPages.length} catchphrases=${cpPages.length} announcers=${annPages.length} stables=${stPages.length}`);
+  const bashoPages = await queryLane('bashos', DB.bashos, undefined, warn);         // 🏆 Bashos (schema/7) — venue/city + dates
+  const glPages    = await queryLane('glossary', DB.glossary, undefined, warn);     // 📖 Glossary (schema/7) — general sumo terms
+  const libPages   = await queryLane('library', DB.library, undefined, warn);       // 📚 Library (schema/7) — books Gumbai May Cite
+  console.log(`pulled SOFT: days=${dayPages.length} injuries=${injPages.length} catchphrases=${cpPages.length} announcers=${annPages.length} stables=${stPages.length} bashos=${bashoPages.length} glossary=${glPages.length} library=${libPages.length}`);
 
   // Stable page id -> stable name (resolves Master Rikishi's `Stable` relation).
   const stableNameById = new Map();
@@ -168,9 +212,19 @@ async function main() {
       realName: textOf(p, 'Real Name') || null,      // ← schema/6
       pastRingNames: textOf(p, 'Past Ring Names') || null,  // ← schema/6
       active: boolOf(p, 'Active'),                    // ← schema/6: still competing
+      story: textOf(p, 'Story') || null,             // ← schema/7: the crew narrative (Lane-2 "tell me about X")
+      debut: dateOf(p, 'Debut'),                     // ← schema/7
+      retirement: dateOf(p, 'Retirement'),           // ← schema/7 (null = active)
+      pastMawashi: textOf(p, 'Past Mawashi Colors') || null,  // ← schema/7
+      familyIds: relIds(p, 'Family'),                // ← schema/7: resolved to names after the loop (self-relation)
       injuryNotes: textOf(p, 'Notes') || null,
       shikonaMeaning: textOf(p, 'Translation') || null,
     });
+  }
+  // Resolve the Family self-relation to canonical names now that every id→name is known (schema/7).
+  for (const prof of mrProfById.values()) {
+    prof.family = (prof.familyIds || []).map(id => mrNameById.get(id)).filter(Boolean);
+    delete prof.familyIds;
   }
   // kimarite page id -> Japanese name (matches bout.kimarite)
   const kmNameById = new Map();
@@ -252,6 +306,43 @@ async function main() {
     return description ? { name, description } : { name };
   }).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name));
 
+  // ── bashos[] (schema/7) : venue/city + dates per tournament. TIMELESS — set before the
+  //    tournament, carries no results — so the engine never gates it. `code` (YYYYMM, derived
+  //    from Start Date) matches meta.bashoId so "July 2026 / 202607 / Nagoya 2026" all resolve.
+  //    NOTE: `Notes` (memorable storylines) is deliberately EXCLUDED — for the CURRENT basho it
+  //    would be a spoiler; revisit with per-basho gating if the crew wants past-basho recaps here.
+  const bashos = bashoPages.map(p => {
+    const start = dateOf(p, 'Start Date');            // "YYYY-MM-DD"
+    const code = start ? start.slice(0, 4) + start.slice(5, 7) : null;   // YYYYMM
+    return {
+      code,
+      tournamentName: titleOf(p, 'Tournament Name') || null,   // e.g. "2026 September - Aki"
+      basho: selOf(p, 'Basho'),                                // Hatsu | Haru | Natsu | Nagoya | Aki | Kyushu
+      year: numOf(p, 'Year'),
+      location: selOf(p, 'Location'),                          // "IG Arena - Nagoya", etc. (city + venue)
+      startDate: start,
+      endDate: dateOf(p, 'End Date'),
+    };
+  }).filter(b => b.location || b.startDate || b.basho)
+    .sort((a, b) => String(a.code || '').localeCompare(String(b.code || '')));
+
+  // ── glossary[] (schema/7) : general sumo vocabulary. Timeless reference, never gated.
+  const glossary = glPages.map(p => {
+    const term = titleOf(p, 'Term'); if (!term) return null;
+    const definition = textOf(p, 'Definition');
+    return { term, definition: definition || null, type: selOf(p, 'Type') };   // type: term | technique | name
+  }).filter(Boolean).sort((a, b) => a.term.localeCompare(b.term));
+
+  // ── library[] (schema/7) : books Gumbai is CLEARED to reference. Honor the "Gumbai May Cite"
+  //    checkbox — only cite-approved books enter the snapshot; the File upload is never carried.
+  const library = libPages.filter(p => boolOf(p, 'Gumbai May Cite')).map(p => ({
+    title: titleOf(p, 'Title') || null,
+    author: textOf(p, 'Author') || null,
+    year: numOf(p, 'Year'),
+    themes: multiOf(p, 'Themes'),           // Culture | History | Biography | Technique | Philosophy | Reference
+    notes: textOf(p, 'Notes') || null,
+  })).filter(b => b.title).sort((a, b) => a.title.localeCompare(b.title));
+
   // ── days[] : storylines + scorekeeper notes, one per day (color layer) ──
   const days = [];
   for (const p of dayPages) {
@@ -272,13 +363,27 @@ async function main() {
   // and the gate filters it per-viewer-day; onsetDay/fullMaxDay drive hide-until-onset + caught-up.
   const injuries = [];
   for (const p of injPages) {
-    const severity = parseSeverity(textOf(p, 'Severity Log'), BASHO_STAMP);
-    if (!severity.length) continue;               // no current-basho stamp → not this tournament
+    const allSev = parseAllSeverity(textOf(p, 'Severity Log'));
+    const severity = allSev.filter(e => e.stamp === BASHO_STAMP).map(e => ({ day: e.day, text: e.text })).sort((a, b) => a.day - b.day);
+    // Most-recent PRIOR basho present in this row → the carried assessment (schema/8). Prior basho is
+    // over, so it's history: safe to surface, and the engine only shows it before the viewer's Day 1.
+    const prior = allSev.filter(e => e.ord >= 0 && e.ord < CUR_ORD);
+    let priorCarry = null;
+    if (prior.length) {
+      const pOrd = Math.max(...prior.map(e => e.ord));
+      const pEntries = prior.filter(e => e.ord === pOrd).sort((a, b) => a.day - b.day);
+      priorCarry = {
+        basho: stampLabel(pEntries[0].stamp),                 // e.g. "Nagoya 2026"
+        status: selOf(p, 'Status') || null,                   // last recorded status (carries from the prior basho if untouched since)
+        note: pEntries[pEntries.length - 1].text || null,     // last severity line from that prior basho
+      };
+    }
+    if (!severity.length && !priorCarry) continue;            // nothing this basho, nothing carried → not tracked
     const rId = rel1(p, 'Rikishi');
     const rikishiName = (rId && mrNameById.get(rId)) || null;
     const onsetRel = rel1(p, 'Onset Day');
-    const onsetDay = (onsetRel && dayNumById.get(onsetRel)) ?? severity[0].day;   // Onset Day rel, else earliest stamp
-    const fullMaxDay = Math.max(onsetDay, ...severity.map(s => s.day));
+    const onsetDay = severity.length ? ((onsetRel && dayNumById.get(onsetRel)) ?? severity[0].day) : 99;   // 99 = no current-basho onset (carry-only row)
+    const fullMaxDay = severity.length ? Math.max(onsetDay, ...severity.map(s => s.day)) : onsetDay;
     injuries.push({
       rikishi: rikishiName,
       condition: titleOf(p, 'Condition'),          // may name a future day → gate withholds until caught-up
@@ -291,7 +396,8 @@ async function main() {
       scorekeeperEye: textOf(p, 'Scorekeeper Eye') || null,   // Jennie's human eyewitness read
       source: multiOf(p, 'Source'),
       onsetDay, fullMaxDay,
-      severity,                                    // [{day, text}] sorted
+      severity,                                    // [{day, text}] sorted (current basho)
+      priorCarry,                                  // schema/8: last basho's carried status (engine surfaces pre-Day-1, expires after)
     });
   }
 
@@ -332,6 +438,9 @@ async function main() {
   if (!catchphrases.length) warn.push('catchphrases[] empty');
   if (!master.length) warn.push('master[] empty (Master Rikishi pull returned nothing?)');
   if (!stableNameById.size) warn.push('stables[] empty — Stable relation will not resolve (is 🏠 Stables shared with sumo-site-publisher?)');
+  if (!bashos.length) warn.push('bashos[] empty — basho venue/date lane will not resolve (is 🏆 Bashos shared with sumo-site-publisher?)');
+  if (!glossary.length) warn.push('glossary[] empty (📖 Glossary shared? — non-fatal)');
+  if (!library.length) warn.push('library[] empty (no "Gumbai May Cite" books, or 📚 Library not shared — non-fatal)');
 
   // ── fold in the static historical layer (past basho; NEVER gated) ──
   let history = null;
@@ -391,10 +500,11 @@ async function main() {
     meta: {
       basho: BASHO_LABEL, bashoId: BASHO,
       horizon: 'Live data is the current basho; history goes back to Jan 2025 (when the crew got into sumo).',
-      maxDay, schema: 'gumbai-snapshot/6', source: 'notion',
+      maxDay, schema: 'gumbai-snapshot/8', source: 'notion',
     },
     rikishi, banzuke, kimarite, bouts,
     master,                            // schema/6: whole Master Rikishi roster (timeless) for rollups & "on the master"
+    bashos, glossary, library,         // schema/7: venue/dates · general sumo terms · citable books (all timeless)
     days, injuries, catchphrases,     // schema/4 soft-data lanes
     champion,                          // schema/5: current-basho yusho (null until complete; engine gates reveal)
     history,
@@ -410,6 +520,7 @@ async function main() {
 
   console.log(`✓ wrote ${OUT}`);
   console.log(`  basho=${BASHO_LABEL} maxDay=${maxDay} rikishi=${rikishi.length} master=${master.length} banzuke=${banzuke.length} kimarite=${kimarite.length} bouts=${bouts.length}`);
+  console.log(`  ref: bashos=${bashos.length} glossary=${glossary.length} library=${library.length}`);
   console.log(`  soft: days=${days.length} injuries=${injuries.length} catchphrases=${catchphrases.length}`);
   if (warn.length) { console.log('⚠️ warnings:'); for (const w of [...new Set(warn)]) console.log('  - ' + w); }
 }
