@@ -86,7 +86,6 @@ jobs:
           git config user.name "sumo-bot"
           git config user.email "actions@users.noreply.github.com"
           git add standings.html index.html functions/api/_snapshot.js drinking-game.html
-          git add standings.html index.html functions/api/_snapshot.js
           # rikishi-metrics.json may be absent on a run where the (gated, continue-on-error) metrics
           # rebuild didn't run or bailed. `git add <missing-path>` is FATAL under bash -e and would fail
           # this whole step — stopping standings + snapshot from ever committing. Add it only if present.
