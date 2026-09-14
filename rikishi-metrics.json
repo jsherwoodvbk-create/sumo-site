@@ -507,6 +507,11 @@
         "src": "sumo-api"
       },
       {
+        "k": "Notes",
+        "v": "Style (booth): left-hand otsuke into a right-hand inside position is his bread and butter. Watch item (flaw): a tendency to back-pedal and pull (hatakikomi) when pressured at the tachiai, the booth's repeated criticism on opening day, and a risk to his own footing. [Grand Sumo Live, booth, as of 2026-09-13]",
+        "src": "crew"
+      },
+      {
         "k": "Shikona meaning",
         "v": "大の里 (Ō-no-sato) = 大 great + の (of) + 里 village → literally 'great village.' Confidence: MEDIUM-HIGH on characters, but this is a LINEAGE name: '-nosato' places him in the line of yokozuna Takanosato (隆の里) and his master Kisenosato (稀勢の里); 大 chosen to accentuate his talent.",
         "src": "crew"
@@ -1329,6 +1334,11 @@
         "src": "sumo-api"
       },
       {
+        "k": "Notes",
+        "v": "Style (booth): versatility and ring sense, an array of weapons and a sharp feel for where he is on the straw, which lets him stay calm under a forward-moving opponent. Watch item: a habit of backing up and pulling when off balance. [Grand Sumo Live, booth, as of 2026-09-13]",
+        "src": "crew"
+      },
+      {
         "k": "Shikona meaning",
         "v": "霧島 (Kirishima) = 霧 (mist) + 島 (island) → 'Mist Island' (also the Kirishima volcanic range in Kyushu). Confidence: HIGH. Lineage: inherited from his stablemaster, former yokozuna Kirishima.",
         "src": "crew"
@@ -1853,6 +1863,11 @@
         "k": "Born",
         "v": "23 Mar 2004 · age 22",
         "src": "sumo-api"
+      },
+      {
+        "k": "Notes",
+        "v": "Style (booth): the 'golden left.' Once he secures his left-hand inside grip it is, per the booth, a done deal. Likened to former Yokozuna Wajima: once he gets the golden left he does not let go. Discipline and daily routine repeatedly praised. [Grand Sumo Live, booth, as of 2026-09-13]",
+        "src": "crew"
       },
       {
         "k": "Shikona meaning",
@@ -2465,6 +2480,11 @@
         "k": "Born",
         "v": "3 Sep 2002 · age 24",
         "src": "sumo-api"
+      },
+      {
+        "k": "Notes",
+        "v": "Style (booth): the 'bellybop,' an agaburi-yori. Migi-yotsu with immense tachiai pressure; his turn-key is the left-hand outside grip. Once he locks it he solidifies his stance and forces the opponent out, and he is patient, in no rush to finish even without the right-hand inside. [Grand Sumo Live, booth, as of 2026-09-13]",
+        "src": "crew"
       },
       {
         "k": "Shikona meaning",
@@ -12330,7 +12350,7 @@
       }
     ],
     "story": {
-      "html": "<span class=\"who\">Tobizaru</span> is a former Komusubi holding at Maegashira 14, and his name tells you how he fights: \"flying monkey.\" The style matches it, agile and evasive, built to make bigger men miss. He is an Oitekaze man, with an older brother, Hidenoumi, also in the sport, and he came up as Iwasaki. He wears a light grey-blue mawashi.",
+      "html": "<span class=\"who\">Tobizaru</span> is a former Komusubi holding at Maegashira 14, and his name tells you how he fights: \"flying monkey.\" The style matches it, agile and evasive, built to make bigger men miss. He is an Oitekaze man; his older brother wrestled as Hidenoumi (Kise stable) and retired in March 2026, so Tobizaru no longer has a brother competing in the top division. Both came up as Iwasaki. He wears a light grey-blue mawashi.",
       "source": "Crew-written."
     },
     "arc": {
@@ -16427,6 +16447,11 @@
         "src": "sumo-api"
       },
       {
+        "k": "Notes",
+        "v": "Style (booth): poise and edge-defense beyond his years. Stays in contention with a resourceful last-moment grip and balance; promoted straight past Komusubi into Sekiwake. [Grand Sumo Live, booth, as of 2026-09-13]",
+        "src": "crew"
+      },
+      {
         "k": "Shikona meaning",
         "v": "藤乃川 (Fujinokawa) = 藤 (wisteria) + 乃 (poss.) + 川 (river) → 'Wisteria river.' Confidence: MEDIUM. Lineage: a revived Isenoumi-beya shikona.",
         "src": "crew"
@@ -19954,8 +19979,16 @@
       "inWindow": false
     },
     "records": {
-      "allDivision": null,
-      "makuuchi": null,
+      "allDivision": {
+        "w": 350,
+        "l": 304,
+        "pct": ".535"
+      },
+      "makuuchi": {
+        "w": 193,
+        "l": 223,
+        "pct": ".464"
+      },
       "crew": {
         "w": 69,
         "l": 83,
@@ -19983,10 +20016,10 @@
       {
         "jp": "Kanto-sho",
         "en": "Fighting Spirit",
-        "count": 0,
+        "count": 2,
         "basho": [],
         "era": "career",
-        "pre": 0
+        "pre": 2
       },
       {
         "jp": "Gino-sho",
