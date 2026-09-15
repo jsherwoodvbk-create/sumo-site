@@ -24,6 +24,11 @@
 //          today-heard flagged; the client shows 3 (today-first, else random). Lifetime count is spoiler-free.
 //   2 sips (the day's funniest): that day's NON-jewel Sightings, multiples-first (Times Today desc, giggle desc).
 //   Jewel  (the shot): the day's Jewel sighting (or the top auto-seed if none crowned).
+//   Cross-tier dedupe (rev 2026-09-15): a phrase shows in only ONE tier per day. The Jewel always wins.
+//          Between One Sip and Two Sips, One Sip is PRIORITIZED when the phrase is in the day's transcript:
+//          a house-ism heard today stays a house-ism, and Two Sips picks ANOTHER call from that day instead.
+//          Only when there is no other quote that day does the phrase fall back into Two Sips (and drop from
+//          One Sip) rather than leave the tier empty.
 //   Per-day status: "reviewed" if any of the day's sightings carries a human giggle of 5, else "auto";
 //          a day with no sightings and no known announcer is "pending" (fills in when the transcript drops).
 //
@@ -163,23 +168,44 @@ export function buildGame({ library, sightings, days, announcers }, { label = BA
     const sights = byDay.get(d) || [];
     const heardText = new Set(sights.map(s => s.phrase));
 
-    // 1 sip — house-isms: top 5 of the day's announcer, flag any heard today (client shows 3, today-first)
-    let houseIsms = [];
-    if (announcer && houseByAnnouncer.has(announcer)) {
-      houseIsms = houseByAnnouncer.get(announcer).slice(0, 5).map(L => ({ t: L.phrase, today: heardText.has(L.phrase) ? 1 : 0 }));
-    }
-
     // jewel — the day's crowned sighting, else the top auto-seed (giggle desc, then times desc)
     const jewelSight = sights.find(s => s.jewel)
       || [...sights].sort((a, b) => (b.giggle - a.giggle) || ((b.times || 1) - (a.times || 1)))[0]
       || null;
 
-    // 2 sips — the day's NON-jewel sightings, multiples-first (times desc, giggle desc); cap 3
-    const twoSips = sights
-      .filter(s => s !== jewelSight)
-      .sort((a, b) => ((b.times || 1) - (a.times || 1)) || (b.giggle - a.giggle) || a.phrase.localeCompare(b.phrase))
+    // One Sip candidate list — the announcer's top house-isms by lifetime (what One Sip actually draws
+    // from: top 5, client shows 3). The dedupe only protects phrases that One Sip would really display.
+    const houseCandidates = (announcer && houseByAnnouncer.get(announcer)) || [];
+    const oneSipSet = new Set(houseCandidates.slice(0, 5).map(L => L.phrase));
+
+    // 2 sips — the day's NON-jewel sightings, multiples-first (times desc, giggle desc); cap 3.
+    // Prefer "fresh" calls (not one of the announcer's One-Sip house-isms) so a house-ism heard today
+    // stays in One Sip and Two Sips picks ANOTHER call from that day (Jennie's rule, rev 2026-09-15:
+    // One Sip is prioritized when the phrase is in the transcript). Fall back to the house-ism calls only
+    // when there is NO other quote that day — then the phrase shows here (and drops from One Sip below)
+    // rather than leaving Two Sips empty.
+    const twoSipsSort = (a, b) => ((b.times || 1) - (a.times || 1)) || (b.giggle - a.giggle) || a.phrase.localeCompare(b.phrase);
+    const nonJewel = sights.filter(s => s !== jewelSight);
+    const freshCalls = nonJewel.filter(s => !oneSipSet.has(s.phrase));
+    const twoSips = (freshCalls.length ? freshCalls : nonJewel)
+      .sort(twoSipsSort)
       .slice(0, 3)
       .map(s => ({ phrase: s.phrase, times: s.times, pid: s.pid }));
+
+    // 1 sip — house-isms: top 5 of the day's announcer, flag any heard today (client shows 3, today-first).
+    // Drop only what actually landed in a higher tier this day — the Jewel, plus whatever Two Sips ended
+    // up showing (normally none of the shown house-isms, since Two Sips prefers other calls; a house-ism
+    // lands there only in the no-other-quote fallback, and a #6+ signature heard today that One Sip never
+    // shows is free to appear in Two Sips).
+    const featuredToday = new Set(twoSips.map(s => s.phrase));
+    if (jewelSight) featuredToday.add(jewelSight.phrase);
+    let houseIsms = [];
+    if (houseCandidates.length) {
+      houseIsms = houseCandidates
+        .filter(L => !featuredToday.has(L.phrase))
+        .slice(0, 5)
+        .map(L => ({ t: L.phrase, today: heardText.has(L.phrase) ? 1 : 0 }));
+    }
 
     // status: reviewed if a human giggle-5 exists that day; auto if any sighting; pending if truly empty
     let status = 'pending';
