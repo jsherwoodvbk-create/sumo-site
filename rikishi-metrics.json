@@ -31,19 +31,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 191,
+        "w": 192,
         "l": 69,
-        "pct": ".735"
+        "pct": ".736"
       },
       "makuuchi": {
-        "w": 157,
+        "w": 158,
         "l": 59,
-        "pct": ".727"
+        "pct": ".728"
       },
       "crew": {
-        "w": 92,
+        "w": 93,
         "l": 34,
-        "pct": ".730"
+        "pct": ".732"
       },
       "note": null
     },
@@ -210,16 +210,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 92,
+      "totalWins": 93,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 32,
+          "pct": 31,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 26,
+          "pct": 27,
           "color": "#2f8f5b"
         },
         {
@@ -302,7 +302,7 @@
           [
             "High M",
             "M1–8",
-            1,
+            2,
             0
           ],
           [
@@ -556,18 +556,18 @@
     "records": {
       "allDivision": {
         "w": 482,
-        "l": 309,
+        "l": 310,
         "pct": ".609"
       },
       "makuuchi": {
         "w": 343,
-        "l": 232,
-        "pct": ".597"
+        "l": 233,
+        "pct": ".595"
       },
       "crew": {
         "w": 104,
-        "l": 48,
-        "pct": ".684"
+        "l": 49,
+        "pct": ".680"
       },
       "note": null
     },
@@ -1110,7 +1110,7 @@
             "High M",
             "M1–8",
             1,
-            0
+            1
           ],
           [
             "Low M",
@@ -1385,19 +1385,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 149,
+        "w": 150,
         "l": 45,
-        "pct": ".768"
+        "pct": ".769"
       },
       "makuuchi": {
-        "w": 89,
+        "w": 90,
         "l": 33,
-        "pct": ".730"
+        "pct": ".732"
       },
       "crew": {
-        "w": 89,
+        "w": 90,
         "l": 33,
-        "pct": ".730"
+        "pct": ".732"
       },
       "note": "For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -1551,11 +1551,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 89,
+      "totalWins": 90,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 34,
+          "pct": 33,
           "color": "#cf5a2c"
         },
         {
@@ -1574,30 +1574,30 @@
           "color": "#4a7fb5"
         },
         {
-          "name": "Over Arm Throw",
+          "name": "Thigh Grabbing Push Down",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Twisting Backward Knee Trip",
+          "name": "Over Arm Throw",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "inner-thigh propping twist-down",
+          "name": "Twisting Backward Knee Trip",
           "pct": 4,
           "color": "#3a9aa0"
         },
         {
           "name": "Other",
-          "pct": 23,
+          "pct": 24,
           "color": "#8a8168",
           "moves": 11,
           "tail": [
             {
-              "name": "Thigh Grabbing Push Down",
-              "n": 3,
-              "pct": 3
+              "name": "inner-thigh propping twist-down",
+              "n": 4,
+              "pct": 4
             },
             {
               "name": "Rear Push Out",
@@ -1673,7 +1673,7 @@
           [
             "High M",
             "M1–8",
-            2,
+            3,
             0
           ],
           [
@@ -1850,7 +1850,7 @@
         "label": "Full",
         "his": 0.8,
         "avg": 0.3,
-        "n": "1 in 122 bouts"
+        "n": "1 in 123 bouts"
       }
     ],
     "bio": [
@@ -1914,18 +1914,18 @@
     "records": {
       "allDivision": {
         "w": 264,
-        "l": 188,
-        "pct": ".584"
+        "l": 189,
+        "pct": ".583"
       },
       "makuuchi": {
         "w": 156,
-        "l": 131,
-        "pct": ".544"
+        "l": 132,
+        "pct": ".542"
       },
       "crew": {
         "w": 87,
-        "l": 65,
-        "pct": ".572"
+        "l": 66,
+        "pct": ".569"
       },
       "note": null
     },
@@ -2258,7 +2258,7 @@
             "High M",
             "M1–8",
             2,
-            0
+            1
           ],
           [
             "Low M",
@@ -2531,18 +2531,18 @@
     "records": {
       "allDivision": {
         "w": 169,
-        "l": 107,
-        "pct": ".612"
+        "l": 108,
+        "pct": ".610"
       },
       "makuuchi": {
         "w": 90,
-        "l": 71,
-        "pct": ".559"
+        "l": 72,
+        "pct": ".556"
       },
       "crew": {
         "w": 79,
-        "l": 67,
-        "pct": ".541"
+        "l": 68,
+        "pct": ".537"
       },
       "note": null
     },
@@ -2813,7 +2813,7 @@
             "High M",
             "M1–8",
             0,
-            1
+            2
           ],
           [
             "Low M",
@@ -3029,7 +3029,7 @@
         "label": "Full",
         "his": 0.7,
         "avg": 0.3,
-        "n": "1 in 146 bouts"
+        "n": "1 in 147 bouts"
       }
     ],
     "bio": [
@@ -3088,18 +3088,18 @@
     "records": {
       "allDivision": {
         "w": 350,
-        "l": 308,
-        "pct": ".532"
+        "l": 309,
+        "pct": ".531"
       },
       "makuuchi": {
         "w": 214,
-        "l": 232,
-        "pct": ".480"
+        "l": 233,
+        "pct": ".479"
       },
       "crew": {
         "w": 77,
-        "l": 70,
-        "pct": ".524"
+        "l": 71,
+        "pct": ".520"
       },
       "note": null
     },
@@ -3521,7 +3521,7 @@
             "Named",
             "Y·O·S·K",
             0,
-            2
+            3
           ],
           [
             "High M",
@@ -3794,19 +3794,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 830,
+        "w": 831,
         "l": 631,
         "pct": ".568"
       },
       "makuuchi": {
-        "w": 670,
+        "w": 671,
         "l": 515,
-        "pct": ".565"
+        "pct": ".566"
       },
       "crew": {
-        "w": 79,
+        "w": 80,
         "l": 62,
-        "pct": ".560"
+        "pct": ".563"
       },
       "note": null
     },
@@ -4366,7 +4366,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 79,
+      "totalWins": 80,
       "slices": [
         {
           "name": "Frontal Thrust Out",
@@ -4399,7 +4399,7 @@
           "color": "#b5566f"
         },
         {
-          "name": "Thrust Down",
+          "name": "Hand Pull Down",
           "pct": 5,
           "color": "#3a9aa0"
         },
@@ -4410,9 +4410,9 @@
           "moves": 12,
           "tail": [
             {
-              "name": "Hand Pull Down",
-              "n": 3,
-              "pct": 4
+              "name": "Thrust Down",
+              "n": 4,
+              "pct": 5
             },
             {
               "name": "Pulling Over Arm Throw",
@@ -4487,7 +4487,7 @@
           [
             "Named",
             "Y·O·S·K",
-            0,
+            1,
             2
           ],
           [
@@ -4767,18 +4767,18 @@
     "records": {
       "allDivision": {
         "w": 237,
-        "l": 194,
-        "pct": ".550"
+        "l": 195,
+        "pct": ".549"
       },
       "makuuchi": {
         "w": 141,
-        "l": 146,
-        "pct": ".491"
+        "l": 147,
+        "pct": ".490"
       },
       "crew": {
         "w": 71,
-        "l": 81,
-        "pct": ".467"
+        "l": 82,
+        "pct": ".464"
       },
       "note": null
     },
@@ -5093,7 +5093,7 @@
             "Named",
             "Y·O·S·K",
             1,
-            1
+            2
           ],
           [
             "High M",
@@ -5369,19 +5369,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 574,
+        "w": 575,
         "l": 495,
         "pct": ".537"
       },
       "makuuchi": {
-        "w": 315,
+        "w": 316,
         "l": 305,
-        "pct": ".508"
+        "pct": ".509"
       },
       "crew": {
-        "w": 72,
+        "w": 73,
         "l": 80,
-        "pct": ".474"
+        "pct": ".477"
       },
       "note": null
     },
@@ -5924,16 +5924,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 72,
+      "totalWins": 73,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 42,
+          "pct": 41,
           "color": "#cf5a2c"
         },
         {
           "name": "Slap Down",
-          "pct": 17,
+          "pct": 16,
           "color": "#2f8f5b"
         },
         {
@@ -5943,12 +5943,12 @@
         },
         {
           "name": "Thrust Down",
-          "pct": 6,
+          "pct": 7,
           "color": "#4a7fb5"
         },
         {
           "name": "Frontal Thrust Out",
-          "pct": 6,
+          "pct": 5,
           "color": "#c99a2e"
         },
         {
@@ -5963,7 +5963,7 @@
         },
         {
           "name": "Other",
-          "pct": 7,
+          "pct": 9,
           "color": "#8a8168",
           "moves": 5,
           "tail": [
@@ -6010,7 +6010,7 @@
           [
             "Named",
             "Y·O·S·K",
-            0,
+            1,
             0
           ],
           [
@@ -6284,19 +6284,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 273,
+        "w": 274,
         "l": 216,
-        "pct": ".558"
+        "pct": ".559"
       },
       "makuuchi": {
-        "w": 105,
+        "w": 106,
         "l": 110,
-        "pct": ".488"
+        "pct": ".491"
       },
       "crew": {
-        "w": 63,
+        "w": 64,
         "l": 63,
-        "pct": ".500"
+        "pct": ".504"
       },
       "note": null
     },
@@ -6584,11 +6584,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 63,
+      "totalWins": 64,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 37,
+          "pct": 36,
           "color": "#cf5a2c"
         },
         {
@@ -6612,25 +6612,25 @@
           "color": "#c99a2e"
         },
         {
-          "name": "Underarm Throw",
+          "name": "Frontal Push Out",
           "pct": 5,
           "color": "#b5566f"
         },
         {
-          "name": "Thrust Down",
+          "name": "Underarm Throw",
           "pct": 5,
           "color": "#3a9aa0"
         },
         {
           "name": "Other",
-          "pct": 14,
+          "pct": 15,
           "color": "#8a8168",
           "moves": 6,
           "tail": [
             {
-              "name": "Frontal Push Out",
-              "n": 2,
-              "pct": 3
+              "name": "Thrust Down",
+              "n": 3,
+              "pct": 5
             },
             {
               "name": "Arm Lock Throw",
@@ -6681,7 +6681,7 @@
           [
             "High M",
             "M1–8",
-            1,
+            2,
             1
           ],
           [
@@ -6950,18 +6950,18 @@
     "records": {
       "allDivision": {
         "w": 431,
-        "l": 214,
-        "pct": ".668"
+        "l": 215,
+        "pct": ".667"
       },
       "makuuchi": {
         "w": 279,
-        "l": 177,
-        "pct": ".612"
+        "l": 178,
+        "pct": ".611"
       },
       "crew": {
         "w": 36,
-        "l": 24,
-        "pct": ".600"
+        "l": 25,
+        "pct": ".590"
       },
       "note": null
     },
@@ -7407,7 +7407,7 @@
             "High M",
             "M1–8",
             2,
-            0
+            1
           ],
           [
             "Low M",
@@ -7579,19 +7579,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 195,
+        "w": 196,
         "l": 121,
-        "pct": ".617"
+        "pct": ".618"
       },
       "makuuchi": {
-        "w": 26,
+        "w": 27,
         "l": 21,
-        "pct": ".553"
+        "pct": ".563"
       },
       "crew": {
-        "w": 27,
+        "w": 28,
         "l": 25,
-        "pct": ".519"
+        "pct": ".528"
       },
       "note": null
     },
@@ -7814,25 +7814,25 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 27,
+      "totalWins": 28,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 44,
+          "pct": 43,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 15,
+          "pct": 14,
           "color": "#2f8f5b"
         },
         {
-          "name": "Thrust Down",
-          "pct": 7,
+          "name": "Twisting Backward Knee Trip",
+          "pct": 11,
           "color": "#7a4fb0"
         },
         {
-          "name": "Twisting Backward Knee Trip",
+          "name": "Thrust Down",
           "pct": 7,
           "color": "#4a7fb5"
         },
@@ -7853,7 +7853,7 @@
         },
         {
           "name": "Other",
-          "pct": 12,
+          "pct": 10,
           "color": "#8a8168",
           "moves": 3,
           "tail": [
@@ -7896,7 +7896,7 @@
           [
             "High M",
             "M1–8",
-            2,
+            3,
             0
           ],
           [
@@ -8105,18 +8105,18 @@
     "records": {
       "allDivision": {
         "w": 171,
-        "l": 76,
-        "pct": ".692"
+        "l": 77,
+        "pct": ".690"
       },
       "makuuchi": {
         "w": 65,
-        "l": 40,
-        "pct": ".619"
+        "l": 41,
+        "pct": ".613"
       },
       "crew": {
         "w": 44,
-        "l": 33,
-        "pct": ".571"
+        "l": 34,
+        "pct": ".564"
       },
       "note": null
     },
@@ -8377,7 +8377,7 @@
             "High M",
             "M1–8",
             1,
-            0
+            1
           ],
           [
             "Low M",
@@ -8533,13 +8533,13 @@
         "label": "Full",
         "his": 1.3,
         "avg": 0.3,
-        "n": "1 in 77 bouts"
+        "n": "1 in 78 bouts"
       },
       {
         "label": "Partial",
         "his": 1.3,
         "avg": 0.1,
-        "n": "1 in 77 bouts"
+        "n": "1 in 78 bouts"
       }
     ],
     "bio": [
@@ -8597,19 +8597,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 422,
+        "w": 423,
         "l": 321,
-        "pct": ".568"
+        "pct": ".569"
       },
       "makuuchi": {
-        "w": 250,
+        "w": 251,
         "l": 263,
-        "pct": ".487"
+        "pct": ".488"
       },
       "crew": {
-        "w": 70,
+        "w": 71,
         "l": 81,
-        "pct": ".464"
+        "pct": ".467"
       },
       "note": null
     },
@@ -9007,11 +9007,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 70,
+      "totalWins": 71,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 36,
+          "pct": 35,
           "color": "#cf5a2c"
         },
         {
@@ -9021,35 +9021,40 @@
         },
         {
           "name": "Slap Down",
-          "pct": 9,
+          "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Thrust Down",
+          "name": "Arm Bar Throw",
           "pct": 4,
           "color": "#4a7fb5"
         },
         {
-          "name": "Beltless Arm Throw",
+          "name": "Thrust Down",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Under Shoulder Swing Down",
+          "name": "Beltless Arm Throw",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Rear Push Out",
-          "pct": 3,
+          "name": "Under Shoulder Swing Down",
+          "pct": 4,
           "color": "#3a9aa0"
         },
         {
           "name": "Other",
-          "pct": 26,
+          "pct": 27,
           "color": "#8a8168",
           "moves": 12,
           "tail": [
+            {
+              "name": "Rear Push Out",
+              "n": 2,
+              "pct": 3
+            },
             {
               "name": "Underarm Throw",
               "n": 2,
@@ -9072,11 +9077,6 @@
             },
             {
               "name": "Underarm Forward Body Drop",
-              "n": 2,
-              "pct": 3
-            },
-            {
-              "name": "Arm Bar Throw",
               "n": 2,
               "pct": 3
             },
@@ -9140,7 +9140,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            1,
+            2,
             0
           ]
         ],
@@ -9403,18 +9403,18 @@
     "records": {
       "allDivision": {
         "w": 328,
-        "l": 288,
+        "l": 289,
         "pct": ".532"
       },
       "makuuchi": {
         "w": 198,
-        "l": 209,
-        "pct": ".486"
+        "l": 210,
+        "pct": ".485"
       },
       "crew": {
         "w": 72,
-        "l": 80,
-        "pct": ".474"
+        "l": 81,
+        "pct": ".471"
       },
       "note": null
     },
@@ -9851,7 +9851,7 @@
             "Low M",
             "M9+ · Juryo",
             1,
-            1
+            2
           ]
         ],
         "26Ng": [
@@ -10112,19 +10112,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 497,
+        "w": 498,
         "l": 406,
-        "pct": ".550"
+        "pct": ".551"
       },
       "makuuchi": {
-        "w": 225,
+        "w": 226,
         "l": 194,
-        "pct": ".537"
+        "pct": ".538"
       },
       "crew": {
-        "w": 68,
+        "w": 69,
         "l": 84,
-        "pct": ".447"
+        "pct": ".451"
       },
       "note": null
     },
@@ -10622,11 +10622,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 68,
+      "totalWins": 69,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 34,
+          "pct": 35,
           "color": "#cf5a2c"
         },
         {
@@ -10661,7 +10661,7 @@
         },
         {
           "name": "Other",
-          "pct": 15,
+          "pct": 14,
           "color": "#8a8168",
           "moves": 8,
           "tail": [
@@ -10735,7 +10735,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            1,
+            2,
             1
           ]
         ],
@@ -10946,7 +10946,7 @@
         "label": "Full",
         "his": 0.7,
         "avg": 0.3,
-        "n": "1 in 152 bouts"
+        "n": "1 in 153 bouts"
       }
     ],
     "bio": [
@@ -11704,19 +11704,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 201,
+        "w": 202,
         "l": 158,
-        "pct": ".560"
+        "pct": ".561"
       },
       "makuuchi": {
-        "w": 74,
+        "w": 75,
         "l": 70,
-        "pct": ".514"
+        "pct": ".517"
       },
       "crew": {
-        "w": 68,
+        "w": 69,
         "l": 61,
-        "pct": ".527"
+        "pct": ".531"
       },
       "note": null
     },
@@ -11939,11 +11939,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 68,
+      "totalWins": 69,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 40,
+          "pct": 41,
           "color": "#cf5a2c"
         },
         {
@@ -11978,7 +11978,7 @@
         },
         {
           "name": "Other",
-          "pct": 12,
+          "pct": 11,
           "color": "#8a8168",
           "moves": 6,
           "tail": [
@@ -12042,7 +12042,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            2,
+            3,
             0
           ]
         ],
@@ -12233,7 +12233,7 @@
         "label": "Partial",
         "his": 0.8,
         "avg": 0.1,
-        "n": "1 in 129 bouts"
+        "n": "1 in 130 bouts"
       }
     ],
     "bio": [
@@ -12292,18 +12292,18 @@
     "records": {
       "allDivision": {
         "w": 453,
-        "l": 429,
-        "pct": ".514"
+        "l": 430,
+        "pct": ".513"
       },
       "makuuchi": {
         "w": 256,
-        "l": 282,
-        "pct": ".476"
+        "l": 283,
+        "pct": ".475"
       },
       "crew": {
         "w": 65,
-        "l": 85,
-        "pct": ".433"
+        "l": 86,
+        "pct": ".430"
       },
       "note": null
     },
@@ -12820,7 +12820,7 @@
             "Low M",
             "M9+ · Juryo",
             0,
-            2
+            3
           ]
         ],
         "26Ng": [
@@ -13082,18 +13082,18 @@
     "records": {
       "allDivision": {
         "w": 90,
-        "l": 51,
-        "pct": ".638"
+        "l": 52,
+        "pct": ".634"
       },
       "makuuchi": {
         "w": 2,
-        "l": 0,
-        "pct": ".1000"
+        "l": 1,
+        "pct": ".667"
       },
       "crew": {
         "w": 4,
-        "l": 1,
-        "pct": ".800"
+        "l": 2,
+        "pct": ".667"
       },
       "note": null
     },
@@ -13261,7 +13261,7 @@
             "Low M",
             "M9+ · Juryo",
             2,
-            0
+            1
           ]
         ],
         "26Ng": [
@@ -13329,9 +13329,9 @@
     "henka": [
       {
         "label": "Full",
-        "his": 20,
+        "his": 16.7,
         "avg": 0.3,
-        "n": "1 in 5 bouts"
+        "n": "1 in 6 bouts"
       }
     ],
     "bio": [
@@ -13765,18 +13765,18 @@
     "records": {
       "allDivision": {
         "w": 364,
-        "l": 325,
+        "l": 326,
         "pct": ".528"
       },
       "makuuchi": {
         "w": 91,
-        "l": 121,
-        "pct": ".429"
+        "l": 122,
+        "pct": ".427"
       },
       "crew": {
         "w": 27,
-        "l": 51,
-        "pct": ".346"
+        "l": 52,
+        "pct": ".342"
       },
       "note": null
     },
@@ -14287,7 +14287,7 @@
             "Low M",
             "M9+ · Juryo",
             0,
-            2
+            3
           ]
         ],
         "25Ky": [
@@ -15201,19 +15201,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 452,
+        "w": 453,
         "l": 309,
         "pct": ".594"
       },
       "makuuchi": {
-        "w": 318,
+        "w": 319,
         "l": 221,
-        "pct": ".590"
+        "pct": ".591"
       },
       "crew": {
-        "w": 77,
+        "w": 78,
         "l": 71,
-        "pct": ".520"
+        "pct": ".523"
       },
       "note": null
     },
@@ -15591,7 +15591,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 77,
+      "totalWins": 78,
       "slices": [
         {
           "name": "Frontal Force Out",
@@ -15605,7 +15605,7 @@
         },
         {
           "name": "Slap Down",
-          "pct": 8,
+          "pct": 9,
           "color": "#7a4fb0"
         },
         {
@@ -15630,7 +15630,7 @@
         },
         {
           "name": "Other",
-          "pct": 25,
+          "pct": 24,
           "color": "#8a8168",
           "moves": 11,
           "tail": [
@@ -15707,7 +15707,7 @@
           [
             "Named",
             "Y·O·S·K",
-            0,
+            1,
             0
           ],
           [
@@ -15981,19 +15981,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 144,
+        "w": 145,
         "l": 90,
-        "pct": ".615"
+        "pct": ".617"
       },
       "makuuchi": {
-        "w": 59,
+        "w": 60,
         "l": 48,
-        "pct": ".551"
+        "pct": ".556"
       },
       "crew": {
-        "w": 59,
+        "w": 60,
         "l": 48,
-        "pct": ".551"
+        "pct": ".556"
       },
       "note": "For Fujinokawa, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -16163,21 +16163,21 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 59,
+      "totalWins": 60,
       "slices": [
         {
-          "name": "Beltless Arm Throw",
+          "name": "Frontal Push Out",
           "pct": 15,
           "color": "#cf5a2c"
         },
         {
-          "name": "Frontal Force Out",
-          "pct": 14,
+          "name": "Beltless Arm Throw",
+          "pct": 15,
           "color": "#2f8f5b"
         },
         {
-          "name": "Frontal Push Out",
-          "pct": 14,
+          "name": "Frontal Force Out",
+          "pct": 13,
           "color": "#7a4fb0"
         },
         {
@@ -16275,7 +16275,7 @@
           [
             "High M",
             "M1–8",
-            1,
+            2,
             1
           ],
           [
@@ -16432,7 +16432,7 @@
         "label": "Full",
         "his": 0.9,
         "avg": 0.3,
-        "n": "1 in 107 bouts"
+        "n": "1 in 108 bouts"
       }
     ],
     "bio": [
@@ -16499,18 +16499,18 @@
     "records": {
       "allDivision": {
         "w": 641,
-        "l": 522,
+        "l": 523,
         "pct": ".551"
       },
       "makuuchi": {
         "w": 490,
-        "l": 425,
-        "pct": ".536"
+        "l": 426,
+        "pct": ".535"
       },
       "crew": {
         "w": 78,
-        "l": 59,
-        "pct": ".569"
+        "l": 60,
+        "pct": ".565"
       },
       "note": null
     },
@@ -17090,7 +17090,7 @@
             "Named",
             "Y·O·S·K",
             0,
-            1
+            2
           ],
           [
             "High M",
@@ -17344,18 +17344,18 @@
     "records": {
       "allDivision": {
         "w": 169,
-        "l": 109,
-        "pct": ".608"
+        "l": 110,
+        "pct": ".606"
       },
       "makuuchi": {
         "w": 37,
-        "l": 25,
-        "pct": ".597"
+        "l": 26,
+        "pct": ".587"
       },
       "crew": {
         "w": 40,
-        "l": 28,
-        "pct": ".588"
+        "l": 29,
+        "pct": ".580"
       },
       "note": null
     },
@@ -17632,7 +17632,7 @@
             "Named",
             "Y·O·S·K",
             1,
-            1
+            2
           ],
           [
             "High M",
@@ -17856,18 +17856,18 @@
     "records": {
       "allDivision": {
         "w": 111,
-        "l": 61,
-        "pct": ".645"
+        "l": 62,
+        "pct": ".642"
       },
       "makuuchi": {
         "w": 60,
-        "l": 47,
-        "pct": ".561"
+        "l": 48,
+        "pct": ".556"
       },
       "crew": {
         "w": 61,
-        "l": 47,
-        "pct": ".565"
+        "l": 48,
+        "pct": ".560"
       },
       "note": null
     },
@@ -18108,7 +18108,7 @@
             "High M",
             "M1–8",
             0,
-            0
+            1
           ],
           [
             "Low M",
@@ -18335,19 +18335,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 384,
+        "w": 385,
         "l": 364,
-        "pct": ".513"
+        "pct": ".514"
       },
       "makuuchi": {
-        "w": 130,
+        "w": 131,
         "l": 127,
-        "pct": ".506"
+        "pct": ".508"
       },
       "crew": {
-        "w": 75,
+        "w": 76,
         "l": 77,
-        "pct": ".493"
+        "pct": ".497"
       },
       "note": null
     },
@@ -18715,7 +18715,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 75,
+      "totalWins": 76,
       "slices": [
         {
           "name": "Frontal Push Out",
@@ -18817,7 +18817,7 @@
           [
             "High M",
             "M1–8",
-            0,
+            1,
             0
           ],
           [
@@ -19085,19 +19085,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 71,
+        "w": 72,
         "l": 34,
-        "pct": ".676"
+        "pct": ".679"
       },
       "makuuchi": {
-        "w": 27,
+        "w": 28,
         "l": 20,
-        "pct": ".574"
+        "pct": ".583"
       },
       "crew": {
-        "w": 27,
+        "w": 28,
         "l": 20,
-        "pct": ".574"
+        "pct": ".583"
       },
       "note": "For Fujiryoga, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -19200,16 +19200,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 27,
+      "totalWins": 28,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 33,
+          "pct": 32,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Down",
-          "pct": 26,
+          "pct": 29,
           "color": "#2f8f5b"
         },
         {
@@ -19234,7 +19234,7 @@
         },
         {
           "name": "Other",
-          "pct": 8,
+          "pct": 6,
           "color": "#8a8168",
           "moves": 2,
           "tail": [
@@ -19266,7 +19266,7 @@
           [
             "Named",
             "Y·O·S·K",
-            0,
+            1,
             0
           ],
           [
@@ -19400,19 +19400,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 208,
+        "w": 209,
         "l": 190,
-        "pct": ".523"
+        "pct": ".524"
       },
       "makuuchi": {
-        "w": 103,
+        "w": 104,
         "l": 109,
-        "pct": ".486"
+        "pct": ".488"
       },
       "crew": {
-        "w": 72,
+        "w": 73,
         "l": 80,
-        "pct": ".474"
+        "pct": ".477"
       },
       "note": null
     },
@@ -19620,11 +19620,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 72,
+      "totalWins": 73,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 29,
+          "pct": 30,
           "color": "#cf5a2c"
         },
         {
@@ -19634,7 +19634,7 @@
         },
         {
           "name": "Rear Push Out",
-          "pct": 13,
+          "pct": 12,
           "color": "#7a4fb0"
         },
         {
@@ -19649,7 +19649,7 @@
         },
         {
           "name": "Frontal Force Out",
-          "pct": 6,
+          "pct": 5,
           "color": "#b5566f"
         },
         {
@@ -19659,7 +19659,7 @@
         },
         {
           "name": "Other",
-          "pct": 13,
+          "pct": 14,
           "color": "#8a8168",
           "moves": 5,
           "tail": [
@@ -19712,7 +19712,7 @@
           [
             "High M",
             "M1–8",
-            1,
+            2,
             1
           ],
           [
@@ -19981,18 +19981,18 @@
     "records": {
       "allDivision": {
         "w": 350,
-        "l": 304,
-        "pct": ".535"
+        "l": 305,
+        "pct": ".534"
       },
       "makuuchi": {
         "w": 193,
-        "l": 223,
-        "pct": ".464"
+        "l": 224,
+        "pct": ".463"
       },
       "crew": {
         "w": 69,
-        "l": 83,
-        "pct": ".454"
+        "l": 84,
+        "pct": ".451"
       },
       "note": null
     },
@@ -20428,7 +20428,7 @@
             "High M",
             "M1–8",
             0,
-            2
+            3
           ],
           [
             "Low M",
@@ -20698,19 +20698,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 353,
+        "w": 354,
         "l": 307,
-        "pct": ".535"
+        "pct": ".536"
       },
       "makuuchi": {
-        "w": 143,
+        "w": 144,
         "l": 158,
-        "pct": ".475"
+        "pct": ".477"
       },
       "crew": {
-        "w": 49,
+        "w": 50,
         "l": 44,
-        "pct": ".527"
+        "pct": ".532"
       },
       "note": null
     },
@@ -21063,16 +21063,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 49,
+      "totalWins": 50,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 37,
+          "pct": 36,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 27,
+          "pct": 26,
           "color": "#2f8f5b"
         },
         {
@@ -21081,38 +21081,38 @@
           "color": "#7a4fb0"
         },
         {
-          "name": "Rear Push Out",
+          "name": "Thrust Down",
           "pct": 4,
           "color": "#4a7fb5"
         },
         {
-          "name": "Frontal Push Down",
+          "name": "Rear Push Out",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Frontal Crush Out",
+          "name": "Frontal Push Down",
           "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Frontal Thrust Out",
+          "name": "Frontal Crush Out",
           "pct": 4,
           "color": "#3a9aa0"
         },
         {
           "name": "Other",
-          "pct": 10,
+          "pct": 12,
           "color": "#8a8168",
           "moves": 5,
           "tail": [
             {
-              "name": "Arm Lock Throw",
-              "n": 1,
-              "pct": 2
+              "name": "Frontal Thrust Out",
+              "n": 2,
+              "pct": 4
             },
             {
-              "name": "Thrust Down",
+              "name": "Arm Lock Throw",
               "n": 1,
               "pct": 2
             },
@@ -21155,7 +21155,7 @@
           [
             "High M",
             "M1–8",
-            0,
+            1,
             2
           ],
           [
@@ -21332,13 +21332,13 @@
         "label": "Full",
         "his": 1.1,
         "avg": 0.3,
-        "n": "1 in 93 bouts"
+        "n": "1 in 94 bouts"
       },
       {
         "label": "Partial",
         "his": 1.1,
         "avg": 0.1,
-        "n": "1 in 93 bouts"
+        "n": "1 in 94 bouts"
       }
     ],
     "bio": [
@@ -21397,18 +21397,18 @@
     "records": {
       "allDivision": {
         "w": 346,
-        "l": 307,
-        "pct": ".530"
+        "l": 308,
+        "pct": ".529"
       },
       "makuuchi": {
         "w": 178,
-        "l": 184,
-        "pct": ".492"
+        "l": 185,
+        "pct": ".490"
       },
       "crew": {
         "w": 70,
-        "l": 82,
-        "pct": ".461"
+        "l": 83,
+        "pct": ".458"
       },
       "note": null
     },
@@ -21854,7 +21854,7 @@
             "High M",
             "M1–8",
             0,
-            1
+            2
           ],
           [
             "Low M",
@@ -22124,19 +22124,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 231,
+        "w": 232,
         "l": 180,
-        "pct": ".562"
+        "pct": ".563"
       },
       "makuuchi": {
-        "w": 72,
+        "w": 73,
         "l": 80,
-        "pct": ".474"
+        "pct": ".477"
       },
       "crew": {
-        "w": 67,
+        "w": 68,
         "l": 70,
-        "pct": ".489"
+        "pct": ".493"
       },
       "note": null
     },
@@ -22384,11 +22384,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 67,
+      "totalWins": 68,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 34,
+          "pct": 35,
           "color": "#cf5a2c"
         },
         {
@@ -22423,7 +22423,7 @@
         },
         {
           "name": "Other",
-          "pct": 18,
+          "pct": 17,
           "color": "#8a8168",
           "moves": 7,
           "tail": [
@@ -22492,7 +22492,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            0,
+            1,
             1
           ]
         ],
@@ -22735,18 +22735,18 @@
     "records": {
       "allDivision": {
         "w": 215,
-        "l": 180,
-        "pct": ".544"
+        "l": 181,
+        "pct": ".543"
       },
       "makuuchi": {
         "w": 144,
-        "l": 156,
-        "pct": ".480"
+        "l": 157,
+        "pct": ".478"
       },
       "crew": {
         "w": 76,
-        "l": 76,
-        "pct": ".500"
+        "l": 77,
+        "pct": ".497"
       },
       "note": null
     },
@@ -23078,7 +23078,7 @@
             "Low M",
             "M9+ · Juryo",
             2,
-            0
+            1
           ]
         ],
         "26Ng": [
@@ -23340,18 +23340,18 @@
     "records": {
       "allDivision": {
         "w": 539,
-        "l": 484,
-        "pct": ".527"
+        "l": 485,
+        "pct": ".526"
       },
       "makuuchi": {
         "w": 471,
-        "l": 466,
-        "pct": ".503"
+        "l": 467,
+        "pct": ".502"
       },
       "crew": {
         "w": 67,
-        "l": 85,
-        "pct": ".441"
+        "l": 86,
+        "pct": ".438"
       },
       "note": null
     },
@@ -23893,7 +23893,7 @@
             "Low M",
             "M9+ · Juryo",
             0,
-            2
+            3
           ]
         ],
         "26Ng": [
@@ -24155,18 +24155,18 @@
     "records": {
       "allDivision": {
         "w": 128,
-        "l": 69,
-        "pct": ".650"
+        "l": 70,
+        "pct": ".646"
       },
       "makuuchi": {
         "w": 32,
-        "l": 30,
-        "pct": ".516"
+        "l": 31,
+        "pct": ".508"
       },
       "crew": {
         "w": 33,
-        "l": 30,
-        "pct": ".524"
+        "l": 31,
+        "pct": ".516"
       },
       "note": null
     },
@@ -24408,7 +24408,7 @@
             "Low M",
             "M9+ · Juryo",
             2,
-            0
+            1
           ]
         ],
         "26Ng": [
@@ -24569,19 +24569,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 517,
+        "w": 518,
         "l": 406,
-        "pct": ".560"
+        "pct": ".561"
       },
       "makuuchi": {
-        "w": 333,
+        "w": 334,
         "l": 301,
-        "pct": ".525"
+        "pct": ".526"
       },
       "crew": {
-        "w": 63,
+        "w": 64,
         "l": 84,
-        "pct": ".429"
+        "pct": ".432"
       },
       "note": null
     },
@@ -25034,11 +25034,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 63,
+      "totalWins": 64,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 27,
+          "pct": 28,
           "color": "#cf5a2c"
         },
         {
@@ -25048,17 +25048,17 @@
         },
         {
           "name": "Over Arm Throw",
-          "pct": 10,
+          "pct": 9,
           "color": "#7a4fb0"
         },
         {
           "name": "Thrust Down",
-          "pct": 10,
+          "pct": 9,
           "color": "#4a7fb5"
         },
         {
           "name": "Frontal Thrust Out",
-          "pct": 10,
+          "pct": 9,
           "color": "#c99a2e"
         },
         {
@@ -25073,7 +25073,7 @@
         },
         {
           "name": "Other",
-          "pct": 8,
+          "pct": 10,
           "color": "#8a8168",
           "moves": 4,
           "tail": [
@@ -25127,7 +25127,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            0,
+            1,
             2
           ]
         ],
@@ -25338,7 +25338,7 @@
         "label": "Full",
         "his": 0.7,
         "avg": 0.3,
-        "n": "1 in 147 bouts"
+        "n": "1 in 148 bouts"
       }
     ],
     "bio": [
@@ -25399,19 +25399,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 595,
+        "w": 596,
         "l": 591,
         "pct": ".502"
       },
       "makuuchi": {
-        "w": 302,
+        "w": 303,
         "l": 370,
-        "pct": ".449"
+        "pct": ".450"
       },
       "crew": {
-        "w": 58,
+        "w": 59,
         "l": 81,
-        "pct": ".417"
+        "pct": ".421"
       },
       "note": null
     },
@@ -25969,7 +25969,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 58,
+      "totalWins": 59,
       "slices": [
         {
           "name": "Frontal Force Out",
@@ -26023,6 +26023,11 @@
               "pct": 5
             },
             {
+              "name": "Pulling Over Arm Throw",
+              "n": 2,
+              "pct": 3
+            },
+            {
               "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 3
@@ -26034,11 +26039,6 @@
             },
             {
               "name": "Twisting Backward Knee Trip",
-              "n": 1,
-              "pct": 2
-            },
-            {
-              "name": "Pulling Over Arm Throw",
               "n": 1,
               "pct": 2
             },
@@ -26087,7 +26087,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            0,
+            1,
             2
           ]
         ],
@@ -26298,7 +26298,7 @@
         "label": "Full",
         "his": 0.7,
         "avg": 0.3,
-        "n": "1 in 139 bouts"
+        "n": "1 in 140 bouts"
       }
     ],
     "bio": [
@@ -26357,18 +26357,18 @@
     "records": {
       "allDivision": {
         "w": 251,
-        "l": 201,
-        "pct": ".555"
+        "l": 202,
+        "pct": ".554"
       },
       "makuuchi": {
         "w": 78,
-        "l": 89,
-        "pct": ".467"
+        "l": 90,
+        "pct": ".464"
       },
       "crew": {
         "w": 66,
-        "l": 72,
-        "pct": ".478"
+        "l": 73,
+        "pct": ".475"
       },
       "note": null
     },
@@ -26744,7 +26744,7 @@
             "Low M",
             "M9+ · Juryo",
             2,
-            0
+            1
           ]
         ],
         "26Ng": [
@@ -27005,19 +27005,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 85,
+        "w": 86,
         "l": 39,
-        "pct": ".685"
+        "pct": ".688"
       },
       "makuuchi": {
-        "w": 1,
+        "w": 2,
         "l": 1,
-        "pct": ".500"
+        "pct": ".667"
       },
       "crew": {
-        "w": 1,
+        "w": 2,
         "l": 1,
-        "pct": ".500"
+        "pct": ".667"
       },
       "note": "For Toshinofuji, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -27150,12 +27150,17 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 1,
+      "totalWins": 2,
       "slices": [
         {
-          "name": "Frontal Force Out",
-          "pct": 100,
+          "name": "Over Arm Throw",
+          "pct": 50,
           "color": "#cf5a2c"
+        },
+        {
+          "name": "Frontal Force Out",
+          "pct": 50,
+          "color": "#2f8f5b"
         }
       ]
     },
@@ -27179,7 +27184,7 @@
           [
             "Low M",
             "M9+ · Juryo",
-            1,
+            2,
             1
           ]
         ]
