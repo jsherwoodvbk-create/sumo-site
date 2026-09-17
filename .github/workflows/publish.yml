@@ -11,6 +11,7 @@ on:
     - cron: "32 13 * * *"        # ~06:32 AM PT
     - cron: "32 15 * * *"        # ~08:32 AM PT
     - cron: "32 17 * * *"        # ~10:32 AM PT
+    - cron: "32 18 * * *"        # ~11:32 AM PT — catches the fan retry with room
     - cron: "32 22 * * *"        # ~03:32 PM PT — afternoon backstop
 
 permissions:
