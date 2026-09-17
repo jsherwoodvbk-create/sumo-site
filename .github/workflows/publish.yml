@@ -1,6 +1,7 @@
 name: Publish standings
 
 on:
+  workflow_call: {}              # lets fan-and-publish.yml chain this after the fan
   workflow_dispatch: {}          # lets us run it by hand to test
   schedule:
     # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
