@@ -45,10 +45,16 @@ jobs:
           node-version: "20"
       - name: Fan color to Notion (model extracts, code enforces the rails)
         env:
-          NOTION_TOKEN:      ${{ secrets.NOTION_TOKEN }}
+          # The fan WRITES across Days, Announcers, Library, Sightings, Injury Log, Master Rikishi,
+          # so it needs the full-tracker WRITE token, not the narrow box token. publish reads, so it
+          # can keep using the read token.
+          NOTION_TOKEN:      ${{ secrets.NOTION_TOKEN_WRITE }}
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # the same key Gumbai uses
-          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}        # optional repo variable; else fan.mjs default
-          RESEND_KEY:        ${{ secrets.RESEND_KEY }}          # no-silent-fails: emails the run summary
+          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}        # NOT a secret - a plain repo Variable (or unset -> fan.mjs default)
+          # Resend is deliberately NOT in GitHub (Secrets Map row 4: box + Cloudflare only). Left unset,
+          # the fan prints its summary to the Actions log and GitHub's own failed-run email is the alarm.
+          # These three resolve to empty when the secrets are absent, and the fan simply skips emailing.
+          RESEND_KEY:        ${{ secrets.RESEND_KEY }}
           ALERT_EMAIL:       ${{ secrets.ALERT_EMAIL }}
           ALERT_FROM:        ${{ secrets.ALERT_FROM }}
           # repository_dispatch -> pass1; workflow_dispatch -> the chosen input
