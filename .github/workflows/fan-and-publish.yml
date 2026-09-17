@@ -1,0 +1,68 @@
+name: Fan-out + publish (keystone)
+
+# The keystone: one spine, two entry points, off the flaky Cowork session.
+#   Pass 1 (box-push)  -> run-live.sh confirms the transcript push, fires repository_dispatch
+#                          (transcript-landed). The fan runs the instant the transcript lands.
+#   Pass 2 (Jennie)    -> workflow_dispatch with mode=pass2, after scorekeeper notes are on the row.
+# fan.mjs (Claude API, same key Gumbai uses) writes color to Notion; deterministic code holds every
+# rail. Then the publish job (reusable) rebuilds standings + Gumbai snapshot from Notion and commits,
+# so the drinking-game board reflects the fan immediately - no waiting for the next publish cron.
+#
+# The fan CRONS in the box + the publish CRONS stay in place as the BELT. This is the fast path; if a
+# dispatch is ever missed (box offline, token expired), the cron still fans and publishes.
+
+on:
+  repository_dispatch:
+    types: [transcript-landed]      # Pass 1 - fired by the box after a confirmed push
+  workflow_dispatch:                # Pass 2 (scorekeeper) or a manual re-run / rehearsal
+    inputs:
+      mode:
+        description: "pass1 (transcript) or pass2 (scorekeeper notes)"
+        type: choice
+        options: [pass1, pass2]
+        default: pass1
+      day:
+        description: "Day # to process (blank = today's ready row)"
+        default: ""
+      dry_run:
+        description: "1 = rehearse the fan, write NOTHING to Notion, skip publish"
+        default: "0"
+
+permissions:
+  contents: write                   # publish job commits standings/snapshot
+
+concurrency:
+  group: fan-publish
+  cancel-in-progress: false         # never cut a half-written fan off mid-flight
+
+jobs:
+  fan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Fan color to Notion (model extracts, code enforces the rails)
+        env:
+          NOTION_TOKEN:      ${{ secrets.NOTION_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # the same key Gumbai uses
+          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}        # optional repo variable; else fan.mjs default
+          RESEND_KEY:        ${{ secrets.RESEND_KEY }}          # no-silent-fails: emails the run summary
+          ALERT_EMAIL:       ${{ secrets.ALERT_EMAIL }}
+          ALERT_FROM:        ${{ secrets.ALERT_FROM }}
+          # repository_dispatch -> pass1; workflow_dispatch -> the chosen input
+          MODE:    ${{ github.event_name == 'repository_dispatch' && 'pass1' || github.event.inputs.mode }}
+          DAY:     ${{ github.event.client_payload.day || github.event.inputs.day || '' }}
+          DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
+        # fan.mjs exits 3 on a soft problem (still emailed) and 1 on a crash; either fails this job LOUD.
+        run: node fan.mjs
+
+  publish:
+    needs: fan
+    # Run the publish even if the fan reported a soft problem, so whatever DID land surfaces. Publish
+    # reads Notion and commits only on a real diff, so it is a safe no-op when nothing changed. Skipped
+    # only on a dry rehearsal.
+    if: ${{ always() && (github.event.inputs.dry_run || '0') != '1' }}
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit
