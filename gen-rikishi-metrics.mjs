@@ -17,12 +17,22 @@
 //      - /rikishi/{id}/stats               career W-L (all-division + makuuchi split), yusho
 //   B. Notion  (system of record where the crew is the authority — Jan 2025+ tracked era):
 //      - Banzuke        current-basho weight; crew-era honors + provenance: Yusho (checkbox/basho),
-//                       Special Prizes (multi-select/basho), Gold Stars (kinboshi rollup/basho)
-//      - Match Log      crew record (W-L), kimarite mix, henka, birthday bouts, opponent-tier caliber
+//                       Special Prizes (multi-select/basho). (Kinboshi is tallied from the Match Log
+//                       gold-star flag, NOT the Banzuke "Gold Stars" rollup — see the fix note below.)
+//      - Match Log      crew record (W-L), kimarite mix, henka, birthday bouts, opponent-tier caliber,
+//                       and KINBOSHI (the per-bout Gold Star checkbox: Maegashira beat a Yokozuna)
 //      - Master Rikishi FULL PORTRAIT (the "Photo" file property — the standing shot, NOT the
 //                       img/headshots head-crops), soft bio (Nicknames/Known For/Mawashi/Translation/
 //                       Notes/Country), authoritative Birthday
 //      - Kimarite       technique-id → Japanese name
+//
+// KINBOSHI SOURCING FIX (2026-09-18): the Banzuke "Gold Stars" field is a ROLLUP (count_values over
+//   the Match Log Gold Star checkbox). The old code read it with numOf(p,'Gold Stars'), but a rollup's
+//   value lives under .rollup.number, not .number — so it read null → 0 for the WHOLE roster, always
+//   (silent until Takayasu's Day-4 gold star this basho exposed it). Kinboshi is now tallied straight
+//   off each bout's Gold Star checkbox in the Match Log loop, attributed to the winner, carrying the
+//   basho code for provenance. Crew-era by nature (the Match Log is Jan 2025+); sumo-api does not
+//   expose kinboshi at all (verified: its stats endpoint returns yusho + sansho, no gold star).
 //
 // DISCIPLINE (carried from setup-basho's Highest-Rank refresh + the house firewall):
 //   - DEFENSIVE + SELF-DIAGNOSING: on a sumo-api field we can't find, log the response keys ONCE and
@@ -30,8 +40,8 @@
 //     Blank-not-faked. The sumo-api /stats + ?ranks shapes are the two we could not verify from the
 //     sandbox — they carry diag() and degrade to blank, so the FIRST Action run's log is the fix list.
 //   - Windows are labeled distinctly: all-division + makuuchi = full career (sumo-api); crew = the
-//     tracked Jan-2025+ era (Match Log). Honors (kinboshi/sansho/yusho) = crew-era with basho
-//     provenance (Banzuke) — that is what the tracker authoritatively owns; never claimed "career".
+//     tracked Jan-2025+ era (Match Log). Honors: sansho/yusho = career (sumo-api), kinboshi = crew-era
+//     with basho provenance (Match Log gold-star bouts) — never claimed "career".
 //   - Master Rikishi SOFT data is never auto-invented: the story stays a human-owned draft, the bio
 //     emits only fields that exist. Fan-out is to the current banzuke only.
 //   - Nothing is sourced from a transcript. No macrons. Never "all-time" bare downstream (the
@@ -334,9 +344,9 @@ async function main(){
   // Banzuke: rank per (masterId, tournamentId) for the caliber opponent-tier join; honors per masterId;
   // current-basho weight per masterId.
   const rankByRikishiTourney = new Map();  // `${masterId}|${tourneyId}` → short rank
-  const honorsByMaster = new Map();        // masterId → { kinboshi, yusho, sansho{OP,FS,TE}, provenance }
+  const honorsByMaster = new Map();        // masterId → { yusho, sansho{OP,FS,TE}, provenance }
   const weightByMaster = new Map();        // masterId → current-basho Weight (kg)
-  const H0 = () => ({ kinboshi:0, yusho:0, OP:0, FS:0, TE:0, kb:[], yu:[], op:[], fs:[], te:[] });
+  const H0 = () => ({ yusho:0, OP:0, FS:0, TE:0, yu:[], op:[], fs:[], te:[] });
   for (const p of bzPages) {
     const rid = rel1(p, 'Rikishi'); if (!rid) continue;
     const tid = rel1(p, 'Tournament');
@@ -349,8 +359,9 @@ async function main(){
       const w = numOf(p, 'Weight (kg)'); if (w != null) weightByMaster.set(rid, w);
     }
     const H = honorsByMaster.get(rid) || H0();
-    const gs = numOf(p, 'Gold Stars') || 0;
-    if (gs > 0) { H.kinboshi += gs; H.kb.push({ code, sort }); }
+    // NOTE (2026-09-18): kinboshi is NOT read here. The Banzuke "Gold Stars" is a ROLLUP (its value
+    // lives under .rollup.number, which numOf() cannot see, so it always read 0 for everyone).
+    // Kinboshi is tallied straight off the Match Log Gold Star checkbox in the Match Log loop below.
     if (boolOf(p, 'Yusho')) { H.yusho += 1; H.yu.push({ code, sort }); }
     const sp = multiOf(p, 'Special Prizes');
     if (sp.includes('Outstanding Performance')) { H.OP += 1; H.op.push({ code, sort }); }
@@ -360,10 +371,10 @@ async function main(){
   }
   const prov = arr => [...new Set(arr.slice().sort((a,b)=>a.sort-b.sort).map(x=>x.code).filter(Boolean))];
 
-  // Match Log: per-master tallies (crew W-L, kimarite wins, henka, birthday bouts) + per-tournament
-  // opponent list for the caliber join. Full DB = the tracked Jan-2025+ crew era.
-  const ML = new Map(); // masterId → { w,l, kim:Map, henkaFull, henkaPartial, bouts:[{tid,day,date,oppId,won}] }
-  const M0 = () => ({ w:0, l:0, kim:new Map(), henkaFull:0, henkaPartial:0, bouts:[] });
+  // Match Log: per-master tallies (crew W-L, kimarite wins, henka, KINBOSHI, birthday bouts) + per-
+  // tournament opponent list for the caliber join. Full DB = the tracked Jan-2025+ crew era.
+  const ML = new Map(); // masterId → { w,l, kim:Map, henkaFull, henkaPartial, kinboshi, kb:[], bouts:[{tid,day,date,oppId,won}] }
+  const M0 = () => ({ w:0, l:0, kim:new Map(), henkaFull:0, henkaPartial:0, kinboshi:0, kb:[], bouts:[] });
   let mlUsed = 0;
   for (const p of mlPages) {
     const wId = rel1(p, 'Winner'), lId = rel1(p, 'Loser');
@@ -374,6 +385,10 @@ async function main(){
     const henka = selOf(p, 'Henka'); // "Full" | "Partial" | null — attributed to the bout WINNER (a henka is a winning sidestep; see HENKA note)
     const W = ML.get(wId) || M0(); W.w++; if (kim) W.kim.set(kim, (W.kim.get(kim) || 0) + 1);
     if (henka === 'Full') W.henkaFull++; else if (henka === 'Partial') W.henkaPartial++;
+    // KINBOSHI (2026-09-18 fix): tally straight off the bout's Gold Star checkbox (Maegashira beat a
+    // Yokozuna), attributed to the WINNER, with the basho code for provenance. Sourced from the Match
+    // Log — NOT the Banzuke "Gold Stars" rollup, which numOf() could not read. Crew-era by nature.
+    if (boolOf(p, 'Gold Star')) { W.kinboshi++; const lc = labelToCode(tourneyLabel(bzPages, tid)); W.kb.push({ code: lc.code, sort: lc.sort }); }
     W.bouts.push({ tid, day, date, oppId: lId, won: true }); ML.set(wId, W);
     const L = ML.get(lId) || M0(); L.l++;
     L.bouts.push({ tid, day, date, oppId: wId, won: false }); ML.set(lId, L);
@@ -409,14 +424,16 @@ async function main(){
     if (records.makuuchi && records.crew && records.makuuchi.w === records.crew.w && records.makuuchi.l === records.crew.l && records.crew.w != null)
       records.note = `For ${entry.name}, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it.`;
 
-    // specials — COUNTS are all-time (sumo-api career), so pre-crew honors count too (e.g. a 2019 yusho);
-    // basho CHIPS are crew-era only (the Banzuke is all we have per-basho provenance for). era='career'
-    // where the count spans the whole career, 'crew' for kinboshi (no all-time source → crew-era count).
-    // `pre` = honors with no chip (count minus what we can chip) so the template can show "+N earlier".
-    const yuChips = H ? prov(H.yu) : [], opChips = H ? prov(H.op) : [], fsChips = H ? prov(H.fs) : [], teChips = H ? prov(H.te) : [], kbChips = H ? prov(H.kb) : [];
+    // specials — sansho/yusho COUNTS are all-time (sumo-api career), so pre-crew honors count too (e.g.
+    // a 2019 yusho); basho CHIPS are crew-era only (the Banzuke is all we have per-basho provenance for).
+    // era='career' where the count spans the whole career. KINBOSHI is era='crew': tallied from the Match
+    // Log gold-star flag (Jan 2025+), the only source that exists (sumo-api does not expose kinboshi).
+    // `pre` = career honors with no chip (count minus what we can chip) so the template can show "+N earlier".
+    const yuChips = H ? prov(H.yu) : [], opChips = H ? prov(H.op) : [], fsChips = H ? prov(H.fs) : [], teChips = H ? prov(H.te) : [];
+    const kbChips = ml ? prov(ml.kb) : [];   // kinboshi provenance from the Match Log gold-star bouts (crew era)
     const mkSpecial = (jp, en, count, chips, era) => ({ jp, en, count: count || 0, basho: chips, era, pre: era === 'career' ? Math.max(0, (count || 0) - chips.length) : 0 });
     const specials = [
-      mkSpecial('Kinboshi',   'Gold Star',         H ? H.kinboshi : 0,   kbChips, 'crew'),
+      mkSpecial('Kinboshi',   'Gold Star',         ml ? ml.kinboshi : 0, kbChips, 'crew'),
       mkSpecial('Shukun-sho', 'Outstanding Perf.', car.sansho?.shukun,   opChips, 'career'),
       mkSpecial('Kanto-sho',  'Fighting Spirit',   car.sansho?.kanto,    fsChips, 'career'),
       mkSpecial('Gino-sho',   'Technique',         car.sansho?.gino,     teChips, 'career'),
@@ -541,7 +558,7 @@ async function main(){
       bio,
     };
     out[rec.id] = rec;
-    console.log(`  · ${entry.name} (${entry.rank}) → crew ${crew.w ?? '—'}-${crew.l ?? '—'} · career ${records.allDivision ? records.allDivision.w+'-'+records.allDivision.l : 'blank'} · arc ${arcPoints.length}pts · kim ${kimarite.slices.length} · caliber ${Object.keys(caliber.bashos).length}b`);
+    console.log(`  · ${entry.name} (${entry.rank}) → crew ${crew.w ?? '—'}-${crew.l ?? '—'} · career ${records.allDivision ? records.allDivision.w+'-'+records.allDivision.l : 'blank'} · kinboshi ${ml ? ml.kinboshi : 0} · arc ${arcPoints.length}pts · kim ${kimarite.slices.length} · caliber ${Object.keys(caliber.bashos).length}b`);
   }
 
   // 4) write
