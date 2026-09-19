@@ -1405,8 +1405,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "25Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -1933,8 +1935,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 2,
+        "basho": [
+          "26Ht"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -2555,8 +2559,14 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 5,
+        "basho": [
+          "25Ng",
+          "25Ak",
+          "25Ky",
+          "26Ht",
+          "26Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -3112,8 +3122,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "25Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -3819,8 +3831,11 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 2,
+        "basho": [
+          "25Hr",
+          "26Ak"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -4796,8 +4811,11 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 2,
+        "basho": [
+          "25Ht",
+          "26Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -8637,8 +8655,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "25Hr"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -9447,8 +9467,11 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 3,
+        "basho": [
+          "25Nt",
+          "25Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -10157,8 +10180,11 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 2,
+        "basho": [
+          "25Ng",
+          "25Ky"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -11049,8 +11075,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "26Hr"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -12336,8 +12364,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "25Ht"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -16031,8 +16061,12 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 5,
+        "basho": [
+          "26Hr",
+          "26Nt",
+          "26Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -16548,8 +16582,11 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 2,
+        "basho": [
+          "26Ht",
+          "26Hr"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -17905,8 +17942,12 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 4,
+        "basho": [
+          "25Ky",
+          "26Ht",
+          "26Hr"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -20035,8 +20076,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "25Hr"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -24624,8 +24667,11 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 2,
+        "basho": [
+          "25Nt",
+          "25Ng"
+        ],
         "era": "crew",
         "pre": 0
       },
@@ -25454,8 +25500,10 @@
       {
         "jp": "Kinboshi",
         "en": "Gold Star",
-        "count": 0,
-        "basho": [],
+        "count": 1,
+        "basho": [
+          "25Hr"
+        ],
         "era": "crew",
         "pre": 0
       },
