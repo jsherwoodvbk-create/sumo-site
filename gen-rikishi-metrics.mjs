@@ -96,6 +96,7 @@ const DB = {
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
   matchLog:      '1a2bad82-ebf5-4472-87ea-cb2c2481f9f1',
   kimarite:      '2591d1eb-2146-4745-ab0a-72ba57bfd213',
+  injuryLog:     '7a44f06d-389d-4bd6-aa84-314225d06085',   // 🩹 Injury/Condition Log; Rikishi relation → Master Rikishi pages
 };
 
 if (!NOTION_TOKEN) { console.error('FATAL: NOTION_TOKEN not set'); process.exit(1); }
@@ -116,6 +117,27 @@ function labelToCode(label){
   if (!m || !MONTH2[m[1]]) return { code: String(label || '').trim() || null, sort: 0 };
   const [code, mon] = MONTH2[m[1]];
   return { code: m[2].slice(2) + code, sort: (+m[2]) * 100 + mon };
+}
+// reverse: 2-char basho code → full label. "26Ak" → "Aki 2026" (for the injury layer basho tabs).
+const CODE_TO_MONTH = { Ht:'Hatsu', Hr:'Haru', Nt:'Natsu', Ng:'Nagoya', Ak:'Aki', Ky:'Kyushu' };
+function expandBasho(code){ const m = String(code || '').match(/^(\d{2})([A-Za-z]{2})$/);
+  return (m && CODE_TO_MONTH[m[2]]) ? `${CODE_TO_MONTH[m[2]]} 20${m[1]}` : String(code || ''); }
+// Parse the Injury/Condition Log "Severity Log" (append-only dated layers, e.g. "26AkD5: ...<br>26AkD6: ...")
+// into [{basho, bashoCode, day, text}]. The dated layers ARE the per-day series the template gates on.
+// A line with no "<yy><Mon>D<n>:" prefix becomes an undated note (bashoCode null → held under a gate).
+function parseInjuryLayers(text){
+  const layers = [];
+  const raw = String(text || '').split(/<br\s*\/?>|\r?\n/).map(s => s.trim()).filter(Boolean);
+  for (const part of raw) {
+    const m = part.match(/^(\d{2})\s*([A-Za-z]{2})\s*D\s*(\d+)\s*[:.\-–—]\s*(.*)$/);
+    if (m) {
+      const code = m[1] + (m[2][0].toUpperCase() + m[2][1].toLowerCase());
+      layers.push({ basho: expandBasho(code), bashoCode: code, day: +m[3], text: m[4].trim() });
+    } else {
+      layers.push({ basho: null, bashoCode: null, day: null, text: part });
+    }
+  }
+  return layers;
 }
 
 const seenDiag = new Set();
@@ -315,6 +337,7 @@ const OTHER_HEX = '#8a8168';
 async function main(){
   console.log(`gen-rikishi-metrics: ${BASHO_LABEL} (${BASHO}) · ${DRY ? 'DRY (pull + report, no write)' : 'WRITE'} → ${OUT}`);
   const flags = [];
+  const curTidNoDash = idNoDash(TOURNAMENT_PAGE_ID);   // current basho page id (for the R3 watched-day gate)
 
   // 1) roster + sumo-api ids from the banzuke endpoint (the standings' own source).
   const rb = await getBanzukeRoster();
@@ -324,13 +347,14 @@ async function main(){
   console.log(`  ✓ banzuke roster: ${roster.length} Makuuchi wrestlers`);
 
   // 2) Notion pulls (one query each; joined in memory).
-  const [mrPages, bzPages, mlPages, kmPages] = await Promise.all([
+  const [mrPages, bzPages, mlPages, kmPages, injPages] = await Promise.all([
     queryAll(DB.masterRikishi),
     queryAll(DB.banzuke),
     queryAll(DB.matchLog),
     queryAll(DB.kimarite),
+    queryAll(DB.injuryLog),
   ]);
-  console.log(`  ✓ notion: master=${mrPages.length} banzuke=${bzPages.length} matchlog=${mlPages.length} kimarite=${kmPages.length}`);
+  console.log(`  ✓ notion: master=${mrPages.length} banzuke=${bzPages.length} matchlog=${mlPages.length} kimarite=${kmPages.length} injuries=${injPages.length}`);
 
   // Master Rikishi: by name-key → page (portrait, soft bio, birthday).
   const mrByKey = new Map(), mrIdByKey = new Map(), mrKeyById = new Map();
@@ -388,7 +412,7 @@ async function main(){
     // KINBOSHI (2026-09-18 fix): tally straight off the bout's Gold Star checkbox (Maegashira beat a
     // Yokozuna), attributed to the WINNER, with the basho code for provenance. Sourced from the Match
     // Log — NOT the Banzuke "Gold Stars" rollup, which numOf() could not read. Crew-era by nature.
-    if (boolOf(p, 'Gold Star')) { W.kinboshi++; const lc = labelToCode(tourneyLabel(bzPages, tid)); W.kb.push({ code: lc.code, sort: lc.sort }); }
+    if (boolOf(p, 'Gold Star')) { W.kinboshi++; const lc = labelToCode(tourneyLabel(bzPages, tid)); W.kb.push({ code: lc.code, sort: lc.sort, day: (tid === curTidNoDash ? day : null) }); }
     W.bouts.push({ tid, day, date, oppId: lId, won: true }); ML.set(wId, W);
     const L = ML.get(lId) || M0(); L.l++;
     L.bouts.push({ tid, day, date, oppId: wId, won: false }); ML.set(lId, L);
@@ -401,6 +425,34 @@ async function main(){
 
   const tierBucket = rank => { const t = rankTier(rank); if (t === 'Yokozuna'||t==='Ozeki'||t==='Sekiwake'||t==='Komusubi') return 'Named';
     if (t === 'Maegashira') { const n = +String(rank).replace('M',''); return n <= 8 ? 'HighM' : 'LowM'; } return 'LowM'; };
+
+  // Injury/Condition Log → per-master injury records for the dashboard's injury panel.
+  //   • the Rikishi relation points at Master Rikishi pages (same ids honorsByMaster/ML use), so we
+  //     group straight by masterId.
+  //   • Severity Log dated layers ARE the per-day series; the template groups them into caliber-style
+  //     basho tabs and gates the CURRENT basho to the viewer's watched day.
+  //   • chronicSafe = chronic-natured AND durable (first dated layer PREDATES this basho) → the only
+  //     ones the template shows in the ungated "chronic" band, so a this-basho onset never leaks up top.
+  const curBasho = labelToCode(BASHO_LABEL);            // { code:'26Ak', sort }
+  const injuriesByMaster = new Map();                    // masterId → [injuryRecord]
+  for (const p of injPages) {
+    const rid = rel1(p, 'Rikishi'); if (!rid) continue;
+    const area = textOf(p, 'Area') || 'Unspecified';
+    const nature = multiOf(p, 'Nature');
+    const status = selOf(p, 'Status');
+    const source = multiOf(p, 'Source');
+    const condition = titleOf(p, 'Condition');
+    const layers = parseInjuryLayers(textOf(p, 'Severity Log'));
+    let firstBasho = null, firstSort = 0;
+    for (const ly of layers) { if (!ly.bashoCode) continue; const s = labelToCode(ly.basho).sort;
+      if (s && (firstSort === 0 || s < firstSort)) { firstSort = s; firstBasho = ly.bashoCode; } }
+    const natured  = nature.some(n => /chronic/i.test(n));           // Chronic or Suspected chronic
+    const durable  = firstSort > 0 && firstSort < curBasho.sort;     // predates this basho
+    const chronicSafe = natured && durable;
+    const arr = injuriesByMaster.get(rid) || [];
+    arr.push({ area, nature, status, source, condition, firstBasho, chronicSafe, layers });
+    injuriesByMaster.set(rid, arr);
+  }
 
   // 3) assemble one record per roster wrestler.
   const out = {};
@@ -417,6 +469,7 @@ async function main(){
 
     const ml = masterId ? ML.get(masterId) : null;
     const H  = masterId ? honorsByMaster.get(masterId) : null;
+    const injuries = masterId ? (injuriesByMaster.get(masterId) || []) : [];
 
     // records
     const crew = ml ? { w: ml.w, l: ml.l, pct: pctStr(ml.w, ml.l) } : { w: null, l: null, pct: null };
@@ -476,6 +529,7 @@ async function main(){
     const caliber = { default: null, bashos: {} };
     if (ml && ml.bouts.length) {
       const byTourney = new Map(); // tid → { code, sort, Named:[w,l], HighM:[w,l], LowM:[w,l] }
+      const curDays = {};          // current-basho per-day tier deltas → template gates this tab to the watched day
       for (const b of ml.bouts) {
         if (!b.tid) continue;
         const oppRank = rankByRikishiTourney.get(`${b.oppId}|${b.tid}`);
@@ -484,6 +538,10 @@ async function main(){
         let meta = byTourney.get(b.tid);
         if (!meta) { const lbl = tourneyLabel(bzPages, b.tid); const lc = labelToCode(lbl); meta = { code: lc.code, sort: lc.sort, Named:[0,0], HighM:[0,0], LowM:[0,0] }; byTourney.set(b.tid, meta); }
         meta[bucket][b.won ? 0 : 1]++;
+        if (b.tid === curTidNoDash && b.day != null) {
+          const dd = curDays[b.day] || (curDays[b.day] = { Named:[0,0], HighM:[0,0], LowM:[0,0] });
+          dd[bucket][b.won ? 0 : 1]++;
+        }
       }
       const ordered = [...byTourney.values()].filter(m => m.code).sort((a, b) => b.sort - a.sort);
       for (const m of ordered) caliber.bashos[m.code] = [
@@ -492,6 +550,7 @@ async function main(){
         ['Low M', 'M9+ · Juryo', m.LowM[0], m.LowM[1]],
       ];
       caliber.default = ordered.length ? ordered[0].code : null;
+      if (Object.keys(curDays).length) { caliber.curBasho = curBasho.code; caliber.curDays = curDays; }  // current tab gates to watched day
     }
 
     // henka: him vs field (winner-attributed; blank when no henka bouts so the tile shows nothing false)
@@ -540,6 +599,33 @@ async function main(){
       const nick = textOf(mp, 'Nicknames'); bio.push({ k:'Nicknames', v: nick ? esc(nick) : 'None on file yet', src: nick ? 'crew · (J) official / (O) ours' : 'human-owned field' });
     }
 
+    // R3 WATCHED-DAY GATE: emit prior-basho BASELINE + current-basho per-day deltas, so the template
+    // computes Crew W-L / Kinboshi / Birthday AS OF the viewer's watched day. Without this the crew
+    // band leaks (same figure on every day). The Match Log bouts carry Day #, so the series is free.
+    let gate = null;
+    if (ml) {
+      const curB = ml.bouts.filter(b => b.tid === curTidNoDash);
+      const crewDays = {};
+      for (const b of curB) { if (b.day == null) continue; const d = crewDays[b.day] || (crewDays[b.day] = { w:0, l:0 }); if (b.won) d.w++; else d.l++; }
+      const baseW = ml.w - curB.filter(b => b.won).length;
+      const baseL = ml.l - curB.filter(b => !b.won).length;
+      const kbCur = (ml.kb || []).filter(x => x.day != null);          // current-basho gold stars (dated)
+      const kinDays = {}; for (const x of kbCur) kinDays[x.day] = (kinDays[x.day] || 0) + 1;
+      const kbBase = (ml.kb || []).length - kbCur.length;              // prior-basho kinboshi (always safe)
+      let bdGate = null;
+      const bd = mp ? dateOf(mp, 'Birthday') : null;
+      if (bd) {
+        const md = bd.slice(5), bp = bdayParts(bd);
+        const bdAll = ml.bouts.filter(b => b.date && b.date.slice(5) === md);
+        if (bdAll.length) {
+          const bdBase = bdAll.filter(b => b.tid !== curTidNoDash);
+          const days = {}; for (const b of bdAll.filter(b => b.tid === curTidNoDash)) { if (b.day == null) continue; const d = days[b.day] || (days[b.day] = { w:0, l:0 }); if (b.won) d.w++; else d.l++; }
+          bdGate = { on: `${bp.mon} ${bp.day}`, baseW: bdBase.filter(b=>b.won).length, baseL: bdBase.filter(b=>!b.won).length, days };
+        }
+      }
+      gate = { curBashoCode: curBasho.code, crew: { baseW, baseL, days: crewDays }, kinboshi: { base: kbBase, days: kinDays }, birthday: bdGate };
+    }
+
     const rec = {
       id: slug(entry.name), name: entry.name, sample: false,
       // new to the crew's tracking (no logged bouts) → the template collapses empty crew panels into
@@ -555,10 +641,12 @@ async function main(){
       mawashi: mp ? buildMawashi(textOf(mp, 'Mawashi Color'), textOf(mp, 'Past Mawashi Colors')) : [],
       caliber,
       henka,
+      injuries,
+      gate,
       bio,
     };
     out[rec.id] = rec;
-    console.log(`  · ${entry.name} (${entry.rank}) → crew ${crew.w ?? '—'}-${crew.l ?? '—'} · career ${records.allDivision ? records.allDivision.w+'-'+records.allDivision.l : 'blank'} · kinboshi ${ml ? ml.kinboshi : 0} · arc ${arcPoints.length}pts · kim ${kimarite.slices.length} · caliber ${Object.keys(caliber.bashos).length}b`);
+    console.log(`  · ${entry.name} (${entry.rank}) → crew ${crew.w ?? '—'}-${crew.l ?? '—'} · career ${records.allDivision ? records.allDivision.w+'-'+records.allDivision.l : 'blank'} · kinboshi ${ml ? ml.kinboshi : 0} · arc ${arcPoints.length}pts · kim ${kimarite.slices.length} · caliber ${Object.keys(caliber.bashos).length}b · injuries ${injuries.length}`);
   }
 
   // 4) write
