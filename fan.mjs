@@ -11,7 +11,7 @@
 // (repository_dispatch, Pass 1) or by Jennie (workflow_dispatch, Pass 2).
 //
 // Authoritative specs ported here: deliverables/Fan-Out Runbook v1.md,
-// state/catchphrase-lane-fanout-spec.md, state/injury-lane-backlog.md.
+// state/catchphrase-lane-fanout-spec.md, state/catcher-fan-lane-spec.md, state/injury-lane-backlog.md.
 //
 // ENV:
 //   NOTION_TOKEN         (required) Notion write token, same integration as the generators
@@ -52,6 +52,7 @@ const DB = {
   announcers: '0dff86b0-5a19-462f-a5ef-10f46af12e5a',
   library:    '4d95409b-12f5-45ca-bc4d-b308c94f7576',
   sightings:  'a3cd5904-e534-45be-bf2d-cf4c46ea3b4f',
+  catcher:    '0caf1338-72e8-4097-acfb-905af5b1d9f1',   // crew ear-grab intake (write-in / jewel-vote / flag)
   injuries:   '7a44f06d-389d-4bd6-aa84-314225d06085',
   rikishi:    'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',
 };
@@ -402,7 +403,8 @@ async function distinctDayCount(libId) {
   return days.size;
 }
 
-async function writeCatchphrases(dayRow, cps, announcerId, announcerName, show, air) {
+async function writeCatchphrases(dayRow, cps, announcerId, announcerName, show, air, opts = {}) {
+  const { allowJewel = true, skipExisting = false } = opts;   // crew lane runs first; machine is the FALLBACK (no crown, no clobber) when crew is present
   if (!announcerId) { problem('catchphrases HELD: announcer unresolved (color lanes landed regardless)'); return { held: true }; }
   if (!cps || !cps.length) { note('   catchphrases: none extracted'); return { held: false, count: 0 }; }
   const lib = await libraryForAnnouncer(announcerId);
@@ -442,12 +444,14 @@ async function writeCatchphrases(dayRow, cps, announcerId, announcerName, show, 
       Notes: wText(`[booth, ${show}, air ${air}] machine giggle seed ${giggle}.`),
     };
     if (times) props['Times Today'] = wNum(times);
+    if (existing.length && skipExisting) { note(`   = "${phrase}" already a sighting (crew/prior) - machine fallback leaves it`); continue; }
     if (existing.length) { await updatePage(existing[0].id, props, `Sighting "${phrase}"`); written.push({ phrase, libId, sightId: existing[0].id, giggle, jewelCand: cp.jewel_candidate, times }); }
     else { const r = await createPage(DB.sightings, props, `Sighting "${phrase}"`); written.push({ phrase, libId, sightId: r.id, giggle, jewelCand: cp.jewel_candidate, times }); }
   }
-  // auto-crown the day's single Jewel: prefer model jewel_candidate, else top by (times, giggle)
-  let jewel = written.find(w => w.jewelCand)
-    || [...written].sort((a, b) => ((b.times || 1) - (a.times || 1)) || (b.giggle - a.giggle))[0];
+  // auto-crown the day's single Jewel: prefer model jewel_candidate, else top by (times, giggle).
+  // Suppressed when crew catches are present (crew owns the crown; see runCatcherLane / settleJewel).
+  let jewel = allowJewel && (written.find(w => w.jewelCand)
+    || [...written].sort((a, b) => ((b.times || 1) - (a.times || 1)) || (b.giggle - a.giggle))[0]);
   if (jewel) {
     await updatePage(jewel.sightId, { Jewel: wBool(true) }, `Jewel "${jewel.phrase}"`);
     // clear any other Jewel this day (one crown)
@@ -463,17 +467,201 @@ async function writeCatchphrases(dayRow, cps, announcerId, announcerName, show, 
 }
 
 // ---------------------------------------------------------------------------
-// ANNOUNCER RESOLUTION LADDER (rung 0 human-set -> self-id -> fingerprint -> HOLD)
+// CATCHER LANE (crew ear-grab intake -> Sightings/Library)  [state/catcher-fan-lane-spec.md]
 // ---------------------------------------------------------------------------
-async function resolveAnnouncer(dayRow, ex) {
+// The Catcher is where the crew logs commentary that grabbed their ear while watching.
+// That human signal is the game's grade: tier 1 = a recurring catchphrase (house-ism),
+// tiers 2/3 = the great color they caught today (tier 3 = the day's Jewel). "color vs
+// catchphrase" is not the gate; the ONLY filter is the firewall (results/kimarite/names
+// never become a Phrase; a name in a crew quote is templated to X, real subject -> Sighting).
+//
+// Jennie's rule: fan reads the Catcher; anything there that TIES TO THE TRANSCRIPT and is
+// not already in Sightings gets added to Sightings + Library and prioritized for the game.
+
+const STOP = new Set('a an the of to in on at is it he she his her him they them and or but for with was were be been are as no not into out off up down this that today her his'.split(/\s+/));
+// strip the X subject placeholder, then normalize, so a templated submission can be matched to raw transcript
+function corePhrase(sub) { return norm(String(sub || '').replace(/\bX\b/gi, ' ')); }
+// "ties to transcript": verbatim substring, else >=60% of content words present (Whisper garbles names, not idiom)
+function tiesToTranscript(submission, txNorm) {
+  const core = corePhrase(submission);
+  if (!core) return { tie: false, how: 'empty' };
+  if (txNorm.includes(core)) return { tie: true, how: 'verbatim' };
+  const words = core.split(/\s+/).filter(w => w.length >= 3 && !STOP.has(w));
+  if (!words.length) return { tie: false, how: 'no content words (needs verbatim)' };
+  const hit = words.filter(w => txNorm.includes(w)).length;
+  const frac = hit / words.length;
+  if (frac >= 0.6) return { tie: true, how: `fuzzy ${hit}/${words.length}` };
+  return { tie: false, how: `weak ${hit}/${words.length}` };
+}
+
+async function readCatcherDay(dayNum) {
+  // open crew submissions for the day (any Type); triage/merged/etc. rows are already handled
+  return await queryAll(DB.catcher, { and: [
+    { property: 'Day', number: { equals: dayNum } },
+    { or: [
+      { property: 'Status', select: { equals: 'new' } },
+      { property: 'Status', select: { equals: 'pending-confirmation' } },
+    ] },
+  ] });
+}
+
+// human announcer signals for the resolution ladder
+function announcerFromNotes(dayRow) {
+  const notes = pText(dayRow, 'Scorekeeper Notes');
+  const m = notes.match(/announcer\s*[:\-]\s*([^\n,;(]+)/i);
+  if (!m) return null;
+  const cand = norm(m[1]);   // tolerant of a trailing period or extra words after the name
+  const hit = ROSTER.find(n => cand === norm(n) || cand.startsWith(norm(n) + ' ') || cand.startsWith(norm(n) + '.'));
+  return hit ? canonical(hit) : null;
+}
+async function announcerFromCatcher(catcherRows) {
+  const tagged = (catcherRows || []).find(r => pRel(r, 'Announcer').length);
+  if (!tagged) return null;
+  const aid = pRel(tagged, 'Announcer')[0];
+  const rows = await announcers();
+  const r = rows.find(x => idNoDash(x.id) === idNoDash(aid));
+  return r ? { id: aid, name: pTitle(r, 'Announcer') } : null;
+}
+
+async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air, catcherRows) {
+  const rows = catcherRows || [];
+  if (!rows.length) { note('   catcher: no open crew submissions for the day'); return { count: 0 }; }
+  const writeins = rows.filter(r => (pSelect(r, 'Type') || 'write-in') === 'write-in');
+  const votes    = rows.filter(r => pSelect(r, 'Type') === 'jewel-vote');
+  const flags    = rows.filter(r => pSelect(r, 'Type') === 'flag');
+  if (!annId) {
+    problem(`catcher HELD: ${rows.length} open crew submission(s) for Day ${dayNum} but announcer unresolved. Set the Day's Announcer, tag a Catcher row's Announcer, or add an "Announcer: <name>" line to Scorekeeper Notes, then re-fire.`);
+    return { held: true };
+  }
+  const lib = await libraryForAnnouncer(annId);
+  const written = [];
+  for (const row of writeins) {
+    const submission = pTitle(row, 'Submission');
+    const phrase = clean(submission);   // the crew's own wording is the Phrase (they template names to X; we trust that)
+    if (!phrase) { problem(`catcher: a Day ${dayNum} write-in has an empty Submission - skipped`); continue; }
+    const t = tiesToTranscript(submission, txNorm);
+    if (!t.tie) { problem(`catcher: "${submission}" (Day ${dayNum}) did not corroborate against the transcript (${t.how}) - left OPEN for review, not written`); continue; }
+    // find-or-create Library {announcer, phrase}
+    let libRow = lib.find(r => norm(pTitle(r, 'Phrase')) === norm(phrase));
+    let libId;
+    if (libRow) { libId = libRow.id; }
+    else {
+      const r = await createPage(DB.library, {
+        Phrase: wTitle(phrase),
+        Announcer: wRel([annId]),
+        Speaker: wSelect('Announcer'),
+        Notes: wText(`[booth, ${annName}, ${show}, air ${air}] crew-caught via Catcher; verify/refine.`),
+      }, `Library "${phrase}" (crew)`);
+      libId = r.id; lib.push({ id: libId, properties: { Phrase: { title: [{ plain_text: phrase }] } } });
+    }
+    // dedupe by {Phrase, Day}
+    const existing = DRY_RUN ? [] : await queryAll(DB.sightings, { and: [
+      { property: 'Phrase', relation: { contains: idNoDash(libId) } },
+      { property: 'Day', relation: { contains: idNoDash(dayRow.id) } },
+    ] });
+    const suggestedBy = pText(row, 'Suggested by');
+    const subjGuess = pText(row, 'Fan subject guess');   // quarantined: a fan guess, never feeds the nickname engine
+    const priorDays = DRY_RUN ? 0 : await distinctDayCount(libId);
+    let giggle = 2; if (priorDays + 1 >= 3) giggle += 1; if (giggle > 4) giggle = 4;
+    const props = {
+      Sighting: wTitle(`${annName} - Day ${dayNum} - ${phrase.slice(0, 40)}`),
+      Phrase: wRel([libId]),
+      Day: wRel([dayRow.id]),
+      Subject: wText(subjGuess || ''),
+      'Giggle Rank': wNum(giggle),
+      Notes: wText(`[booth, ${annName}, ${show}, air ${air}] crew-caught via Catcher${suggestedBy ? ' (' + suggestedBy + ')' : ''}${subjGuess ? '; subject is a fan guess' : ''}; tie ${t.how}; giggle seed ${giggle}.`),
+    };
+    let sightId;
+    if (existing.length) { await updatePage(existing[0].id, props, `Sighting "${phrase}" (crew)`); sightId = existing[0].id; }
+    else { const r = await createPage(DB.sightings, props, `Sighting "${phrase}" (crew)`); sightId = r.id; }
+    // close the Catcher row
+    const closeProps = { Status: wSelect('merged-sighting'), 'Related Phrase': wRel([libId]), 'Related Sighting': wRel([sightId]) };
+    if (!pRel(row, 'Announcer').length) closeProps['Announcer'] = wRel([annId]);
+    await updatePage(row.id, closeProps, `Catcher "${submission.slice(0, 30)}" -> merged`);
+    written.push({ phrase, libId, sightId, giggle });
+  }
+  // Day.Catchphrases merge (crew) - never clobber
+  if (written.length) {
+    const dayLibIds = new Set(pRel(dayRow, 'Catchphrases').map(idNoDash));
+    for (const w of written) dayLibIds.add(idNoDash(w.libId));
+    await updatePage(dayRow.id, { Catchphrases: wRel([...dayLibIds]) }, 'Day.Catchphrases (crew)');
+  }
+  // Jewel: a crew jewel-vote wins; else auto-seed among crew sightings if nothing is crowned yet
+  await settleJewel(dayRow, dayNum, votes, written, annId);
+  // flags -> report only (non-destructive; a human applies not-said/mis-worded/dupe/not-funny in Pass 2)
+  for (const f of flags) problem(`catcher FLAG for review: "${pTitle(f, 'Submission')}" reason=${pSelect(f, 'Reason') || 'flag'} (Day ${dayNum}) - not auto-applied`);
+  note(`   catcher: ${written.length} crew sighting(s) folded${votes.length ? `, ${votes.length} jewel-vote(s)` : ''}${flags.length ? `, ${flags.length} flag(s) flagged` : ''}`);
+  return { count: written.length };
+}
+
+async function settleJewel(dayRow, dayNum, votes, written, annId) {
+  const lib = await libraryForAnnouncer(annId);
+  const tally = new Map();   // libId(nodash) -> vote count
+  for (const v of votes) {
+    const sub = pTitle(v, 'Submission');
+    let libId = pRel(v, 'Related Phrase')[0] || null;
+    if (!libId) { const lr = lib.find(r => norm(pTitle(r, 'Phrase')) === norm(clean(sub))); libId = lr ? lr.id : null; }
+    if (!libId) { problem(`catcher jewel-vote "${sub}" (Day ${dayNum}) matches no library phrase for this announcer - ignored`); continue; }
+    tally.set(idNoDash(libId), (tally.get(idNoDash(libId)) || 0) + 1);
+    await updatePage(v.id, { Status: wSelect('applied'), 'Related Phrase': wRel([libId]) }, 'Catcher jewel-vote -> applied');
+  }
+  const dayS = DRY_RUN ? [] : await queryAll(DB.sightings, { property: 'Day', relation: { contains: idNoDash(dayRow.id) } });
+  const alreadyCrowned = dayS.some(s => pBool(s, 'Jewel'));
+  if (tally.size) {
+    const crownLibId = [...tally.entries()].sort((a, b) => b[1] - a[1])[0][0];
+    const target = dayS.find(s => pRel(s, 'Phrase').map(idNoDash).includes(crownLibId));
+    if (target) {
+      for (const s of dayS) if (pBool(s, 'Jewel') && s.id !== target.id) await updatePage(s.id, { Jewel: wBool(false) }, 'un-Jewel');
+      await updatePage(target.id, { Jewel: wBool(true), 'Giggle Rank': wNum(5) }, 'crew jewel-vote crown');
+      note(`   Jewel (crew vote) = "${pTitle(target, 'Sighting')}"`);
+    } else problem(`catcher jewel-vote crown: no sighting on Day ${dayNum} for the most-voted phrase`);
+    return;
+  }
+  // no vote: auto-seed the day's Jewel among crew-written sightings, only if nothing is crowned yet
+  if (!alreadyCrowned && written.length) {
+    const top = [...written].sort((a, b) => b.giggle - a.giggle)[0];
+    await updatePage(top.sightId, { Jewel: wBool(true) }, 'auto-Jewel (crew)');
+    note(`   Jewel (auto, crew) = "${top.phrase}"`);
+  }
+}
+
+// Backfill entry: run ONLY the Catcher lane against an already-fanned day (Storylines filled),
+// or as a completeness pass after Pass 2. No API spend - resolves the announcer from human
+// signals (row / Scorekeeper header / crew tag) and reads the transcript body for the tie check.
+async function catcherBackfill(row) {
+  const dayNum = pNum(row, 'Day #');
+  const type = pSelect(row, 'Type') || 'Highlights';
+  const air = pDate(row, 'Original Air Date') || airToday();
+  if (type.includes('Live/Preview')) { note('   catcher backfill skipped (.5 row)'); return; }
+  const show = 'GSH Highlights';
+  const catcherRows = await readCatcherDay(dayNum);
+  if (!catcherRows.length) { note('   catcher: nothing open to backfill'); return; }
+  const resolved = await resolveAnnouncer(row, null, catcherRows);
+  note(`   catcher backfill announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
+  const annId = resolved.name ? await writeAnnouncer(row, resolved.name) : null;
+  const body = await blockChildrenText(row.id);
+  const tx = body.split(/Transcript \(auto-landed/i).pop();
+  await runCatcherLane(row, dayNum, norm(tx || body), annId, resolved.name, show, air, catcherRows);
+}
+
+// ---------------------------------------------------------------------------
+// ANNOUNCER RESOLUTION LADDER (row -> Scorekeeper header -> crew tag -> self-id -> fingerprint -> HOLD)
+// ---------------------------------------------------------------------------
+async function resolveAnnouncer(dayRow, ex, catcherRows) {
   const already = pRel(dayRow, 'Announcer');
   if (already.length) {
     const rows = await announcers();
     const r = rows.find(x => idNoDash(x.id) === idNoDash(already[0]));
     if (r) return { name: pTitle(r, 'Announcer'), how: 'human-set on the row' };
   }
-  if (ex.announcer_self_id && ROSTER.some(n => norm(n) === norm(ex.announcer_self_id))) return { name: canonical(ex.announcer_self_id), how: 'self-ID in transcript' };
-  if (ex.announcer_confidence === 'fingerprint' && ex.announcer_fingerprint && ROSTER.some(n => norm(n) === norm(ex.announcer_fingerprint))) return { name: canonical(ex.announcer_fingerprint), how: 'KB fingerprint' };
+  // human signals next: a scorekeeper "Announcer:" header, then a crew tag on a Catcher row
+  const fromNotes = announcerFromNotes(dayRow);
+  if (fromNotes) return { name: fromNotes, how: 'Scorekeeper Notes header' };
+  const fromCatcher = await announcerFromCatcher(catcherRows);
+  if (fromCatcher) return { name: canonical(fromCatcher.name), how: 'crew-tagged in Catcher' };
+  // transcript-derived signals (Pass 1 only; ex is null on a backfill)
+  if (ex && ex.announcer_self_id && ROSTER.some(n => norm(n) === norm(ex.announcer_self_id))) return { name: canonical(ex.announcer_self_id), how: 'self-ID in transcript' };
+  if (ex && ex.announcer_confidence === 'fingerprint' && ex.announcer_fingerprint && ROSTER.some(n => norm(n) === norm(ex.announcer_fingerprint))) return { name: canonical(ex.announcer_fingerprint), how: 'KB fingerprint' };
   return { name: null, how: 'undetermined (HOLD catchphrases)' };
 }
 const canonical = name => ROSTER.find(n => norm(n) === norm(name)) || name;
@@ -508,8 +696,13 @@ async function pass1() {
   const type = pSelect(row, 'Type') || 'Highlights';
   const air = pDate(row, 'Original Air Date') || airToday();
   note(`Pass 1: ${BASHO_LABEL} Day ${dayNum} (Type ${type}, air ${air})`);
-  // idempotency: Storylines non-empty => already fanned
-  if (pText(row, 'Storylines')) { note('Storylines already filled - Pass 1 already ran. No-op (idempotent).'); return; }
+  // idempotency: Storylines non-empty => already fanned. Still run the Catcher backfill so a re-fire
+  // picks up crew catches even though the transcript lanes are done (no API spend on this path).
+  if (pText(row, 'Storylines')) {
+    note('Storylines already filled - Pass 1 already ran. Running Catcher backfill only (idempotent).');
+    await catcherBackfill(row);
+    return;
+  }
   const body = await blockChildrenText(row.id);
   const tx = body.split(/Transcript \(auto-landed/i).pop(); // text after the transcript heading
   if (!tx || tx.replace(/[^A-Za-z]/g, '').length < 200) { problem('transcript body is blank/tiny (box body-write may have failed) - not fabricating color'); return; }
@@ -528,15 +721,24 @@ async function pass1() {
   const announcerHint = (() => { const a = pRel(row, 'Announcer'); return a.length ? '(already set)' : ''; })();
   const ex = await extract({ mode: 'pass1', type, dayNum, sourceText: tx, announcerHint, libraryHint });
 
+  // crew ear-grab intake for the day (also a human announcer signal); [] on a .5 row
+  const catcherRows = type.includes('Live/Preview') ? [] : await readCatcherDay(dayNum);
+
   // announcer FIRST (catchphrases need it); color lanes fan regardless
-  const resolved = await resolveAnnouncer(row, ex);
+  const resolved = await resolveAnnouncer(row, ex, catcherRows);
   note(`Announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
   const annId = resolved.name ? await writeAnnouncer(row, resolved.name) : null;
 
   await writeStorylines(row, ex.storylines, show, air);
   for (const inj of (ex.injuries || [])) await writeInjury(row, inj, show, air);
-  if (!type.includes('Live/Preview')) await writeCatchphrases(row, ex.catchphrases, annId, resolved.name, show, air);
-  else note('   catchphrases skipped (.5 row)');
+  if (!type.includes('Live/Preview')) {
+    // crew Catcher lane FIRST (the ear-grab signal owns the day + the Jewel when present)...
+    const crew = await runCatcherLane(row, dayNum, norm(tx), annId, resolved.name, show, air, catcherRows);
+    // ...then the machine transcript lane as a FALLBACK for the (likely) days nobody watched: it adds
+    // phrases crew did not catch, never clobbers a crew sighting, and only crowns when crew caught nothing.
+    const crewPresent = !!(crew && crew.count > 0);
+    await writeCatchphrases(row, ex.catchphrases, annId, resolved.name, show, air, { allowJewel: !crewPresent, skipExisting: true });
+  } else note('   catchphrases skipped (.5 row)');
 
   // bio + verify flags -> report only (PROPOSE / never auto-write)
   if ((ex.bio_proposals || []).length) note(`   bio PROPOSED (not written): ${ex.bio_proposals.map(b => b.rikishi).join(', ')}`);
@@ -564,7 +766,7 @@ async function pass2() {
 
   // add any missed injuries / catchphrases (find-or-update -> safe)
   for (const inj of (ex.injuries || [])) await writeInjury(row, inj, show, air);
-  if (annId && (ex.catchphrases || []).length) await writeCatchphrases(row, ex.catchphrases, annId, annName, show, air);
+  if (annId && (ex.catchphrases || []).length) await writeCatchphrases(row, ex.catchphrases, annId, annName, show, air, { allowJewel: false, skipExisting: true });
 
   // corrections: crown -> re-crown Jewel + giggle 5; giggle bump; fix subject
   for (const c of (ex.corrections || [])) {
@@ -585,6 +787,8 @@ async function pass2() {
       else if (c.kind === 'fix_subject') { await updatePage(s[0].id, { Subject: wText(c.subject || c.value || '') }, 'fix subject'); }
     } else { note(`   scorekeeper note: ${c.kind} ${c.value || ''}`); }
   }
+  // fold any open crew Catcher submissions for the day (idempotent; merged rows are skipped)
+  await catcherBackfill(row);
   note(`Pass 2 done for Day ${dayNum}.`);
 }
 
@@ -634,4 +838,5 @@ if (invokedDirectly) {
 }
 
 // exported for offline testing (stubbed fetch); harmless in production
-export const __test = { clean, writeCatchphrases, writeInjury, resolveAnnouncer, priceFor, recordSpend, spend };
+export const __test = { clean, writeCatchphrases, writeInjury, resolveAnnouncer, priceFor, recordSpend, spend,
+  corePhrase, tiesToTranscript, readCatcherDay, runCatcherLane, catcherBackfill, announcerFromNotes };
