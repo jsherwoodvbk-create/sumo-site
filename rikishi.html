@@ -37,10 +37,9 @@ body{margin:0;background:var(--ground);color:var(--ink);
 .sampleflag .dot{width:20px;height:20px;flex:none;border-radius:6px;background:var(--accent);color:#fff;
   display:grid;place-items:center;font-weight:700;font-family:'Inter',system-ui,sans-serif;}
 
-/* ---- TOP ROW: photo | name | bio ---- */
-.top{display:grid;grid-template-columns:150px 1fr 200px;gap:20px;align-items:stretch;margin-bottom:16px;}
-.top.nobday{grid-template-columns:150px 1fr;}
-@media(max-width:800px){ .top.nobday{grid-template-columns:1fr;} }
+/* ---- TOP ROW: photo | name (birthday moved to the crew-era records row) ---- */
+.top{display:grid;grid-template-columns:150px 1fr;gap:20px;align-items:stretch;margin-bottom:16px;}
+@media(max-width:800px){ .top{grid-template-columns:1fr;} }
 .bcell .eratag{display:inline-block;font-size:8px;letter-spacing:.03em;text-transform:none;color:var(--faint);border:1px solid var(--line);border-radius:4px;padding:0 3px;margin-left:5px;vertical-align:middle;}
 .limitednote{font-size:13.5px;color:var(--muted);line-height:1.55;margin:2px 0 0;max-width:75ch;}
 .photo{border:1px solid var(--line);border-radius:var(--radius);background:
@@ -75,9 +74,13 @@ h1{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif;font-weight:900;
   border-top:1px dashed var(--line);padding-top:9px;line-height:1.4;}
 .hidepill b{color:var(--sekiwake);}
 
-/* ---- RECORDS BAND ---- */
+/* ---- RECORDS BANDS (3 rows by scope: R1 background · R2 honor roll · R3 crew era) ---- */
+.scopelab{display:flex;align-items:baseline;gap:8px;margin:2px 2px 5px;}
+.scopelab .t{font-family:'Inter',system-ui,sans-serif;font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);}
+.scopelab .s{font-size:11px;color:var(--faint);font-style:italic;}
 .band{display:flex;flex-wrap:wrap;align-items:center;gap:0;background:var(--surface);
   border:1px solid var(--line);border-radius:var(--radius);padding:4px 4px;margin-bottom:16px;}
+.band.crew{border-left:3px solid var(--accent);}
 .bcell{flex:1 1 auto;padding:11px 16px;display:flex;flex-direction:column;gap:3px;min-width:110px;
   border-right:1px solid var(--line);}
 .bcell:last-child{border-right:0;}
@@ -136,6 +139,22 @@ svg{display:block;max-width:100%;height:auto;}
 .story .eyebrow{display:flex;align-items:center;gap:8px;font-family:'Inter',system-ui,sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:0 0 8px;}
 .story .body{font-family:'Inter',system-ui,sans-serif;font-size:16.5px;line-height:1.55;margin:0;color:var(--ink);max-width:80ch;}
 .story .body .who{color:var(--accent);font-weight:600;}
+/* ---- INJURY PANEL (chronic band + caliber-style by-basho DL log) ---- */
+.chronic{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px;}
+.chronic .chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--line);
+  border-radius:999px;padding:4px 12px 4px 10px;font-size:12.5px;color:var(--ink);}
+.chronic .chip .bp{font-weight:600;}
+.chronic .chip .st{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--faint);}
+.chronic .chip.warn{border-color:color-mix(in srgb,var(--sekiwake) 45%,var(--line));}
+.chronic .chip .dot{width:8px;height:8px;border-radius:50%;flex:none;}
+.dl{display:flex;flex-direction:column;gap:11px;}
+.dlgrp{border-top:1px solid var(--line);padding-top:10px;}
+.dlgrp:first-child{border-top:0;padding-top:0;}
+.dlgrp .bp{display:flex;align-items:center;gap:8px;font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;margin-bottom:5px;}
+.dlgrp .bp .dot{width:9px;height:9px;border-radius:50%;flex:none;}
+.dlent{font-size:12.5px;color:var(--muted);line-height:1.5;margin:2px 0 2px 17px;}
+.dlent .day{font-family:'Inter',system-ui,sans-serif;font-weight:600;color:var(--ink);font-size:11px;letter-spacing:.02em;}
+.dlent .prov{font-size:10px;color:var(--faint);}
 .biofull{display:grid;grid-template-columns:repeat(2,1fr);gap:14px 32px;}
 .biofull .row{border-top:1px solid var(--line);padding-top:9px;}
 .biofull .row:first-child,.biofull .row:nth-child(2){border-top:0;padding-top:0;}
@@ -250,12 +269,25 @@ const METRICS = {
       note:"For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
     specials:[
-      { jp:"Kinboshi",    en:"Gold Star",         count:3, basho:["25Nt","25Ng","25Ak"] },
+      { jp:"Kinboshi",    en:"Gold Star",         count:3, basho:["25Nt","25Ng","25Ak"], era:"crew" },
       { jp:"Shukun-sho",  en:"Outstanding Perf.",  count:0, basho:[] },
       { jp:"Kanto-sho",   en:"Fighting Spirit",    count:2, basho:["25Ky","26Ht"] },
       { jp:"Gino-sho",    en:"Technique",          count:1, basho:["26Ng"] },
       { jp:"Yusho",       en:"Emperor's Cup",      count:3, basho:["25Ky","26Ht","26Ng"] }
     ],
+    injuries:[
+      { area:"Left knee", nature:["Chronic"], status:"Active", chronicSafe:true, firstBasho:"25Ng",
+        source:["Booth mention","Scorekeeper Eye"],
+        layers:[ {basho:"25Ng",bashoCode:"25Ng",day:null,text:"First noted favoring the left leg late in the basho.",prov:"booth"},
+                 {basho:"Aki 2026",bashoCode:"26Ak",day:4,text:"Heavy tape on the left knee, moved gingerly after the tachiai.",prov:"scorekeeper"} ] },
+      { area:"Right thumb", nature:["Acute"], status:"Eased", chronicSafe:false, firstBasho:"26Ht",
+        source:["Seen-in-bout"],
+        layers:[ {basho:"Hatsu 2026",bashoCode:"26Ht",day:9,text:"Jammed the thumb on a slap-down attempt; taped next day, no missed bouts.",prov:"seen"} ] }
+    ],
+    gate:{ curBashoCode:"26Ak",
+      crew:{ baseW:114, baseL:60, days:{"1":{w:1,l:0},"2":{w:1,l:0},"3":{w:1,l:0},"4":{w:1,l:2}} },
+      kinboshi:{ base:3, days:{} },
+      birthday:{ on:"Mar 23", baseW:1, baseL:2, days:{} } },
     story:{
       html:'<span class="who">Aonishiki</span> went from Maegashira 15 to Ozeki in six bashos, one of the fastest climbs in our records. He won two Emperor\'s Cups before he turned 22 and a third at 22. Two of the three came as a Sekiwake. The first was Kyushu 2025, on the way up. He took the second as an Ozeki at Hatsu 2026. The third came at Nagoya 2026, the same tournament he had dropped to Sekiwake after losing his Ozeki rank; he won the Cup and took the rank straight back for Aki.',
       source:"Built from our banzuke and yusho records (no web). Crew edits the prose."
@@ -271,7 +303,11 @@ const METRICS = {
       {name:"Yoritaoshi",pct:7,color:"#3a9aa0"},{name:"Other",pct:8,color:"#8a8168",moves:5} ]},
     mawashi:[ {b:"Aki25",c:"#2b3a67",chg:0},{b:"Kyu25",c:"#2b3a67",chg:0},{b:"Hts26",c:"#6a2f2f",chg:1},
       {b:"Hru26",c:"#6a2f2f",chg:0},{b:"Ntu26",c:"#3a5a40",chg:1},{b:"Ngy26",c:"#6a2f2f",chg:1},{b:"Aki26",c:"#8a6d2f",chg:1} ],
-    caliber:{ default:"Aki26", bashos:{
+    caliber:{ default:"Aki26", curBasho:"Aki26", curDays:{
+        "1":{Named:[0,1],HighM:[1,0],LowM:[0,0]},"2":{Named:[1,0],HighM:[0,0],LowM:[0,0]},
+        "3":{Named:[0,1],HighM:[1,0],LowM:[0,0]},"4":{Named:[1,0],HighM:[0,1],LowM:[1,0]},
+        "5":{Named:[0,0],HighM:[1,0],LowM:[0,0]},"6":{Named:[1,0],HighM:[0,0],LowM:[0,0]},
+        "7":{Named:[0,1],HighM:[1,0],LowM:[1,0]} }, bashos:{
       "Aki26":[["Named","Y·O·S·K",3,3],["High M","M1–8",4,1],["Low M","M9+ · Juryo",2,0]],
       "Ngy26":[["Named","Y·O·S·K",2,4],["High M","M1–8",5,2],["Low M","M9+ · Juryo",3,0]],
       "Ntu26":[["Named","Y·O·S·K",4,2],["High M","M1–8",6,1],["Low M","M9+ · Juryo",1,0]] }},
@@ -294,6 +330,10 @@ const METRICS = {
 const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const params = new URLSearchParams(location.search);
 const rid = params.get('r');
+/* watched day: ?d=<n> (spoiler gate for current-basho lanes). Blank / invalid → show all (full basho). */
+const WATCHED_DAY = (()=>{ const d = parseInt(params.get('d'),10); return (Number.isFinite(d) && d>0) ? d : null; })();
+/* the current basho's 2-char-year+month code, e.g. "26Ak" — the only injury tab that gates. */
+const CUR_BASHO_CODE = "26Ak";
 
 /* carry the watched-day context onto the Return-to-Standings link (spoiler-safe) */
 (function(){
@@ -318,6 +358,35 @@ function recCell(o){ return (o && o.w!=null && o.l!=null)
   ? `${o.w}–${o.l} <small>${esc(o.pct??'')}</small>`
   : `<span class="missing">—</span>`; }
 
+/* ---- R3 watched-day gate: compute the crew-era tiles AS OF the viewer's watched day, from the
+   generator's prior-basho baseline + current-basho per-day deltas (record.gate). No gate / no ?d →
+   the full cumulative figure (the fallback also covers the embedded sample and older JSON). ---- */
+const pctOf = (w,l) => (w+l>0) ? ('.'+String(Math.round(w/(w+l)*1000)).padStart(3,'0')) : null;
+function gatedCrew(R){
+  const g=R.gate, rec=R.records||{};
+  if(!g||!g.crew) return rec.crew || {w:null,l:null,pct:null};
+  let w=g.crew.baseW, l=g.crew.baseL;
+  for(const d in g.crew.days){ if(WATCHED_DAY==null||+d<=WATCHED_DAY){ w+=g.crew.days[d].w; l+=g.crew.days[d].l; } }
+  return { w, l, pct: pctOf(w,l) };
+}
+function gatedKinboshi(R){
+  const g=R.gate, k=(R.specials||[]).find(s=>s.jp==='Kinboshi'||s.era==='crew');
+  if(!g||!g.kinboshi) return { count: k?k.count:0, chips: (k&&k.basho)?k.basho.slice():[] };
+  let c=g.kinboshi.base, cur=0;
+  for(const d in g.kinboshi.days){ if(WATCHED_DAY==null||+d<=WATCHED_DAY){ c+=g.kinboshi.days[d]; cur+=g.kinboshi.days[d]; } }
+  const chips=((k&&k.basho)?k.basho:[]).filter(x=>x!==g.curBashoCode);   // current-basho chip only once earned by the watched day
+  if(cur>0) chips.push(g.curBashoCode);
+  return { count:c, chips };
+}
+function gatedBirthday(R){
+  const g=R.gate;
+  if(!g||!g.birthday) return (R.birthday&&R.birthday.inWindow)?R.birthday:null;
+  const b=g.birthday; let w=b.baseW, l=b.baseL;
+  for(const d in b.days){ if(WATCHED_DAY==null||+d<=WATCHED_DAY){ w+=b.days[d].w; l+=b.days[d].l; } }
+  const n=w+l; if(n===0) return null;
+  return { inWindow:true, record:`${w}–${l}`, n, on:b.on };
+}
+
 /* ==================== RENDER ==================== */
 function render(R){
   const app=document.getElementById('app');
@@ -326,35 +395,51 @@ function render(R){
     ? `<div class="photo"><img src="${esc(R.photo)}" alt="${esc(R.name)} full portrait"></div>`
     : `<div class="photo"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Zm-2.4 6h4.8a2 2 0 0 1 2 2v5.5h-1.8V22h-5.2v-5.9H7.6V10.5a2 2 0 0 1 2-2Z"/></svg><span>Full portrait</span></div>`;
 
-  const V=R.vitals, chipCol=tierColorForRank(R.rank.current);
-  // Birthday record is a fun bonus stat — shown only when he has a bout on his birthday inside a basho;
-  // otherwise the tile is HIDDEN entirely (the top row collapses to two columns), not shown as a note.
-  const bday = R.birthday && R.birthday.inWindow
-    ? `<div class="biocard"><p class="eyebrow">Bio</p><h3>Birthday record</h3>
-        <div class="bdaybig tnum">${esc(R.birthday.record)}</div>
-        <div class="bdaysub">in ${R.birthday.n} bout${R.birthday.n===1?'':'s'} fought on ${esc(R.birthday.on)}</div></div>`
-    : '';
-
+  const V=R.vitals;
   const rec=R.records||{};
-  const band1 = `<div class="band">
+
+  // ── R1 — background, full career (sumo-api, timeless-safe, UNGATED) ──
+  const row1 = `<div class="scopelab"><span class="t">Background</span><span class="s">full career</span></div>
+  <div class="band">
     <div class="bcell"><span class="k">Current rank</span><span class="v"><span class="rankbadge" style="background:${tierColorForRank(R.rank.current)}">${esc(R.rank.current)}</span></span></div>
     <div class="bcell"><span class="k">Highest rank</span><span class="v"><span class="rankbadge" style="background:${tierColorForRank(R.highestRank)}">${esc(R.highestRank)}</span></span></div>
     <div class="bcell"><span class="k">All divisions (career)</span><span class="v tnum">${recCell(rec.allDivision)}</span></div>
     <div class="bcell"><span class="k">Makuuchi (career)</span><span class="v tnum">${recCell(rec.makuuchi)}</span></div>
-    <div class="bcell"><span class="k">Crew (Jan 2025+)</span><span class="v tnum">${recCell(rec.crew)}</span></div>
-  </div>${rec.note?`<p class="recnote">${esc(rec.note)}</p>`:''}`;
+  </div>`;
 
-  const band2 = `<div class="band">${(R.specials||[]).map(s=>{
-      const chips = (s.basho&&s.basho.length) ? s.basho.join(', ') : '';
-      const earlier = s.pre>0 ? `${chips?' · ':''}+${s.pre} earlier` : '';
-      const provn = (chips||earlier) ? chips+earlier : '—';
-      const eraTag = s.era==='crew' ? '<span class="eratag">crew era</span>' : '';
-      return `<div class="bcell"><span class="k">${esc(s.jp)}${eraTag}</span><span class="keng">${esc(s.en)}</span>
-      <span class="v tnum">${s.count}</span><span class="bfrom">${esc(provn)}</span></div>`;}).join('')}
-  </div><p class="recnote">Counts are career. The basho chips mark crew-era (2025+) honors we tracked; “+N earlier” is honors before that (no per-basho record on hand). Kinboshi is crew-era only.</p>`;
+  // split specials: kinboshi (crew-era) → R3; the career honor roll → R2 with Emperor's Cup leading.
+  const specials = R.specials||[];
+  const kinboshi = specials.find(s => s.jp==='Kinboshi' || s.era==='crew');
+  const honorRoll = ['Yusho','Shukun-sho','Kanto-sho','Gino-sho'].map(jp=>specials.find(s=>s.jp===jp)).filter(Boolean);
+  const specialCell = s => {
+    const chips = (s.basho&&s.basho.length) ? s.basho.join(', ') : '';
+    const earlier = s.pre>0 ? `${chips?' · ':''}+${s.pre} earlier` : '';
+    const provn = (chips||earlier) ? chips+earlier : '—';
+    return `<div class="bcell"><span class="k">${esc(s.jp)}</span><span class="keng">${esc(s.en)}</span>
+      <span class="v tnum">${s.count}</span><span class="bfrom">${esc(provn)}</span></div>`;
+  };
+
+  // ── R2 — honor roll, full career (sumo-api, timeless-safe, UNGATED) ──
+  const row2 = honorRoll.length ? `<div class="scopelab"><span class="t">Honor roll</span><span class="s">full career</span></div>
+    <div class="band">${honorRoll.map(specialCell).join('')}</div>
+    <p class="recnote">Counts are career. The basho chips mark crew-era (2025+) honors we tracked; “+N earlier” is honors before that (no per-basho record on hand).</p>` : '';
+
+  // ── R3 — crew era, Jan 2025+ (Match Log, INCLUDES current basho → watched-day gated) ──
+  const crewG = gatedCrew(R), kinG = gatedKinboshi(R), bdayG = gatedBirthday(R);
+  const kinCell = kinboshi
+    ? `<div class="bcell"><span class="k">Kinboshi</span><span class="keng">Gold Star · since Jan 2025</span><span class="v tnum">${kinG.count}</span><span class="bfrom">${kinG.chips.length?esc(kinG.chips.join(', ')):'—'}</span></div>`
+    : '';
+  const bdayCell = bdayG
+    ? `<div class="bcell"><span class="k">Birthday record</span><span class="keng">on ${esc(bdayG.on)}</span><span class="v tnum">${esc(bdayG.record)}</span><span class="bfrom">in ${bdayG.n} bout${bdayG.n===1?'':'s'}</span></div>`
+    : '';
+  const row3 = `<div class="scopelab"><span class="t">Crew era</span><span class="s">since Jan 2025 · gated to your day</span></div>
+    <div class="band crew">
+      <div class="bcell"><span class="k">Crew W-L</span><span class="keng">since Jan 2025</span><span class="v tnum">${recCell(crewG)}</span></div>
+      ${kinCell}${bdayCell}
+    </div>${rec.note?`<p class="recnote">${esc(rec.note)}</p>`:''}`;
 
   const story = `<section class="story"><p class="eyebrow">The story <span class="tag soft">Soft · narrative</span></p>
-   <p class="body">${R.story.html}</p></section>`;
+    <p class="body">${R.story.html}</p></section>`;
 
   const arcPanel = `<section class="panel"><div class="phead"><h2>Banzuke rank over time</h2><span class="tag hard">Hard · full career</span></div>
     <svg id="arc" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rank over time"></svg>
@@ -374,6 +459,11 @@ function render(R){
     <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Henka: him vs the field</h2><span class="tag soft">Soft</span></div>
       <div class="cmp" id="henka"></div><p class="note">His henka rate vs the makuuchi average.</p></section></div>`;
 
+  const injuryPanel = `<section class="panel"><div class="phead"><h2>Injury history</h2><span class="tag soft">Soft · booth + eye</span></div>
+    <div id="chronic"></div>
+    <div class="bashosel" id="injsel"></div><div class="dl" id="injdl"></div>
+    <p class="note">Chronic conditions up top are the durable read. The by-basho log gates to your watched day; past basho are complete.</p></section>`;
+
   const bio = `<section class="panel"><div class="phead"><h2>The person: bio, talents, fun facts</h2>
     <span class="tag hard">Hard</span><span class="tag soft">+ Soft</span></div>
     <div class="biofull">${(R.bio||[]).map(b=>`<div class="row"><div class="k">${esc(b.k)}</div>
@@ -389,10 +479,10 @@ function render(R){
   // honest banner and lean on the sumo-api career data above, instead of four separate empty tiles.
   const limited = !!R.newToTracking;
   const limitedBanner = `<section class="panel limited"><div class="phead"><h2>Crew stats</h2><span class="tag member">Crew</span></div>
-    <p class="limitednote">New to our tracking — no bouts logged yet. His career record, rank history, and bio above come straight from sumo-api; the crew stats (kimarite mix, schedule caliber, henka, mawashi, birthday) fill in as he fights in front of us.</p></section>`;
-  const crewPanels = limited ? limitedBanner : (charts2a + charts2b);
+    <p class="limitednote">New to our tracking — no bouts logged yet. His career record, rank history, and bio above come straight from sumo-api; the crew stats (kimarite mix, schedule caliber, henka, mawashi, birthday, injuries) fill in as he fights in front of us.</p></section>`;
+  const crewPanels = limited ? limitedBanner : (charts2a + charts2b + injuryPanel);
 
-  app.innerHTML = `<div class="top${bday?'':' nobday'}">${photo}
+  app.innerHTML = `<div class="top">${photo}
     <div class="namecard"><div class="topline">
       <span class="rankchip" style="background:${tierColorForRank(R.rank.current)}">● ${esc(R.rank.current)} · ${esc(R.rank.basho)}</span>
       <div class="unittoggle" id="utog"><button data-u="std">ft · lb</button><button data-u="metric">cm · kg</button></div></div>
@@ -404,11 +494,11 @@ function render(R){
         <div class="ns"><div class="k">Age</div><div class="v tnum">${V.age??'—'}</div></div>
         <div class="ns"><div class="k">B-day</div><div class="v">${esc(V.bday.mon)} ${V.bday.day}<small> ${esc(V.bday.yy)}</small></div></div>
         <div class="ns"><div class="k">Stable</div><div class="v">${esc(V.stable)}</div></div>
-      </div></div>${bday}</div>`
-    + band1 + band2 + story + arcPanel + crewPanels + bio + footer;
+      </div></div></div>`
+    + row1 + row2 + row3 + story + arcPanel + crewPanels + bio + footer;
 
   drawArc(R);
-  if(!limited){ drawPie(R); drawMawashi(R); drawCaliber(R); drawHenka(R); }
+  if(!limited){ drawPie(R); drawMawashi(R); drawCaliber(R); drawHenka(R); drawInjuries(R); }
   initUnits(R);
 }
 
@@ -489,9 +579,19 @@ function drawMawashi(R){
 function drawCaliber(R){
   const C=R.caliber||{bashos:{}}; const bsel=document.getElementById('bsel'); const keys=Object.keys(C.bashos||{});
   if(!keys.length){ bsel.innerHTML=''; document.getElementById('caliber').innerHTML='<div class="emptylane">No member caliber data yet — fills once bouts are logged against ranked opponents.</div>'; return; }
-  bsel.innerHTML=keys.map(b=>`<button data-b="${b}">${b}</button>`).join('');
+  bsel.innerHTML=keys.map(b=>`<button data-b="${b}">${b}${b===C.curBasho?' •':''}</button>`).join('');
+  // current basho: rebuild the tier rows from the per-day series up to the watched day, so caliber can
+  // never sum more bouts than the day-gated standings W-L. Prior basho: the static aggregate.
+  function rowsFor(b){
+    if(b===C.curBasho && C.curDays){
+      const agg={Named:[0,0],HighM:[0,0],LowM:[0,0]};
+      for(const d in C.curDays){ if(WATCHED_DAY==null||+d<=WATCHED_DAY){ for(const k of ['Named','HighM','LowM']){ agg[k][0]+=C.curDays[d][k][0]; agg[k][1]+=C.curDays[d][k][1]; } } }
+      return [['Named','Y·O·S·K',agg.Named[0],agg.Named[1]],['High M','M1–8',agg.HighM[0],agg.HighM[1]],['Low M','M9+ · Juryo',agg.LowM[0],agg.LowM[1]]];
+    }
+    return C.bashos[b];
+  }
   function draw(b){
-    document.getElementById('caliber').innerHTML=C.bashos[b].map(row=>{
+    document.getElementById('caliber').innerHTML=rowsFor(b).map(row=>{
       const [lab,sub,w,l]=row, t=(w+l)||1, wp=Math.round(w/t*100);
       return `<div class="calrow"><span class="lab">${esc(lab)}<small>${esc(sub)}</small></span>
         <span class="wl"><span class="w" style="width:${wp}%"></span><span class="l" style="width:${100-wp}%"></span></span>
@@ -500,6 +600,93 @@ function drawCaliber(R){
   }
   bsel.querySelectorAll('button').forEach(x=>x.onclick=()=>draw(x.dataset.b));
   draw(C.default||keys[0]);
+}
+
+/* ---- injuries (chronic band + caliber-style by-basho DL log, gated) ----
+   Model (Jennie 2026-09-19): a durable CHRONIC band up top (timeless-safe, just the standing
+   condition, no dated flare) + a by-basho DL log below, caliber-style. Only the CURRENT basho tab
+   gates to the watched day. A condition first logged THIS basho is held out of the chronic band
+   (showing it would leak a mid-basho onset); it graduates once it carries into a later basho. */
+const STATUS_DOT = { Active:'--loss', Withdrawn:'--yokozuna', Eased:'--win' };
+function injuryStatusColor(st){ return cssv(STATUS_DOT[st] || '--faint'); }
+function areaColor(area){
+  // stable-ish hue per body part so the same knee reads the same across entries
+  const pal=['--ozeki','--sekiwake','--komusubi','--maeg-hi','--maeg-lo','--yokozuna'];
+  let h=0; for(const c of String(area||'')) h=(h*31+c.charCodeAt(0))>>>0;
+  return cssv(pal[h%pal.length]);
+}
+function drawInjuries(R){
+  const INJ = R.injuries || [];
+  const chronicEl = document.getElementById('chronic');
+  const selEl = document.getElementById('injsel');
+  const dlEl  = document.getElementById('injdl');
+  if(!INJ.length){ chronicEl.innerHTML=''; selEl.innerHTML=''; dlEl.innerHTML='<div class="emptylane">No injuries or conditions logged for him in the tracked era.</div>'; return; }
+
+  // A layer is visible if it is NOT in the current basho, OR (current basho AND no watched day set) OR
+  // (current basho AND its day <= watched day). Undated current-basho layers show only once the basho
+  // is fully open (no watched-day filter) — a dated log is the norm.
+  const layerVisible = ly => {
+    if(ly.bashoCode !== CUR_BASHO_CODE) return true;         // prior basho = complete, safe
+    if(WATCHED_DAY == null) return true;                      // no gate → full basho
+    if(ly.day == null) return false;                          // undated current-basho layer → hold under a gate
+    return ly.day <= WATCHED_DAY;
+  };
+
+  // ── chronic / carrying band (durable, ungated) ──
+  // Show a condition here only if it is chronic-natured AND durable (predates this basho), so a
+  // this-basho onset never leaks up top. chronicSafe is set by the generator; fall back to a nature
+  // check + firstBasho guard for older JSON.
+  const chronic = INJ.filter(i => {
+    const natured = (i.nature||[]).some(n => /chronic/i.test(n));
+    const durable = i.chronicSafe === true || (i.firstBasho && i.firstBasho !== CUR_BASHO_CODE);
+    return natured && durable;
+  });
+  chronicEl.innerHTML = chronic.length
+    ? `<div class="chronic">${chronic.map(i=>{
+        const warn = (i.nature||[]).some(n=>/suspected/i.test(n));
+        return `<span class="chip${warn?' warn':''}"><span class="dot" style="background:${areaColor(i.area)}"></span>
+          <span class="bp">${esc(i.area)}</span><span class="st">${warn?'suspected chronic':'chronic'}</span></span>`;}).join('')}</div>`
+    : '';
+
+  // ── by-basho DL log (caliber-style tabs; current tab gated) ──
+  // Build the set of basho that have any VISIBLE layer, newest first.
+  const bashoOf = new Map();  // bashoCode → { label, sort, entries:[{area,statusColorNow,layers:[]}] }
+  const bcodeSort = code => { const m=String(code).match(/^(\d{2})([A-Za-z]{2})$/); const mm={Ht:1,Hr:3,Nt:5,Ng:7,Ak:9,Ky:11}; return m?(+m[1])*100+(mm[m[2]]||0):0; };
+  for(const inj of INJ){
+    for(const ly of (inj.layers||[])){
+      if(!layerVisible(ly)) continue;
+      const code = ly.bashoCode || ly.basho || '—';
+      let b = bashoOf.get(code);
+      if(!b){ b = { code, label: ly.basho || code, sort: bcodeSort(code), byArea:new Map() }; bashoOf.set(code, b); }
+      let ar = b.byArea.get(inj.area);
+      if(!ar){ ar = { area:inj.area, status:inj.status, source:inj.source||[], nature:inj.nature||[], layers:[] }; b.byArea.set(inj.area, ar); }
+      ar.layers.push(ly);
+    }
+  }
+  const bashos = [...bashoOf.values()].sort((a,b)=>b.sort-a.sort);
+  if(!bashos.length){ selEl.innerHTML=''; dlEl.innerHTML='<div class="emptylane">Nothing to show through your watched day yet.</div>'; return; }
+
+  selEl.innerHTML = bashos.map(b=>`<button data-b="${esc(b.code)}">${esc(b.code)}${b.code===CUR_BASHO_CODE?' •':''}</button>`).join('');
+  const provTag = src => (src&&src.length) ? src.map(s=>({'Seen-in-bout':'seen','Booth mention':'booth','Scorekeeper Eye':'eye','Official':'official'}[s]||s.toLowerCase())).join(' · ') : '';
+  function draw(code){
+    const b = bashoOf.get(code);
+    const groups = [...b.byArea.values()];
+    dlEl.innerHTML = groups.map(g=>{
+      const dot = areaColor(g.area);
+      const stCol = injuryStatusColor(g.status);
+      const srcTag = provTag(g.source);            // provenance once per condition, not per layer
+      const ents = g.layers.slice().sort((x,y)=>(x.day||0)-(y.day||0)).map(ly=>{
+        const dayLab = ly.day!=null ? `${esc(code)} D${ly.day}` : esc(ly.basho||code);
+        return `<div class="dlent"><span class="day">${dayLab}</span> — ${esc(ly.text||'')}</div>`;
+      }).join('');
+      return `<div class="dlgrp"><div class="bp"><span class="dot" style="background:${dot}"></span>${esc(g.area)}
+        <span class="st" style="font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:${stCol}">${esc(g.status||'')}</span>
+        ${srcTag?`<span class="prov" style="font-size:10px;color:var(--faint);font-weight:400">· ${esc(srcTag)}</span>`:''}</div>${ents}</div>`;
+    }).join('');
+    selEl.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x.dataset.b===code));
+  }
+  selEl.querySelectorAll('button').forEach(x=>x.onclick=()=>draw(x.dataset.b));
+  draw(bashos[0].code);
 }
 
 /* ---- henka vs field ---- */
