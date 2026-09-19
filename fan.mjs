@@ -36,6 +36,7 @@ import process from 'node:process';
 const NOTION_TOKEN = process.env.NOTION_TOKEN;
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
 const ANTHROPIC_MODEL = process.env.ANTHROPIC_MODEL || 'claude-sonnet-4-5';
+const ANNOUNCER_VISION_MODEL = process.env.ANNOUNCER_VISION_MODEL || ANTHROPIC_MODEL;   // reads the on-screen PLAY-BY-PLAY caption; override to a cheaper vision model if desired
 const NOTION_VERSION = '2022-06-28';
 const ANTHROPIC_VERSION = '2023-06-01';
 
@@ -645,7 +646,51 @@ async function catcherBackfill(row) {
 }
 
 // ---------------------------------------------------------------------------
-// ANNOUNCER RESOLUTION LADDER (row -> Scorekeeper header -> crew tag -> self-id -> fingerprint -> HOLD)
+// ANNOUNCER BY ON-SCREEN CAPTION (vision) - the box attaches a bottom-band frame to the Day row;
+// we read the "PLAY-BY-PLAY <name>" super with a cheap vision call. Caption sits bottom-LEFT or
+// bottom-RIGHT and appears within the first bout or two, so we key on the words, not a fixed corner.
+// ---------------------------------------------------------------------------
+function announcerFrameUrls(dayRow) {
+  const files = dayRow.properties?.['Announcer Frame']?.files || [];
+  return files.map(f => f.file?.url || f.external?.url).filter(Boolean);
+}
+async function resolveAnnouncerVision(dayRow) {
+  if (!ANTHROPIC_API_KEY) return null;                 // no key -> skip (offline/mock)
+  const urls = announcerFrameUrls(dayRow);
+  if (!urls.length) return null;                       // box has not attached a frame -> skip
+  const images = [];
+  for (const u of urls.slice(0, 2)) {                  // at most 2 images (a montage or two)
+    try {
+      const r = await fetch(u);
+      if (!r.ok) { problem(`announcer frame fetch ${r.status}`); continue; }
+      const media_type = (r.headers.get('content-type') || 'image/jpeg').split(';')[0];
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length > 4_500_000) { problem('announcer frame too large - skipped'); continue; }
+      images.push({ type: 'image', source: { type: 'base64', media_type, data: buf.toString('base64') } });
+    } catch (e) { problem(`announcer frame error: ${e.message}`); }
+  }
+  if (!images.length) return null;
+  const ask = `These are frames from an NHK World Grand Sumo Highlights broadcast. Somewhere there is a lower-third caption (bottom-LEFT or bottom-RIGHT) reading "PLAY BY PLAY" followed by the commentator's name. Read that name and map it to EXACTLY one of this roster: ${ROSTER.join(', ')}. Reply with ONLY the exact roster name, or the single word NONE if no PLAY-BY-PLAY name caption is legible. Do not infer from the wrestlers, ranks, or anything else on screen.`;
+  let data;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': ANTHROPIC_VERSION, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: ANNOUNCER_VISION_MODEL, max_tokens: 24, messages: [{ role: 'user', content: [...images, { type: 'text', text: ask }] }] }),
+    });
+    const text = await res.text();
+    if (!res.ok) { problem(`announcer vision call ${res.status}: ${text.slice(0, 120)}`); return null; }
+    data = JSON.parse(text);
+  } catch (e) { problem(`announcer vision error: ${e.message}`); return null; }
+  recordSpend(data.usage);   // small (one/two images, ~few tokens out); priced at ANTHROPIC_MODEL rate - close enough for the echo
+  const out = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join(' ').trim();
+  const hit = ROSTER.find(n => norm(out).includes(norm(n)));
+  if (!hit) note(`   announcer vision: no roster match ("${out.slice(0, 40)}")`);
+  return hit || null;
+}
+
+// ---------------------------------------------------------------------------
+// ANNOUNCER RESOLUTION LADDER (row -> Scorekeeper header -> crew tag -> self-id -> ON-SCREEN VISION -> fingerprint -> HOLD)
 // ---------------------------------------------------------------------------
 async function resolveAnnouncer(dayRow, ex, catcherRows) {
   const already = pRel(dayRow, 'Announcer');
@@ -659,8 +704,12 @@ async function resolveAnnouncer(dayRow, ex, catcherRows) {
   if (fromNotes) return { name: fromNotes, how: 'Scorekeeper Notes header' };
   const fromCatcher = await announcerFromCatcher(catcherRows);
   if (fromCatcher) return { name: canonical(fromCatcher.name), how: 'crew-tagged in Catcher' };
-  // transcript-derived signals (Pass 1 only; ex is null on a backfill)
+  // transcript self-ID (Pass 1 only; free and reliable when present)
   if (ex && ex.announcer_self_id && ROSTER.some(n => norm(n) === norm(ex.announcer_self_id))) return { name: canonical(ex.announcer_self_id), how: 'self-ID in transcript' };
+  // on-screen PLAY-BY-PLAY caption via a cheap vision call - beats the flaky text fingerprint
+  const vis = await resolveAnnouncerVision(dayRow);
+  if (vis) return { name: canonical(vis), how: 'on-screen caption (vision)' };
+  // last resort: KB phrasing fingerprint (Pass 1 only; unreliable - held for catchphrases if it is all we have)
   if (ex && ex.announcer_confidence === 'fingerprint' && ex.announcer_fingerprint && ROSTER.some(n => norm(n) === norm(ex.announcer_fingerprint))) return { name: canonical(ex.announcer_fingerprint), how: 'KB fingerprint' };
   return { name: null, how: 'undetermined (HOLD catchphrases)' };
 }
@@ -839,4 +888,5 @@ if (invokedDirectly) {
 
 // exported for offline testing (stubbed fetch); harmless in production
 export const __test = { clean, writeCatchphrases, writeInjury, resolveAnnouncer, priceFor, recordSpend, spend,
-  corePhrase, tiesToTranscript, readCatcherDay, runCatcherLane, catcherBackfill, announcerFromNotes };
+  corePhrase, tiesToTranscript, readCatcherDay, runCatcherLane, catcherBackfill, announcerFromNotes,
+  announcerFrameUrls, resolveAnnouncerVision };
