@@ -1,19 +1,28 @@
 name: Fan-out + publish (keystone)
 
-# The keystone: one spine, two entry points, off the flaky Cowork session.
-#   Pass 1 (box-push)  -> run-live.sh confirms the transcript push, fires repository_dispatch
+# The keystone: one spine, three entry points, off the flaky Cowork session.
+#   Pass 1 (box-push, FAST PATH) -> run-live.sh confirms the transcript push, fires repository_dispatch
 #                          (transcript-landed). The fan runs the instant the transcript lands.
-#   Pass 2 (Jennie)    -> workflow_dispatch with mode=pass2, after scorekeeper notes are on the row.
+#   Pass 1 (schedule, BELT)      -> a few afternoon crons during the basho window catch a MISSED dispatch
+#                          (box offline, token expired, dispatch failed). The fan is idempotent, so a
+#                          belt run on an already-fanned day is a free no-op. This replaces the old
+#                          Cowork fan triggers (which hung at session start) with CI-native cron.
+#   Pass 2 (Jennie)              -> workflow_dispatch with mode=pass2, after scorekeeper notes are on the row.
 # fan.mjs (Claude API, same key Gumbai uses) writes color to Notion; deterministic code holds every
 # rail. Then the publish job (reusable) rebuilds standings + Gumbai snapshot from Notion and commits,
 # so the drinking-game board reflects the fan immediately - no waiting for the next publish cron.
-#
-# The fan CRONS in the box + the publish CRONS stay in place as the BELT. This is the fast path; if a
-# dispatch is ever missed (box offline, token expired), the cron still fans and publishes.
 
 on:
   repository_dispatch:
-    types: [transcript-landed]      # Pass 1 - fired by the box after a confirmed push
+    types: [transcript-landed]      # Pass 1 FAST PATH - fired by the box after a confirmed push
+  schedule:
+    # Pass 1 BELT. Basho window only (odd months = the 6 honbasho; days 8-27 covers every basho's run).
+    # Times are UTC and land AFTER the box's ~17:14 UTC transcript push, so if the dispatch was missed
+    # the fan still catches the landed row. Multiple attempts = resilient to GitHub dropping any one cron.
+    # Off-window / off-day these never fire; an on-day run with the day already fanned is a no-op (no API spend).
+    - cron: "45 17 8-27 1,3,5,7,9,11 *"   # ~10:45 AM PT - shortly after the transcript lands
+    - cron: "30 19 8-27 1,3,5,7,9,11 *"   # ~12:30 PM PT - midday catch
+    - cron: "30 21 8-27 1,3,5,7,9,11 *"   # ~2:30 PM PT  - afternoon backstop (also covers a late VOD recapture)
   workflow_dispatch:                # Pass 2 (scorekeeper) or a manual re-run / rehearsal
     inputs:
       mode:
@@ -45,30 +54,21 @@ jobs:
           node-version: "20"
       - name: Fan color to Notion (model extracts, code enforces the rails)
         env:
-          # The fan WRITES across Days, Announcers, Library, Sightings, Injury Log, Master Rikishi,
-          # so it needs the full-tracker WRITE token, not the narrow box token. publish reads, so it
-          # can keep using the read token.
           NOTION_TOKEN:      ${{ secrets.NOTION_TOKEN_WRITE }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # the same key Gumbai uses
-          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}        # NOT a secret - a plain repo Variable (or unset -> fan.mjs default)
-          # Resend is deliberately NOT in GitHub (Secrets Map row 4: box + Cloudflare only). Left unset,
-          # the fan prints its summary to the Actions log and GitHub's own failed-run email is the alarm.
-          # These three resolve to empty when the secrets are absent, and the fan simply skips emailing.
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}
           RESEND_KEY:        ${{ secrets.RESEND_KEY }}
           ALERT_EMAIL:       ${{ secrets.ALERT_EMAIL }}
           ALERT_FROM:        ${{ secrets.ALERT_FROM }}
-          # repository_dispatch -> pass1; workflow_dispatch -> the chosen input
-          MODE:    ${{ github.event_name == 'repository_dispatch' && 'pass1' || github.event.inputs.mode }}
+          # MODE: only a manual workflow_dispatch chooses the mode. repository_dispatch (fast path) AND
+          # schedule (belt) both mean Pass 1. The old expression left MODE blank on a scheduled run.
+          MODE:    ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode || 'pass1' }}
           DAY:     ${{ github.event.client_payload.day || github.event.inputs.day || '' }}
           DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
-        # fan.mjs exits 3 on a soft problem (still emailed) and 1 on a crash; either fails this job LOUD.
         run: node fan.mjs
 
   publish:
     needs: fan
-    # Run the publish even if the fan reported a soft problem, so whatever DID land surfaces. Publish
-    # reads Notion and commits only on a real diff, so it is a safe no-op when nothing changed. Skipped
-    # only on a dry rehearsal.
     if: ${{ always() && (github.event.inputs.dry_run || '0') != '1' }}
     uses: ./.github/workflows/publish.yml
     secrets: inherit
