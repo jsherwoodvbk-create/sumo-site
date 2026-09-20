@@ -178,7 +178,15 @@ const pSelect= (p, k) => p.properties?.[k]?.select?.name || null;
 const pDate  = (p, k) => p.properties?.[k]?.date?.start || null;
 // writers (REST shapes)
 const wTitle = s => ({ title: [{ text: { content: clean(s) || '' } }] });
-const wText  = s => ({ rich_text: [{ text: { content: clean(s) || '' } }] });
+const wText  = s => {
+  // Notion caps EACH rich_text segment at 2000 chars, so split long content into multiple segments
+  // (they render contiguously). Fixes storylines / injury logs / notes that exceed the cap.
+  const t = clean(s) || '';
+  if (t.length <= 1900) return { rich_text: [{ text: { content: t } }] };
+  const parts = [];
+  for (let i = 0; i < t.length; i += 1900) parts.push({ text: { content: t.slice(i, i + 1900) } });
+  return { rich_text: parts };
+};
 const wNum   = n => ({ number: n });
 const wBool  = b => ({ checkbox: !!b });
 const wRel   = ids => ({ relation: (ids || []).map(id => ({ id: idNoDash(id) })) });
