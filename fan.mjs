@@ -641,7 +641,7 @@ async function catcherBackfill(row) {
     // read the Catcher SEPARATELY-guarded: a 404 (e.g. DB not shared) must not stop the announcer read
     let catcherRows = [];
     try { catcherRows = await readCatcherDay(dayNum); }
-    catch (e) { problem(`catcher read failed (${e.message}) - continuing (announcer can still resolve)`); }
+    catch (e) { note(`   catcher unavailable (${(e.message || '').slice(0, 80)}) - crew lane skipped (optional; announcer still resolves)`); }
     // announcer resolution (incl. the on-screen vision rung) runs regardless of the Catcher
     const resolved = await resolveAnnouncer(row, null, catcherRows);
     note(`   backfill announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
@@ -786,7 +786,7 @@ async function pass1() {
   let catcherRows = [];
   if (!type.includes('Live/Preview')) {
     try { catcherRows = await readCatcherDay(dayNum); }
-    catch (e) { problem(`catcher read failed (${e.message}) - continuing without the crew lane`); }
+    catch (e) { note(`   catcher unavailable (${(e.message || '').slice(0, 80)}) - crew lane skipped (optional)`); }
   }
 
   // announcer FIRST (catchphrases need it); color lanes fan regardless
