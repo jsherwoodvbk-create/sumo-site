@@ -638,14 +638,20 @@ async function catcherBackfill(row) {
     const air = pDate(row, 'Original Air Date') || airToday();
     if (type.includes('Live/Preview')) { note('   catcher backfill skipped (.5 row)'); return; }
     const show = 'GSH Highlights';
-    const catcherRows = await readCatcherDay(dayNum);
-    if (!catcherRows.length) { note('   catcher: nothing open to backfill'); return; }
+    // read the Catcher SEPARATELY-guarded: a 404 (e.g. DB not shared) must not stop the announcer read
+    let catcherRows = [];
+    try { catcherRows = await readCatcherDay(dayNum); }
+    catch (e) { problem(`catcher read failed (${e.message}) - continuing (announcer can still resolve)`); }
+    // announcer resolution (incl. the on-screen vision rung) runs regardless of the Catcher
     const resolved = await resolveAnnouncer(row, null, catcherRows);
-    note(`   catcher backfill announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
+    note(`   backfill announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
     const annId = resolved.name ? await writeAnnouncer(row, resolved.name) : null;
-    const body = await blockChildrenText(row.id);
-    const tx = body.split(/Transcript \(auto-landed/i).pop();
-    await runCatcherLane(row, dayNum, norm(tx || body), annId, resolved.name, show, air, catcherRows);
+    // crew lane only if there are open Catcher rows to fold
+    if (catcherRows.length) {
+      const body = await blockChildrenText(row.id);
+      const tx = body.split(/Transcript \(auto-landed/i).pop();
+      await runCatcherLane(row, dayNum, norm(tx || body), annId, resolved.name, show, air, catcherRows);
+    } else { note('   catcher: nothing open to backfill'); }
   } catch (e) { problem(`catcher backfill failed (${e.message}) - non-fatal`); }
 }
 
@@ -674,13 +680,13 @@ async function resolveAnnouncerVision(dayRow) {
     } catch (e) { problem(`announcer frame error: ${e.message}`); }
   }
   if (!images.length) return null;
-  const ask = `These are frames from an NHK World Grand Sumo Highlights broadcast. Somewhere there is a lower-third caption (bottom-LEFT or bottom-RIGHT) reading "PLAY BY PLAY" followed by the commentator's name. Read that name and map it to EXACTLY one of this roster: ${ROSTER.join(', ')}. Reply with ONLY the exact roster name, or the single word NONE if no PLAY-BY-PLAY name caption is legible. Do not infer from the wrestlers, ranks, or anything else on screen.`;
+  const ask = `You are reading frames from an NHK World Grand Sumo Highlights broadcast to find the PLAY-BY-PLAY commentator's name. It appears in a lower-third caption (bottom-LEFT or bottom-RIGHT) with the words "PLAY BY PLAY" next to a name. Map that name to EXACTLY one of this roster: ${ROSTER.join(', ')}. Output ONLY that exact roster name and nothing else. If no PLAY-BY-PLAY name caption is visible in any frame, output exactly NONE. Do not explain or describe the frames.`;
   let data;
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': ANTHROPIC_VERSION, 'content-type': 'application/json' },
-      body: JSON.stringify({ model: ANNOUNCER_VISION_MODEL, max_tokens: 24, messages: [{ role: 'user', content: [...images, { type: 'text', text: ask }] }] }),
+      body: JSON.stringify({ model: ANNOUNCER_VISION_MODEL, max_tokens: 32, messages: [{ role: 'user', content: [...images, { type: 'text', text: ask }] }] }),
     });
     const text = await res.text();
     if (!res.ok) { problem(`announcer vision call ${res.status}: ${text.slice(0, 120)}`); return null; }
