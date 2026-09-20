@@ -630,19 +630,23 @@ async function settleJewel(dayRow, dayNum, votes, written, annId) {
 // or as a completeness pass after Pass 2. No API spend - resolves the announcer from human
 // signals (row / Scorekeeper header / crew tag) and reads the transcript body for the tie check.
 async function catcherBackfill(row) {
-  const dayNum = pNum(row, 'Day #');
-  const type = pSelect(row, 'Type') || 'Highlights';
-  const air = pDate(row, 'Original Air Date') || airToday();
-  if (type.includes('Live/Preview')) { note('   catcher backfill skipped (.5 row)'); return; }
-  const show = 'GSH Highlights';
-  const catcherRows = await readCatcherDay(dayNum);
-  if (!catcherRows.length) { note('   catcher: nothing open to backfill'); return; }
-  const resolved = await resolveAnnouncer(row, null, catcherRows);
-  note(`   catcher backfill announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
-  const annId = resolved.name ? await writeAnnouncer(row, resolved.name) : null;
-  const body = await blockChildrenText(row.id);
-  const tx = body.split(/Transcript \(auto-landed/i).pop();
-  await runCatcherLane(row, dayNum, norm(tx || body), annId, resolved.name, show, air, catcherRows);
+  // Fully fault-isolated: this runs on an already-fanned day (or after Pass 2), so nothing it does
+  // may crash the run. Any failure is a logged problem, never fatal.
+  try {
+    const dayNum = pNum(row, 'Day #');
+    const type = pSelect(row, 'Type') || 'Highlights';
+    const air = pDate(row, 'Original Air Date') || airToday();
+    if (type.includes('Live/Preview')) { note('   catcher backfill skipped (.5 row)'); return; }
+    const show = 'GSH Highlights';
+    const catcherRows = await readCatcherDay(dayNum);
+    if (!catcherRows.length) { note('   catcher: nothing open to backfill'); return; }
+    const resolved = await resolveAnnouncer(row, null, catcherRows);
+    note(`   catcher backfill announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
+    const annId = resolved.name ? await writeAnnouncer(row, resolved.name) : null;
+    const body = await blockChildrenText(row.id);
+    const tx = body.split(/Transcript \(auto-landed/i).pop();
+    await runCatcherLane(row, dayNum, norm(tx || body), annId, resolved.name, show, air, catcherRows);
+  } catch (e) { problem(`catcher backfill failed (${e.message}) - non-fatal`); }
 }
 
 // ---------------------------------------------------------------------------
@@ -770,8 +774,14 @@ async function pass1() {
   const announcerHint = (() => { const a = pRel(row, 'Announcer'); return a.length ? '(already set)' : ''; })();
   const ex = await extract({ mode: 'pass1', type, dayNum, sourceText: tx, announcerHint, libraryHint });
 
-  // crew ear-grab intake for the day (also a human announcer signal); [] on a .5 row
-  const catcherRows = type.includes('Live/Preview') ? [] : await readCatcherDay(dayNum);
+  // crew ear-grab intake for the day (also a human announcer signal); [] on a .5 row.
+  // Fault-isolated: a Catcher read failure (e.g. the Catcher DB not shared with the fan token) must
+  // NEVER crash the fan - the core announcer/storylines/injuries/publish still land.
+  let catcherRows = [];
+  if (!type.includes('Live/Preview')) {
+    try { catcherRows = await readCatcherDay(dayNum); }
+    catch (e) { problem(`catcher read failed (${e.message}) - continuing without the crew lane`); }
+  }
 
   // announcer FIRST (catchphrases need it); color lanes fan regardless
   const resolved = await resolveAnnouncer(row, ex, catcherRows);
@@ -781,12 +791,16 @@ async function pass1() {
   await writeStorylines(row, ex.storylines, show, air);
   for (const inj of (ex.injuries || [])) await writeInjury(row, inj, show, air);
   if (!type.includes('Live/Preview')) {
-    // crew Catcher lane FIRST (the ear-grab signal owns the day + the Jewel when present)...
-    const crew = await runCatcherLane(row, dayNum, norm(tx), annId, resolved.name, show, air, catcherRows);
-    // ...then the machine transcript lane as a FALLBACK for the (likely) days nobody watched: it adds
-    // phrases crew did not catch, never clobbers a crew sighting, and only crowns when crew caught nothing.
-    const crewPresent = !!(crew && crew.count > 0);
-    await writeCatchphrases(row, ex.catchphrases, annId, resolved.name, show, air, { allowJewel: !crewPresent, skipExisting: true });
+    // The whole catchphrase subsystem is fault-isolated: storylines + injuries have already landed,
+    // and a failure here (Catcher / Library / Sightings) must not fail the run or block the publish chain.
+    try {
+      // crew Catcher lane FIRST (the ear-grab signal owns the day + the Jewel when present)...
+      const crew = await runCatcherLane(row, dayNum, norm(tx), annId, resolved.name, show, air, catcherRows);
+      // ...then the machine transcript lane as a FALLBACK for the (likely) days nobody watched: it adds
+      // phrases crew did not catch, never clobbers a crew sighting, and only crowns when crew caught nothing.
+      const crewPresent = !!(crew && crew.count > 0);
+      await writeCatchphrases(row, ex.catchphrases, annId, resolved.name, show, air, { allowJewel: !crewPresent, skipExisting: true });
+    } catch (e) { problem(`catchphrase/catcher lane failed (${e.message}) - storylines + injuries still landed`); }
   } else note('   catchphrases skipped (.5 row)');
 
   // bio + verify flags -> report only (PROPOSE / never auto-write)
