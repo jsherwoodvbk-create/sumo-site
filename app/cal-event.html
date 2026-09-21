@@ -57,6 +57,17 @@ textarea{resize:vertical;min-height:66px;}
 .formmsg{font-size:13px;min-height:1em;}
 .formmsg.err{color:var(--loss);} .formmsg.ok{color:var(--win);}
 .note{font-size:12px;color:var(--faint);margin:12px 2px 0;line-height:1.5;}
+.note b{color:var(--muted);font-weight:700;}
+/* "Added this session" — the catchphrase-board confirmation pattern, so a re-add is never tempting */
+.card.sess{border-color:color-mix(in srgb,var(--win) 45%,var(--line));background:color-mix(in srgb,var(--win) 6%,var(--surface));}
+.sesscount{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;color:var(--win);}
+.sesslist{list-style:none;margin:0;padding:0;}
+.sessitem{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
+.sessitem:last-child{border-bottom:0;}
+.sessitem .ck{flex:0 0 auto;width:20px;height:20px;border-radius:50%;background:var(--win);color:#fff;font-size:12px;font-weight:800;display:grid;place-items:center;margin-top:1px;}
+.sessitem .si{display:flex;flex-direction:column;min-width:0;}
+.sessitem .si b{font-size:14px;}
+.sessitem .si .sd{font-size:12.5px;color:var(--muted);}
 .eventlist{list-style:none;margin:0;padding:0;}
 .ev{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);}
 .ev:last-child{border-bottom:0;}
@@ -155,7 +166,13 @@ textarea{resize:vertical;min-height:66px;}
         <button class="btn ghost" id="cancel" hidden>Cancel edit</button>
         <span class="formmsg" id="formmsg"></span>
       </div>
-      <p class="note">Events live in the crew's Bashos/Events table, the same place Gumbai reads, so this is permanent history, not a throwaway. It shows on the calendar and in Gumbai after the next site refresh (a few hours, or whenever the publish workflow next runs), not instantly.</p>
+      <p class="note">Saved to the crew calendar the moment you add it, and it appears under <b>Added this session</b> right below so you know it landed. The public calendar grid and Gumbai pick it up at the next site refresh (a few hours, or whenever the publish workflow next runs), so there's <b>no need to add it twice</b> if it isn't on the grid yet.</p>
+    </div>
+
+    <div class="card sess" id="sessCard" hidden>
+      <h2>Added this session <span class="sesscount" id="sessCount"></span></h2>
+      <ul class="sesslist" id="sessList"></ul>
+      <p class="note">These are saved. They show on the calendar and in Gumbai at the next refresh — you don't need to add them again.</p>
     </div>
 
     <div class="card">
@@ -195,6 +212,21 @@ function fmtRange(start,end){
   return end && end!==start ? `${f(start)} → ${f(end)}` : f(start);
 }
 
+/* "Added this session" — a running confirmation of what you've added in this sitting (the catchphrase
+   pattern). It's the clear "it landed" signal so a not-yet-on-the-grid event is never re-added.
+   Session-scoped (sessionStorage), so a refresh keeps it but a new visit starts clean. */
+const SESS_KEY='ss_cal_added';
+const sessCard=document.getElementById('sessCard'), sessList=document.getElementById('sessList'), sessCount=document.getElementById('sessCount');
+let sessArr=[]; try{ sessArr = JSON.parse(sessionStorage.getItem(SESS_KEY)||'[]') || []; }catch(e){ sessArr=[]; }
+function saveSess(){ try{ sessionStorage.setItem(SESS_KEY, JSON.stringify(sessArr.slice(0,50))); }catch(e){} }
+function renderSession(){
+  if(!sessArr.length){ sessCard.hidden=true; return; }
+  sessCard.hidden=false; sessCount.textContent='('+sessArr.length+')';
+  sessList.innerHTML = sessArr.map(ev=>`<li class="sessitem"><span class="ck">✓</span><span class="si"><b>${esc(ev.name||'Untitled event')}</b><span class="sd">${esc(fmtRange(ev.start, ev.end))}${ev.location?' · '+esc(ev.location):''}</span></span></li>`).join('');
+}
+function addToSession(ev){ sessArr.unshift({ name:ev.name, start:ev.start, end:ev.end||null, location:ev.location||null }); saveSess(); renderSession(); }
+renderSession();
+
 async function api(method, payload){
   const opt = { method, headers:{'Content-Type':'application/json'}, cache:'no-store' };
   if(payload) opt.body = JSON.stringify(payload);
@@ -207,7 +239,7 @@ function renderList(events){
   if(!events.length){ listEl.innerHTML='<div class="msg">No crew events yet. Add your first one above.</div>'; return; }
   listEl.innerHTML = '<ul class="eventlist">'+events.map(ev=>{
     const w = fmtWhen(ev.start, ev.end);
-    const bits = [fmtRange(ev.start, ev.end), ev.location].filter(Boolean).join(' · ');
+    const bits = [fmtRange(ev.start, ev.end), ev.location, ev.addedBy?('added by '+ev.addedBy):null].filter(Boolean).join(' · ');
     return `<li class="ev">
       <div class="when"><span class="mo">${w.mo}</span><span class="dy">${w.dy}</span></div>
       <div class="body">
@@ -244,10 +276,18 @@ saveBtn.onclick = async ()=>{
   if(!payload.name){ say('Give the event a name.','err'); F.name.focus(); return; }
   if(!payload.start){ say('Pick a start date.','err'); F.start.focus(); return; }
   saveBtn.disabled=true; say(editId?'Saving…':'Adding…');
+  const wasAdd = !editId;
   const r = editId ? await api('PATCH',{ id:editId, ...payload }) : await api('POST', payload);
   saveBtn.disabled=false;
-  if(r.json && r.json.ok){ toast(editId?'Event updated':'Event added'); clearForm(); load(); }
-  else { say((r.json&&r.json.message) || 'Could not save. Try again.','err'); }
+  if(r.json && r.json.ok){
+    if(wasAdd) addToSession(r.json.event || payload);   // confirm it landed, in the session panel
+    toast(wasAdd?'Event added ✓':'Event updated'); clearForm(); load();
+  } else if(r.json && r.json.error==='duplicate'){
+    // Not an error — it's already saved. Reassure (green), don't scold, so no one re-adds a third time.
+    say(r.json.message || 'That event is already added.','ok'); toast('Already added');
+  } else {
+    say((r.json&&r.json.message) || 'Could not save. Try again.','err');
+  }
 };
 
 async function del(id){
