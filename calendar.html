@@ -94,6 +94,7 @@ header .sub{opacity:.9;font-size:13.5px;margin:0;font-family:'Inter',system-ui,s
 .ev.start{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-6px;padding-right:6px;}
 .ev.end{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:-6px;padding-left:6px;}
 .ev.cont .lbl{visibility:hidden;}          /* only the week's first covered cell shows the label */
+.ev.pending{opacity:.6;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,#fff 55%,transparent);}  /* admin-only: added, not yet published */
 .bd{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink);padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .bd .dot{width:8px;height:8px;border-radius:50%;background:var(--birthday);flex:none;}
 .bd .yr{color:var(--faint);font-size:9.5px;}
@@ -214,6 +215,19 @@ let DATA = SAMPLE;
 const now = new Date();
 let viewY = now.getFullYear(), viewM = now.getMonth();   // 0-based month
 
+// ADMIN LIVE-MERGE: crew events an admin has added but the published snapshot hasn't picked up yet.
+// So an admin sees a just-added event on the grid immediately (normal calendar behavior), marked
+// "pending" until the next publish. Empty for everyone else. Re-applied whenever DATA is rebuilt,
+// deduped against the published set, so a pending event silently becomes the real one once published.
+let PENDING = [];
+const normKey = (name, start) => (start||'') + '|' + String(name||'').toLowerCase().replace(/\s+/g,' ').trim();
+function applyPending(){
+  DATA.events = (DATA.events||[]).filter(e => !e.pending);          // drop any stale pending first
+  if(!PENDING.length) return;
+  const have = new Set(DATA.events.filter(e=>e.kind==='special').map(e=>normKey(e.title, e.start)));
+  for(const p of PENDING){ if(!have.has(normKey(p.title, p.start))) DATA.events.push(p); }
+}
+
 // Build the 6-row (Sun-start) matrix of Date cells for a month.
 function monthMatrix(y, m){
   const first = new Date(y, m, 1);
@@ -266,8 +280,9 @@ function render(){
         // show the label only on the true start OR the first cell of a continuing week
         const showLabel = isStart || weekStart;
         if(!showLabel) cls += ' cont';
-        const title = ev.title + (ev.location?` — ${ev.location}`:'') ;
-        chips += `<div class="ev ${cls}" title="${esc(title)}"><span class="lbl">${esc(ev.title)}</span></div>`;
+        if(ev.pending) cls += ' pending';
+        const title = ev.title + (ev.location?` — ${ev.location}`:'') + (ev.pending?' (pending — publishes for everyone at the next refresh)':'');
+        chips += `<div class="ev ${cls}" title="${esc(title)}"><span class="lbl">${ev.pending?'○ ':''}${esc(ev.title)}</span></div>`;
       }
       // birthdays (recurring) — up to 3, then +N
       const bdays = birthdaysForDay(d);
@@ -293,7 +308,7 @@ render();  // immediately from the sample so the page is never blank
 // upgrade to the live calendar.json in the background
 fetch('/calendar.json', {cache:'no-store'})
   .then(r => r.ok ? r.json() : null)
-  .then(j => { if(j && j.events){ DATA = j; render(); } })
+  .then(j => { if(j && j.events){ DATA = j; applyPending(); render(); } })
   .catch(()=>{ /* keep the sample */ });
 
 /* ---- SUBSCRIBE PANEL (member-gated, self-checks via /api/app/whoami) ----
@@ -310,6 +325,18 @@ fetch('/api/app/whoami', {cache:'no-store'})
     // enforces role on /api/cal-event — this only unhides a link a non-admin could never use anyway).
     if(me && (me.role==='admin' || me.role==='super-admin') && me.status!=='blocked'){
       const ab = document.getElementById('addEvent'); if(ab) ab.hidden = false;
+      // live-merge the admin's crew events so a just-added one shows on the grid before the next publish
+      fetch('/api/cal-event', {cache:'no-store'})
+        .then(r => r.ok ? r.json() : null)
+        .then(d => {
+          if(!d || !d.ok || !Array.isArray(d.events)) return;
+          PENDING = d.events.filter(ev=>ev.start).map(ev=>({
+            id:'se-live-'+normKey(ev.name, ev.start), kind:'special', title:ev.name,
+            start:ev.start, end:ev.end||null, location:ev.location||null, url:ev.link||null, notes:ev.notes||null, pending:true
+          }));
+          applyPending(); render();
+        })
+        .catch(()=>{ /* live-merge is a nicety; the published grid still works */ });
     }
     if(!me || !me.email){
       showSubscribe(`<h3>Subscribe to the calendar</h3>
