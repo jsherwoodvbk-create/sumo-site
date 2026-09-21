@@ -21,6 +21,9 @@
 //   BASHO_LABEL          (default "Aki 2026")
 //   TOURNAMENT_PAGE_ID   (default the Aki Bashos page) - scopes Days to this basho
 //   DAY                  optional integer/float - process this Day # instead of "today's ready row"
+//   REFAN                1 = force a full re-fan of DAY=N: clears that day's prior fan output (archives its
+//                        Sightings, blanks Storylines, clears the Day's catchphrase links) then re-fans from
+//                        the corrected transcript. REQUIRES DAY. All clears are recoverable (Notion trash).
 //   DRY_RUN              1 = print every planned Notion write, execute NONE (safe rehearsal)
 //   MOCK_EXTRACTION      path to a JSON file of the model's output - skips the API call (offline test)
 //   RESEND_KEY / ALERT_EMAIL / ALERT_FROM   optional - emails the run summary (no-silent-fails)
@@ -45,6 +48,7 @@ const BASHO_LABEL = process.env.BASHO_LABEL || 'Aki 2026';
 const TOURNAMENT_PAGE_ID = (process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-8011-8987-d959538f54a0');
 const DAY_OVERRIDE = process.env.DAY ? Number(process.env.DAY) : null;
 const DRY_RUN = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
+const REFAN = process.env.REFAN === '1' || process.env.REFAN === 'true';   // force a full re-fan of DAY=N (see ENV note above); REQUIRES DAY
 const MOCK_EXTRACTION = process.env.MOCK_EXTRACTION || null;
 
 // DATABASE ids (REST /databases/{id}/query + parent for creates). From the Fan-Out Runbook.
@@ -163,6 +167,13 @@ async function updatePage(pageId, properties, label) {
   if (DRY_RUN) { note(`   DRY update [${label}] ${pageId}: ${JSON.stringify(shrink(properties))}`); return; }
   await notion(`/pages/${idNoDash(pageId)}`, 'PATCH', { properties });
   note(`   ~ updated [${label}] ${pageId}`);
+}
+// Archive (soft-delete) a page: it drops out of every query and relation but sits in Notion's trash,
+// so a REFAN clear is fully RECOVERABLE (restore from trash if a re-fan was a mistake). DRY-guarded.
+async function archivePage(pageId, label) {
+  if (DRY_RUN) { note(`   DRY archive [${label}] ${pageId}`); return; }
+  await notion(`/pages/${idNoDash(pageId)}`, 'PATCH', { archived: true });
+  note(`   x archived [${label}] ${pageId}`);
 }
 const shrink = o => JSON.parse(JSON.stringify(o, (k, v) => (typeof v === 'string' && v.length > 80 ? v.slice(0, 77) + '...' : v)));
 
@@ -354,13 +365,15 @@ async function writeAnnouncer(dayRow, resolved) {
   return id;
 }
 
-async function writeStorylines(dayRow, storylines, show, air) {
+async function writeStorylines(dayRow, storylines, show, air, force = false) {
   if (!storylines) return;
   const existing = pText(dayRow, 'Storylines');
-  if (existing) { note('   storylines already present (idempotent) - not clobbering'); return; }
+  // Normally idempotent: filled Storylines means the day already fanned, so we never clobber. REFAN passes
+  // force=true to deliberately overwrite with the re-extraction from the corrected transcript.
+  if (existing && !force) { note('   storylines already present (idempotent) - not clobbering'); return; }
   const stamped = `${clean(storylines)}\n\n[booth, ${show}, air ${air}]`;
-  await updatePage(dayRow.id, { Storylines: wText(stamped) }, 'Day.Storylines');
-  note('   storylines written');
+  await updatePage(dayRow.id, { Storylines: wText(stamped) }, force && existing ? 'Day.Storylines (REFAN overwrite)' : 'Day.Storylines');
+  note(force && existing ? '   storylines overwritten (REFAN)' : '   storylines written');
 }
 
 async function writeInjury(dayRow, inj, show, air) {
@@ -775,6 +788,40 @@ async function findRow() {
 }
 
 // ---------------------------------------------------------------------------
+// REFAN CLEAR - wipe a day's prior fan output so it can be re-fanned from a corrected transcript.
+// Everything here is RECOVERABLE (archives -> Notion trash; Library rows are never touched). Called only
+// on the REFAN=1 + DAY=N path, before the day is re-fanned.
+// ---------------------------------------------------------------------------
+async function refanClear(row, dayNum) {
+  note(`REFAN: clearing prior fan output for Day ${dayNum} (recoverable - archived rows go to Notion trash).`);
+  // 1. Archive this day's Sightings (crew + machine). They drop out of every query/relation but restore
+  //    from trash if the re-fan was a mistake. Library rows (the shared phrase catalog) are NOT touched.
+  const sights = await queryAll(DB.sightings, { property: 'Day', relation: { contains: idNoDash(row.id) } });
+  for (const s of sights) await archivePage(s.id, `Sighting Day ${dayNum} (REFAN)`);
+  note(`   REFAN: archived ${sights.length} sighting(s) for Day ${dayNum}`);
+  // 2. Blank the Day's Storylines + clear its Catchphrases links, so the day reads as un-fanned and the
+  //    re-fan below rebuilds both from scratch.
+  await updatePage(row.id, { Storylines: { rich_text: [] }, Catchphrases: wRel([]) }, `Day ${dayNum} clear (REFAN)`);
+  // 3. Reset the IN-MEMORY row so the flow below starts clean: the idempotency check falls through (empty
+  //    Storylines), and the Day.Catchphrases merge starts from [] instead of re-adding the just-cleared libIds.
+  if (row.properties) {
+    if (row.properties.Storylines) row.properties.Storylines.rich_text = [];
+    if (row.properties.Catchphrases) row.properties.Catchphrases.relation = [];
+  }
+  // 4. Injuries are NOT auto-unwound: a chronic injury row is shared across days and its severity history is
+  //    human-owned. Report any row whose Onset Day is this day so the scorekeeper can review/trim by hand if
+  //    the corrected transcript changes the read.
+  try {
+    const injAll = await queryAll(DB.injuries, { property: 'Onset Day', relation: { contains: idNoDash(row.id) } });
+    if (injAll.length) problem(`REFAN: ${injAll.length} injury row(s) have Onset Day = Day ${dayNum} (${injAll.map(i => pTitle(i, 'Condition')).join('; ')}) - left as-is (injury history is human-owned). Review after the re-fan if the corrected transcript changes them.`);
+  } catch (e) { note(`   REFAN: injury review scan skipped (${(e.message || '').slice(0, 60)})`); }
+  // 5. Merged Catcher rows for this day keep their merged-sighting status (their sighting was just archived).
+  //    They are NOT auto-reopened - the re-fan reads only 'new'/'pending-confirmation' rows. To re-fold crew
+  //    catches, set those Catcher rows back to 'new' by hand before re-firing.
+  note(`   REFAN: merged Catcher rows for Day ${dayNum} left as-is (re-fan reads only open rows; reopen by hand to re-fold crew catches).`);
+}
+
+// ---------------------------------------------------------------------------
 // PASS 1
 // ---------------------------------------------------------------------------
 async function pass1() {
@@ -784,6 +831,12 @@ async function pass1() {
   const type = pSelect(row, 'Type') || 'Highlights';
   const air = pDate(row, 'Original Air Date') || airToday();
   note(`Pass 1: ${BASHO_LABEL} Day ${dayNum} (Type ${type}, air ${air})`);
+  // REFAN=1: deliberately wipe this day's prior fan output, then fall through to a full re-fan. Requires an
+  // explicit DAY=N - we refuse to clear an auto-selected "today's ready row" (too easy to nuke the wrong day).
+  if (REFAN) {
+    if (DAY_OVERRIDE == null) { problem('REFAN=1 requires an explicit DAY=N (refusing to clear an auto-selected day) - aborting.'); return; }
+    await refanClear(row, dayNum);
+  }
   // idempotency: Storylines non-empty => already fanned. Still run the Catcher backfill so a re-fire
   // picks up crew catches even though the transcript lanes are done (no API spend on this path).
   if (pText(row, 'Storylines')) {
@@ -823,7 +876,7 @@ async function pass1() {
   note(`Announcer: ${resolved.name || 'UNDETERMINED'} (${resolved.how})`);
   const annId = resolved.name ? await writeAnnouncer(row, resolved.name) : null;
 
-  await writeStorylines(row, ex.storylines, show, air);
+  await writeStorylines(row, ex.storylines, show, air, REFAN);
   for (const inj of (ex.injuries || [])) await writeInjury(row, inj, show, air);
   if (!type.includes('Live/Preview')) {
     // The whole catchphrase subsystem is fault-isolated: storylines + injuries have already landed,
