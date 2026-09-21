@@ -52,6 +52,24 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node gen-gumbai-snapshot.mjs
 
+      - name: Rebuild the drinking-game board from Notion
+        # THE FIX (2026-09-21): this step was missing, so the board never rebuilt on a fan/publish run.
+        # Day 9 landed hands-off — Notion + the keystone went green — but the drinking-game board sat on
+        # its last static state because nothing here regenerated it. gen-drinking-game.mjs reads the three
+        # catchphrase tables (Sightings / Library / Days / Announcers) and re-emits drinking-game.html for
+        # the current basho. Same defaults as the other generators (BASHO=202609, "Aki 2026",
+        # TOURNAMENT_PAGE_ID baked in), so a live-basho run needs only NOTION_TOKEN.
+        # Non-fatal by the same logic as the Gumbai + calendar snapshots: on an empty/failed Notion pull
+        # the generator self-aborts and writes nothing, leaving the last good board in place, and the
+        # commit + standings publish below still run.
+        # NOTE: the catchphrase tables must be shared with the sumo-site-publisher integration (the one
+        # behind NOTION_TOKEN) — the same token already reads them for the Gumbai snapshot, so if the
+        # oracle knows this basho's catchphrases, this step has access too.
+        continue-on-error: true
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+        run: node gen-drinking-game.mjs
+
       - name: Rebuild calendar snapshot from Notion
         # Builds calendar.json (public month-grid page) + functions/api/_calendar.js (the .ics feed).
         # Non-fatal by the same logic as the Gumbai snapshot: gen-calendar.mjs self-aborts and writes
@@ -89,7 +107,7 @@ jobs:
         run: |
           git config user.name "sumo-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add standings.html index.html functions/api/_snapshot.js functions/api/_calendar.js
+          git add standings.html index.html functions/api/_snapshot.js functions/api/_calendar.js drinking-game.html
           # rikishi-metrics.json may be absent on a run where the (gated, continue-on-error) metrics
           # rebuild didn't run or bailed. `git add <missing-path>` is FATAL under bash -e and would fail
           # this whole step — stopping standings + snapshot from ever committing. Add it only if present.
@@ -100,6 +118,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No change — nothing to publish."
           else
-            git commit -m "Auto-update standings + homepage + Gumbai snapshot + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git commit -m "Auto-update standings + homepage + Gumbai snapshot + drinking game + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
