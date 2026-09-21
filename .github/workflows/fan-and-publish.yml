@@ -54,21 +54,32 @@ jobs:
           node-version: "20"
       - name: Fan color to Notion (model extracts, code enforces the rails)
         env:
+          # The fan WRITES across Days, Announcers, Library, Sightings, Injury Log, Master Rikishi,
+          # so it needs the full-tracker WRITE token, not the narrow box token. publish reads, so it
+          # can keep using the read token.
           NOTION_TOKEN:      ${{ secrets.NOTION_TOKEN_WRITE }}
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}   # the same key Gumbai uses
+          ANTHROPIC_MODEL:   ${{ vars.ANTHROPIC_MODEL }}        # NOT a secret - a plain repo Variable (or unset -> fan.mjs default)
+          # Resend is deliberately NOT in GitHub (Secrets Map row 4: box + Cloudflare only). Left unset,
+          # the fan prints its summary to the Actions log and GitHub's own failed-run email is the alarm.
+          # These three resolve to empty when the secrets are absent, and the fan simply skips emailing.
           RESEND_KEY:        ${{ secrets.RESEND_KEY }}
           ALERT_EMAIL:       ${{ secrets.ALERT_EMAIL }}
           ALERT_FROM:        ${{ secrets.ALERT_FROM }}
-          # MODE: only a manual workflow_dispatch chooses the mode. repository_dispatch (fast path) AND
-          # schedule (belt) both mean Pass 1. The old expression left MODE blank on a scheduled run.
+          # MODE: only a manual workflow_dispatch chooses the mode (pass1/pass2). repository_dispatch
+          # (fast path) AND schedule (belt) both mean Pass 1. The old expression left MODE blank on a
+          # scheduled run - this one defaults everything non-manual to pass1.
           MODE:    ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode || 'pass1' }}
           DAY:     ${{ github.event.client_payload.day || github.event.inputs.day || '' }}
           DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
+        # fan.mjs exits 3 on a soft problem (still emailed) and 1 on a crash; either fails this job LOUD.
         run: node fan.mjs
 
   publish:
     needs: fan
+    # Run the publish even if the fan reported a soft problem, so whatever DID land surfaces. Publish
+    # reads Notion and commits only on a real diff, so it is a safe no-op when nothing changed. Skipped
+    # only on a dry rehearsal (dry_run is empty on dispatch/schedule -> '0' -> publish runs).
     if: ${{ always() && (github.event.inputs.dry_run || '0') != '1' }}
     uses: ./.github/workflows/publish.yml
     secrets: inherit
