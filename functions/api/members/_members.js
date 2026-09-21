@@ -83,15 +83,25 @@ export async function resolveMember(request, env) {
   const s = await getSession(request, env);
   if (!s || !s.email) return null;
   const email = normEmail(s.email);
+  const envSuper = envEmails(env, 'SUPER_ADMINS').includes(email); // the break-glass floor
 
   const stored = await getMember(env, email);
   if (stored) {
     // keep the display name fresh from the session if the record never captured one
     if (!stored.name && s.name) stored.name = s.name;
+    // SUPER_ADMINS is a DURABLE FLOOR, not just an initial seed: an email on that env list is
+    // ALWAYS at least super-admin, even if the stored record was seeded lower before the env was
+    // set (or points there for a reason). This is the ONLY case where env overrides the store —
+    // it's the "there's always a way in" guarantee. Ordinary roles stay store-driven, so a
+    // super-admin can still promote/demote everyone NOT on the env list and have it stick.
+    if (envSuper && stored.role !== ROLES.SUPER) {
+      const up = await patchMember(env, stored, { role: ROLES.SUPER });
+      return up || { ...stored, role: ROLES.SUPER };
+    }
     return stored;
   }
 
-  const boot = bootstrapRecord(env, email);
+  const boot = bootstrapRecord(env, email); // already resolves to super-admin when envSuper
   if (s.name && !boot.name) boot.name = s.name;
   if (hasStore(env)) {
     // lazily write the derived record so the store becomes truth as members show up (best-effort)
