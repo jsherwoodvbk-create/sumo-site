@@ -2486,6 +2486,12 @@
             "bashoCode": null,
             "day": null,
             "text": "Aki2026D9: He may have re aggravated his left foot injury. Walking funny, back to his side of the dojo is Aonishiki, but look at the Ozeki's toughness. [booth, carrying]"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Aki2026D1: The Ukrainian's condition is likely not close to top form yet. He is still reeling from that left foot injury. [booth, carrying]"
           }
         ]
       }
@@ -15041,19 +15047,25 @@
             "basho": "Nagoya 2026",
             "bashoCode": "26Ng",
             "day": 1,
-            "text": "Sitting out from opening day — left thigh (official)."
+            "text": "Sitting out from opening day, left thigh (official)."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26NgD15 (live broadcast, Day 15.5): Booth update — named as acute compartment syndrome; hospitalized a long time, just released. Per the stable, a long road back — likely out next tournament and the provincial tours too; will fall to juryo or lower."
+            "text": "26NgD15 (live broadcast, Day 15.5): Booth update, named as acute compartment syndrome; hospitalized a long time, just released. Per the stable, a long road back, likely out next tournament and the provincial tours too; will fall to juryo or lower."
           },
           {
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 1,
-            "text": "Still recuperating from the left-thigh injury (had surgery); sidelined from opening day — carry confirmed into Aki. [booth: Raja]"
+            "text": "Still recuperating from the left-thigh injury (had surgery); sidelined from opening day, carry confirmed into Aki. [booth: Raja]"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Aki2026D1: Wakatakakage is still recuperating from a left thigh injury he had surgery on. [booth, carrying]"
           }
         ]
       }
@@ -17710,6 +17722,27 @@
     "henka": [],
     "injuries": [
       {
+        "area": "right thigh and knee",
+        "nature": [
+          "Suspected chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Booth mention"
+        ],
+        "condition": "Wakanosho - right thigh and knee",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Aki2026D1: Wakanosho has injured his right thigh and knee. [booth, carrying]"
+          }
+        ]
+      },
+      {
         "area": "Knee (MCL); + right thigh & knee (26Aki booth)",
         "nature": [
           "Acute"
@@ -19396,7 +19429,13 @@
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 1,
-            "text": "Sidelined from day one — still healing from a right-knee surgery undergone after Nagoya. Distinct from the Nagoya right-thigh withdrawal (separate row). [booth: Raja]"
+            "text": "Sidelined from day one, still healing from a right-knee surgery undergone after Nagoya. Distinct from the Nagoya right-thigh withdrawal (separate row). [booth: Raja]"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Aki2026D1: Yokozuna Hoshoryu is sidelined from day one because he is still healing from a right knee surgery he underwent after the Nagoya Basho. [booth, carrying]"
           }
         ]
       },
