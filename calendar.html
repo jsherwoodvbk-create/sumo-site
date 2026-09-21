@@ -215,17 +215,33 @@ let DATA = SAMPLE;
 const now = new Date();
 let viewY = now.getFullYear(), viewM = now.getMonth();   // 0-based month
 
-// ADMIN LIVE-MERGE: crew events an admin has added but the published snapshot hasn't picked up yet.
-// So an admin sees a just-added event on the grid immediately (normal calendar behavior), marked
-// "pending" until the next publish. Empty for everyone else. Re-applied whenever DATA is rebuilt,
-// deduped against the published set, so a pending event silently becomes the real one once published.
-let PENDING = [];
-const normKey = (name, start) => (start||'') + '|' + String(name||'').toLowerCase().replace(/\s+/g,' ').trim();
+// ADMIN LIVE-MERGE (adds + edits + deletes): for an admin on the app surface, the live Notion set of
+// crew events (/api/cal-event GET) is the source of truth for the SPECIAL-EVENT layer, so a just-made
+// change shows on the grid before the next publish — normal calendar behavior. An added or edited event
+// shows faded ("pending", publishes for everyone at the next refresh); a deleted one simply drops off
+// the admin's grid. No-op for everyone else (LIVE_SPECIALS stays null → the published grid renders
+// untouched). Re-applied whenever DATA is rebuilt, so a change silently becomes the real row once
+// published. The published grid still carries the truth for the public; this only changes the ADMIN view.
+let LIVE_SPECIALS = null;                                       // admin+app: authoritative live crew events, or null
+const idKey = full => 'se-' + String(full||'').replace(/-/g,'').slice(0,12);   // live Notion id -> published-style id
+const sameSpecial = (a, b) =>                                   // do two specials render identically?
+  (a.title||'')===(b.title||'') && (a.start||'')===(b.start||'') &&
+  (a.end||null)===(b.end||null) && (a.location||null)===(b.location||null);
 function applyPending(){
-  DATA.events = (DATA.events||[]).filter(e => !e.pending);          // drop any stale pending first
-  if(!PENDING.length) return;
-  const have = new Set(DATA.events.filter(e=>e.kind==='special').map(e=>normKey(e.title, e.start)));
-  for(const p of PENDING){ if(!have.has(normKey(p.title, p.start))) DATA.events.push(p); }
+  DATA.events = (DATA.events||[]).filter(e => !e.pending);      // drop any stale pending first (idempotent)
+  if(!LIVE_SPECIALS) return;                                    // not admin+app → leave the published grid as-is
+  const publishedById = new Map(
+    (DATA.events||[]).filter(e => e.kind==='special').map(e => [e.id, e]));
+  DATA.events = (DATA.events||[]).filter(e => e.kind!=='special');   // the live set replaces this whole layer
+  for(const ev of LIVE_SPECIALS){
+    const pubId = idKey(ev.id);
+    const wasPublished = publishedById.get(pubId);
+    const chip = { id:pubId, kind:'special', title:ev.name, start:ev.start, end:ev.end||null,
+                   location:ev.location||null, url:ev.link||null, notes:ev.notes||null };
+    chip.pending = !(wasPublished && sameSpecial(wasPublished, chip));   // unchanged → solid; new/edited → pending
+    DATA.events.push(chip);
+  }
+  // a published special NOT in the live set = deleted in Notion → not re-added, so it drops off the admin grid
 }
 
 // Build the 6-row (Sun-start) matrix of Date cells for a month.
@@ -303,6 +319,37 @@ document.getElementById('prev').onclick = ()=>{ viewM--; if(viewM<0){viewM=11;vi
 document.getElementById('next').onclick = ()=>{ viewM++; if(viewM>11){viewM=0;viewY++;} render(); };
 document.getElementById('today').onclick = ()=>{ viewY=now.getFullYear(); viewM=now.getMonth(); render(); };
 
+/* Which surface is this? "app" (arrived via /app — the crew hub) vs "site" (the public storefront)
+   vs null (direct/ambiguous). Referrer decides; sessionStorage remembers it across refreshes. This
+   drives BOTH the home crest AND whether the crew-management layer (the "+ Add event" button + the
+   admin pending live-merge) appears — those are app-only functions, never shown on the public site
+   calendar even to a logged-in admin. Security is still server-side (the editor is behind /app auth
+   and /api/cal-event enforces role); this is purely which surface shows the tools. */
+/* Two questions, two levels of certainty:
+   • the app-tools gate — needs a POSITIVE app signal for THIS view: an ?s=app / ?s=site query param
+     (authoritative; the app's own links can set it) or, failing that, the referrer (/app → app, / → site).
+     It FAILS CLOSED: no signal → not treated as app, so the "+ Add event" button + the admin live-merge
+     never appear. THIS is the fix — the tools were leaking onto the public site calendar because the old
+     code fell back to a remembered surface, so a stale "app" from an earlier app visit showed them on the site.
+   • crestSurface — cosmetic home-crest target only; it MAY fall back to the remembered surface so Home
+     still points sensibly on a plain refresh. Low stakes, so stickiness is fine here. */
+const IS_APP = (function(){
+  var sig=null;
+  try{ var qp=new URLSearchParams(location.search).get('s'); if(qp==='app'||qp==='site') sig=qp; }catch(e){}
+  if(!sig){ try{ if(document.referrer){ var u=new URL(document.referrer);
+    if(u.origin===location.origin && u.pathname!==location.pathname){
+      if(u.pathname.indexOf('/app')===0) sig='app';
+      else if(u.pathname==='/' || u.pathname==='/index.html') sig='site';
+    } } }catch(e){} }
+  if(sig){ try{ sessionStorage.setItem('ss_surface', sig); }catch(e){} }
+  var crestSurface = sig; try{ if(!crestSurface) crestSurface = sessionStorage.getItem('ss_surface'); }catch(e){}
+  if(crestSurface==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
+  var isApp = sig==='app';                                    // FAIL CLOSED: only a positive app signal counts
+  // keep the app view refresh-stable without depending on the referrer next time (site stays plain /calendar)
+  if(isApp){ try{ var q=new URLSearchParams(location.search); if(q.get('s')!=='app'){ q.set('s','app'); history.replaceState(null,'',location.pathname+'?'+q.toString()); } }catch(e){} }
+  return isApp;
+})();
+
 render();  // immediately from the sample so the page is never blank
 
 // upgrade to the live calendar.json in the background
@@ -321,19 +368,18 @@ function showSubscribe(html){ subEl.innerHTML = html; subEl.hidden = false; }
 fetch('/api/app/whoami', {cache:'no-store'})
   .then(r => r.ok ? r.json() : null)
   .then(me => {
-    // Admin-only: reveal the "Add event" control for an active admin / super-admin (server still
-    // enforces role on /api/cal-event — this only unhides a link a non-admin could never use anyway).
-    if(me && (me.role==='admin' || me.role==='super-admin') && me.status!=='blocked'){
+    // Admin-only AND app-surface-only: the "+ Add event" control + the pending live-merge are crew
+    // management, an APP function — never shown on the public site calendar, even to a logged-in admin.
+    // (Server still enforces role on /api/cal-event; this is purely which surface shows the tools.)
+    if(me && (me.role==='admin' || me.role==='super-admin') && me.status!=='blocked' && IS_APP){
       const ab = document.getElementById('addEvent'); if(ab) ab.hidden = false;
-      // live-merge the admin's crew events so a just-added one shows on the grid before the next publish
+      // live-merge the admin's crew events (adds/edits/deletes) so a just-made change shows on the grid
+      // before the next publish — the live Notion set is the source of truth for the special-event layer.
       fetch('/api/cal-event', {cache:'no-store'})
         .then(r => r.ok ? r.json() : null)
         .then(d => {
           if(!d || !d.ok || !Array.isArray(d.events)) return;
-          PENDING = d.events.filter(ev=>ev.start).map(ev=>({
-            id:'se-live-'+normKey(ev.name, ev.start), kind:'special', title:ev.name,
-            start:ev.start, end:ev.end||null, location:ev.location||null, url:ev.link||null, notes:ev.notes||null, pending:true
-          }));
+          LIVE_SPECIALS = d.events.filter(ev=>ev.start);   // authoritative live crew events
           applyPending(); render();
         })
         .catch(()=>{ /* live-merge is a nicety; the published grid still works */ });
@@ -378,24 +424,6 @@ fetch('/api/app/whoami', {cache:'no-store'})
     copyBtn.onclick = ()=>{ input.select(); try{ document.execCommand('copy'); copyBtn.textContent='Copied'; setTimeout(()=>copyBtn.textContent='Copy',1500);}catch(_){}}
   })
   .catch(()=>{ /* whoami unreachable → leave the subscribe panel hidden, browse still works */ });
-</script>
-
-<script>
-/* surface-aware home crest: "home" follows the surface you're browsing (app hub vs public site),
-   not your login. Only an /app referrer means "app," only the homepage means "site"; any other
-   internal page (came from /reports, etc.) is surface-ambiguous, so inherit the remembered surface
-   instead of resetting it. That keeps app -> calendar -> home pointing back to /app. */
-(function(){
-  var s=null;
-  try{ if(document.referrer){ var u=new URL(document.referrer);
-    if(u.origin===location.origin && u.pathname!==location.pathname){
-      if(u.pathname.indexOf('/app')===0) s='app';
-      else if(u.pathname==='/' || u.pathname==='/index.html') s='site';
-    } } }catch(e){}
-  if(s){ try{ sessionStorage.setItem('ss_surface', s); }catch(e){} }
-  else { try{ s = sessionStorage.getItem('ss_surface'); }catch(e){} }
-  if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
-})();
 </script>
 </body>
 </html>
