@@ -65,13 +65,19 @@ const DB = {
 // Canonical announcer roster - only ever CREATE a genuinely new voice.
 const ROSTER = ['Hiro Morita', 'Murray Johnson', 'John Gunning', 'Ross Mihara', 'Raja Pradhan'];
 
-const warn = [];   // accumulates report lines; a non-empty "problem" warn -> exit 3
-const log  = [];   // accumulates the human run summary
+const warn    = [];   // REAL problems; a non-empty warn -> exit 3 (LOUD, reddens the CI run)
+const reviews = [];   // benign "for a human to look at" items - a crew catch left open, a crew flag, a
+                      // REFAN injury note. Surfaced prominently in the run summary but NEVER trip exit 3,
+                      // so routine review backlog can't red every run and train the real reds to be ignored.
+const log     = [];   // accumulates the human run summary
 const spend = { in: 0, out: 0, usd: 0, model: ANTHROPIC_MODEL };
 let CREDIT_DRY = false;   // set true if the API says credit balance is too low -> LOUD alert
 
 function note(line) { log.push(line); console.log(line); }
 function problem(line) { warn.push(line); console.error('  ! ' + line); }
+// review = a non-failure a human should eyeball (never affects the exit code). Use for expected,
+// non-destructive states like "crew catch didn't corroborate, left open" - NOT for a genuine failure.
+function review(line) { reviews.push(line); console.log('  > review: ' + line); }
 
 // per-million-token USD, keyed by model substring (Sep 2026 list prices). Update if pricing moves.
 // This is a COST ECHO, not a balance read - Anthropic exposes no remaining-balance API. It shows what
@@ -573,7 +579,7 @@ async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air,
     const phrase = clean(submission);   // the crew's own wording is the Phrase (they template names to X; we trust that)
     if (!phrase) { problem(`catcher: a Day ${dayNum} write-in has an empty Submission - skipped`); continue; }
     const t = tiesToTranscript(submission, txNorm);
-    if (!t.tie) { problem(`catcher: "${submission}" (Day ${dayNum}) did not corroborate against the transcript (${t.how}) - left OPEN for review, not written`); continue; }
+    if (!t.tie) { review(`catcher: "${submission}" (Day ${dayNum}) did not corroborate against the transcript (${t.how}) - left OPEN for review, not written`); continue; }
     // find-or-create Library {announcer, phrase}
     let libRow = lib.find(r => norm(pTitle(r, 'Phrase')) === norm(phrase));
     let libId;
@@ -632,7 +638,7 @@ async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air,
   // Jewel: a crew jewel-vote wins; else auto-seed among crew sightings if nothing is crowned yet
   await settleJewel(dayRow, dayNum, votes, written, annId);
   // flags -> report only (non-destructive; a human applies not-said/mis-worded/dupe/not-funny in Pass 2)
-  for (const f of flags) problem(`catcher FLAG for review: "${pTitle(f, 'Submission')}" reason=${pSelect(f, 'Reason') || 'flag'} (Day ${dayNum}) - not auto-applied`);
+  for (const f of flags) review(`catcher FLAG for review: "${pTitle(f, 'Submission')}" reason=${pSelect(f, 'Reason') || 'flag'} (Day ${dayNum}) - not auto-applied`);
   note(`   catcher: ${written.length} crew sighting(s) folded${votes.length ? `, ${votes.length} jewel-vote(s)` : ''}${flags.length ? `, ${flags.length} flag(s) flagged` : ''}`);
   return { count: written.length };
 }
@@ -813,7 +819,7 @@ async function refanClear(row, dayNum) {
   //    the corrected transcript changes the read.
   try {
     const injAll = await queryAll(DB.injuries, { property: 'Onset Day', relation: { contains: idNoDash(row.id) } });
-    if (injAll.length) problem(`REFAN: ${injAll.length} injury row(s) have Onset Day = Day ${dayNum} (${injAll.map(i => pTitle(i, 'Condition')).join('; ')}) - left as-is (injury history is human-owned). Review after the re-fan if the corrected transcript changes them.`);
+    if (injAll.length) review(`REFAN: ${injAll.length} injury row(s) have Onset Day = Day ${dayNum} (${injAll.map(i => pTitle(i, 'Condition')).join('; ')}) - left as-is (injury history is human-owned). Review after the re-fan if the corrected transcript changes them.`);
   } catch (e) { note(`   REFAN: injury review scan skipped (${(e.message || '').slice(0, 60)})`); }
   // 5. Merged Catcher rows for this day keep their merged-sighting status (their sighting was just archived).
   //    They are NOT auto-reopened - the re-fan reads only 'new'/'pending-confirmation' rows. To re-fold crew
@@ -995,11 +1001,14 @@ async function report(status) {
     ...(creditLine ? ['', creditLine, ''] : []),
     ...log,
     '', costLine,
+    // FOR REVIEW = surfaced but NOT failures (does not set exit 3). Kept distinct from PROBLEMS so a
+    // human still sees the open crew catches / flags every run without them reddening the CI job.
+    ...(reviews.length ? ['', `FOR REVIEW (${reviews.length}, not failures):`, ...reviews.map(r => '- ' + r)] : []),
     ...(warn.length ? ['', 'PROBLEMS:', ...warn.map(w => '- ' + w)] : []),
   ].join('\n');
   const subj = CREDIT_DRY
     ? `fan.mjs CREDIT DRY - top up the Anthropic key`
-    : `fan.mjs ${MODE} ${status}${warn.length ? ' - PROBLEMS' : ''}`;
+    : `fan.mjs ${MODE} ${status}${warn.length ? ' - PROBLEMS' : reviews.length ? ' - review items' : ''}`;
   if (process.env.RESEND_KEY && process.env.ALERT_EMAIL && !DRY_RUN) {
     try {
       await fetch('https://api.resend.com/emails', { method: 'POST', headers: { Authorization: `Bearer ${process.env.RESEND_KEY}`, 'Content-Type': 'application/json' },
@@ -1019,8 +1028,8 @@ async function main() {
 const invokedDirectly = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
 if (invokedDirectly) {
   main()
-    .then(() => report(warn.length ? 'completed WITH PROBLEMS' : 'OK'))
-    .then(() => process.exit(warn.length ? 3 : 0))
+    .then(() => report(warn.length ? 'completed WITH PROBLEMS' : (reviews.length ? `OK (${reviews.length} for review)` : 'OK')))
+    .then(() => process.exit(warn.length ? 3 : 0))   // review items never affect the exit code - only real problems red the run
     .catch(async e => { problem('FATAL: ' + e.message); await report('FATAL'); process.exit(1); });
 }
 
