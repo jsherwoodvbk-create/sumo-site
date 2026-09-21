@@ -40,8 +40,10 @@
 //   roster-wide question came up; it now carries birthday/height/real name/past ring names/shikona
 //   meaning/debut/retirement/nicknames — every timeless field the per-wrestler profile already holds.
 //   This unblocks query_birthdays ("who has a September birthday") and any future roster scan. Also:
-//   the bashos[] lane now filters OUT Type=Special Event rows (added to 🏆 Bashos for the public
-//   calendar) so Gumbai's basho lane stays the six honbasho. No new Notion fields — pure reshaping.
+//   the bashos[] lane now filters OUT Type=Special Event rows (added to 🏆 Bashos/Events for the
+//   public calendar) so Gumbai's basho lane stays the six honbasho — and those same rows now feed a
+//   NEW specialEvents[] lane (crew events: US Open, exhibitions) so Gumbai can recall them separately
+//   via query_events, never confusing a crew event with a grand tournament. No new Notion fields.
 //
 // SAFETY: validates the CORE (bouts/rikishi/banzuke) before writing; a broken core pull
 // exits non-zero and writes nothing. The soft-data + stables pulls are each wrapped so a
@@ -119,6 +121,7 @@ const multiOf = (p, prop) => (p.properties?.[prop]?.multi_select || []).map(o =>
 const numOf   = (p, prop) => (typeof p.properties?.[prop]?.number === 'number' ? p.properties[prop].number : null);
 const boolOf  = (p, prop) => p.properties?.[prop]?.checkbox === true;
 const dateOf  = (p, prop) => p.properties?.[prop]?.date?.start ? String(p.properties[prop].date.start).slice(0, 10) : null;
+const urlOf   = (p, prop) => (p.properties?.[prop]?.url || '').trim() || null;
 const relIds  = (p, prop) => (p.properties?.[prop]?.relation || []).map(r => idNoDash(r.id));
 const rel1    = (p, prop) => { const a = relIds(p, prop); return a[0] || null; };
 
@@ -351,6 +354,22 @@ async function main() {
   }).filter(b => b.location || b.startDate || b.basho)
     .sort((a, b) => String(a.code || '').localeCompare(String(b.code || '')));
 
+  // ── specialEvents[] (schema/9) : the OTHER half of the 🏆 Bashos/Events table — Type=Special Event
+  //    (US Open, exhibitions, crew outings). The crew adds these in-app; they are the counterpart to
+  //    the honbasho lane above, kept SEPARATE so Gumbai never confuses a crew event with a grand
+  //    tournament. TIMELESS + PUBLIC: these carry no results and are the same events the public
+  //    calendar publishes, so the engine never gates them. Notes ARE included here (unlike the basho
+  //    lane) — a crew event's notes are descriptive color, never a current-basho spoiler.
+  const specialEvents = bashoPages.filter(p => selOf(p, 'Type') === 'Special Event').map(p => ({
+    name: titleOf(p, 'Tournament Name') || null,
+    startDate: dateOf(p, 'Start Date'),
+    endDate: dateOf(p, 'End Date'),
+    location: textOf(p, 'Event Location') || null,   // free-text venue/city (NOT the honbasho Location select)
+    url: urlOf(p, 'Event Link') || null,
+    notes: textOf(p, 'Notes') || null,
+  })).filter(e => e.name && e.startDate)
+    .sort((a, b) => String(a.startDate).localeCompare(String(b.startDate)));
+
   // ── glossary[] (schema/7) : general sumo vocabulary. Timeless reference, never gated.
   const glossary = glPages.map(p => {
     const term = titleOf(p, 'Term'); if (!term) return null;
@@ -530,6 +549,7 @@ async function main() {
     rikishi, banzuke, kimarite, bouts,
     master,                            // schema/6+9: whole Master Rikishi roster (full timeless profile) for rollups, birthdays & "on the master"
     bashos, glossary, library,         // schema/7: venue/dates · general sumo terms · citable books (all timeless)
+    specialEvents,                     // schema/9: crew events (US Open, exhibitions) — timeless/public, never gated
     days, injuries, catchphrases,     // schema/4 soft-data lanes
     champion,                          // schema/5: current-basho yusho (null until complete; engine gates reveal)
     history,
@@ -545,7 +565,7 @@ async function main() {
 
   console.log(`✓ wrote ${OUT}`);
   console.log(`  basho=${BASHO_LABEL} maxDay=${maxDay} rikishi=${rikishi.length} master=${master.length} banzuke=${banzuke.length} kimarite=${kimarite.length} bouts=${bouts.length}`);
-  console.log(`  ref: bashos=${bashos.length} glossary=${glossary.length} library=${library.length}`);
+  console.log(`  ref: bashos=${bashos.length} specialEvents=${specialEvents.length} glossary=${glossary.length} library=${library.length}`);
   console.log(`  soft: days=${days.length} injuries=${injuries.length} catchphrases=${catchphrases.length}`);
   if (warn.length) { console.log('⚠️ warnings:'); for (const w of [...new Set(warn)]) console.log('  - ' + w); }
 }
