@@ -569,6 +569,8 @@ async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air,
       { property: 'Day', relation: { contains: idNoDash(dayRow.id) } },
     ] });
     const suggestedBy = pText(row, 'Suggested by');
+    const src = pText(row, 'Source');
+    const finderEmail = /^m:/i.test(src) ? src.slice(2).trim().toLowerCase() : '';   // members carry m:<email> in Source; anon session tokens don't
     const subjGuess = pText(row, 'Fan subject guess');   // quarantined: a fan guess, never feeds the nickname engine
     const priorDays = DRY_RUN ? 0 : await distinctDayCount(libId);
     let giggle = 2; if (priorDays + 1 >= 3) giggle += 1; if (giggle > 4) giggle = 4;
@@ -580,6 +582,14 @@ async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air,
       'Giggle Rank': wNum(giggle),
       Notes: wText(`[booth, ${annName}, ${show}, air ${air}] crew-caught via Catcher${suggestedBy ? ' (' + suggestedBy + ')' : ''}${subjGuess ? '; subject is a fan guess' : ''}; tie ${t.how}; giggle seed ${giggle}.`),
     };
+    // FINDER ATTRIBUTION (Phase 2 engagement-points foundation): stamp WHO caught it, structured + queryable.
+    // "Found by" = display name; "Finder email" = the stable leaderboard key (members only). One sighting per
+    // phrase+day, so credit the FIRST finder: never overwrite a finder already on an existing sighting.
+    const credited = existing.length && (pText(existing[0], 'Found by') || pText(existing[0], 'Finder email'));
+    if (!credited) {
+      if (suggestedBy) props['Found by'] = wText(suggestedBy);
+      if (finderEmail) props['Finder email'] = wText(finderEmail);
+    }
     let sightId;
     if (existing.length) { await updatePage(existing[0].id, props, `Sighting "${phrase}" (crew)`); sightId = existing[0].id; }
     else { const r = await createPage(DB.sightings, props, `Sighting "${phrase}" (crew)`); sightId = r.id; }
