@@ -311,7 +311,9 @@ async function main() {
   //    from Start Date) matches meta.bashoId so "July 2026 / 202607 / Nagoya 2026" all resolve.
   //    NOTE: `Notes` (memorable storylines) is deliberately EXCLUDED — for the CURRENT basho it
   //    would be a spoiler; revisit with per-basho gating if the crew wants past-basho recaps here.
-  const bashos = bashoPages.map(p => {
+   const bashos = bashoPages
+    .filter(p => selOf(p, 'Type') !== 'Special Event')   // calendar spec B2: Gumbai's tournament lane is Honbasho-only; Special Events live ONLY in the calendar
+    .map(p => {
     const start = dateOf(p, 'Start Date');            // "YYYY-MM-DD"
     const code = start ? start.slice(0, 4) + start.slice(5, 7) : null;   // YYYYMM
     return {
