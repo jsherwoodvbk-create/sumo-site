@@ -6,7 +6,7 @@
 //                        EXCLUSIVE in iCalendar, so a Sep 13–27 tournament ends 20260928).
 //   birthday           : all-day, DTSTART at the birth date, RRULE:FREQ=YEARLY -> recurs every year.
 //
-// TEXT values are escaped (backslash/;/,/newline) and long lines folded at 75 octets per the spec,
+// TEXT values are escaped (backslash/;/,/newline) and long lines folded at 75 OCTETS per the spec,
 // with CRLF line breaks throughout (some calendar clients are strict).
 
 export function icsEscape(s) {
@@ -17,15 +17,32 @@ export function icsEscape(s) {
     .replace(/\r?\n/g, '\\n');
 }
 
-// Fold a single content line to <=75 octets, continuation lines start with a space (RFC 5545 §3.1).
+// Fold a single content line to <=75 OCTETS (RFC 5545 §3.1); continuation lines start with a space.
+// Measures UTF-8 byte length (not character count) and never splits a multibyte character, so a
+// non-ASCII value (an accented event name, etc.) can't over-fold or break mid-codepoint. ASCII is
+// unaffected (1 char = 1 octet), so this matches the previous behavior for the romaji this feed carries.
+const ENC = new TextEncoder();
 function fold(line) {
-  if (line.length <= 75) return line;
-  const parts = [];
-  let i = 0;
-  parts.push(line.slice(0, 75));
-  i = 75;
-  while (i < line.length) { parts.push(' ' + line.slice(i, i + 74)); i += 74; }
-  return parts.join('\r\n');
+  if (ENC.encode(line).length <= 75) return line;
+  const out = [];
+  let cur = '';
+  let curBytes = 0;
+  let first = true;
+  for (const ch of line) {                      // iterate by code point (handles surrogate pairs)
+    const chBytes = ENC.encode(ch).length;
+    const limit = first ? 75 : 74;              // a continuation line spends 1 octet on its leading space
+    if (curBytes + chBytes > limit) {
+      out.push(first ? cur : ' ' + cur);
+      first = false;
+      cur = ch;
+      curBytes = chBytes;
+    } else {
+      cur += ch;
+      curBytes += chBytes;
+    }
+  }
+  if (cur) out.push(first ? cur : ' ' + cur);
+  return out.join('\r\n');
 }
 
 const pad = n => String(n).padStart(2, '0');
