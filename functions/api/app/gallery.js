@@ -1,17 +1,23 @@
-// functions/api/app/gallery.js — the CREW gallery (members only). Self-gated via getSession.
+// functions/api/app/gallery.js — the CREW gallery (members only). Self-gated via the member store.
 //   GET    → list ALL photos (public + crew-only), each flagged `mine` for the delete UI.
 //   POST   → upload one photo (multipart: photo, caption, visibility=public|crew).
 //   DELETE → remove one photo by ?id= (owner, or an admin).
+//   PATCH  → edit caption/visibility (owner or admin); admin may also set the photographer credit.
 // Storage = Cloudflare R2 (binding GALLERY). Reads live, so a delete truly retracts everywhere.
+//
+// ROLES (migrated 2026-09-21): authorization now comes from the MEMBER STORE via resolveMember()
+//   + isAdmin(), not the old GALLERY_ADMINS / GALLERY_BLOCKED env lists. The policy is unchanged
+//   (everyone is admin today; a blocked member still can't upload) — only the source moved:
+//     • "can delete/edit any photo, set credit" -> role >= admin        (was GALLERY_ADMINS)
+//     • "uploading turned off for this account" -> status === 'blocked'  (was GALLERY_BLOCKED)
+//   To block someone or change who's admin, a super-admin now flips their role/status in the store
+//   (env lists are bootstrap only). GALLERY_ALERT_EMAIL / RESEND_API_KEY are unchanged.
 //
 // COST & ABUSE GUARDRAILS (all limits computed live from what's actually stored):
 //   • PER-PERSON cap 1 GB — one member can never hoard the store.
 //   • GLOBAL cap 9 GB — a full GB under R2's free 10 GB, so usage can NEVER cross into paid.
 //   • Email alerts (Resend) when the gallery passes 8 GB or a member passes 900 MB.
-//   • Moderation (env-driven, optional): GALLERY_BLOCKED bars an email from uploading;
-//     GALLERY_ADMINS lets those emails delete ANY photo. (Nuclear option: pull them from
-//     CREW_ALLOWLIST → no app at all.)
-import { getSession } from '../auth/_session.js';
+import { resolveMember, isAdmin } from '../members/_members.js';
 
 const MAX_BYTES = 15 * 1024 * 1024;                 // 15 MB / photo
 const OK_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'image/avif'];
@@ -20,10 +26,6 @@ const PER_USER_CAP = 1 * GB;
 const GLOBAL_CAP   = 9 * GB;                          // buffer under R2 free 10 GB
 const USER_WARN    = Math.floor(0.9 * GB);
 const TOTAL_WARN   = 8 * GB;
-
-function emailList(v) { return String(v || '').split(',').map((s) => s.trim().toLowerCase()).filter(Boolean); }
-function isBlocked(env, email) { return emailList(env.GALLERY_BLOCKED).includes(String(email || '').toLowerCase()); }
-function isAdmin(env, email) { return emailList(env.GALLERY_ADMINS).includes(String(email || '').toLowerCase()); }
 
 // live totals from R2: overall + per owner
 async function tally(bucket) {
@@ -57,24 +59,25 @@ async function notify(env, subject, text) {
 }
 
 export async function onRequestGet(context) {
-  const s = await getSession(context.request, context.env);
-  if (!s) return json({ error: 'not-authed' }, 401);
+  const m = await resolveMember(context.request, context.env);
+  if (!m) return json({ error: 'not-authed' }, 401);
   const bucket = context.env.GALLERY;
   if (!bucket) return json({ photos: [] });
-  const admin = isAdmin(context.env, s.email);
+  const admin = isAdmin(m);
+  const myEmail = m.email.toLowerCase();
 
   const out = [];
   let cursor;
   do {
     const list = await bucket.list({ include: ['customMetadata'], cursor, limit: 1000 });
     for (const o of list.objects) {
-      const m = o.customMetadata || {};
-      const mine = (m.owner || '').toLowerCase() === s.email.toLowerCase();
+      const meta = o.customMetadata || {};
+      const mine = (meta.owner || '').toLowerCase() === myEmail;
       out.push({
         id: o.key,
         src: '/api/img?id=' + encodeURIComponent(o.key),
-        caption: m.caption || '', by: m.ownerName || '',
-        visibility: m.visibility || 'crew', uploaded: m.uploaded || '', taken: m.taken || '',
+        caption: meta.caption || '', by: meta.ownerName || '',
+        visibility: meta.visibility || 'crew', uploaded: meta.uploaded || '', taken: meta.taken || '',
         mine, canDelete: mine || admin,             // admins can remove any photo
       });
     }
@@ -87,9 +90,9 @@ export async function onRequestGet(context) {
 
 export async function onRequestPost(context) {
   const { env } = context;
-  const s = await getSession(context.request, env);
-  if (!s) return json({ error: 'not-authed' }, 401);
-  if (isBlocked(env, s.email)) return json({ error: 'blocked', message: 'Uploading is turned off for your account.' }, 403);
+  const m = await resolveMember(context.request, env);
+  if (!m) return json({ error: 'not-authed' }, 401);
+  if (m.status === 'blocked') return json({ error: 'blocked', message: 'Uploading is turned off for your account.' }, 403);
   const bucket = env.GALLERY;
   if (!bucket) return json({ error: 'not-configured' }, 503);
 
@@ -103,7 +106,7 @@ export async function onRequestPost(context) {
 
   // live cost/abuse guardrails
   const { total, byUser } = await tally(bucket);
-  const userBytes = byUser[s.email.toLowerCase()] || 0;
+  const userBytes = byUser[m.email.toLowerCase()] || 0;
   const newUser = userBytes + file.size, newTotal = total + file.size;
   if (newUser > PER_USER_CAP) {
     return json({ error: 'user-quota', message: 'You’ve hit your 1 GB gallery limit — delete some shots to make room.' }, 413);
@@ -123,12 +126,12 @@ export async function onRequestPost(context) {
 
   await bucket.put(key, file.stream(), {
     httpMetadata: { contentType: file.type },
-    customMetadata: { owner: s.email, ownerName: s.name || '', caption, visibility, taken, uploaded: new Date().toISOString() },
+    customMetadata: { owner: m.email, ownerName: m.name || '', caption, visibility, taken, uploaded: new Date().toISOString() },
   });
 
   // threshold-crossing alerts (fire once, in the background)
   if (userBytes < USER_WARN && newUser >= USER_WARN) {
-    context.waitUntil(notify(env, '📸 A crew member passed 900 MB', (s.name || s.email) + ' just crossed 900 MB of gallery uploads (the per-person cap is 1 GB).'));
+    context.waitUntil(notify(env, '📸 A crew member passed 900 MB', (m.name || m.email) + ' just crossed 900 MB of gallery uploads (the per-person cap is 1 GB).'));
   }
   if (total < TOTAL_WARN && newTotal >= TOTAL_WARN) {
     context.waitUntil(notify(env, '📸 Sumo gallery passed 8 GB', 'Total gallery storage just crossed 8 GB (hard cap 9 GB; R2 free tier 10 GB). Might be time to prune or bump the limit.'));
@@ -139,8 +142,8 @@ export async function onRequestPost(context) {
 
 export async function onRequestDelete(context) {
   const { env } = context;
-  const s = await getSession(context.request, env);
-  if (!s) return json({ error: 'not-authed' }, 401);
+  const m = await resolveMember(context.request, env);
+  if (!m) return json({ error: 'not-authed' }, 401);
   const bucket = env.GALLERY;
   if (!bucket) return json({ error: 'not-configured' }, 503);
 
@@ -149,7 +152,7 @@ export async function onRequestDelete(context) {
   const head = await bucket.head(id);
   if (!head) return json({ error: 'not-found' }, 404);
   const owner = (head.customMetadata?.owner || '').toLowerCase();
-  if (owner !== s.email.toLowerCase() && !isAdmin(env, s.email)) return json({ error: 'not-yours' }, 403);
+  if (owner !== m.email.toLowerCase() && !isAdmin(m)) return json({ error: 'not-yours' }, 403);
 
   await bucket.delete(id);
   return json({ ok: true });
@@ -158,8 +161,8 @@ export async function onRequestDelete(context) {
 // PATCH → edit a photo's caption / visibility (owner or admin); admin may also set the photographer credit.
 export async function onRequestPatch(context) {
   const { env } = context;
-  const s = await getSession(context.request, env);
-  if (!s) return json({ error: 'not-authed' }, 401);
+  const m = await resolveMember(context.request, env);
+  if (!m) return json({ error: 'not-authed' }, 401);
   const bucket = env.GALLERY;
   if (!bucket) return json({ error: 'not-configured' }, 503);
 
@@ -170,22 +173,22 @@ export async function onRequestPatch(context) {
 
   const obj = await bucket.get(id);
   if (!obj) return json({ error: 'not-found' }, 404);
-  const m = obj.customMetadata || {};
-  const admin = isAdmin(env, s.email);
-  const owns = (m.owner || '').toLowerCase() === s.email.toLowerCase();
+  const meta = obj.customMetadata || {};
+  const admin = isAdmin(m);
+  const owns = (meta.owner || '').toLowerCase() === m.email.toLowerCase();
   if (!owns && !admin) return json({ error: 'not-yours' }, 403);
 
-  const caption = (typeof body.caption === 'string' ? body.caption : (m.caption || '')).trim().slice(0, 240);
+  const caption = (typeof body.caption === 'string' ? body.caption : (meta.caption || '')).trim().slice(0, 240);
   if (!caption) return json({ error: 'no-caption', message: 'A caption is required.' }, 400);
-  const visibility = (body.visibility === 'public' || body.visibility === 'crew') ? body.visibility : (m.visibility || 'crew');
+  const visibility = (body.visibility === 'public' || body.visibility === 'crew') ? body.visibility : (meta.visibility || 'crew');
   const ownerName = (admin && typeof body.by === 'string' && body.by.trim())
-    ? body.by.trim().slice(0, 60) : (m.ownerName || '');
+    ? body.by.trim().slice(0, 60) : (meta.ownerName || '');
 
   // R2 has no in-place metadata edit — rewrite the object (same key, same bytes) with new metadata.
   const bytes = await obj.arrayBuffer();
   await bucket.put(id, bytes, {
     httpMetadata: obj.httpMetadata,
-    customMetadata: { owner: m.owner || '', ownerName, caption, visibility, taken: m.taken || '', uploaded: m.uploaded || '' },
+    customMetadata: { owner: meta.owner || '', ownerName, caption, visibility, taken: meta.taken || '', uploaded: meta.uploaded || '' },
   });
   return json({ ok: true });
 }
