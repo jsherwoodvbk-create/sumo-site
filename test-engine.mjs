@@ -314,11 +314,12 @@ const SNAP_AUD = {
 const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
 const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
 const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
-t('toolsFor(member) is the full 17', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 17));
-t('toolsFor(public) = 15, omits condition+storylines, keeps catchphrases + rollup + birthdays + the reference tools', () => {
+t('toolsFor(member) is the full 18', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 18));
+t('toolsFor(public) = 16, omits condition+storylines, keeps catchphrases + rollup + birthdays + events + the reference tools', () => {
   const p = toolsFor('public').map(x=>x.name);
-  assert(p.length===15 && !p.includes('query_condition') && !p.includes('query_storylines')
+  assert(p.length===16 && !p.includes('query_condition') && !p.includes('query_storylines')
     && p.includes('query_catchphrases') && p.includes('query_rollup') && p.includes('query_birthdays')
+    && p.includes('query_events')
     && p.includes('query_basho') && p.includes('query_glossary') && p.includes('query_library'));
 });
 t('member view keeps injuries + days + nets (no regression)', () =>
@@ -488,6 +489,10 @@ const SNAP_REF = {
   library:[
     { title:'The Big Book of Sumo', author:'Sharnoff', year:1993, themes:['History','Culture'], notes:'a classic' },
   ],
+  specialEvents:[
+    { name:'US Sumo Open', startDate:'2019-09-14', endDate:'2019-09-14', location:'Walter Pyramid, Long Beach CA', url:'https://usasumo.com', notes:'The amateur open the crew went to.' },
+    { name:'Grand Sumo Osaka exhibition', startDate:'2027-02-08', endDate:null, location:'Osaka', url:null, notes:null },
+  ],
   days:[], injuries:[], catchphrases:[], history:{ meta:{}, basho:{} }, upcoming:null,
 };
 const refM = gateSnapshot(SNAP_REF, 2, false, 'member');
@@ -533,6 +538,40 @@ t('the three reference tools are registered + public', () => {
   for(const n of ['query_basho','query_glossary','query_library'])
     assert(TOOLS.some(x=>x.name===n) && toolsFor('public').some(x=>x.name===n));
 });
+
+// ═══ 12b. query_events — the crew's OWN events (schema/9), distinct from the six honbasho ═══
+// The payoff of the calendar editor: Sherry adds a US Open, and Gumbai can recall it. These live in
+// their own lane so a crew event is NEVER confused with a grand tournament, and they're public/timeless.
+console.log('\n[12b] query_events (crew special events, schema/9)');
+t('specialEvents lane passes the gate for BOTH audiences', () =>
+  assert(refM.specialEvents.length===2 && refP.specialEvents.length===2));
+t('query_events finds the US Open by name', () => {
+  const o = runTool('query_events', {q:'US Open'}, refM);
+  assert(o.found && o.count===1 && o.events[0].location.includes('Long Beach'));
+});
+t('query_events finds it by location too ("Long Beach")', () => {
+  assert(runTool('query_events', {q:'Long Beach'}, refM).events[0].name==='US Sumo Open');
+});
+t('query_events filters by year', () => {
+  const o = runTool('query_events', {q:'2019'}, refM);
+  assert(o.found && o.count===1 && o.events[0].name==='US Sumo Open');
+});
+t('query_events (no q) lists all, earliest first', () => {
+  const o = runTool('query_events', {}, refM);
+  assert(o.count===2 && o.events[0].startDate==='2019-09-14');
+});
+t('query_events single-day event carries a null end', () => {
+  const o = runTool('query_events', {q:'Osaka'}, refM);
+  assert(o.found && o.events[0].endDate===null);
+});
+t('query_events is PUBLIC (same answer for a public viewer)', () =>
+  assert(runTool('query_events', {q:'US Open'}, refP).count===1));
+t('query_events unknown term fails cleanly with the roster of names', () => {
+  const o = runTool('query_events', {q:'nope'}, refM);
+  assert(o.found===false && o.available.includes('US Sumo Open'));
+});
+t('crew events are DISTINCT from honbasho — query_basho never returns them', () =>
+  assert(!runTool('query_basho', {}, refM).bashos.some(b => /US Sumo Open/.test(String(b.name||'')))));
 
 // ═══ 13. INJURY CARRY-OVER (schema/8) — last basho's injuries stay real until the viewer's Day 1 ═══
 // Jennie's rule: a condition left open last basho is presumed real through the intertournament gap
