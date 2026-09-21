@@ -31,8 +31,13 @@ on:
         options: [pass1, pass2]
         default: pass1
       day:
-        description: "Day # to process (blank = today's ready row)"
+        description: "Day # to process (blank = today's ready row). REQUIRED when refan=1."
         default: ""
+      refan:
+        description: "1 = full re-fan of DAY: archive that day's Sightings, blank Storylines, clear its catchphrase links (ALL recoverable from Notion trash), then re-fan from the corrected transcript. REQUIRES day; fan.mjs aborts a blanket refan. Use after a VOD recapture."
+        type: choice
+        options: ["0", "1"]
+        default: "0"
       dry_run:
         description: "1 = rehearse the fan, write NOTHING to Notion, skip publish"
         default: "0"
@@ -71,6 +76,11 @@ jobs:
           # scheduled run - this one defaults everything non-manual to pass1.
           MODE:    ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.mode || 'pass1' }}
           DAY:     ${{ github.event.client_payload.day || github.event.inputs.day || '' }}
+          # REFAN is workflow_dispatch ONLY - github.event.inputs.refan is empty on a box dispatch or a
+          # scheduled belt run, so those resolve to '0' and can NEVER accidentally re-fan a day. A real
+          # re-fan is always a deliberate manual run (mode=pass1, day=N, refan=1), and fan.mjs itself
+          # refuses REFAN without an explicit DAY.
+          REFAN:   ${{ github.event.inputs.refan || '0' }}
           DRY_RUN: ${{ github.event.inputs.dry_run || '0' }}
         # fan.mjs exits 3 on a soft problem (still emailed) and 1 on a crash; either fails this job LOUD.
         run: node fan.mjs
