@@ -33,8 +33,13 @@ header{background:linear-gradient(160deg,#6e4826,#432a15);color:#fff;border-radi
 .hbrand{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
 header .htitle{font-family:'Zen Old Mincho',Georgia,serif;font-size:25px;margin:0 0 3px;font-weight:900;}
 header .sub{opacity:.9;font-size:13.5px;margin:0;}
-.hnav{margin-left:auto;display:flex;gap:12px;}
-.homecrest{width:38px;height:38px;border-radius:50%;overflow:hidden;background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);}
+.hnav{margin-left:auto;display:flex;align-items:center;gap:12px;flex:0 0 auto;}
+.hnav a.backcoin{display:inline-flex;text-decoration:none;}
+.hnav .hdcoin{width:42px;height:42px;display:block;filter:drop-shadow(0 2px 5px rgba(0,0,0,.32));
+  transition:transform .12s ease, filter .12s ease;}
+.hnav a.backcoin:hover .hdcoin{transform:translateY(-1px);filter:drop-shadow(0 5px 11px rgba(0,0,0,.4));}
+.homecrest{width:38px;height:38px;border-radius:50%;flex:0 0 auto;overflow:hidden;background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease, box-shadow .12s ease;}
+.homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34);}
 .homecrest img{width:100%;height:100%;object-fit:cover;display:block;}
 h2{font-family:'Zen Old Mincho',Georgia,serif;font-weight:700;font-size:20px;margin:0 0 12px;}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:20px;}
@@ -73,6 +78,33 @@ textarea{resize:vertical;min-height:66px;}
 </style>
 </head>
 <body>
+<!-- dohyo-coin icon defs (same set as the site/app) — powers the back-to-calendar coin -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+  <symbol id="ic-calendar" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+    <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+    <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+    <g clip-path="url(#coinClip)" filter="url(#inkS)">
+      <rect x="43" y="31" width="6" height="14" rx="3" fill="#211a12"/>
+      <rect x="71" y="31" width="6" height="14" rx="3" fill="#211a12"/>
+      <rect x="33" y="39" width="54" height="49" rx="7" fill="#211a12"/>
+      <path d="M33 46 a7 7 0 0 1 7-7 h40 a7 7 0 0 1 7 7 v6 h-54 z" fill="#b23a2e"/>
+      <g fill="#efe7d5">
+        <rect x="40" y="60" width="9" height="7" rx="1.5"/>
+        <rect x="55.5" y="60" width="9" height="7" rx="1.5"/>
+        <rect x="71" y="60" width="9" height="7" rx="1.5"/>
+        <rect x="40" y="73" width="9" height="7" rx="1.5"/>
+        <rect x="55.5" y="73" width="9" height="7" rx="1.5"/>
+        <rect x="71" y="73" width="9" height="7" rx="1.5"/>
+      </g>
+    </g>
+  </symbol>
+</defs></svg>
 <div class="wrap">
   <header>
     <div class="hbrand">
@@ -80,7 +112,10 @@ textarea{resize:vertical;min-height:66px;}
         <div class="htitle">Crew Events</div>
         <p class="sub">Add your own events to the calendar &middot; tournaments stay machine-managed</p>
       </div>
-      <nav class="hnav"><a class="homecrest" href="/app" title="Back to the app" aria-label="App home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a></nav>
+      <nav class="hnav">
+        <a class="backcoin" href="/calendar" title="Back to the calendar" aria-label="Back to the calendar"><svg class="hdcoin" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-calendar"/></svg></a>
+        <a class="homecrest" href="/app" title="Back to the app" aria-label="App home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+      </nav>
     </div>
   </header>
 
