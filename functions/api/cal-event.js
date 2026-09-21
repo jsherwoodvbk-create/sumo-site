@@ -92,26 +92,34 @@ async function assertSpecial(env, id) {
   return page;
 }
 
+const normName = s => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+
+// The current crew (Special Event) rows, shaped for the editor list — the single Notion read reused
+// by GET, the add-time duplicate guard, and the calendar's admin live-merge.
+async function queryEvents(env) {
+  const r = await notion(env, `/databases/${BASHOS_DB}/query`, 'POST', {
+    page_size: 100,
+    filter: { property: 'Type', select: { equals: SPECIAL } },
+    sorts: [{ property: 'Start Date', direction: 'ascending' }],
+  });
+  return (r.results || []).map(p => ({
+    id: p.id,
+    name: tl(p, 'Tournament Name'),
+    start: dt(p, 'Start Date'),
+    end: dt(p, 'End Date'),
+    location: rt(p, 'Event Location') || null,
+    link: ur(p, 'Event Link'),
+    notes: rt(p, 'Notes') || null,
+    addedBy: rt(p, 'Added by') || null,               // who created it (stamped from the login on add)
+  }));
+}
+
 // ---- GET: list the crew (Special Event) rows so the editor can show + edit + delete them --------
 export async function onRequestGet({ request, env }) {
   const gate = await requireRole(request, env, ROLES.ADMIN);
   if (!gate.ok) return gate.response;
   try {
-    const r = await notion(env, `/databases/${BASHOS_DB}/query`, 'POST', {
-      page_size: 100,
-      filter: { property: 'Type', select: { equals: SPECIAL } },
-      sorts: [{ property: 'Start Date', direction: 'ascending' }],
-    });
-    const events = (r.results || []).map(p => ({
-      id: p.id,
-      name: tl(p, 'Tournament Name'),
-      start: dt(p, 'Start Date'),
-      end: dt(p, 'End Date'),
-      location: rt(p, 'Event Location') || null,
-      link: ur(p, 'Event Link'),
-      notes: rt(p, 'Notes') || null,
-    }));
-    return json({ ok: true, me: gate.member.email, events });
+    return json({ ok: true, me: gate.member.email, events: await queryEvents(env) });
   } catch (e) { return fail(e); }
 }
 
@@ -123,8 +131,18 @@ export async function onRequestPost({ request, env }) {
   const ev = cleanEvent(body);
   if (ev.error) return json({ error: 'bad-input', message: ev.error }, 400);
   try {
-    const created = await notion(env, '/pages', 'POST', { parent: { database_id: BASHOS_DB }, properties: props(ev) });
-    return json({ ok: true, id: created.id, event: ev });
+    // Duplicate guard — the real safety net for "it didn't show on the calendar, so I added it again."
+    // A crew event won't reach the calendar grid until the next snapshot rebuild, so a re-add is easy;
+    // reject a create that matches an existing Special Event on name + start date, and hand back the
+    // one already on file so the editor can say "that's already added."
+    const existing = await queryEvents(env);
+    const dup = existing.find(e => e.start === ev.start && normName(e.name) === normName(ev.name));
+    if (dup) return json({ error: 'duplicate', message: `"${dup.name}" on ${dup.start} is already added — it'll appear on the calendar at the next refresh.`, event: dup }, 409);
+    // Stamp WHO added it, from the verified session (not on PATCH — an edit keeps the original author).
+    const addedBy = (gate.member.name || gate.member.email || '').toString().slice(0, 80);
+    const properties = { ...props(ev), 'Added by': { rich_text: addedBy ? [{ text: { content: addedBy } }] : [] } };
+    const created = await notion(env, '/pages', 'POST', { parent: { database_id: BASHOS_DB }, properties });
+    return json({ ok: true, id: created.id, event: { ...ev, id: created.id, addedBy: addedBy || null } });
   } catch (e) { return fail(e); }
 }
 
