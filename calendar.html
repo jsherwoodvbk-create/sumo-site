@@ -1,0 +1,344 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sumo Calendar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --ground:#f1e9db; --surface:#fbf7ef; --surface-2:#efe6d3;
+  --ink:#26262b; --muted:#6f695d; --faint:#9a9182; --line:#e2d9c7;
+  --honbasho:#cf5a2c; --birthday:#6a3d9a; --special:#227a4b;
+  --today:#a9742c; --accent:#6a3d9a; --radius:12px;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --ground:#171719; --surface:#212127; --surface-2:#1b1b21;
+  --ink:#ece4d4; --muted:#a49c8b; --faint:#7b7364; --line:#33333b;
+  --honbasho:#e5814f; --birthday:#b892e4; --special:#49bd82;
+  --today:#d2a35c; --accent:#b892e4;
+}}
+:root[data-theme="dark"]{
+  --ground:#171719; --surface:#212127; --surface-2:#1b1b21;
+  --ink:#ece4d4; --muted:#a49c8b; --faint:#7b7364; --line:#33333b;
+  --honbasho:#e5814f; --birthday:#b892e4; --special:#49bd82;
+  --today:#d2a35c; --accent:#b892e4;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);
+  font-family:'Inter',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:1080px;margin:0 auto;padding:26px 22px 60px;}
+.tnum{font-variant-numeric:tabular-nums;}
+
+/* ---- SITE HEADER — the standings clay band ---- */
+header{
+  background:
+    repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(182deg, rgba(255,255,255,.05) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+    linear-gradient(160deg,#6e4826,#432a15);
+  color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:16px;border:1px solid #38230f;
+  box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10), inset 0 -3px 7px rgba(0,0,0,.25);}
+.hbrand{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
+.hdicon{width:56px;height:56px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3));}
+header .htitle{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif;font-size:25px;margin:0 0 3px;font-weight:900;line-height:1.1;}
+header .sub{opacity:.9;font-size:13.5px;margin:0;font-family:'Inter',system-ui,sans-serif;}
+.hnav{margin-left:auto;display:flex;align-items:center;gap:12px;flex:0 0 auto;}
+.homecrest{width:38px;height:38px;border-radius:50%;flex:0 0 auto;overflow:hidden;
+  background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);
+  transition:transform .12s ease, box-shadow .12s ease;}
+.homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34);}
+.homecrest img{width:100%;height:100%;object-fit:cover;display:block;}
+
+/* ---- CALENDAR TOOLBAR ---- */
+.calbar{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap;}
+.calbar h2{font-family:'Zen Old Mincho',Georgia,serif;font-weight:700;font-size:24px;margin:0;min-width:200px;}
+.navbtns{display:inline-flex;gap:6px;}
+.navbtns button,.todaybtn{font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:6px 12px;border-radius:8px;
+  border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1;}
+.navbtns button:hover,.todaybtn:hover{background:var(--surface-2);}
+.legend{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
+.legend .li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
+.legend .sw{width:13px;height:13px;border-radius:4px;flex:none;}
+.legend .sw.dot{border-radius:50%;width:10px;height:10px;}
+
+/* ---- MONTH GRID ---- */
+.grid{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);background:var(--surface-2);border-bottom:1px solid var(--line);}
+.dow span{padding:8px 10px;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint);font-weight:600;}
+.wk{display:grid;grid-template-columns:repeat(7,1fr);}
+.day{min-height:104px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);padding:6px 6px 8px;
+  display:flex;flex-direction:column;gap:3px;overflow:hidden;}
+.day:nth-child(7n){border-right:0;}
+.wk:last-child .day{border-bottom:0;}
+.day.out{background:var(--surface-2);}
+.day .dnum{font-family:'Inter',system-ui,sans-serif;font-size:12.5px;font-weight:600;color:var(--ink);
+  align-self:flex-start;line-height:1.4;padding:1px 2px;}
+.day.out .dnum{color:var(--faint);font-weight:400;}
+.day.today .dnum{background:var(--today);color:#fff;border-radius:50%;width:22px;height:22px;text-align:center;
+  display:grid;place-items:center;}
+/* event chips */
+.ev{font-size:11px;line-height:1.3;padding:2px 6px;border-radius:6px;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  cursor:default;}
+.ev.honbasho{background:var(--honbasho);}
+.ev.special{background:var(--special);}
+.ev.mid{border-radius:0;margin-left:-6px;margin-right:-6px;padding-left:6px;padding-right:6px;}
+.ev.start{border-top-right-radius:0;border-bottom-right-radius:0;margin-right:-6px;padding-right:6px;}
+.ev.end{border-top-left-radius:0;border-bottom-left-radius:0;margin-left:-6px;padding-left:6px;}
+.ev.cont .lbl{visibility:hidden;}          /* only the week's first covered cell shows the label */
+.bd{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink);padding:1px 3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.bd .dot{width:8px;height:8px;border-radius:50%;background:var(--birthday);flex:none;}
+.bd .yr{color:var(--faint);font-size:9.5px;}
+.more{font-size:10px;color:var(--faint);padding:0 3px;cursor:pointer;}
+@media(max-width:720px){
+  .day{min-height:76px;}
+  .ev,.bd{font-size:10px;}
+  .legend{width:100%;margin-left:0;}
+}
+
+/* ---- SUBSCRIBE PANEL ---- */
+.subcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;margin-top:18px;}
+.subcard h3{font-family:'Inter',system-ui,sans-serif;font-weight:600;font-size:15px;margin:0 0 4px;}
+.subcard p{font-size:13px;color:var(--muted);margin:0 0 12px;max-width:70ch;}
+.subcard .row{display:flex;gap:9px;flex-wrap:wrap;align-items:center;}
+.subcard input{flex:1;min-width:220px;font-family:'Inter',system-ui,monospace;font-size:12.5px;padding:8px 10px;
+  border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink);}
+.subcard button{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:500;padding:8px 14px;border-radius:8px;
+  border:1px solid var(--accent);background:var(--accent);color:#fff;cursor:pointer;}
+.subcard button.ghost{background:transparent;color:var(--accent);}
+.subcard .hint{font-size:11.5px;color:var(--faint);margin-top:10px;}
+.subcard .hint b{color:var(--muted);font-weight:600;}
+.subcard a{color:var(--accent);}
+.subcard .rotate{font-size:11.5px;color:var(--faint);background:none;border:0;cursor:pointer;text-decoration:underline;padding:0;margin-top:8px;}
+
+.footer{margin-top:22px;display:flex;flex-wrap:wrap;gap:8px 24px;align-items:center;padding-top:15px;
+  border-top:1px solid var(--line);font-size:12px;color:var(--muted);}
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+  <symbol id="ic-cal" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+    <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+    <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+    <g clip-path="url(#coinClip)" filter="url(#inkS)" fill="#211a12">
+      <rect x="37" y="40" width="46" height="40" rx="5" fill="none" stroke="#211a12" stroke-width="4"/>
+      <rect x="37" y="40" width="46" height="12" rx="5"/>
+      <rect x="46" y="33" width="5" height="12" rx="2.5"/><rect x="69" y="33" width="5" height="12" rx="2.5"/>
+      <rect x="44" y="58" width="8" height="7" rx="1.5"/><rect x="56" y="58" width="8" height="7" rx="1.5"/><rect x="68" y="58" width="8" height="7" rx="1.5"/>
+      <rect x="44" y="68" width="8" height="7" rx="1.5"/><rect x="56" y="68" width="8" height="7" rx="1.5"/>
+    </g>
+  </symbol>
+</defs></svg>
+
+<div class="wrap">
+  <header>
+    <div class="hbrand">
+      <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-cal"/></svg>
+      <div>
+        <div class="htitle">Sumo Calendar</div>
+        <p class="sub">Tournaments, rikishi birthdays &amp; crew events &middot; one feed</p>
+      </div>
+      <nav class="hnav">
+        <a class="homecrest" href="/" title="Salt Stats &amp; Sumo &middot; home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="calbar">
+    <h2 id="monthLabel">—</h2>
+    <div class="navbtns">
+      <button id="prev" aria-label="Previous month">‹</button>
+      <button id="next" aria-label="Next month">›</button>
+    </div>
+    <button class="todaybtn" id="today">Today</button>
+    <div class="legend">
+      <span class="li"><span class="sw" style="background:var(--honbasho)"></span> Honbasho</span>
+      <span class="li"><span class="sw dot" style="background:var(--birthday)"></span> Birthday</span>
+      <span class="li"><span class="sw" style="background:var(--special)"></span> Special event</span>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="dow"><span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span></div>
+    <div id="weeks"></div>
+  </div>
+
+  <div class="subcard" id="subscribe" hidden></div>
+
+  <div class="footer">
+    <span>Dates from the tracker &middot; birthdays are every tracked rikishi. No spoilers here — just the schedule.</span>
+  </div>
+</div>
+
+<script>
+/* =====================================================================
+   CALENDAR DATA — the contract this page renders (from calendar.json, built
+   by gen-calendar.mjs). Embedded SAMPLE below (meta.sample) so the page is
+   never blank if the JSON is missing or a fetch is sandbox-blocked; it
+   upgrades to the live JSON in the background.
+   ===================================================================== */
+const SAMPLE = {
+  meta:{ sample:true, schema:'calendar/1' },
+  events:[
+    { id:'hb-202609', kind:'honbasho', title:'Aki 2026', start:'2026-09-13', end:'2026-09-27', location:'IG Arena - Nagoya' },
+    { id:'hb-202611', kind:'honbasho', title:'Kyushu 2026', start:'2026-11-08', end:'2026-11-22', location:'Fukuoka Kokusai' },
+    { id:'se-sample', kind:'special', title:'US Open — Long Beach', start:'2026-10-10', end:'2026-10-11', location:'Walter Pyramid, Long Beach CA', url:'https://usasumo.com', notes:'Annual open tournament' },
+  ],
+  birthdays:[
+    { id:'bd-a', kind:'birthday', name:'Onosato', month:6, day:7, bornYear:2000 },
+    { id:'bd-b', kind:'birthday', name:'Aonishiki', month:3, day:23, bornYear:2004 },
+    { id:'bd-c', kind:'birthday', name:'Hoshoryu', month:5, day:22, bornYear:1999 },
+  ],
+};
+
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const parseYMD = s => { const m=String(s).match(/^(\d{4})-(\d{2})-(\d{2})$/); return m? new Date(+m[1],+m[2]-1,+m[3]) : null; };
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+let DATA = SAMPLE;
+const now = new Date();
+let viewY = now.getFullYear(), viewM = now.getMonth();   // 0-based month
+
+// Build the 6-row (Sun-start) matrix of Date cells for a month.
+function monthMatrix(y, m){
+  const first = new Date(y, m, 1);
+  const startOffset = first.getDay();                 // 0=Sun
+  const gridStart = new Date(y, m, 1 - startOffset);
+  const cells = [];
+  for(let i=0;i<42;i++){ const d = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate()+i); cells.push(d); }
+  // trim a trailing all-out week (only 6th row if it belongs to the next month entirely)
+  if(cells[35] && cells[35].getMonth()!==m && cells[28].getMonth()!==m) cells.length=35;
+  return cells;
+}
+
+// A spanning event covers [start, end||start] inclusive. Does it cover date d?
+function eventCoversDay(ev, d){
+  const s = parseYMD(ev.start); if(!s) return false;
+  const e = ev.end ? parseYMD(ev.end) : s;
+  const t = new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  return t>=new Date(s.getFullYear(),s.getMonth(),s.getDate()) && t<=new Date(e.getFullYear(),e.getMonth(),e.getDate());
+}
+// Birthdays recur every year: match on month+day regardless of year.
+function birthdaysForDay(d){
+  return (DATA.birthdays||[]).filter(b => b.month===d.getMonth()+1 && b.day===d.getDate());
+}
+
+function render(){
+  document.getElementById('monthLabel').textContent = `${MONTHS[viewM]} ${viewY}`;
+  const cells = monthMatrix(viewY, viewM);
+  const weeksEl = document.getElementById('weeks');
+  const todayStr = ymd(now);
+  let html = '';
+  for(let w=0; w<cells.length/7; w++){
+    html += '<div class="wk">';
+    for(let i=0;i<7;i++){
+      const d = cells[w*7+i];
+      const out = d.getMonth()!==viewM;
+      const isToday = ymd(d)===todayStr;
+      let chips = '';
+      // spanning events (honbasho + special) covering this day
+      const spans = (DATA.events||[]).filter(ev => eventCoversDay(ev, d));
+      for(const ev of spans){
+        const s = parseYMD(ev.start), e = ev.end?parseYMD(ev.end):s;
+        const isStart = d.getDate()===s.getDate() && d.getMonth()===s.getMonth() && d.getFullYear()===s.getFullYear();
+        const isEnd = d.getDate()===e.getDate() && d.getMonth()===e.getMonth() && d.getFullYear()===e.getFullYear();
+        const weekStart = i===0;                       // first column of the row
+        // continuity classes: round the true ends; square the middles
+        let cls = ev.kind;
+        if(!isStart && !isEnd) cls += ' mid';
+        else if(isStart && !isEnd) cls += ' start';
+        else if(isEnd && !isStart) cls += ' end';
+        // show the label only on the true start OR the first cell of a continuing week
+        const showLabel = isStart || weekStart;
+        if(!showLabel) cls += ' cont';
+        const title = ev.title + (ev.location?` — ${ev.location}`:'') ;
+        chips += `<div class="ev ${cls}" title="${esc(title)}"><span class="lbl">${esc(ev.title)}</span></div>`;
+      }
+      // birthdays (recurring) — up to 3, then +N
+      const bdays = birthdaysForDay(d);
+      const shown = bdays.slice(0,3);
+      for(const b of shown){
+        const age = viewY - b.bornYear;
+        chips += `<div class="bd" title="${esc(b.name)} — born ${b.month}/${b.day}/${b.bornYear} (turns ${age})"><span class="dot"></span>${esc(b.name)} <span class="yr">${age}</span></div>`;
+      }
+      if(bdays.length>3) chips += `<div class="more" title="${esc(bdays.slice(3).map(b=>b.name).join(', '))}">+${bdays.length-3} more</div>`;
+      html += `<div class="day${out?' out':''}${isToday?' today':''}"><span class="dnum">${d.getDate()}</span>${chips}</div>`;
+    }
+    html += '</div>';
+  }
+  weeksEl.innerHTML = html;
+}
+
+document.getElementById('prev').onclick = ()=>{ viewM--; if(viewM<0){viewM=11;viewY--;} render(); };
+document.getElementById('next').onclick = ()=>{ viewM++; if(viewM>11){viewM=0;viewY++;} render(); };
+document.getElementById('today').onclick = ()=>{ viewY=now.getFullYear(); viewM=now.getMonth(); render(); };
+
+render();  // immediately from the sample so the page is never blank
+
+// upgrade to the live calendar.json in the background
+fetch('/calendar.json', {cache:'no-store'})
+  .then(r => r.ok ? r.json() : null)
+  .then(j => { if(j && j.events){ DATA = j; render(); } })
+  .catch(()=>{ /* keep the sample */ });
+
+/* ---- SUBSCRIBE PANEL (member-gated, self-checks via /api/app/whoami) ----
+   Public visitors see a "log in to subscribe" nudge; a signed-in member gets their personal
+   .ics feed URL (minted/returned by /api/cal/subscribe) with copy + Google/Apple hints. The
+   browse grid above is public either way — only the feed is gated. */
+const subEl = document.getElementById('subscribe');
+function showSubscribe(html){ subEl.innerHTML = html; subEl.hidden = false; }
+
+fetch('/api/app/whoami', {cache:'no-store'})
+  .then(r => r.ok ? r.json() : null)
+  .then(me => {
+    if(!me || !me.email){
+      showSubscribe(`<h3>Subscribe to the calendar</h3>
+        <p>Crew members get a personal calendar feed you can add to Google or Apple Calendar — it stays up to date automatically. <a href="/login">Log in</a> to get your link.</p>`);
+      return;
+    }
+    showSubscribe(`<h3>Your calendar feed</h3>
+      <p>Add this private link to Google or Apple Calendar and the schedule keeps itself current. It's yours — don't share it.</p>
+      <div class="row">
+        <input id="feedUrl" readonly placeholder="Click “Get my link” to generate your feed URL">
+        <button id="getLink">Get my link</button>
+        <button id="copyLink" class="ghost" hidden>Copy</button>
+      </div>
+      <div class="hint"><b>Google Calendar:</b> Other calendars → From URL → paste. &nbsp; <b>Apple Calendar:</b> File → New Calendar Subscription → paste.</div>
+      <button class="rotate" id="rotate" hidden>Lost or leaked your link? Reset it</button>`);
+
+    const input = document.getElementById('feedUrl');
+    const getBtn = document.getElementById('getLink');
+    const copyBtn = document.getElementById('copyLink');
+    const rotateBtn = document.getElementById('rotate');
+
+    async function fetchLink(rotate){
+      getBtn.disabled = true; getBtn.textContent = 'Working…';
+      try{
+        const r = await fetch('/api/cal/subscribe', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ rotate: !!rotate }) });
+        const j = await r.json();
+        if(j && j.url){
+          input.value = location.origin + j.url;
+          copyBtn.hidden = false; rotateBtn.hidden = false;
+          getBtn.hidden = true;
+        } else {
+          input.value = 'Could not generate a link — try again.';
+        }
+      }catch(_){ input.value = 'Could not generate a link — try again.'; }
+      getBtn.disabled = false; getBtn.textContent = 'Get my link';
+    }
+    getBtn.onclick = ()=> fetchLink(false);
+    rotateBtn.onclick = ()=>{ if(confirm('Reset your calendar link? The old one will stop working.')) fetchLink(true); };
+    copyBtn.onclick = ()=>{ input.select(); try{ document.execCommand('copy'); copyBtn.textContent='Copied'; setTimeout(()=>copyBtn.textContent='Copy',1500);}catch(_){}}
+  })
+  .catch(()=>{ /* whoami unreachable → leave the subscribe panel hidden, browse still works */ });
+</script>
+</body>
+</html>
