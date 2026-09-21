@@ -1,105 +1,180 @@
-name: Publish standings
+// gen-calendar.mjs — build the Salt Stats & Sumo calendar snapshot straight from Notion.
+// Runs in GitHub Actions (Node 20 fetch, NOTION_TOKEN), same pattern as gen-gumbai-snapshot.mjs.
+//
+// THREE EVENT CLASSES (calendar spec B1) -> one snapshot:
+//   1. honbasho  — 🏆 Bashos where Type = Honbasho (the six grand tournaments). 15-day date span.
+//   2. birthday  — EVERY 🤼 Master Rikishi with a Birthday (the full tracked set, not just the
+//                  current 42). Recurring annual, all-day. Stored as {month, day, bornYear}.
+//   3. special   — 🏆 Bashos where Type = Special Event (US Open, etc.). Untethered; carries its
+//                  own Event Location / Event Link / Notes.
+//
+// TWO OUTPUTS from one pull (so we never read Notion at request time — the app-build-plan rule):
+//   • calendar.json          — static asset the PUBLIC month-grid page fetches (client-side).
+//   • functions/api/_calendar.js  — `export default <same data>` for the .ics feed Function to import.
+//
+// FIREWALL: dates + public birthdays only. No results, no records — nothing spoiler-sensitive — so
+// the browse view is public and the feed carries no watched-day gate (the member wall is an access
+// choice, not a spoiler gate).
+//
+// ENV: NOTION_TOKEN (required) · OUT_JSON (default calendar.json) · OUT_JS (default functions/api/_calendar.js)
+import fs from 'node:fs';
+import path from 'node:path';
+import process from 'node:process';
 
-on:
-  workflow_call: {}              # lets fan-and-publish.yml chain this after the fan (confirmed live in repo 2026-09-19)
-  workflow_dispatch: {}          # lets us run it by hand to test
-  schedule:
-    # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
-    # Rebuilds standings.html from sumo-api and the Gumbai snapshot from Notion, commits only if
-    # they changed (so repeats are no-ops until new results land). Runs ~15 min after the sync
-    # workflow, so Notion already holds the latest day before the Gumbai snapshot is rebuilt.
-    - cron: "32 11 * * *"        # ~04:32 AM PT
-    - cron: "32 13 * * *"        # ~06:32 AM PT
-    - cron: "32 15 * * *"        # ~08:32 AM PT
-    - cron: "32 17 * * *"        # ~10:32 AM PT
-    - cron: "32 22 * * *"        # ~03:32 PM PT — afternoon backstop
+// Make the PARENT directory of a target file, but never mkdir the file itself. path.dirname of a
+// bare filename is '.', which we skip — the earlier bug was `mkdir calendar.json`, which created a
+// DIRECTORY named calendar.json and made writeFileSync fail with EISDIR.
+function ensureDir(file) {
+  const dir = path.dirname(file);
+  if (dir && dir !== '.') fs.mkdirSync(dir, { recursive: true });
+}
 
-permissions:
-  contents: write                # allow the built-in token to commit
+const NOTION_TOKEN = process.env.NOTION_TOKEN;
+const NOTION_VERSION = '2022-06-28';
+const OUT_JSON = process.env.OUT_JSON || 'calendar.json';
+const OUT_JS = process.env.OUT_JS || 'functions/api/_calendar.js';
 
-concurrency:
-  group: publish
-  cancel-in-progress: false
+const DB = {
+  bashos:        'ae8b304d-8655-4072-934e-d01a43fe11ce',   // 🏆 Bashos (Honbasho + Special Event)
+  masterRikishi: 'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',   // 🤼 Master Rikishi (Birthday)
+};
 
-jobs:
-  publish:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+// ---------- Notion REST (same shape as the other generators) ----------
+async function notion(path, method = 'GET', body) {
+  const res = await fetch('https://api.notion.com/v1' + path, {
+    method,
+    headers: { Authorization: `Bearer ${NOTION_TOKEN}`, 'Notion-Version': NOTION_VERSION, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  const text = await res.text();
+  if (!res.ok) throw new Error(`Notion ${method} ${path} -> ${res.status}: ${text}`);
+  return text ? JSON.parse(text) : {};
+}
+async function queryAll(dbId, filter) {
+  const out = []; let cursor;
+  do {
+    const body = { page_size: 100 };
+    if (cursor) body.start_cursor = cursor;
+    if (filter) body.filter = filter;
+    const r = await notion(`/databases/${dbId}/query`, 'POST', body);
+    out.push(...r.results); cursor = r.has_more ? r.next_cursor : null;
+  } while (cursor);
+  return out;
+}
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+// ---------- property readers ----------
+const idShort = s => String(s || '').replace(/-/g, '').slice(0, 12);
+const titleOf = (p, prop) => { const x = p.properties?.[prop]; const a = x?.title || x?.rich_text || []; return a.map(t => t.plain_text).join('').trim(); };
+const textOf  = (p, prop) => (p.properties?.[prop]?.rich_text || []).map(t => t.plain_text).join('').trim();
+const selOf   = (p, prop) => p.properties?.[prop]?.select?.name ?? null;
+const numOf   = (p, prop) => (typeof p.properties?.[prop]?.number === 'number' ? p.properties[prop].number : null);
+const dateOf  = (p, prop) => p.properties?.[prop]?.date?.start ? String(p.properties[prop].date.start).slice(0, 10) : null;
+const urlOf   = (p, prop) => (p.properties?.[prop]?.url || '').trim() || null;
 
-      # SPOILER-GATE TEST GATE (added 2026-08-01). Runs the Gumbai engine's unit tests against the
-      # engine that's actually committed (test-engine.mjs imports ./functions/api/_engine.js). If ANY
-      # check fails — a leaked spoiler token, a broken day-gate, a mis-gated champion — the job fails
-      # HERE and nothing below runs, so a broken engine can never be committed or deployed. Pure Node,
-      # no npm install needed. Requires test-engine.mjs at the repo root (committed alongside the engine).
-      - name: Gumbai engine tests (spoiler gate)
-        run: node test-engine.mjs
+// ---------- pure shaping (exported for the unit test) ----------
 
-      - name: Rebuild standings.html from Notion
-        env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        run: node build-standings.mjs
+// A 🏆 Bashos page -> a calendar event, or null if it has no usable date.
+// Type === 'Special Event' -> special (untethered, free-text location/url); everything else -> honbasho.
+export function bashoToEvent(p) {
+  const type = selOf(p, 'Type');
+  const start = dateOf(p, 'Start Date');
+  const end = dateOf(p, 'End Date');
+  if (!start) return null;                                   // no date, no calendar entry (blank-not-faked)
+  if (type === 'Special Event') {
+    return {
+      id: 'se-' + idShort(p.id),
+      kind: 'special',
+      title: titleOf(p, 'Tournament Name') || 'Special Event',
+      start, end: end || null,
+      location: textOf(p, 'Event Location') || null,
+      url: urlOf(p, 'Event Link'),
+      notes: textOf(p, 'Notes') || null,
+    };
+  }
+  const basho = selOf(p, 'Basho');
+  const year = numOf(p, 'Year');
+  const code = start.slice(0, 4) + start.slice(5, 7);        // YYYYMM
+  return {
+    id: 'hb-' + code,
+    kind: 'honbasho',
+    title: (basho && year) ? `${basho} ${year}` : (titleOf(p, 'Tournament Name') || 'Honbasho'),
+    basho, year,
+    start, end: end || null,
+    location: selOf(p, 'Location') || null,
+  };
+}
 
-      - name: Rebuild Gumbai snapshot from Notion
-        # Non-fatal: if the Notion pull hiccups the snapshot self-aborts and writes nothing
-        # (leaving the last good one in place), and the standings publish below still runs.
-        continue-on-error: true
-        env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        run: node gen-gumbai-snapshot.mjs
+// A 🤼 Master Rikishi page -> a recurring annual birthday, or null if no DOB.
+export function rikishiToBirthday(p) {
+  const dob = dateOf(p, 'Birthday');                          // "YYYY-MM-DD"
+  const name = titleOf(p, 'Ring Name');
+  if (!dob || !name) return null;
+  const m = dob.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (!m) return null;
+  return {
+    id: 'bd-' + idShort(p.id),
+    kind: 'birthday',
+    name,
+    month: parseInt(m[2], 10),   // 1-12
+    day: parseInt(m[3], 10),     // 1-31
+    bornYear: parseInt(m[1], 10),
+  };
+}
 
-      - name: Rebuild calendar snapshot from Notion
-        # Builds calendar.json (public month-grid page) + functions/api/_calendar.js (the .ics feed).
-        # Non-fatal by the same logic as the Gumbai snapshot: gen-calendar.mjs self-aborts and writes
-        # nothing if the Notion pull comes back empty, leaving the last good calendar in place. Reads
-        # 🏆 Bashos + 🤼 Master Rikishi, both already shared with the publish integration.
-        continue-on-error: true
-        env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        run: node gen-calendar.mjs
+// Assemble the snapshot object from raw Notion pages (pure — the test drives this directly).
+export function buildSnapshot(bashoPages, rikishiPages) {
+  const events = [];
+  for (const p of bashoPages) { const e = bashoToEvent(p); if (e) events.push(e); }
+  events.sort((a, b) => String(a.start).localeCompare(String(b.start)));
 
-      - name: Rebuild per-rikishi metrics (daily, with a backstop)
-        # Refreshes rikishi-metrics.json for the dashboards. Gated to the 08:32 AM + 03:32 PM PT crons +
-        # manual runs, NOT all five: the sumo-api career/rank pull (~3 calls x 42 wrestlers) is heavy and
-        # mostly basho-STATIC, while the daily-changing pieces (crew record, kimarite, caliber, henka) come
-        # from Notion — so at most twice a day. The 03:32 PM run is a backstop in case GitHub silently
-        # drops the morning cron (the same resilience reason there are five publish crons). The output
-        # carries no per-run timestamp, so a second same-day run writes identical bytes and the commit
-        # gate below skips it — no churn. Non-fatal: a hiccup or a partial sumo-api miss leaves the last
-        # good JSON in place (the generator is blank-not-faked). The FULL career refresh also rides the
-        # banzuke drop via the gen-rikishi-metrics dispatch.
-        # NOTE (2026-09-19): on a fan-triggered publish the event is repository_dispatch, so this step
-        # correctly SKIPS (not workflow_dispatch, no schedule match) — standings + snapshot still rebuild.
-        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '32 15 * * *' || github.event.schedule == '32 22 * * *' }}
-        continue-on-error: true
-        env:
-          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        run: node gen-rikishi-metrics.mjs
+  const birthdays = [];
+  for (const p of rikishiPages) { const b = rikishiToBirthday(p); if (b) birthdays.push(b); }
+  birthdays.sort((a, b) => (a.month - b.month) || (a.day - b.day) || a.name.localeCompare(b.name));
 
-      - name: Commit & push if anything changed
-        # FIX 2026-07-30: stage FIRST, then check the staged diff. The old gate used
-        # `git diff --quiet -- <paths>`, which only sees TRACKED files — so a regenerated
-        # but UNTRACKED _snapshot.js (e.g. after the folder was deleted/recreated) was invisible
-        # to the check and never committed, especially once the basho ended and standings stopped
-        # changing. Staging before checking makes the check and the action agree on what they see.
-        run: |
-          git config user.name "sumo-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git add standings.html index.html functions/api/_snapshot.js functions/api/_calendar.js
-          # rikishi-metrics.json may be absent on a run where the (gated, continue-on-error) metrics
-          # rebuild didn't run or bailed. `git add <missing-path>` is FATAL under bash -e and would fail
-          # this whole step — stopping standings + snapshot from ever committing. Add it only if present.
-          if [ -f rikishi-metrics.json ]; then git add rikishi-metrics.json; fi
-          # calendar.json is created by gen-calendar.mjs; it won't exist until the first successful run
-          # (and the generator self-aborts on an empty pull). Add it only if present, same guard.
-          if [ -f calendar.json ]; then git add calendar.json; fi
-          if git diff --cached --quiet; then
-            echo "No change — nothing to publish."
-          else
-            git commit -m "Auto-update standings + homepage + Gumbai snapshot + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
-            git push
-          fi
+  const honbasho = events.filter(e => e.kind === 'honbasho');
+  const special = events.filter(e => e.kind === 'special');
+  return {
+    meta: {
+      generated: new Date().toISOString(),
+      schema: 'calendar/1',
+      source: 'notion',
+      counts: { honbasho: honbasho.length, special: special.length, birthdays: birthdays.length },
+    },
+    events,       // honbasho + special, date-sorted (fixed-date spans)
+    birthdays,    // recurring annual {name, month, day, bornYear}
+  };
+}
+
+async function main() {
+  if (!NOTION_TOKEN) { console.error('FATAL: NOTION_TOKEN not set'); process.exit(1); }
+  const [bashoPages, rikishiPages] = await Promise.all([
+    queryAll(DB.bashos),
+    queryAll(DB.masterRikishi),
+  ]);
+  console.log(`pulled: bashos=${bashoPages.length} masterRikishi=${rikishiPages.length}`);
+
+  const snap = buildSnapshot(bashoPages, rikishiPages);
+  const c = snap.meta.counts;
+  console.log(`built: honbasho=${c.honbasho} special=${c.special} birthdays=${c.birthdays}`);
+
+  // Validate before writing (never commit an empty calendar over a good one).
+  const problems = [];
+  if (!c.honbasho) problems.push('0 honbasho (is 🏆 Bashos shared / are any Type=Honbasho?)');
+  if (!c.birthdays) problems.push('0 birthdays (is 🤼 Master Rikishi shared / any Birthday set?)');
+  if (problems.length) { console.error('ABORT — calendar looks broken: ' + problems.join(', ')); process.exit(1); }
+
+  // static JSON for the public month-grid page (client fetch)
+  ensureDir(OUT_JSON);
+  fs.writeFileSync(OUT_JSON, JSON.stringify(snap) + '\n');
+  console.log(`✓ wrote ${OUT_JSON}`);
+
+  // server module for the .ics feed Function (functions/ is excluded from static assets)
+  const banner = `// AUTO-GENERATED by gen-calendar.mjs from Notion — do not edit by hand.\n// Server-side companion to the static calendar.json (same data), imported by the .ics feed.\n`;
+  ensureDir(OUT_JS);
+  fs.writeFileSync(OUT_JS, banner + 'export default ' + JSON.stringify(snap) + ';\n');
+  console.log(`✓ wrote ${OUT_JS}`);
+}
+
+// Run only when invoked directly (node gen-calendar.mjs), not when imported by the test.
+const invokedDirectly = process.argv[1] && import.meta.url === new URL(`file://${process.argv[1]}`).href;
+if (invokedDirectly) main().catch(e => { console.error(e); process.exit(1); });
