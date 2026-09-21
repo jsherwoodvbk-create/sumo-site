@@ -535,6 +535,17 @@ async function announcerFromCatcher(catcherRows) {
 async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air, catcherRows) {
   const rows = catcherRows || [];
   if (!rows.length) { note('   catcher: no open crew submissions for the day'); return { count: 0 }; }
+  // Fill the row METADATA the intake endpoint can't know at submit time: Basho (this game's tournament,
+  // always) + Announcer (the day's, once resolved). Stamp only when missing, on EVERY open row for the day
+  // (write-in / jewel-vote / flag), so votes and flags get it too, and Basho lands even if the announcer is
+  // still unresolved. TOURNAMENT_PAGE_ID is the same Bashos/Events page the Days are scoped by = exactly
+  // what the Catcher's Basho relation targets.
+  for (const row of rows) {
+    const fix = {};
+    if (!pRel(row, 'Basho').length) fix['Basho'] = wRel([TOURNAMENT_PAGE_ID]);
+    if (annId && !pRel(row, 'Announcer').length) fix['Announcer'] = wRel([annId]);
+    if (Object.keys(fix).length) await updatePage(row.id, fix, `Catcher meta Day ${dayNum}`);
+  }
   const writeins = rows.filter(r => (pSelect(r, 'Type') || 'write-in') === 'write-in');
   const votes    = rows.filter(r => pSelect(r, 'Type') === 'jewel-vote');
   const flags    = rows.filter(r => pSelect(r, 'Type') === 'flag');
