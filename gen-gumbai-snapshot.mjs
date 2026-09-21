@@ -35,6 +35,14 @@
 //   it once they've watched Day 1 (then the live board governs). We never infer "healed" — we can't
 //   know until he fights. Prior basho is history, so this leaks nothing (Jennie's rule, 2026-09-13).
 //
+// SCHEMA gumbai-snapshot/9 (2026-09-21): master[] carries the FULL timeless profile. The roster-wide
+//   master lane was slim (7 fields) and had to be re-widened one field at a time every time a new
+//   roster-wide question came up; it now carries birthday/height/real name/past ring names/shikona
+//   meaning/debut/retirement/nicknames — every timeless field the per-wrestler profile already holds.
+//   This unblocks query_birthdays ("who has a September birthday") and any future roster scan. Also:
+//   the bashos[] lane now filters OUT Type=Special Event rows (added to 🏆 Bashos for the public
+//   calendar) so Gumbai's basho lane stays the six honbasho. No new Notion fields — pure reshaping.
+//
 // SAFETY: validates the CORE (bouts/rikishi/banzuke) before writing; a broken core pull
 // exits non-zero and writes nothing. The soft-data + stables pulls are each wrapped so a
 // missing integration share (the classic Kimarite 404) degrades that ONE lane to empty +
@@ -278,17 +286,31 @@ async function main() {
   const rikishi = [...rosterIds].map(id => mrProfById.get(id)).filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // ── master[] : the WHOLE Master Rikishi roster (schema/6), slim + TIMELESS background only.
-  //    Powers query_rollup's "master" scope and "on the master" questions beyond the current
-  //    banzuke (retirees included). No results here, so the engine never gates it.
+  // ── master[] : the WHOLE Master Rikishi roster (schema/6+9), the TIMELESS profile.
+  //    Powers query_rollup's "master" scope, query_birthdays, and "on the master" questions
+  //    beyond the current banzuke (retirees included). No results here, so the engine never gates it.
+  //    schema/9 (2026-09-21): widened from the old slim 7 fields to carry EVERY timeless background
+  //    field the profile already holds — birthday/height/real name/past ring names/shikona meaning/
+  //    debut/retirement/nicknames — so roster-wide questions ("September birthdays", "who's tallest",
+  //    "real name of X") answer straight from master[] and we stop re-widening it one field at a time.
+  //    Deliberately EXCLUDED: `story` (long Lane-2 narrative — reach it per-wrestler via query_rikishi,
+  //    not worth carrying x100 here) and `injuryNotes` (this-basho, NOT timeless — would be a spoiler).
   const master = [...mrProfById.values()].map(r => ({
     name: r.name,
+    nicknames: r.nicknames,
     stable: r.stable,
     country: r.country,
     hometown: r.hometown,
     knownFor: r.knownFor,
     highestRank: r.highestRank,
     active: r.active,
+    birthday: r.birthday || null,            // schema/9: "YYYY-MM-DD" — powers query_birthdays + age rollups
+    heightCm: r.heightCm ?? null,            // schema/9: timeless — "who's tallest" roster scans
+    realName: r.realName,                    // schema/9
+    pastRingNames: r.pastRingNames,          // schema/9
+    shikonaMeaning: r.shikonaMeaning,        // schema/9
+    debut: r.debut || null,                  // schema/9
+    retirement: r.retirement || null,        // schema/9 (null = active)
   })).sort((a, b) => a.name.localeCompare(b.name));
 
     // mawashi color must end in a family word (last-word convention) — warn on any that don't.
@@ -311,9 +333,10 @@ async function main() {
   //    from Start Date) matches meta.bashoId so "July 2026 / 202607 / Nagoya 2026" all resolve.
   //    NOTE: `Notes` (memorable storylines) is deliberately EXCLUDED — for the CURRENT basho it
   //    would be a spoiler; revisit with per-basho gating if the crew wants past-basho recaps here.
-   const bashos = bashoPages
-    .filter(p => selOf(p, 'Type') !== 'Special Event')   // calendar spec B2: Gumbai's tournament lane is Honbasho-only; Special Events live ONLY in the calendar
-    .map(p => {
+  //    HONBASHO-ONLY (2026-09-21): the 🏆 Bashos DB now also holds Type=Special Event rows (US Open,
+  //    etc.) added for the public calendar. Those are NOT grand tournaments, so they're filtered out
+  //    here — Gumbai's basho lane stays the six honbasho. (The calendar's own generator keeps both.)
+  const bashos = bashoPages.filter(p => selOf(p, 'Type') !== 'Special Event').map(p => {
     const start = dateOf(p, 'Start Date');            // "YYYY-MM-DD"
     const code = start ? start.slice(0, 4) + start.slice(5, 7) : null;   // YYYYMM
     return {
@@ -502,10 +525,10 @@ async function main() {
     meta: {
       basho: BASHO_LABEL, bashoId: BASHO,
       horizon: 'Live data is the current basho; history goes back to Jan 2025 (when the crew got into sumo).',
-      maxDay, schema: 'gumbai-snapshot/8', source: 'notion',
+      maxDay, schema: 'gumbai-snapshot/9', source: 'notion',
     },
     rikishi, banzuke, kimarite, bouts,
-    master,                            // schema/6: whole Master Rikishi roster (timeless) for rollups & "on the master"
+    master,                            // schema/6+9: whole Master Rikishi roster (full timeless profile) for rollups, birthdays & "on the master"
     bashos, glossary, library,         // schema/7: venue/dates · general sumo terms · citable books (all timeless)
     days, injuries, catchphrases,     // schema/4 soft-data lanes
     champion,                          // schema/5: current-basho yusho (null until complete; engine gates reveal)
