@@ -314,11 +314,11 @@ const SNAP_AUD = {
 const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
 const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
 const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
-t('toolsFor(member) is the full 16', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 16));
-t('toolsFor(public) = 14, omits condition+storylines, keeps catchphrases + rollup + the reference tools', () => {
+t('toolsFor(member) is the full 17', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 17));
+t('toolsFor(public) = 15, omits condition+storylines, keeps catchphrases + rollup + birthdays + the reference tools', () => {
   const p = toolsFor('public').map(x=>x.name);
-  assert(p.length===14 && !p.includes('query_condition') && !p.includes('query_storylines')
-    && p.includes('query_catchphrases') && p.includes('query_rollup')
+  assert(p.length===15 && !p.includes('query_condition') && !p.includes('query_storylines')
+    && p.includes('query_catchphrases') && p.includes('query_rollup') && p.includes('query_birthdays')
     && p.includes('query_basho') && p.includes('query_glossary') && p.includes('query_library'));
 });
 t('member view keeps injuries + days + nets (no regression)', () =>
@@ -383,10 +383,10 @@ const SNAP_ROLL = {
   banzuke:[ { name:'Terunofuji', rank:'Yokozuna', weightKg:180 }, { name:'Takarafuji', rank:'Maegashira 5', weightKg:150 } ],
   kimarite:[], bouts:[],
   master:[
-    { name:'Terunofuji',   stable:'Isegahama',   country:'Mongolia', hometown:'Ulaanbaatar', knownFor:['Powerhouse'], highestRank:'Yokozuna',   active:true },
-    { name:'Takarafuji',   stable:'Isegahama',   country:'Japan',    hometown:'Aomori',      knownFor:['Technician'], highestRank:'Sekiwake',   active:true },
-    { name:'Nishikigi',    stable:'Isegahama',   country:'Japan',    hometown:'Iwate',       knownFor:[],             highestRank:'Maegashira', active:false }, // NOT on the current banzuke
-    { name:'Ichiyamamoto', stable:'Nishonoseki', country:'Japan',    hometown:'Hokkaido',    knownFor:['Showman'],    highestRank:'Maegashira', active:true },
+    { name:'Terunofuji',   stable:'Isegahama',   country:'Mongolia', hometown:'Ulaanbaatar', knownFor:['Powerhouse'], highestRank:'Yokozuna',   active:true,  birthday:'1991-11-29' },
+    { name:'Takarafuji',   stable:'Isegahama',   country:'Japan',    hometown:'Aomori',      knownFor:['Technician'], highestRank:'Sekiwake',   active:true,  birthday:'1987-04-12' },
+    { name:'Nishikigi',    stable:'Isegahama',   country:'Japan',    hometown:'Iwate',       knownFor:[],             highestRank:'Maegashira', active:false, birthday:'1990-09-05' }, // NOT on the current banzuke — Sep bday (day 5)
+    { name:'Ichiyamamoto', stable:'Nishonoseki', country:'Japan',    hometown:'Hokkaido',    knownFor:['Showman'],    highestRank:'Maegashira', active:true,  birthday:'1993-09-22' }, // Sep bday (day 22)
   ],
   days:[], injuries:[], catchphrases:[], history:{ meta:{}, basho:{} }, upcoming:null,
 };
@@ -428,6 +428,38 @@ t('query_rollup heya alias -> stable; unknown field rejected cleanly', () => {
 });
 t('query_rollup registered + offered to both audiences', () => {
   assert(TOOLS.some(x=>x.name==='query_rollup') && toolsFor('public').some(x=>x.name==='query_rollup'));
+});
+
+// ═══ 11b. query_birthdays — roster birthdays off master[] (the whack-a-mole fix, schema/9) ═══
+// The bug this closes: Asakoryu/Atamifuji had September birthdays but there was no way to ask for a
+// month's birthdays, because master[] never carried Birthday. It does now, and this tool reads it.
+console.log('\n[11b] query_birthdays (schema/9 master birthdays)');
+t('query_birthdays September returns both, sorted by day-of-month', () => {
+  const o = runTool('query_birthdays', {month:'September'}, rollM);
+  assert(o.found && o.count===2);
+  assert.deepEqual(o.birthdays.map(b=>b.name), ['Nishikigi','Ichiyamamoto']);   // day 5 before day 22
+  assert(o.birthdays[0].day===5 && o.birthdays[1].day===22 && typeof o.birthdays[0].age==='number');
+});
+t('query_birthdays accepts a numeric month and short name', () => {
+  assert(runTool('query_birthdays', {month:'9'}, rollM).count===2);
+  assert(runTool('query_birthdays', {month:'Sep'}, rollM).count===2);
+  assert(runTool('query_birthdays', {month:'11'}, rollM).count===1);   // Terunofuji only
+});
+t('query_birthdays empty month = 0 hits, not an error', () => {
+  const o = runTool('query_birthdays', {month:'January'}, rollM);
+  assert(o.found===true && o.count===0 && Array.isArray(o.birthdays) && o.birthdays.length===0);
+});
+t('query_birthdays with no month gives a by-month count across the year', () => {
+  const o = runTool('query_birthdays', {}, rollM);
+  assert(o.found && o.total===4 && o.byMonth.length===12);
+  assert(o.byMonth[8].count===2 && o.byMonth[8].name==='September');   // index 8 = September
+});
+t('query_birthdays rejects a non-month cleanly', () => {
+  assert(runTool('query_birthdays', {month:'bananas'}, rollM).found===false);
+});
+t('query_birthdays is PUBLIC (timeless) and registered for both audiences', () => {
+  assert(TOOLS.some(x=>x.name==='query_birthdays') && toolsFor('public').some(x=>x.name==='query_birthdays'));
+  assert(runTool('query_birthdays', {month:'September'}, rollP).count===2);   // same answer for public
 });
 
 // ═══ 12. schema/7 reference lanes — query_basho / query_glossary / query_library + profile fields ═══
