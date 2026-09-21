@@ -97,8 +97,8 @@ function clean(s) {
   if (s == null) return s;
   return String(s)
     .normalize('NFKD')            // dohyo-macron -> o + combining macron
-    .replace(/[̀-ͯ]/g, '') // drop ALL combining diacritics (macrons etc.) - no macrons rail
-    .replace(/\s*[—–]\s*/g, ', ') // em/en dash (+ its surrounding spaces) -> comma-space
+    .replace(/[\u0300-\u036f]/g, '') // drop ALL combining diacritics (macrons etc.) - no macrons rail
+    .replace(/\s*[\u2014\u2013]\s*/g, ', ') // em/en dash (+ its surrounding spaces) -> comma-space
     .replace(/\s+,/g, ',')        // no space before comma
     .replace(/,\s+,/g, ',')       // collapse doubled commas from adjacent dashes
     .replace(/[ \t]{2,}/g, ' ')   // collapse runs of spaces
@@ -891,6 +891,41 @@ async function pass2() {
 }
 
 // ---------------------------------------------------------------------------
+// STRAGGLER SWEEP - fold late/VOD crew catches on already-fanned days
+// ---------------------------------------------------------------------------
+// A crew catch submitted while watching a VOD lands in the Catcher for an EARLIER day - one whose daily
+// fan already ran, so it has no future fan of its own to fold it. On every run we sweep the open Catcher
+// queue, group by Day #, and backfill each already-fanned day of THIS basho (except the one just handled).
+// catcherBackfill resolves that day's announcer (already set -> instant, no vision spend) and folds via
+// runCatcherLane, which also stamps Basho + Announcer + finder. Fully fault-isolated: never crashes a run.
+async function sweepStragglers() {
+  try {
+    let currentDayNum = null;
+    try { const cur = await findRow(); currentDayNum = cur ? pNum(cur, 'Day #') : null; } catch {}
+    const allDays = await queryAll(DB.days, { property: 'Basho', relation: { contains: idNoDash(TOURNAMENT_PAGE_ID) } });
+    const byNum = new Map();
+    for (const r of allDays) { const d = pNum(r, 'Day #'); if (Number.isInteger(d)) byNum.set(d, r); }
+    let open;
+    try {
+      open = await queryAll(DB.catcher, { or: [
+        { property: 'Status', select: { equals: 'new' } },
+        { property: 'Status', select: { equals: 'pending-confirmation' } },
+      ] });
+    } catch (e) { note(`   straggler sweep: catcher unavailable (${(e.message || '').slice(0, 80)}) - skipped`); return; }
+    const days = new Set();
+    for (const row of open) { const d = pNum(row, 'Day'); if (Number.isInteger(d) && d !== currentDayNum && byNum.has(d)) days.add(d); }
+    if (!days.size) { note('   straggler sweep: no open crew catches on other days'); return; }
+    for (const d of [...days].sort((a, b) => a - b)) {
+      const dayRow = byNum.get(d);
+      if (!pText(dayRow, 'Storylines')) { note(`   straggler sweep: Day ${d} not fanned yet - leaving for its own fan`); continue; }
+      const n = open.filter(r => pNum(r, 'Day') === d).length;
+      note(`   straggler sweep: backfilling Day ${d} (${n} open crew row(s))`);
+      await catcherBackfill(dayRow);
+    }
+  } catch (e) { problem(`straggler sweep failed (${e.message}) - non-fatal`); }
+}
+
+// ---------------------------------------------------------------------------
 // MAIN + report (no silent fails)
 // ---------------------------------------------------------------------------
 async function report(status) {
@@ -924,6 +959,7 @@ async function report(status) {
 async function main() {
   if (!NOTION_TOKEN && !DRY_RUN) throw new Error('NOTION_TOKEN not set');
   if (MODE === 'pass2') await pass2(); else await pass1();
+  await sweepStragglers();   // fold any late/VOD crew catches on earlier, already-fanned days
 }
 
 // Run only when invoked directly (node fan.mjs), not when imported by a test harness.
@@ -938,4 +974,4 @@ if (invokedDirectly) {
 // exported for offline testing (stubbed fetch); harmless in production
 export const __test = { clean, writeCatchphrases, writeInjury, resolveAnnouncer, priceFor, recordSpend, spend,
   corePhrase, tiesToTranscript, readCatcherDay, runCatcherLane, catcherBackfill, announcerFromNotes,
-  announcerFrameUrls, resolveAnnouncerVision };
+  announcerFrameUrls, resolveAnnouncerVision, sweepStragglers };
