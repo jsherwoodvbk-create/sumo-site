@@ -59,6 +59,12 @@ header .sub{opacity:.9;font-size:13.5px;margin:0;font-family:'Inter',system-ui,s
 .navbtns button,.todaybtn{font-family:'Inter',system-ui,sans-serif;font-size:13px;padding:6px 12px;border-radius:8px;
   border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;line-height:1;}
 .navbtns button:hover,.todaybtn:hover{background:var(--surface-2);}
+/* admin-only "Add event" — tied to the special-event green so the control reads as what it creates */
+.addbtn{font-family:'Inter',system-ui,sans-serif;font-size:13px;font-weight:600;padding:6px 13px;border-radius:8px;
+  border:1px solid var(--special);background:var(--special);color:#fff;cursor:pointer;line-height:1;text-decoration:none;
+  display:inline-flex;align-items:center;gap:6px;transition:filter .12s ease;}
+.addbtn:hover{filter:brightness(1.06);}
+.addbtn .plus{font-size:15px;line-height:1;font-weight:800;}
 .legend{margin-left:auto;display:flex;gap:14px;flex-wrap:wrap;align-items:center;}
 .legend .li{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted);}
 .legend .sw{width:13px;height:13px;border-radius:4px;flex:none;}
@@ -158,6 +164,7 @@ header .sub{opacity:.9;font-size:13.5px;margin:0;font-family:'Inter',system-ui,s
       <button id="next" aria-label="Next month">›</button>
     </div>
     <button class="todaybtn" id="today">Today</button>
+    <a class="addbtn" id="addEvent" href="/app/cal-event" hidden><span class="plus">+</span> Add event</a>
     <div class="legend">
       <span class="li"><span class="sw" style="background:var(--honbasho)"></span> Honbasho</span>
       <span class="li"><span class="sw dot" style="background:var(--birthday)"></span> Birthday</span>
@@ -299,6 +306,11 @@ function showSubscribe(html){ subEl.innerHTML = html; subEl.hidden = false; }
 fetch('/api/app/whoami', {cache:'no-store'})
   .then(r => r.ok ? r.json() : null)
   .then(me => {
+    // Admin-only: reveal the "Add event" control for an active admin / super-admin (server still
+    // enforces role on /api/cal-event — this only unhides a link a non-admin could never use anyway).
+    if(me && (me.role==='admin' || me.role==='super-admin') && me.status!=='blocked'){
+      const ab = document.getElementById('addEvent'); if(ab) ab.hidden = false;
+    }
     if(!me || !me.email){
       showSubscribe(`<h3>Subscribe to the calendar</h3>
         <p>Crew members get a personal calendar feed you can add to Google or Apple Calendar — it stays up to date automatically. <a href="/login">Log in</a> to get your link.</p>`);
