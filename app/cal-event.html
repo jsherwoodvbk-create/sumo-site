@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Crew Events</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@700;900&family=Inter:wght@400;500;600;700;800&display=swap">
+<style>
+:root{
+  --ground:#f1e9db; --surface:#fbf7ef; --surface-2:#efe6d3;
+  --ink:#26262b; --muted:#6f695d; --faint:#9a9182; --line:#e2d9c7;
+  --clay:#a9742c; --vermilion:#cf5a2c; --win:#227a4b; --loss:#a93327;
+  --accent:#cf5a2c; --radius:12px;
+}
+@media (prefers-color-scheme:dark){ :root:not([data-theme="light"]){
+  --ground:#171719; --surface:#212127; --surface-2:#1b1b21;
+  --ink:#ece4d4; --muted:#a49c8b; --faint:#7b7364; --line:#33333b;
+  --clay:#d2a35c; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c; --accent:#e5814f;
+}}
+:root[data-theme="dark"]{
+  --ground:#171719; --surface:#212127; --surface-2:#1b1b21;
+  --ink:#ece4d4; --muted:#a49c8b; --faint:#7b7364; --line:#33333b;
+  --clay:#d2a35c; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c; --accent:#e5814f;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:'Inter',system-ui,sans-serif;line-height:1.5;-webkit-font-smoothing:antialiased;}
+.wrap{max-width:760px;margin:0 auto;padding:26px 22px 60px;}
+header{background:linear-gradient(160deg,#6e4826,#432a15);color:#fff;border-radius:14px;padding:22px 24px;margin-bottom:18px;border:1px solid #38230f;
+  box-shadow:0 8px 22px rgba(50,30,10,.30), inset 0 1px 0 rgba(255,255,255,.10);}
+.hbrand{display:flex;align-items:center;gap:15px;flex-wrap:wrap;}
+header .htitle{font-family:'Zen Old Mincho',Georgia,serif;font-size:25px;margin:0 0 3px;font-weight:900;}
+header .sub{opacity:.9;font-size:13.5px;margin:0;}
+.hnav{margin-left:auto;display:flex;gap:12px;}
+.homecrest{width:38px;height:38px;border-radius:50%;overflow:hidden;background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);}
+.homecrest img{width:100%;height:100%;object-fit:cover;display:block;}
+h2{font-family:'Zen Old Mincho',Georgia,serif;font-weight:700;font-size:20px;margin:0 0 12px;}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:20px;}
+.field{margin-bottom:14px;}
+.field.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+label{display:block;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint);font-weight:700;margin:0 0 5px;}
+label .opt{text-transform:none;letter-spacing:0;color:var(--faint);font-weight:500;}
+input,textarea{width:100%;font:inherit;font-size:14px;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--surface-2);color:var(--ink);}
+input:focus,textarea:focus{outline:2px solid color-mix(in srgb,var(--accent) 55%,transparent);outline-offset:1px;border-color:var(--accent);}
+textarea{resize:vertical;min-height:66px;}
+.actions{display:flex;align-items:center;gap:12px;margin-top:4px;}
+.btn{font:inherit;font-size:14px;font-weight:700;padding:10px 20px;border-radius:9px;border:0;cursor:pointer;background:var(--vermilion);color:#fff;}
+.btn:disabled{opacity:.55;cursor:default;}
+.btn.ghost{background:none;color:var(--muted);border:1px solid var(--line);}
+.formmsg{font-size:13px;min-height:1em;}
+.formmsg.err{color:var(--loss);} .formmsg.ok{color:var(--win);}
+.note{font-size:12px;color:var(--faint);margin:12px 2px 0;line-height:1.5;}
+.eventlist{list-style:none;margin:0;padding:0;}
+.ev{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line);}
+.ev:last-child{border-bottom:0;}
+.ev .when{flex:0 0 auto;text-align:center;background:var(--surface-2);border:1px solid var(--line);border-radius:9px;padding:6px 9px;min-width:52px;}
+.ev .when .mo{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--vermilion);font-weight:800;display:block;}
+.ev .when .dy{font-size:19px;font-weight:800;font-family:'Zen Old Mincho',Georgia,serif;line-height:1;}
+.ev .body{flex:1;min-width:0;}
+.ev .nm{font-weight:700;font-size:15px;}
+.ev .meta{font-size:12.5px;color:var(--muted);margin-top:2px;}
+.ev .meta a{color:var(--accent);}
+.ev .ctrls{display:flex;gap:8px;flex:0 0 auto;}
+.mini{font:inherit;font-size:12px;font-weight:600;padding:4px 10px;border-radius:7px;border:1px solid var(--line);background:var(--surface-2);color:var(--ink);cursor:pointer;}
+.mini.del{color:var(--loss);border-color:color-mix(in srgb,var(--loss) 45%,var(--line));}
+.msg{font-size:13.5px;color:var(--muted);padding:8px 2px;}
+.msg.err{color:var(--loss);}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--ground);font-size:13px;padding:9px 16px;border-radius:8px;opacity:0;transition:opacity .2s;pointer-events:none;}
+.toast.on{opacity:1;}
+@media(max-width:540px){ .field.row2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="hbrand">
+      <div>
+        <div class="htitle">Crew Events</div>
+        <p class="sub">Add your own events to the calendar &middot; tournaments stay machine-managed</p>
+      </div>
+      <nav class="hnav"><a class="homecrest" href="/app" title="Back to the app" aria-label="App home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a></nav>
+    </div>
+  </header>
+
+  <div id="gate" class="msg">Loading&hellip;</div>
+
+  <div id="editor" hidden>
+    <div class="card">
+      <h2 id="formtitle">Add an event</h2>
+      <div class="field">
+        <label for="f-name">Event name</label>
+        <input id="f-name" type="text" maxlength="200" placeholder="e.g. US Sumo Open" autocomplete="off">
+      </div>
+      <div class="field row2">
+        <div>
+          <label for="f-start">Start date</label>
+          <input id="f-start" type="date">
+        </div>
+        <div>
+          <label for="f-end">End date <span class="opt">(optional)</span></label>
+          <input id="f-end" type="date">
+        </div>
+      </div>
+      <div class="field">
+        <label for="f-loc">Location <span class="opt">(optional)</span></label>
+        <input id="f-loc" type="text" maxlength="200" placeholder="e.g. Long Beach, CA" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="f-link">Link <span class="opt">(optional)</span></label>
+        <input id="f-link" type="url" maxlength="400" placeholder="https://&hellip;" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="f-notes">Notes <span class="opt">(optional)</span></label>
+        <textarea id="f-notes" maxlength="2000" placeholder="Anything worth remembering about it."></textarea>
+      </div>
+      <div class="actions">
+        <button class="btn" id="save">Add to calendar</button>
+        <button class="btn ghost" id="cancel" hidden>Cancel edit</button>
+        <span class="formmsg" id="formmsg"></span>
+      </div>
+      <p class="note">Events live in the crew's Bashos/Events table, the same place Gumbai reads, so this is permanent history, not a throwaway. It shows on the calendar and in Gumbai after the next site refresh (a few hours, or whenever the publish workflow next runs), not instantly.</p>
+    </div>
+
+    <div class="card">
+      <h2>Events on the calendar</h2>
+      <div id="list"><div class="msg">Loading&hellip;</div></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const esc = s => String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const MONTHS = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const gateEl = document.getElementById('gate');
+const editorEl = document.getElementById('editor');
+const listEl = document.getElementById('list');
+const toastEl = document.getElementById('toast');
+const F = { name:document.getElementById('f-name'), start:document.getElementById('f-start'), end:document.getElementById('f-end'),
+            loc:document.getElementById('f-loc'), link:document.getElementById('f-link'), notes:document.getElementById('f-notes') };
+const saveBtn = document.getElementById('save');
+const cancelBtn = document.getElementById('cancel');
+const formTitle = document.getElementById('formtitle');
+const formMsg = document.getElementById('formmsg');
+let editId = null;   // null = adding; a page id = editing
+
+function toast(t){ toastEl.textContent=t; toastEl.classList.add('on'); setTimeout(()=>toastEl.classList.remove('on'),1900); }
+function say(t,cls){ formMsg.textContent=t||''; formMsg.className='formmsg'+(cls?' '+cls:''); }
+
+function fmtWhen(start,end){
+  if(!start) return {mo:'',dy:''};
+  const [y,m,d] = start.split('-').map(Number);
+  return { mo: MONTHS[(m||1)-1], dy: String(d||'') };
+}
+function fmtRange(start,end){
+  if(!start) return '';
+  const f = s => { const [y,m,d]=s.split('-').map(Number); return `${MONTHS[(m||1)-1]} ${d}, ${y}`; };
+  return end && end!==start ? `${f(start)} → ${f(end)}` : f(start);
+}
+
+async function api(method, payload){
+  const opt = { method, headers:{'Content-Type':'application/json'}, cache:'no-store' };
+  if(payload) opt.body = JSON.stringify(payload);
+  const r = await fetch('/api/cal-event', opt);
+  let j = {}; try { j = await r.json(); } catch(e){}
+  return { status:r.status, json:j };
+}
+
+function renderList(events){
+  if(!events.length){ listEl.innerHTML='<div class="msg">No crew events yet. Add your first one above.</div>'; return; }
+  listEl.innerHTML = '<ul class="eventlist">'+events.map(ev=>{
+    const w = fmtWhen(ev.start, ev.end);
+    const bits = [fmtRange(ev.start, ev.end), ev.location].filter(Boolean).join(' · ');
+    return `<li class="ev">
+      <div class="when"><span class="mo">${w.mo}</span><span class="dy">${w.dy}</span></div>
+      <div class="body">
+        <div class="nm">${esc(ev.name||'Untitled event')}</div>
+        <div class="meta">${esc(bits)}${ev.link?` · <a href="${esc(ev.link)}" target="_blank" rel="noopener">link</a>`:''}</div>
+        ${ev.notes?`<div class="meta">${esc(ev.notes)}</div>`:''}
+      </div>
+      <div class="ctrls">
+        <button class="mini" data-act="edit" data-id="${esc(ev.id)}">Edit</button>
+        <button class="mini del" data-act="del" data-id="${esc(ev.id)}">Delete</button>
+      </div>
+    </li>`;
+  }).join('')+'</ul>';
+  listEl.querySelectorAll('button[data-act="edit"]').forEach(b=>b.onclick=()=>startEdit(b.dataset.id, events));
+  listEl.querySelectorAll('button[data-act="del"]').forEach(b=>b.onclick=()=>del(b.dataset.id));
+}
+
+function clearForm(){ editId=null; F.name.value=F.start.value=F.end.value=F.loc.value=F.link.value=F.notes.value='';
+  formTitle.textContent='Add an event'; saveBtn.textContent='Add to calendar'; cancelBtn.hidden=true; say(''); }
+
+function startEdit(id, events){
+  const ev = events.find(e=>e.id===id); if(!ev) return;
+  editId = id;
+  F.name.value=ev.name||''; F.start.value=ev.start||''; F.end.value=ev.end||'';
+  F.loc.value=ev.location||''; F.link.value=ev.link||''; F.notes.value=ev.notes||'';
+  formTitle.textContent='Edit event'; saveBtn.textContent='Save changes'; cancelBtn.hidden=false; say('');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+cancelBtn.onclick = clearForm;
+
+saveBtn.onclick = async ()=>{
+  const payload = { name:F.name.value.trim(), start:F.start.value, end:F.end.value,
+                    location:F.loc.value.trim(), link:F.link.value.trim(), notes:F.notes.value.trim() };
+  if(!payload.name){ say('Give the event a name.','err'); F.name.focus(); return; }
+  if(!payload.start){ say('Pick a start date.','err'); F.start.focus(); return; }
+  saveBtn.disabled=true; say(editId?'Saving…':'Adding…');
+  const r = editId ? await api('PATCH',{ id:editId, ...payload }) : await api('POST', payload);
+  saveBtn.disabled=false;
+  if(r.json && r.json.ok){ toast(editId?'Event updated':'Event added'); clearForm(); load(); }
+  else { say((r.json&&r.json.message) || 'Could not save. Try again.','err'); }
+};
+
+async function del(id){
+  if(!confirm('Delete this event? It moves to Notion trash and drops off the calendar at the next refresh.')) return;
+  const r = await api('DELETE',{ id });
+  if(r.json && r.json.ok){ toast('Event deleted'); if(editId===id) clearForm(); load(); }
+  else { toast((r.json&&r.json.message) || 'Delete failed'); }
+}
+
+async function load(){
+  const r = await api('GET');
+  if(r.status===401){ gateEl.className='msg'; gateEl.innerHTML='Please <a href="/login">log in</a> to manage events.'; editorEl.hidden=true; return; }
+  if(r.status===403){ gateEl.className='msg err'; gateEl.textContent='This page is for crew admins.'; editorEl.hidden=true; return; }
+  if(!r.json || !r.json.ok){ gateEl.className='msg err'; gateEl.textContent=(r.json&&r.json.message)||'Could not load events.'; return; }
+  gateEl.hidden=true; editorEl.hidden=false;
+  renderList(r.json.events||[]);
+}
+load();
+</script>
+</body>
+</html>
