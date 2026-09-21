@@ -1,7 +1,7 @@
 name: Publish standings
 
 on:
-  workflow_call: {}              # lets fan-and-publish.yml chain this after the fan
+  workflow_call: {}              # lets fan-and-publish.yml chain this after the fan (confirmed live in repo 2026-09-19)
   workflow_dispatch: {}          # lets us run it by hand to test
   schedule:
     # Several attempts across the morning (UTC) = resilient to GitHub dropping any single cron run.
@@ -12,7 +12,6 @@ on:
     - cron: "32 13 * * *"        # ~06:32 AM PT
     - cron: "32 15 * * *"        # ~08:32 AM PT
     - cron: "32 17 * * *"        # ~10:32 AM PT
-    - cron: "32 18 * * *"        # ~11:32 AM PT — catches the fan retry with room
     - cron: "32 22 * * *"        # ~03:32 PM PT — afternoon backstop
 
 permissions:
@@ -53,14 +52,15 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node gen-gumbai-snapshot.mjs
 
-      - name: Rebuild catchphrase drinking game from Notion
-        # Non-fatal, like the Gumbai snapshot: a Notion hiccup leaves the last good board in place
-        # (the generator's last-good guard exits without overwriting). Reads the three catchphrase
-        # tables + Days + Announcers and rewrites drinking-game.html. Template is baked into the .mjs.
+      - name: Rebuild calendar snapshot from Notion
+        # Builds calendar.json (public month-grid page) + functions/api/_calendar.js (the .ics feed).
+        # Non-fatal by the same logic as the Gumbai snapshot: gen-calendar.mjs self-aborts and writes
+        # nothing if the Notion pull comes back empty, leaving the last good calendar in place. Reads
+        # 🏆 Bashos + 🤼 Master Rikishi, both already shared with the publish integration.
         continue-on-error: true
         env:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
-        run: node gen-drinking-game.mjs
+        run: node gen-calendar.mjs
 
       - name: Rebuild per-rikishi metrics (daily, with a backstop)
         # Refreshes rikishi-metrics.json for the dashboards. Gated to the 08:32 AM + 03:32 PM PT crons +
@@ -72,6 +72,8 @@ jobs:
         # gate below skips it — no churn. Non-fatal: a hiccup or a partial sumo-api miss leaves the last
         # good JSON in place (the generator is blank-not-faked). The FULL career refresh also rides the
         # banzuke drop via the gen-rikishi-metrics dispatch.
+        # NOTE (2026-09-19): on a fan-triggered publish the event is repository_dispatch, so this step
+        # correctly SKIPS (not workflow_dispatch, no schedule match) — standings + snapshot still rebuild.
         if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '32 15 * * *' || github.event.schedule == '32 22 * * *' }}
         continue-on-error: true
         env:
@@ -87,14 +89,17 @@ jobs:
         run: |
           git config user.name "sumo-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add standings.html index.html functions/api/_snapshot.js drinking-game.html
+          git add standings.html index.html functions/api/_snapshot.js functions/api/_calendar.js
           # rikishi-metrics.json may be absent on a run where the (gated, continue-on-error) metrics
           # rebuild didn't run or bailed. `git add <missing-path>` is FATAL under bash -e and would fail
           # this whole step — stopping standings + snapshot from ever committing. Add it only if present.
           if [ -f rikishi-metrics.json ]; then git add rikishi-metrics.json; fi
+          # calendar.json is created by gen-calendar.mjs; it won't exist until the first successful run
+          # (and the generator self-aborts on an empty pull). Add it only if present, same guard.
+          if [ -f calendar.json ]; then git add calendar.json; fi
           if git diff --cached --quiet; then
             echo "No change — nothing to publish."
           else
-            git commit -m "Auto-update standings + homepage + Gumbai snapshot + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git commit -m "Auto-update standings + homepage + Gumbai snapshot + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
