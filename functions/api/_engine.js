@@ -50,7 +50,7 @@
 // logged day. Until then they get body-part + gated severity + status "ongoing".
 // Bump this whenever the engine changes. Exposed at GET /api/gumbai so you can confirm, from a URL,
 // exactly which engine is live (no more guessing whether a deploy took).
-export const ENGINE_VERSION = 'gumbai-engine 2026-09-22d · history-spanning analytics (query_rollup span=basho/history/all over crewHistory + backfill) + query_rate (vs field average) + head-to-head & career & yusho span crewHistory (derive the most-recent completed basho champion from the Match Log before gen-history reruns; honest playoff tie) + card layer (any published day, viewer next-day default) + today anchor names the current basho + unit awareness (std/metric) + registry-driven measures; origin guard + on-mission lock (public/member)';
+export const ENGINE_VERSION = 'gumbai-engine 2026-09-22e · registry-driven GATE (schema/12: the SOURCE_REGISTRY declares every lane\'s temporal type + Axis A spoiler + Axis B audience; the gate loops it) + banzukeHistory/daysHistory historical partitions (public / member) + history-spanning analytics (query_rollup span over crewHistory + backfill) + query_rate + head-to-head & career & yusho span crewHistory (derive most-recent basho champion before gen-history reruns; honest playoff tie — retires when the Banzuke partition lands) + card layer + today anchor names the current basho + unit awareness (std/metric) + registry-driven measures; origin guard + on-mission lock (public/member)';
 
 function gateInjury(c, gate){
   // PRIOR-BASHO CARRY (schema/8): before the viewer has watched Day 1 of the CURRENT basho
@@ -103,84 +103,87 @@ function gateInjury(c, gate){
 // ── AUDIENCE: the member-only per-bout net fields. Public keeps henka + monoii (basic/
 // official bout info) and the hard result fields; these five are the crew's observed color.
 const MEMBER_BOUT_NETS = ['conduct','conductNote','boutOfDay','length','cushions'];
-// Strip the crew's private/sensitive lanes from a already-day-gated view, for a public visitor.
-// Defense in depth: the public model never RECEIVES injuries, day storylines, or the member nets,
-// so even a tool/prompt bug can't leak what isn't there. Bouts are copied (never mutate the snapshot).
-// NOTE: `master` (timeless background roster) passes through — no results in it. The knownFor
-// dimension is still held back from public inside analyze (crew-curated judgment), see the registry.
-function publicView(view){
-  return {
-    ...view,
-    injuries: [],                                  // injury/condition board = member only (real people's health)
-    days: [],                                      // day storylines + scorekeeper notes = member only
-    bouts: view.bouts.map(b => {
-      const nb = { ...b };
-      for(const k of MEMBER_BOUT_NETS) delete nb[k];
-      return nb;
-    }),
-    // past-history bouts get the same member-net strip for public (henka/monoii/goldStar stay public)
-    crewHistory: (view.crewHistory || []).map(b => {
-      const nb = { ...b };
-      for(const k of MEMBER_BOUT_NETS) delete nb[k];
-      return nb;
-    }),
-  };
+const stripNets = arr => (arr || []).map(b => { const nb = { ...b }; for(const k of MEMBER_BOUT_NETS) delete nb[k]; return nb; });
+function gateCatchphrase(cp, gate){
+  if(!cp.days || !cp.days.length)
+    return { phrase: cp.phrase, announcer: cp.announcer, count: null, timeless: true, giggle: cp.giggle ?? null, jewel: !!cp.jewel };
+  const gd = cp.days.filter(d => d <= gate);
+  if(!gd.length) return null;                                    // all its uses are past the gate
+  return { phrase: cp.phrase, announcer: cp.announcer, count: gd.length, days: gd, giggle: cp.giggle ?? null, jewel: !!cp.jewel };
 }
 
 const FINAL_DAY = 15;   // an honbasho is 15 days; the yusho (playoff included) is settled on day 15.
+
+// ── THE SOURCE REGISTRY (schema/12, the master framework) ────────────────────
+// One declarative table: every lane Gumbai reads, with its policy on the TWO orthogonal gate axes.
+// Full rationale: deliverables/Gumbai Source Framework — Spec v1.md.
+//   type : 'timeless'  = one slice, never day-gated.
+//          'per-basho' = a historical partition (ungated) + a current partition (gated per its A rule).
+//   A    : Axis A (spoiler / temporal). 'open' = never day-gated (past basho + timeless + result-free
+//          cards). Otherwise a named STRATEGY (A_STRATEGY below) that filters the current basho to the
+//          viewer's watched day. RESULTS are day-gated; a matchup / a record announced pre-basho is not.
+//   B    : Axis B (authorship / audience). 'public' = officially-recorded, both audiences. 'member' =
+//          crew-recorded color, member only (public gets [] / null). 'strip-nets' = public keeps the
+//          hard bout facts but loses the crew's per-bout color.
+// The gate LOOPS this table; a new table is one row here (+ a strategy only for a genuinely new gate
+// shape). This is the same "declare as data, one executor" move that killed the mawashi whack-a-mole.
+const A_STRATEGY = {
+  open:         (snap, key)       => snap[key] ?? null,
+  dayBouts:     (snap, key, gate) => (snap[key] || []).filter(b => b.day <= gate),   // nets ride the bout
+  dayList:      (snap, key, gate) => (snap[key] || []).filter(d => d.day <= gate),
+  injuries:     (snap, key, gate) => (snap[key] || []).map(c => gateInjury(c, gate)).filter(Boolean),
+  catchphrases: (snap, key, gate) => (snap[key] || []).map(cp => gateCatchphrase(cp, gate)).filter(Boolean),
+  champion:     (snap, key, gate) => (snap[key] && gate >= FINAL_DAY) ? snap[key] : null,
+};
+export const SOURCE_REGISTRY = [
+  // key               type          A               B             dflt
+  { key:'rikishi',        type:'timeless',  A:'open',         B:'public',     dflt:[]   },
+  { key:'master',         type:'timeless',  A:'open',         B:'public',     dflt:[]   },  // knownFor dim held from public inside analyze
+  { key:'banzuke',        type:'timeless',  A:'open',         B:'public',     dflt:[]   },  // current rank — announced pre-basho, not a spoiler
+  { key:'kimarite',       type:'timeless',  A:'open',         B:'public',     dflt:[]   },
+  { key:'bashos',         type:'timeless',  A:'open',         B:'public',     dflt:[]   },
+  { key:'glossary',       type:'timeless',  A:'open',         B:'public',     dflt:[]   },
+  { key:'library',        type:'timeless',  A:'open',         B:'public',     dflt:[]   },
+  { key:'analytics',      type:'timeless',  A:'open',         B:'public',     dflt:null },
+  { key:'today',          type:'timeless',  A:'open',         B:'public',     dflt:null },  // real-world anchor, not a result
+  { key:'cards',          type:'per-basho', A:'open',         B:'public',     dflt:null },  // matchups carry no result → ungated even current
+  { key:'upcoming',       type:'per-basho', A:'open',         B:'public',     dflt:null },
+  { key:'history',        type:'per-basho', A:'open',         B:'public',     dflt:null },  // static past bouts (sumo-api backfill)
+  { key:'banzukeHistory', type:'per-basho', A:'open',         B:'public',     dflt:null },  // NEW: past per-basho summary (yusho/prizes/record/rank) — authoritative, both audiences
+  { key:'crewHistory',    type:'per-basho', A:'open',         B:'strip-nets', dflt:null },  // past bouts WITH nets — hard facts public, nets member
+  { key:'daysHistory',    type:'per-basho', A:'open',         B:'member',     dflt:null },  // NEW: past storylines/scorekeeper — member, ungated
+  { key:'bouts',          type:'per-basho', A:'dayBouts',     B:'strip-nets', dflt:[]   },  // current-basho RESULTS — day-gated; nets member
+  { key:'days',           type:'per-basho', A:'dayList',      B:'member',     dflt:[]   },
+  { key:'injuries',       type:'per-basho', A:'injuries',     B:'member',     dflt:[]   },
+  { key:'catchphrases',   type:'per-basho', A:'catchphrases', B:'public',     dflt:[]   },  // announcer color — the drinking game is a public feature
+  { key:'champion',       type:'per-basho', A:'champion',     B:'public',     dflt:null },  // current-basho yusho — revealed only at a caught-up day 15
+];
+
+// AUDIENCE gate (Axis B, defense in depth): the public model never RECEIVES the member lanes, so even a
+// tool/prompt bug can't leak what isn't there. Loops the registry: 'member' → emptied, 'strip-nets' →
+// hard facts kept + crew nets removed, 'public' → passes through. Never mutates the incoming view.
+function publicView(view){
+  const out = { ...view };
+  for(const lane of SOURCE_REGISTRY){
+    if(lane.B === 'member') out[lane.key] = Array.isArray(view[lane.key]) ? [] : null;
+    else if(lane.B === 'strip-nets') out[lane.key] = view[lane.key] ? stripNets(view[lane.key]) : view[lane.key];
+  }
+  return out;
+}
+
 export function gateSnapshot(snapshot, day, showFull, audience='member'){
   const ceiling = Number.isInteger(snapshot.meta?.maxDay) ? snapshot.meta.maxDay : 15;
   const gate = showFull ? ceiling : Math.max(0, Math.min(Number(day) || 0, ceiling));
-  const view = {
-    meta: { ...snapshot.meta },
-    gate,
-    showFull: !!showFull,
-    audience,
-    rikishi: snapshot.rikishi,
-    banzuke: snapshot.banzuke,
-    kimarite: snapshot.kimarite,
-    bouts: snapshot.bouts.filter(b => b.day <= gate),            // nets ride the bout, gated with it
-    // ── soft-data lanes, each gated ──
-    days: (snapshot.days || []).filter(d => d.day <= gate),
-    injuries: (snapshot.injuries || []).map(c => gateInjury(c, gate)).filter(Boolean),
-    catchphrases: (snapshot.catchphrases || []).map(cp => {
-      if(!cp.days || !cp.days.length)
-        return { phrase: cp.phrase, announcer: cp.announcer, count: null, timeless: true, giggle: cp.giggle ?? null, jewel: !!cp.jewel };
-      const gd = cp.days.filter(d => d <= gate);
-      if(!gd.length) return null;                                 // all its uses are past the gate
-      return { phrase: cp.phrase, announcer: cp.announcer, count: gd.length, days: gd, giggle: cp.giggle ?? null, jewel: !!cp.jewel };
-    }).filter(Boolean),
-    // ── the current-basho yusho (champion) is itself a spoiler-gated RESULT ──
-    // The yusho is decided ON the final day (day 15, playoff included), so it is revealed ONLY
-    // when the basho is officially complete (snapshot.champion is set — the generator only fills it
-    // from the sumo-api yusho, which is empty until the tournament is over) AND this viewer is caught
-    // up to that final day. Mid-basho, or a viewer not yet through day 15, sees null: undecided in-view.
-    // Same discipline, same source of truth, as the standings page's Emperor's Cup reveal.
-    champion: (snapshot.champion && gate >= FINAL_DAY) ? snapshot.champion : null,
-    // never gated:
-    master: snapshot.master || [],                              // whole Master Rikishi roster, timeless background (schema/6)
-    bashos: snapshot.bashos || [],                              // venue/city + dates per tournament, timeless (schema/7)
-    glossary: snapshot.glossary || [],                          // general sumo terms, timeless (schema/7)
-    library: snapshot.library || [],                            // books Gumbai May Cite, timeless (schema/7)
-    analytics: snapshot.analytics || null,                      // registry: dimensions + measures (schema/9), timeless metadata
-    history: snapshot.history || null,
-    upcoming: snapshot.upcoming || null,
-    // ── the CARD layer (schema/10) — result-free pairings, UNGATED ──
-    // A matchup is not a result, so a day's CARD (who fights whom) is safe for ANY PUBLISHED day —
-    // past, current, or the next posted one. `cards` maps day -> { day, date, matchups[] } for every
-    // published day; query_upcoming serves any of them (default: the viewer's OWN next day, gate+1).
-    // Never gated — pairings carry no winner/kimarite. `today` is the real-world anchor so the model
-    // stops guessing what "today" is (Claude has no clock): what calendar day it is and which
-    // tournament day that maps to. Neither is a result.
-    cards: snapshot.cards || null,
-    today: snapshot.today || (snapshot.meta && snapshot.meta.today) || null,
-    // ── crew-era history WITH nets (schema/11) — past crew-tracked bouts (henka/kinboshi/kimarite/
-    // W-L), UNGATED because past basho are not spoilers. This is the SAME full Match Log the rikishi
-    // dashboard reads; carrying it lets the analytical measures span the whole tracked history, not
-    // just the current basho. The current basho stays in the gated `bouts` lane, untouched.
-    crewHistory: snapshot.crewHistory || null,
-  };
-  // AUDIENCE gate (defense in depth): strip the member-only lanes for a public visitor.
+  const view = { meta: { ...snapshot.meta }, gate, showFull: !!showFull, audience };
+  // Axis A: build every lane by its declared spoiler strategy.
+  for(const lane of SOURCE_REGISTRY){
+    const strat = A_STRATEGY[lane.A] || A_STRATEGY.open;
+    let v = strat(snapshot, lane.key, gate);
+    if(v === undefined || v === null) v = lane.dflt;
+    view[lane.key] = v;
+  }
+  if(view.today == null && snapshot.meta && snapshot.meta.today) view.today = snapshot.meta.today;   // back-compat fallback
+  // Axis B: strip the member-only lanes for a public visitor.
   return audience === 'public' ? publicView(view) : view;
 }
 
