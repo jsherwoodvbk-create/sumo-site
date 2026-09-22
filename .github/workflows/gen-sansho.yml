@@ -1,0 +1,29 @@
+# .github/workflows/gen-sansho.yml
+# SANSHO REPORT — pull the special-prize winners per basho (Jan 2025 → Nagoya 2026) from sumo-api and
+# PRINT them (writes nothing). Manual dispatch. Read the run log, then fill the Banzuke `Special Prizes`
+# by hand. sumo-api is Actions-only, hence the workflow. No Notion token needed — it never touches Notion.
+name: gen-sansho (report only)
+
+on:
+  workflow_dispatch:
+    inputs:
+      basho_list:
+        description: 'Optional CSV of basho codes to pull (default = Jan 2025 → Nagoya 2026)'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  sansho:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Pull sanshō per basho (report only)
+        env:
+          BASHO_LIST: ${{ inputs.basho_list }}
+        run: node gen-sansho.mjs
