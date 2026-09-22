@@ -249,6 +249,37 @@
     <div class="centerrow">
        <span class="live"><span class="dot"></span> Aki 2026</span>
     </div>
+   <!-- Crew door: members' entry into the app (homepage login door). -->
+<div class="centerrow" style="margin:2px 0 10px">
+  <a class="crewdoor" id="crewDoor" href="/app">
+    <span class="cd-ic">🥋</span>
+    <span id="crewLabel">Crew login</span>
+    <span class="cd-arrow">→</span>
+  </a>
+</div>
+<style>
+  .crewdoor{display:inline-flex;align-items:center;gap:9px;background-color:var(--surface);
+    border:1.5px solid var(--line);border-radius:999px;padding:8px 16px;font-size:14px;font-weight:600;
+    box-shadow:0 2px 10px rgba(0,0,0,.05);transition:transform .12s ease,border-color .12s ease,box-shadow .12s ease}
+  .crewdoor:hover{transform:translateY(-2px);border-color:var(--vermilion);box-shadow:0 8px 18px rgba(80,50,20,.18)}
+  .crewdoor .cd-ic{font-size:16px;line-height:1}
+  .crewdoor #crewLabel,.crewdoor span{font-family:'Zen Old Mincho',Georgia,serif}
+  .crewdoor .cd-arrow{color:var(--vermilion);font-weight:800;font-family:inherit}
+</style>
+<script>
+(function(){
+  // Greet a logged-in member by name; logged-out sees "Crew login".
+  // The link points at /app either way: the doorman lets a member in and
+  // bounces a logged-out visitor to /login.html. Works even if this JS fails.
+  fetch('/api/auth/me',{credentials:'same-origin'})
+    .then(function(r){return r.ok?r.json():null;})
+    .then(function(m){
+      if(m&&(m.name||m.email)){
+        document.getElementById('crewLabel').textContent='Enter the app'+(m.name?(', '+m.name):'');
+      }
+    }).catch(function(){});
+})();
+</script>
     <!-- THE ARENA: circular dohyo hub -->
     <div class="arena">
       <div class="dohyoWrap">
