@@ -44,6 +44,21 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node build-standings.mjs
 
+      - name: Rebuild tomorrow's card (torikumi) from sumo-api
+        # THE FIX (2026-09-22): wire the next-day matchup pull into the daily publish. gen-torikumi.mjs
+        # pulls the NEXT day's scheduled card (sumo-api /basho/{id}/torikumi/Makuuchi/{day}) into
+        # tomorrow-card.json, which the Gumbai snapshot step below folds into the snapshot's ungated
+        # `upcoming` lane (query_upcoming). Before this, the card only refreshed on a MANUAL torikumi.yml
+        # run, so during a live basho Gumbai could hand out a stale "tomorrow's card." Now it refreshes
+        # every publish. MUST run BEFORE gen-gumbai-snapshot.mjs (which reads the file off disk).
+        # Hits sumo-api only (no NOTION_TOKEN); reachable from Actions. BASHO is baked into the generator
+        # (default 202609, updated at each banzuke drop like the other generators).
+        # Non-fatal by the same last-good logic as the snapshots: on a 404 / not-posted-yet / Day-15 /
+        # off-basho the generator writes an empty card and exits 0, so a hiccup can never block the
+        # snapshot + standings publish below. FORCE_DAY=<n> overrides the auto next-day (testing only).
+        continue-on-error: true
+        run: node gen-torikumi.mjs
+
       - name: Rebuild Gumbai snapshot from Notion
         # Non-fatal: if the Notion pull hiccups the snapshot self-aborts and writes nothing
         # (leaving the last good one in place), and the standings publish below still runs.
@@ -115,9 +130,13 @@ jobs:
           # calendar.json is created by gen-calendar.mjs; it won't exist until the first successful run
           # (and the generator self-aborts on an empty pull). Add it only if present, same guard.
           if [ -f calendar.json ]; then git add calendar.json; fi
+          # tomorrow-card.json is written by gen-torikumi.mjs (continue-on-error, and it self-aborts to an
+          # empty card off-basho / on a 404), so it may be absent — same present-only guard as the others,
+          # so a missing card can never fail this step and block standings + snapshot from committing.
+          if [ -f tomorrow-card.json ]; then git add tomorrow-card.json; fi
           if git diff --cached --quiet; then
             echo "No change — nothing to publish."
           else
-            git commit -m "Auto-update standings + homepage + Gumbai snapshot + drinking game + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
+            git commit -m "Auto-update standings + homepage + Gumbai snapshot + tomorrow's card + drinking game + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
