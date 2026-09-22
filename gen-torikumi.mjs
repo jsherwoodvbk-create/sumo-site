@@ -23,14 +23,23 @@
 //
 // sumo-api is only reachable from GitHub Actions. Run daily (rides the publish flow) or by hand.
 //
-// ENV: BASHO (default 202607) · OUT (default tomorrow-card.json) · FORCE_DAY (optional test override)
+// ── PER-BASHO CONFIG — bump BASHO every tournament, WITH the other generators ──────────────────
+//   FIX (2026-09-22): BASHO defaulted to '202607' (Nagoya, a FINISHED basho) and publish.yml runs
+//   `node gen-torikumi.mjs` with no BASHO env — so every run pulled Nagoya, saw Day 15 already
+//   complete, and wrote an EMPTY "basho over" card. That is why Gumbai showed no tomorrow's card
+//   during Aki. This generator was NOT in the banzuke-drop config-flip cascade, so it went stale
+//   while gen-gumbai-snapshot / build-standings / sync-notion were all bumped to 202609.
+//   DURABLE FIX: add gen-torikumi.mjs to the banzuke-drop config-flip list so BASHO rides the
+//   cascade (same as the others), OR pass BASHO explicitly in the publish.yml torikumi step. Until
+//   then, bump the default below by hand each basho.
+// ENV: BASHO (default 202609 = Aki 2026) · OUT (default tomorrow-card.json) · FORCE_DAY (optional test override)
 import fs from 'node:fs';
 import process from 'node:process';
 
 const API = 'https://www.sumo-api.com/api';
 const DIVISION = 'Makuuchi';
 const TOTAL_DAYS = 15;
-const BASHO = process.env.BASHO || '202607';
+const BASHO = process.env.BASHO || '202609';   // ← Aki 2026 (bump each tournament, with the other generators)
 const OUT = process.env.OUT || 'tomorrow-card.json';
 const FORCE_DAY = parseInt(process.env.FORCE_DAY || '', 10); // NaN when unset
 const UA = 'salt-stats-sumo-torikumi/1.0 (+https://sumo.stavesandhoop.com; daily next-day card)';
