@@ -50,11 +50,27 @@ const FORCE_DAY = parseInt(process.env.FORCE_DAY || '', 10); // NaN when unset
 const UA = 'salt-stats-sumo-torikumi/1.0 (+https://sumo.stavesandhoop.com; daily card pull)';
 const THROTTLE_MS = 1200;
 
+// ── SOURCE FRAMEWORK (2026-09-22): the lineup also lands in NOTION, on the day's cardinal Highlights row ──
+//   Jennie: "torikumi should only live on the cardinal number/highlights as that's the constant." So the
+//   card stops being a Notion-bypassing JSON exception — it upserts the 📅 Days/Transcripts `Lineup` field
+//   on the (Basho, Day #) row, the SAME (Basho, Day #) key notion_push.py + sync-notion's ensureDayRow use,
+//   so it converges to one clean row (the box's Highlights push later patches the transcript onto it). This
+//   write is BEST-EFFORT: it never throws, never blocks the card, and `tomorrow-card.json` is still written
+//   every run (the read side prefers Notion, falls back to the JSON) — so the daily pipeline can't break on it.
+//   Needs a WRITE token (NOTION_TOKEN_WRITE, the sumo-notion-sync / a write integration with Days + Bashos
+//   shared) in the torikumi step's env. Absent → the write is skipped with a note, JSON path unchanged.
+//   PER-BASHO: TOURNAMENT_PAGE_ID + BASHO_LABEL bump with the other generators at the drop.
+const NOTION_TOKEN_WRITE = process.env.NOTION_TOKEN_WRITE || '';
+const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-8011-8987-d959538f54a0';  // Aki 2026 🏆 Bashos page
+const DAYS_DB_ID = process.env.DAYS_DB_ID || 'eb0597c9-7259-49cd-babb-889f3b28f33d';   // 📅 Days/Transcripts
+const NOTION_VERSION = '2022-06-28';
+
 const LABEL = {
   '202501': 'Hatsu 2025', '202503': 'Haru 2025', '202505': 'Natsu 2025', '202507': 'Nagoya 2025',
   '202509': 'Aki 2025', '202511': 'Kyushu 2025', '202601': 'Hatsu 2026', '202603': 'Haru 2026',
   '202605': 'Natsu 2026', '202607': 'Nagoya 2026', '202609': 'Aki 2026', '202611': 'Kyushu 2026',
 };
+const BASHO_LABEL = process.env.BASHO_LABEL || LABEL[BASHO] || BASHO;   // for the Notion Day title
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
@@ -64,6 +80,83 @@ async function getJson(url) {
   if (res.status === 404) return null;
   if (!res.ok) throw new Error(`${url} -> ${res.status}: ${(await res.text()).slice(0, 200)}`);
   return res.json();
+}
+
+// ── Notion write path (best-effort — the card never depends on it) ──────────────
+async function notion(path, method = 'GET', body, attempt = 0) {
+  const res = await fetch('https://api.notion.com/v1' + path, {
+    method,
+    headers: { Authorization: `Bearer ${NOTION_TOKEN_WRITE}`, 'Notion-Version': NOTION_VERSION, 'Content-Type': 'application/json' },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if ((res.status === 429 || res.status === 529) && attempt < 5) {
+    const wait = (Number(res.headers.get('retry-after')) || 2 ** attempt) * 1000;
+    await new Promise(r => setTimeout(r, wait));
+    return notion(path, method, body, attempt + 1);
+  }
+  const text = await res.text();
+  if (!res.ok) throw new Error(`Notion ${method} ${path} -> ${res.status}: ${text.slice(0, 200)}`);
+  return text ? JSON.parse(text) : {};
+}
+const idNoDash = s => String(s || '').replace(/-/g, '');
+// One line per bout: "East (Rank) vs West (Rank)" (rank omitted when unknown). THIS is the exact
+// serialization gen-gumbai-snapshot parses back into matchups — keep the two in lockstep.
+function serializeLineup(matchups) {
+  return (matchups || []).map(m => {
+    const e = m.eastRank ? `${m.eastName} (${m.eastRank})` : m.eastName;
+    const w = m.westRank ? `${m.westName} (${m.westRank})` : m.westName;
+    return `${e} vs ${w}`;
+  }).join('\n');
+}
+// Find the (Basho, Day #) row — the SAME key notion_push.py / sync-notion's ensureDayRow use, so we
+// converge onto the box's cardinal Highlights row instead of duplicating.
+async function findDayRow(dayNum) {
+  const r = await notion(`/databases/${DAYS_DB_ID}/query`, 'POST', {
+    page_size: 5,
+    filter: { and: [
+      { property: 'Basho', relation: { contains: TOURNAMENT_PAGE_ID } },
+      { property: 'Day #', number: { equals: dayNum } },
+    ] },
+  });
+  return (r.results || [])[0] || null;
+}
+const lineupOf = p => (p?.properties?.Lineup?.rich_text || []).map(t => t.plain_text).join('');
+// Upsert only the day's Lineup: PATCH the existing (Basho, Day #) row, or CREATE it (Type=Highlights) so
+// the next scheduled day's shell exists early. NEVER touches any other field. Caller wraps it best-effort.
+async function upsertDayLineup(dayNum, lineupText) {
+  const lineup = String(lineupText || '').slice(0, 1990);
+  const lineupProp = { Lineup: { rich_text: lineup ? [{ text: { content: lineup } }] : [] } };
+  const existing = await findDayRow(dayNum);
+  if (existing) {
+    if (lineupOf(existing) === lineup) return 'unchanged';
+    await notion(`/pages/${idNoDash(existing.id)}`, 'PATCH', { properties: lineupProp });
+    return 'patched';
+  }
+  await notion('/pages', 'POST', {
+    parent: { database_id: DAYS_DB_ID },
+    properties: {
+      Day: { title: [{ text: { content: `${BASHO_LABEL} · Day ${dayNum}` } }] },
+      'Day #': { number: dayNum },
+      Basho: { relation: [{ id: TOURNAMENT_PAGE_ID }] },
+      Type: { select: { name: 'Highlights' } },
+      ...lineupProp,
+    },
+  });
+  return 'created';
+}
+// Best-effort: land every integer published day's lineup in Notion. Never throws; a hiccup on one day
+// is logged and the rest continue. The card (tomorrow-card.json) is already written by the time this runs.
+async function landLineupsInNotion(cards) {
+  if (!NOTION_TOKEN_WRITE) { console.log('  (Notion Lineup write skipped — no NOTION_TOKEN_WRITE in env; tomorrow-card.json is the only sink this run)'); return; }
+  const days = Object.keys(cards).map(Number).filter(d => Number.isInteger(d)).sort((a, b) => a - b);
+  const tally = { created: 0, patched: 0, unchanged: 0, failed: 0 };
+  for (const d of days) {
+    const c = cards[d]; if (!c || !(c.matchups || []).length) continue;
+    try { tally[await upsertDayLineup(d, serializeLineup(c.matchups))]++; }
+    catch (e) { tally.failed++; console.warn(`  ⚠️ Lineup upsert Day ${d} failed (non-fatal): ${e.message}`); }
+    await sleep(350);   // polite pacing on Notion writes
+  }
+  console.log(`  + Notion Lineup: created=${tally.created} patched=${tally.patched} unchanged=${tally.unchanged} failed=${tally.failed} (Days ${days.join(', ') || 'none'})`);
 }
 
 // same rank shortening as build-standings.mjs / gen-history.mjs
@@ -210,6 +303,11 @@ async function main() {
 
   const dayList = Object.keys(cards).map(Number).sort((a, b) => a - b);
   console.log(`✓ wrote ${OUT}: ${dayList.length} published card(s) [Days ${dayList.join(', ') || 'none'}]; next scheduled = ${nextCard ? `Day ${nextCard.day} (${nextCard.matchups.length} matchups)` : 'none (empty)'}.`);
+
+  // ── land the lineups in Notion too (Source Framework) — BEST-EFFORT, after the JSON is safely written,
+  //    so a Notion hiccup can never break the card or the publish. tomorrow-card.json remains the fallback.
+  try { await landLineupsInNotion(cards); }
+  catch (e) { console.warn(`  (Notion Lineup landing failed entirely — non-fatal, JSON card unaffected): ${e.message}`); }
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
