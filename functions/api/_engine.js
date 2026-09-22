@@ -50,7 +50,7 @@
 // logged day. Until then they get body-part + gated severity + status "ongoing".
 // Bump this whenever the engine changes. Exposed at GET /api/gumbai so you can confirm, from a URL,
 // exactly which engine is live (no more guessing whether a deploy took).
-export const ENGINE_VERSION = 'gumbai-engine 2026-09-22e · registry-driven GATE (schema/12: the SOURCE_REGISTRY declares every lane\'s temporal type + Axis A spoiler + Axis B audience; the gate loops it) + banzukeHistory/daysHistory historical partitions (public / member) + history-spanning analytics (query_rollup span over crewHistory + backfill) + query_rate + head-to-head & career & yusho span crewHistory (derive most-recent basho champion before gen-history reruns; honest playoff tie — retires when the Banzuke partition lands) + card layer + today anchor names the current basho + unit awareness (std/metric) + registry-driven measures; origin guard + on-mission lock (public/member)';
+export const ENGINE_VERSION = 'gumbai-engine 2026-09-22f · registry-driven GATE (schema/12: SOURCE_REGISTRY declares every lane\'s temporal type + Axis A spoiler + Axis B audience) + banzukeHistory AUTHORITATIVE yusho/sanshō/record from the Notion Banzuke (query_yusho + query_career; playoff resolved by the recorded champion, both audiences) + special prizes answerable + daysHistory (member) + history-spanning analytics (query_rollup span over crewHistory + backfill) + query_rate + head-to-head & career span crewHistory + card layer + today anchor names the current basho + unit awareness (std/metric); crewHistory yusho-derivation demoted to a dormant fallback; origin guard + on-mission lock (public/member)';
 
 function gateInjury(c, gate){
   // PRIOR-BASHO CARRY (schema/8): before the viewer has watched Day 1 of the CURRENT basho
@@ -277,22 +277,42 @@ function historyBashoList(gated){
   const h = gated.history && gated.history.basho; if(!h) return [];
   return Object.keys(h).sort().map(code => ({ code, ...h[code] }));
 }
+// The AUTHORITATIVE per-basho SUMMARY (rank, final record, yusho, sanshō prizes), merged by priority:
+// banzukeHistory (the Notion 📋 Banzuke table — the recorded champion, playoff already resolved, WITH
+// prizes) OVER the static sumo-api `history` lane (record/yusho only, no prizes). Keyed by basho code so
+// the two align; a code in BOTH → the Banzuke entry wins. This is what "who won X" and the per-basho
+// career read draw on — Notion's own record, not a bout-count guess. (Head-to-head still reads bouts via
+// historyBashoList; this summary carries no bouts.) Source Framework: banzukeHistory is Lane-1 truth.
+function summaryBashoList(gated){
+  const out = new Map();   // code -> { code, label, rikishi:[...], yusho:[names], source }
+  const h = gated.history && gated.history.basho;
+  if(h) for(const code of Object.keys(h)) out.set(code, { code, label:h[code].label, rikishi:(h[code].rikishi||[]).map(r=>({...r})), yusho:(h[code].yusho||[]).slice(), source:'history' });
+  const bh = gated.banzukeHistory;
+  if(bh) for(const code of Object.keys(bh)) out.set(code, { code, label:bh[code].label, rikishi:(bh[code].rikishi||[]).map(r=>({...r})), yusho:(bh[code].yusho||[]).slice(), source:'banzuke' });
+  return [...out.values()].sort((a,b)=> String(a.code).localeCompare(String(b.code)));
+}
 function careerFor(name, gated){
-  const perBasho=[]; let hw=0, hl=0; const yusho=[];
-  const staticLabels=new Set();
-  for(const b of historyBashoList(gated)){
-    staticLabels.add(b.label);
+  const perBasho=[]; let hw=0, hl=0; const yusho=[]; const sansho={};
+  const summaryLabels=new Set();
+  for(const b of summaryBashoList(gated)){
+    summaryLabels.add(b.label);
     const r=(b.rikishi||[]).find(x=>x.name===name);
-    if(r){ hw+=r.wins; hl+=r.losses; perBasho.push({ basho:b.label, rank:r.rank, record:`${r.wins}-${r.losses}` }); }
-    if((b.yusho||[]).includes(name)) yusho.push(b.label);
+    const wonBasho = (b.yusho||[]).includes(name) || !!(r && r.yusho);
+    if(r){
+      hw += (r.wins||0); hl += (r.losses||0);
+      const e = { basho:b.label, rank: r.rank ?? null, record:`${r.wins ?? '?'}-${r.losses ?? '?'}` };
+      if(wonBasho) e.yusho = true;
+      if(Array.isArray(r.prizes) && r.prizes.length){ e.prizes = r.prizes; for(const p of r.prizes) sansho[p] = (sansho[p]||0) + 1; }
+      if(typeof r.goldStars === 'number' && r.goldStars > 0) e.goldStars = r.goldStars;
+      perBasho.push(e);
+    }
+    if(wonBasho && !yusho.includes(b.label)) yusho.push(b.label);
   }
-  // crewHistory (Notion Match Log, ungated past bouts) fills any PAST basho the static sumo-api lane
-  // hasn't rolled forward yet — the most-recent completed basho, until gen-history reruns (the §3d
-  // roll-forward). Tally W-L from the bouts (this lane carries no per-basho rank/yusho). Skip basho the
-  // static lane already owns, so nothing double-counts; once §3d folds a basho in, it swaps lanes cleanly.
+  // crewHistory (Notion Match Log) fills any PAST basho NEITHER summary source has — record tallied from
+  // the bouts (no rank/prizes in this lane). Skip basho the summary already owns, so nothing double-counts.
   const crewByBasho=new Map();
   for(const x of (gated.crewHistory||[])){
-    if(!x.basho || staticLabels.has(x.basho)) continue;
+    if(!x.basho || summaryLabels.has(x.basho)) continue;
     if(x.winner!==name && x.loser!==name) continue;
     const cur=crewByBasho.get(x.basho) || { w:0, l:0 };
     if(x.winner===name) cur.w++; else cur.l++;
@@ -302,8 +322,7 @@ function careerFor(name, gated){
     hw+=rec.w; hl+=rec.l;
     perBasho.push({ basho:label, rank:null, record:`${rec.w}-${rec.l}`, final:true, fromMatchLog:true });
   }
-  // Credit a yusho for a crewHistory-only basho ONLY when it's an unambiguous solo top-record; a playoff
-  // tie stays uncredited (we can't confirm the winner from the regular log) until §3d rolls it in.
+  // Last-resort derived yusho for a crewHistory-only basho (in NEITHER summary source) — clean solo only.
   for(const d of crewHistoryYusho(gated)){ if(!d.playoff && d.yusho.length===1 && d.yusho[0]===name && !yusho.includes(d.basho)) yusho.push(d.basho); }
   const cur=summarize(name, gated.bouts);
   const curBz=gated.banzuke.find(x=>x.name===name);
@@ -322,7 +341,9 @@ function careerFor(name, gated){
       note: bashoComplete
         ? 'since the crew got into sumo (Jan 2025); the current basho is COMPLETE in your view and fully counted (no "in progress" caveat needed)'
         : 'since the crew got into sumo (Jan 2025); the current basho counts only through your gated day' },
-    yushoCount:yusho.length, yusho, perBasho,
+    yushoCount:yusho.length, yusho,
+    sansho,   // schema/12: aggregate special-prize counts from the Banzuke record, e.g. { Technique:1, 'Fighting Spirit':2 }
+    perBasho,
   };
 }
 function historyH2H(a, b, gated){
@@ -353,10 +374,12 @@ function historyH2H(a, b, gated){
 function crewHistoryYusho(gated){
   const crew = gated.crewHistory || [];
   if(!crew.length) return [];
-  const staticLabels = new Set(historyBashoList(gated).map(b=>b.label));
+  // Skip any basho the AUTHORITATIVE summary already holds (banzukeHistory OR the static lane) — the
+  // Banzuke `Yusho` checkbox is the real champion, so once a basho is there this derivation goes dormant.
+  const known = new Set(summaryBashoList(gated).map(b=>b.label));
   const byBasho = new Map();   // basho label -> Map(name -> wins)
   for(const x of crew){
-    if(!x.basho || staticLabels.has(x.basho) || !x.winner) continue;
+    if(!x.basho || known.has(x.basho) || !x.winner) continue;
     const wins = byBasho.get(x.basho) || new Map();
     wins.set(x.winner, (wins.get(x.winner)||0) + 1);
     byBasho.set(x.basho, wins);
@@ -736,12 +759,12 @@ export const TOOLS = [
   },
   {
     name: 'query_career',
-    description: "A wrestler's record across the tracked era (since Jan 2025): total W-L, record and rank basho-by-basho, yusho count. Current basho only through your gated day; past basho are never spoilers.",
+    description: "A wrestler's record across the tracked era (since Jan 2025): total W-L, record and rank basho-by-basho, yusho count, and `sansho` (aggregate special-prize counts — Outstanding Performance / Fighting Spirit / Technique). Per-basho lines and the yusho/prizes come from the Notion Banzuke record (authoritative). Current basho only through your gated day; past basho are never spoilers.",
     input_schema: { type:'object', properties:{ name:{type:'string'} }, required:['name'] }
   },
   {
     name: 'query_yusho',
-    description: "Championship (yusho) history since Jan 2025. With a name: which basho that wrestler won + title count. Without: the champion of each past basho, most-recent first. The most-recent COMPLETED basho may be marked derived:true (its champion computed from the Match Log because it isn't in the static history lane yet) — that is a real answer, report it plainly; only a playoff:true entry is unresolved (name the tied contenders, don't crown one). The CURRENT basho's title is included ONLY once the viewer is caught up to the final day of a completed basho (spoiler-gated); until then it reads as undecided-in-view. Trust the tool's currentBasho / currentBashoInView / champions fields — do not refuse to name a champion the tool has handed you. Use for 'who won the last tournament', 'who won Nagoya 2026', 'how many yusho does X have'.",
+    description: "Championship (yusho) + special-prize (sanshō) history since Jan 2025, from the Notion Banzuke record — the recorded champion (playoff ALREADY resolved by the crew, so a win-count tie is not a problem) and the three sanshō (Outstanding Performance / Fighting Spirit / Technique). With a name: which basho that wrestler won + title count + `sansho` counts + `prizesByBasho`. Without: the champion of each past basho, most-recent first, each with its basho `prizes` (sanshō winners). A rare basho not yet in the Banzuke may come back marked derived:true (champion computed from the Match Log) — still a real answer, report it plainly; only a playoff:true entry is unresolved (name the tied contenders). The CURRENT basho's title is gated (revealed only once the viewer is caught up to a completed final day). Trust the tool's currentBasho / currentBashoInView / champions / prizes fields. Use for 'who won the last tournament', 'who won Nagoya 2026', 'how many yusho does X have', 'who took the Technique prize at X', 'how many sanshō does X have'.",
     input_schema: { type:'object', properties:{ name:{type:'string'} } }
   },
   {
@@ -936,38 +959,53 @@ export function runTool(toolName, input, gated){
       return { found:true, resolvedFrom: res.matched || null, ...c };
     }
     case 'query_yusho': {
-      const list = historyBashoList(gated).reverse();
+      // AUTHORITATIVE per-basho record — banzukeHistory (the Notion Banzuke `Yusho` checkbox + `Special
+      // Prizes`) over the static lane. Playoffs are already resolved by whoever recorded the champion, so
+      // no bout-count guessing. Officially-recorded → PUBLIC (both audiences answer "who won X").
+      const summary = summaryBashoList(gated);
+      const desc = summary.slice().reverse();                          // most-recent first
+      const summaryLabels = new Set(summary.map(b => b.label));
       const curLabel = (gated.meta && gated.meta.basho) || 'current';
       const champ = gated.champion || null;
-      // Champions of past basho that live only in the Match Log (not yet in the static history lane),
-      // most-recent first. crewHistory carries the newest completed basho before gen-history reruns.
-      const derived = crewHistoryYusho(gated);
+      // Last-resort DERIVED champion, only for a past basho neither summary source holds (the retiring
+      // bridge — dormant once banzukeHistory covers a basho).
+      const derived = crewHistoryYusho(gated).filter(d => !summaryLabels.has(d.basho));
+      const prizesFor = (b, name) => { const r = (b.rikishi||[]).find(x => x.name===name); return (r && Array.isArray(r.prizes)) ? r.prizes : []; };
       if(input.name){
         const res = resolveName(input.name, gated.rikishi); const name = res.name || input.name;
-        const won = list.filter(b => (b.yusho||[]).includes(name)).map(b=>b.label);
-        // Credit a derived yusho ONLY when it is an unambiguous solo top-record — a playoff tie stays
-        // uncredited (we can't confirm the playoff winner from the regular log) until §3d resolves it.
+        const won = []; const prizesByBasho = []; const sansho = {};
+        for(const b of desc){
+          if((b.yusho||[]).includes(name)) won.push(b.label);
+          const pz = prizesFor(b, name);
+          if(pz.length){ prizesByBasho.push({ basho:b.label, prizes:pz }); for(const p of pz) sansho[p] = (sansho[p]||0) + 1; }
+        }
         for(const d of derived){ if(!d.playoff && d.yusho.length===1 && d.yusho[0]===name && !won.includes(d.basho)) won.unshift(d.basho); }
         const wonCurrent = !!(champ && champ.name===name);
         if(wonCurrent) won.unshift(curLabel + (champ.playoff ? ' (playoff)' : ''));
-        return { name, yushoCount: won.length, yusho: won,
+        return { name, yushoCount: won.length, yusho: won, sansho, prizesByBasho,
           currentBasho: wonCurrent
             ? { basho: curLabel, result:'won', playoff: !!champ.playoff, note:'decided — you are caught up to the final day' }
             : { basho: curLabel, result: champ ? 'won by someone else' : 'undecided in your view' },
-          note:'since Jan 2025, most recent first.' };
+          note:'since Jan 2025, most recent first; yusho + sanshō from the Banzuke record.' };
       }
       const champions = [];
       if(champ) champions.push({ basho: curLabel, yusho:[champ.name], playoff: !!champ.playoff, note:'this basho — decided, you are caught up to the final day' });
       for(const d of derived) champions.push({ basho:d.basho, yusho:d.yusho, playoff:d.playoff, derived:true,
         note: d.playoff
-          ? `top record was ${d.topWins} wins, shared by ${d.yusho.join(' and ')} — this basho went to a PLAYOFF; from the Match Log I have the regular record but not the playoff result, so name the contenders and say the crown awaits the roll-forward`
-          : `derived from the Match Log (this basho isn't in the static history lane yet): a ${d.topWins}-win yusho for ${d.yusho[0]} — report it plainly` });
-      for(const b of list) champions.push({ basho:b.label, yusho:(b.yusho||[]) });
+          ? `top record was ${d.topWins} wins, shared by ${d.yusho.join(' and ')} — a PLAYOFF; from the Match Log I have the regular record but not the playoff result, so name the contenders and say the crown isn't recorded in Notion yet`
+          : `derived from the Match Log (this basho isn't recorded in the Banzuke yet): a ${d.topWins}-win yusho for ${d.yusho[0]} — report it plainly` });
+      for(const b of desc){
+        const entry = { basho:b.label, yusho:(b.yusho||[]) };
+        const prizeWinners = [];
+        for(const r of (b.rikishi||[])) if(Array.isArray(r.prizes) && r.prizes.length) prizeWinners.push({ name:r.name, prizes:r.prizes });
+        if(prizeWinners.length) entry.prizes = prizeWinners;   // sanshō for the basho, from the Banzuke record
+        champions.push(entry);
+      }
       return { champions,
         currentBashoInView: !!champ,
         note: champ
-          ? 'most recent first; this basho\'s yusho is decided and in your view.'
-          : 'past basho since Jan 2025, most recent first (the newest completed basho is derived from the Match Log until it is rolled into the static history); the current basho is undecided in your view (not yet caught up to the final day, or still in progress).' };
+          ? 'most recent first; this basho\'s yusho is decided and in your view. Past champions + sanshō come from the Banzuke record (authoritative, playoff-resolved).'
+          : 'past basho since Jan 2025, most recent first, from the Banzuke record (yusho + sanshō, authoritative); the current basho is undecided in your view (not yet caught up to the final day, or still in progress).' };
     }
     case 'query_leaderboard': {
       const year = Number.isInteger(input.year) ? input.year : null;
@@ -1172,7 +1210,7 @@ SPOILER SAFETY, absolute. The crew watches on delay, each at their own pace. You
 
 GROUNDING THE RACE: for anything about the championship, call query_standings and reason from the ACTUAL records, the gap to the leader, and days remaining. Do not write anyone off by rank alone. For eve-of-day questions ("can X still win," playoff scenarios) pull query_standings AND query_upcoming and lay out the if/then. That is analysis, not a spoiler.
 
-THE YUSHO (who won the basho) IS ANSWERABLE once the viewer is caught up. The championship is decided on the final day (day 15, playoff included). The DATA already enforces this: query_yusho and query_career reveal the current basho's champion ONLY when the viewer has watched through the final day of a completed basho, and stay silent otherwise. So TRUST THE TOOL: if query_yusho hands you a current-basho champion (currentBashoInView true, or a currentBasho result of "won"), that viewer HAS seen it, and you name the winner plainly and celebrate it. Do NOT invent a rule that the yusho is "never confirmable" or that it is "kept undecided in-view" when the tool has already given it to you. Only when the tool says undecided-in-view do you say you can't call it yet. A 12-3 (or any) final record is the regular schedule; the cup itself comes from query_yusho, so lean on that tool for the crown, not the raw record. PAST-BASHO CHAMPIONS are never gated: if query_yusho hands you a champion for a past basho — INCLUDING one marked derived:true (its winner computed from the Match Log because that basho isn't in the static history lane yet) — name that winner plainly. "Who won the last tournament" is answerable: it is the most-recent completed basho in the champions list. Do NOT say a past basho's crown is missing just because it is derived; the only past entry you hedge on is one flagged playoff:true, where you name the tied contenders and say the crown awaits the roll-forward.
+THE YUSHO (who won the basho) IS ANSWERABLE once the viewer is caught up. The championship is decided on the final day (day 15, playoff included). The DATA already enforces this: query_yusho and query_career reveal the current basho's champion ONLY when the viewer has watched through the final day of a completed basho, and stay silent otherwise. So TRUST THE TOOL: if query_yusho hands you a current-basho champion (currentBashoInView true, or a currentBasho result of "won"), that viewer HAS seen it, and you name the winner plainly and celebrate it. Do NOT invent a rule that the yusho is "never confirmable" or that it is "kept undecided in-view" when the tool has already given it to you. Only when the tool says undecided-in-view do you say you can't call it yet. A 12-3 (or any) final record is the regular schedule; the cup itself comes from query_yusho, so lean on that tool for the crown, not the raw record. PAST-BASHO CHAMPIONS are never gated, and they come from the Notion Banzuke record (authoritative — the recorded champion, playoff already resolved, so a win-count tie is NOT a reason to hedge): name the winner plainly. "Who won the last tournament" is answerable — it is the most-recent completed basho in the champions list. SPECIAL PRIZES (sanshō — Outstanding Performance / Fighting Spirit / Technique) are answerable too, from the same record (query_yusho returns each basho's prize winners and a name's sanshō counts; query_career returns a sanshō total). Do NOT say a past crown or a prize is missing when the tool has handed it to you; the ONLY past entry you hedge on is one flagged playoff:true (rare, a basho not yet in the Banzuke), where you name the tied contenders and say the crown isn't recorded yet. Where the Banzuke simply has no prize recorded for a basho, say so honestly ("no sanshō recorded for that one") — never invent one.
 
 BASHO OVER vs IN PROGRESS: this is about the DAY, not the winner. When a tool marks the current basho complete (query_career returns bashoComplete true or a perBasho entry with final:true; standings show day 15 with 0 days remaining), the tournament is OVER for this viewer and every record in it is FINAL. Say so plainly, and do NOT tack on "in progress," "through your day," or "not final yet" caveats to that basho's numbers. Only add the in-progress caveat when the tool actually still marks it inProgress (viewer not yet through day 15). A wrestler can finish a completed basho without winning it: "Nagoya's done, he ended 7-7" is correct and is NOT the same as naming the champion.
 
