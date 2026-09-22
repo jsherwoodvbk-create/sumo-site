@@ -1013,5 +1013,59 @@ t('the registry-driven gate still empties every member lane + keeps every public
   }
 });
 
+// ═══ 21. banzukeHistory — AUTHORITATIVE yusho + sanshō from Notion, both audiences (schema/12) ═══
+// The Source Framework payoff: the champion comes from the Banzuke `Yusho` checkbox (playoff already
+// resolved by whoever recorded it), not a bout-count guess — "ties happen all the time, Notion has the
+// winner" (Jennie). Officially-recorded → PUBLIC, so "who won X" and "X vs Y" answer for a public visitor
+// with no balking. banzukeHistory also carries the sanshō, a thing Gumbai could not answer before.
+console.log('\n[21] banzukeHistory — authoritative yusho + sanshō, both audiences (schema/12)');
+const SNAP_BH = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:9 },
+  rikishi:[ {name:'Aonishiki',nicknames:[]}, {name:'Onosato',nicknames:[]} ],
+  banzuke:[ {name:'Aonishiki',rank:'Ozeki',weightKg:150}, {name:'Onosato',rank:'Yokozuna',weightKg:191} ],
+  kimarite:[], bouts:[ {day:9,winner:'Aonishiki',loser:'Onosato',kimarite:'uwatedashinage'} ], master:[],
+  // Nagoya 2026 from the Banzuke: Aonishiki AND Onosato both 13-2 (tied wins!) — but the Yusho checkbox
+  // names Aonishiki (he won the playoff). Bout-counting would call it a tie; the record does not.
+  banzukeHistory:{ '202607':{ label:'Nagoya 2026', yusho:['Aonishiki'], rikishi:[
+    { name:'Aonishiki', rank:'Sekiwake', wins:13, losses:2, yusho:true,  prizes:['Technique'], goldStars:0, absences:0 },
+    { name:'Onosato',   rank:'Yokozuna', wins:13, losses:2, yusho:false, prizes:[],            goldStars:0, absences:0 },
+  ]}},
+  crewHistory:[ {basho:'Nagoya 2026', day:9, winner:'Aonishiki', loser:'Onosato', kimarite:'uwatedashinage', cushions:true} ],
+  history:{ basho:{} },   // static lane empty — Notion's Banzuke is the source
+  days:[], injuries:[], catchphrases:[], upcoming:null,
+};
+const bhM = gateSnapshot(SNAP_BH, 9, false, 'member');
+const bhP = gateSnapshot(SNAP_BH, 9, false, 'public');
+t('who won the last tournament: champion from the Banzuke Yusho checkbox, NOT derived, despite a win tie', () => {
+  const r = runTool('query_yusho', {}, bhM);
+  const ng = r.champions.find(c => c.basho==='Nagoya 2026');
+  assert(ng && !ng.derived && !ng.playoff && ng.yusho.length===1 && ng.yusho[0]==='Aonishiki', 'authoritative solo champ expected: '+JSON.stringify(ng));
+});
+t('special prizes are answerable: the Nagoya 2026 champion carries Technique (sanshō)', () => {
+  const ng = runTool('query_yusho', {}, bhM).champions.find(c => c.basho==='Nagoya 2026');
+  assert(Array.isArray(ng.prizes) && ng.prizes.some(p => p.name==='Aonishiki' && p.prizes.includes('Technique')), 'Technique prize should show: '+JSON.stringify(ng.prizes));
+});
+t('named yusho query surfaces titles + sanshō counts from the Banzuke', () => {
+  const r = runTool('query_yusho', {name:'Aonishiki'}, bhM);
+  assert(r.yusho.includes('Nagoya 2026') && r.sansho && r.sansho.Technique===1, JSON.stringify(r));
+});
+t('career readout: authoritative Nagoya 2026 line (rank + record + yusho + prizes) + sanshō total', () => {
+  const c = runTool('query_career', {name:'Aonishiki'}, bhM);
+  const ng = c.perBasho.find(p => p.basho==='Nagoya 2026');
+  assert(ng && ng.rank==='Sekiwake' && ng.record==='13-2' && ng.yusho===true && (ng.prizes||[]).includes('Technique'), 'authoritative career line: '+JSON.stringify(ng));
+  assert(c.sansho && c.sansho.Technique===1, 'career sanshō total: '+JSON.stringify(c.sansho));
+});
+t('ACCEPTANCE — "who won X" answers for a PUBLIC visitor (officially-recorded, both audiences)', () => {
+  const ng = runTool('query_yusho', {}, bhP).champions.find(c => c.basho==='Nagoya 2026');
+  assert(ng && ng.yusho[0]==='Aonishiki', 'public must get the champion too: '+JSON.stringify(ng));
+  assert(ng.prizes && ng.prizes.some(p => p.prizes.includes('Technique')), 'public gets the sanshō too (officially-recorded)');
+});
+t('ACCEPTANCE — "X vs Y history" answers for a PUBLIC visitor, no balking', () => {
+  const h = runTool('query_match_log', {rikishi:'Aonishiki', opponent:'Onosato'}, bhP).historicalHeadToHead;
+  assert(h.meetings===1 && h.bouts.some(b => b.basho==='Nagoya 2026' && b.winner==='Aonishiki'), 'public head-to-head must include the past meeting: '+JSON.stringify(h));
+  // the crew net (cushions) is stripped for public, but the hard result is intact
+  assert(!JSON.stringify(bhP.crewHistory).includes('cushions'), 'member net must not leak to public');
+});
+
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
