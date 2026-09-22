@@ -50,7 +50,7 @@
 // logged day. Until then they get body-part + gated severity + status "ongoing".
 // Bump this whenever the engine changes. Exposed at GET /api/gumbai so you can confirm, from a URL,
 // exactly which engine is live (no more guessing whether a deploy took).
-export const ENGINE_VERSION = 'gumbai-engine 2026-09-22b · history-spanning analytics (query_rollup span=basho/history/all over crewHistory + backfill) + query_rate (vs field average) + card layer (any published day, viewer next-day default) + today anchor + unit awareness (std/metric) + registry-driven measures; origin guard + on-mission lock (public/member)';
+export const ENGINE_VERSION = 'gumbai-engine 2026-09-22c · history-spanning analytics (query_rollup span=basho/history/all over crewHistory + backfill) + query_rate (vs field average) + head-to-head & career span crewHistory (picks up the most-recent completed basho before gen-history reruns) + card layer (any published day, viewer next-day default) + today anchor names the current basho + unit awareness (std/metric) + registry-driven measures; origin guard + on-mission lock (public/member)';
 
 function gateInjury(c, gate){
   // PRIOR-BASHO CARRY (schema/8): before the viewer has watched Day 1 of the CURRENT basho
@@ -276,10 +276,28 @@ function historyBashoList(gated){
 }
 function careerFor(name, gated){
   const perBasho=[]; let hw=0, hl=0; const yusho=[];
+  const staticLabels=new Set();
   for(const b of historyBashoList(gated)){
+    staticLabels.add(b.label);
     const r=(b.rikishi||[]).find(x=>x.name===name);
     if(r){ hw+=r.wins; hl+=r.losses; perBasho.push({ basho:b.label, rank:r.rank, record:`${r.wins}-${r.losses}` }); }
     if((b.yusho||[]).includes(name)) yusho.push(b.label);
+  }
+  // crewHistory (Notion Match Log, ungated past bouts) fills any PAST basho the static sumo-api lane
+  // hasn't rolled forward yet — the most-recent completed basho, until gen-history reruns (the §3d
+  // roll-forward). Tally W-L from the bouts (this lane carries no per-basho rank/yusho). Skip basho the
+  // static lane already owns, so nothing double-counts; once §3d folds a basho in, it swaps lanes cleanly.
+  const crewByBasho=new Map();
+  for(const x of (gated.crewHistory||[])){
+    if(!x.basho || staticLabels.has(x.basho)) continue;
+    if(x.winner!==name && x.loser!==name) continue;
+    const cur=crewByBasho.get(x.basho) || { w:0, l:0 };
+    if(x.winner===name) cur.w++; else cur.l++;
+    crewByBasho.set(x.basho, cur);
+  }
+  for(const [label, rec] of crewByBasho){
+    hw+=rec.w; hl+=rec.l;
+    perBasho.push({ basho:label, rank:null, record:`${rec.w}-${rec.l}`, final:true, fromMatchLog:true });
   }
   const cur=summarize(name, gated.bouts);
   const curBz=gated.banzuke.find(x=>x.name===name);
@@ -302,12 +320,20 @@ function careerFor(name, gated){
   };
 }
 function historyH2H(a, b, gated){
-  let aw=0, bw=0; const meetings=[];
-  for(const bb of historyBashoList(gated)) for(const x of (bb.bouts||[])){
-    if((x.winner===a&&x.loser===b)||(x.winner===b&&x.loser===a)){
-      if(x.winner===a) aw++; else bw++;
-      meetings.push({ basho:bb.label, day:x.day, winner:x.winner, kimarite:x.kimarite });
-    }
+  let aw=0, bw=0; const meetings=[]; const staticLabels=new Set();
+  const tally=(basho, day, winner, kimarite)=>{ if(winner===a) aw++; else bw++; meetings.push({ basho, day, winner, kimarite }); };
+  // static sumo-api backfill lane (Jan 2025 through the last basho gen-history rolled in)
+  for(const bb of historyBashoList(gated)){
+    staticLabels.add(bb.label);
+    for(const x of (bb.bouts||[])) if((x.winner===a&&x.loser===b)||(x.winner===b&&x.loser===a)) tally(bb.label, x.day, x.winner, x.kimarite);
+  }
+  // crewHistory (Notion Match Log, ungated past bouts) fills any past basho the static lane hasn't
+  // rolled forward yet — the most-recent completed basho, until the §3d roll-forward. Skip basho the
+  // static lane already owns → no double-count. THIS is what makes a just-finished basho's rivalry show
+  // up (the Aonishiki-vs-Onosato Nagoya-2026 gap, 2026-09-22), matching the Notion Match Log.
+  for(const x of (gated.crewHistory||[])){
+    if(!x.basho || staticLabels.has(x.basho)) continue;
+    if((x.winner===a&&x.loser===b)||(x.winner===b&&x.loser===a)) tally(x.basho, x.day, x.winner, x.kimarite);
   }
   return { [a]:aw, [b]:bw, meetings:meetings.length, bouts:meetings };
 }
@@ -799,7 +825,7 @@ export function runTool(toolName, input, gated){
       if(focus && opp){
         const h2h = gated.bouts.filter(b=> (b.winner===focus&&b.loser===opp)||(b.winner===opp&&b.loser===focus));
         out.headToHead = { [focus]: h2h.filter(b=>b.winner===focus).length, [opp]: h2h.filter(b=>b.winner===opp).length, meetings:h2h.length, note:'this basho only' };
-        out.historicalHeadToHead = { ...historyH2H(focus, opp, gated), note:'past basho since Jan 2025 (add to headToHead for the full rivalry)' };
+        out.historicalHeadToHead = { ...historyH2H(focus, opp, gated), note:'past basho since Jan 2025, including the most-recent completed basho from the Match Log (add to headToHead for the full rivalry)' };
       }
       return out;
     }
@@ -1040,9 +1066,17 @@ export function buildSystemPrompt(gated, audience='member'){
   // REAL-WORLD TODAY anchor (schema/10): the model has no clock, so we FEED it what day it is instead
   // of letting it guess. Neither the calendar date nor the tournament-day-in-real-life is a result.
   const today = gated.today || null;
-  const todayLine = today
-    ? `REAL-WORLD TODAY (use these numbers; do NOT guess the date or day from memory, you have no clock): in the real world it is ${today.date || 'the current date'}${Number.isInteger(today.tournamentDay) ? `, and the tournament is on Day ${today.tournamentDay}` : ''}. This viewer has WATCHED through Day ${gated.gate}. So "today" means the real tournament day${Number.isInteger(today.tournamentDay) ? ` (Day ${today.tournamentDay})` : ''}; their NEXT UNWATCHED day is Day ${gated.gate + 1}. You CAN hand them the card (pairings) for their next day, or ANY published day, INCLUDING a day that really happened but they have not watched. But NEVER state or hint a RESULT past Day ${gated.gate}, even for a day that really occurred. The card is public; the result is not.`
+  const curBasho = (gated.meta && gated.meta.basho) || null;
+  // The current basho NAME is a FACT (meta.basho), never something to infer from the date or from what
+  // this chat has been about. Stating it plainly here kills the drift where a long conversation about a
+  // PAST basho makes the model call that past tournament "the one in progress" (the Nagoya-2026 vs
+  // Aki-2026 slip, 2026-09-22): the date came through right, but the basho name was confabulated.
+  const curBashoLine = curBasho
+    ? `THE TOURNAMENT HAPPENING RIGHT NOW is ${curBasho}, full stop. Even if this conversation has been about a PAST basho, never call that past tournament the one in progress; the basho in progress is ${curBasho} until the code says otherwise.`
     : '';
+  const todayLine = today
+    ? `REAL-WORLD TODAY (use these numbers; do NOT guess the date, the day, or which basho is current from memory or from what this chat has been about — you have no clock and the current basho is a fact): ${curBasho ? `the basho in progress is ${curBasho}, and ` : ''}in the real world it is ${today.date || 'the current date'}${Number.isInteger(today.tournamentDay) ? `, on Day ${today.tournamentDay}` : ''}. This viewer has WATCHED through Day ${gated.gate}. So "today" means the real tournament day${Number.isInteger(today.tournamentDay) ? ` (Day ${today.tournamentDay})` : ''}; their NEXT UNWATCHED day is Day ${gated.gate + 1}. You CAN hand them the card (pairings) for their next day, or ANY published day, INCLUDING a day that really happened but they have not watched. But NEVER state or hint a RESULT past Day ${gated.gate}, even for a day that really occurred. The card is public; the result is not.`
+    : curBashoLine;
   const roster = gated.rikishi.map(r=>{
     const nicks=(r.nicknames||[]).map(n=>`${n.nick}(${n.tag})`).join(', ');
     return `- ${r.name}${nicks?` [${nicks}]`:''}`;
