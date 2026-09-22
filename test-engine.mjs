@@ -314,12 +314,11 @@ const SNAP_AUD = {
 const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
 const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
 const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
-t('toolsFor(member) is the full 18', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 18));
-t('toolsFor(public) = 16, omits condition+storylines, keeps catchphrases + rollup + birthdays + events + the reference tools', () => {
+t('toolsFor(member) is the full 16', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 16));
+t('toolsFor(public) = 14, omits condition+storylines, keeps catchphrases + rollup + the reference tools', () => {
   const p = toolsFor('public').map(x=>x.name);
-  assert(p.length===16 && !p.includes('query_condition') && !p.includes('query_storylines')
-    && p.includes('query_catchphrases') && p.includes('query_rollup') && p.includes('query_birthdays')
-    && p.includes('query_events')
+  assert(p.length===14 && !p.includes('query_condition') && !p.includes('query_storylines')
+    && p.includes('query_catchphrases') && p.includes('query_rollup')
     && p.includes('query_basho') && p.includes('query_glossary') && p.includes('query_library'));
 });
 t('member view keeps injuries + days + nets (no regression)', () =>
@@ -384,10 +383,10 @@ const SNAP_ROLL = {
   banzuke:[ { name:'Terunofuji', rank:'Yokozuna', weightKg:180 }, { name:'Takarafuji', rank:'Maegashira 5', weightKg:150 } ],
   kimarite:[], bouts:[],
   master:[
-    { name:'Terunofuji',   stable:'Isegahama',   country:'Mongolia', hometown:'Ulaanbaatar', knownFor:['Powerhouse'], highestRank:'Yokozuna',   active:true,  birthday:'1991-11-29' },
-    { name:'Takarafuji',   stable:'Isegahama',   country:'Japan',    hometown:'Aomori',      knownFor:['Technician'], highestRank:'Sekiwake',   active:true,  birthday:'1987-04-12' },
-    { name:'Nishikigi',    stable:'Isegahama',   country:'Japan',    hometown:'Iwate',       knownFor:[],             highestRank:'Maegashira', active:false, birthday:'1990-09-05' }, // NOT on the current banzuke — Sep bday (day 5)
-    { name:'Ichiyamamoto', stable:'Nishonoseki', country:'Japan',    hometown:'Hokkaido',    knownFor:['Showman'],    highestRank:'Maegashira', active:true,  birthday:'1993-09-22' }, // Sep bday (day 22)
+    { name:'Terunofuji',   stable:'Isegahama',   country:'Mongolia', hometown:'Ulaanbaatar', knownFor:['Powerhouse'], highestRank:'Yokozuna',   active:true },
+    { name:'Takarafuji',   stable:'Isegahama',   country:'Japan',    hometown:'Aomori',      knownFor:['Technician'], highestRank:'Sekiwake',   active:true },
+    { name:'Nishikigi',    stable:'Isegahama',   country:'Japan',    hometown:'Iwate',       knownFor:[],             highestRank:'Maegashira', active:false }, // NOT on the current banzuke
+    { name:'Ichiyamamoto', stable:'Nishonoseki', country:'Japan',    hometown:'Hokkaido',    knownFor:['Showman'],    highestRank:'Maegashira', active:true },
   ],
   days:[], injuries:[], catchphrases:[], history:{ meta:{}, basho:{} }, upcoming:null,
 };
@@ -431,38 +430,6 @@ t('query_rollup registered + offered to both audiences', () => {
   assert(TOOLS.some(x=>x.name==='query_rollup') && toolsFor('public').some(x=>x.name==='query_rollup'));
 });
 
-// ═══ 11b. query_birthdays — roster birthdays off master[] (the whack-a-mole fix, schema/9) ═══
-// The bug this closes: Asakoryu/Atamifuji had September birthdays but there was no way to ask for a
-// month's birthdays, because master[] never carried Birthday. It does now, and this tool reads it.
-console.log('\n[11b] query_birthdays (schema/9 master birthdays)');
-t('query_birthdays September returns both, sorted by day-of-month', () => {
-  const o = runTool('query_birthdays', {month:'September'}, rollM);
-  assert(o.found && o.count===2);
-  assert.deepEqual(o.birthdays.map(b=>b.name), ['Nishikigi','Ichiyamamoto']);   // day 5 before day 22
-  assert(o.birthdays[0].day===5 && o.birthdays[1].day===22 && typeof o.birthdays[0].age==='number');
-});
-t('query_birthdays accepts a numeric month and short name', () => {
-  assert(runTool('query_birthdays', {month:'9'}, rollM).count===2);
-  assert(runTool('query_birthdays', {month:'Sep'}, rollM).count===2);
-  assert(runTool('query_birthdays', {month:'11'}, rollM).count===1);   // Terunofuji only
-});
-t('query_birthdays empty month = 0 hits, not an error', () => {
-  const o = runTool('query_birthdays', {month:'January'}, rollM);
-  assert(o.found===true && o.count===0 && Array.isArray(o.birthdays) && o.birthdays.length===0);
-});
-t('query_birthdays with no month gives a by-month count across the year', () => {
-  const o = runTool('query_birthdays', {}, rollM);
-  assert(o.found && o.total===4 && o.byMonth.length===12);
-  assert(o.byMonth[8].count===2 && o.byMonth[8].name==='September');   // index 8 = September
-});
-t('query_birthdays rejects a non-month cleanly', () => {
-  assert(runTool('query_birthdays', {month:'bananas'}, rollM).found===false);
-});
-t('query_birthdays is PUBLIC (timeless) and registered for both audiences', () => {
-  assert(TOOLS.some(x=>x.name==='query_birthdays') && toolsFor('public').some(x=>x.name==='query_birthdays'));
-  assert(runTool('query_birthdays', {month:'September'}, rollP).count===2);   // same answer for public
-});
-
 // ═══ 12. schema/7 reference lanes — query_basho / query_glossary / query_library + profile fields ═══
 // The completeness pass (Day-1, MJ): the reference tables Gumbai never pulled. All TIMELESS →
 // pass the gate for both audiences. The headline: "which city was the July 2026 basho in" now answers.
@@ -488,10 +455,6 @@ const SNAP_REF = {
   ],
   library:[
     { title:'The Big Book of Sumo', author:'Sharnoff', year:1993, themes:['History','Culture'], notes:'a classic' },
-  ],
-  specialEvents:[
-    { name:'US Sumo Open', startDate:'2019-09-14', endDate:'2019-09-14', location:'Walter Pyramid, Long Beach CA', url:'https://usasumo.com', notes:'The amateur open the crew went to.' },
-    { name:'Grand Sumo Osaka exhibition', startDate:'2027-02-08', endDate:null, location:'Osaka', url:null, notes:null },
   ],
   days:[], injuries:[], catchphrases:[], history:{ meta:{}, basho:{} }, upcoming:null,
 };
@@ -538,40 +501,6 @@ t('the three reference tools are registered + public', () => {
   for(const n of ['query_basho','query_glossary','query_library'])
     assert(TOOLS.some(x=>x.name===n) && toolsFor('public').some(x=>x.name===n));
 });
-
-// ═══ 12b. query_events — the crew's OWN events (schema/9), distinct from the six honbasho ═══
-// The payoff of the calendar editor: Sherry adds a US Open, and Gumbai can recall it. These live in
-// their own lane so a crew event is NEVER confused with a grand tournament, and they're public/timeless.
-console.log('\n[12b] query_events (crew special events, schema/9)');
-t('specialEvents lane passes the gate for BOTH audiences', () =>
-  assert(refM.specialEvents.length===2 && refP.specialEvents.length===2));
-t('query_events finds the US Open by name', () => {
-  const o = runTool('query_events', {q:'US Open'}, refM);
-  assert(o.found && o.count===1 && o.events[0].location.includes('Long Beach'));
-});
-t('query_events finds it by location too ("Long Beach")', () => {
-  assert(runTool('query_events', {q:'Long Beach'}, refM).events[0].name==='US Sumo Open');
-});
-t('query_events filters by year', () => {
-  const o = runTool('query_events', {q:'2019'}, refM);
-  assert(o.found && o.count===1 && o.events[0].name==='US Sumo Open');
-});
-t('query_events (no q) lists all, earliest first', () => {
-  const o = runTool('query_events', {}, refM);
-  assert(o.count===2 && o.events[0].startDate==='2019-09-14');
-});
-t('query_events single-day event carries a null end', () => {
-  const o = runTool('query_events', {q:'Osaka'}, refM);
-  assert(o.found && o.events[0].endDate===null);
-});
-t('query_events is PUBLIC (same answer for a public viewer)', () =>
-  assert(runTool('query_events', {q:'US Open'}, refP).count===1));
-t('query_events unknown term fails cleanly with the roster of names', () => {
-  const o = runTool('query_events', {q:'nope'}, refM);
-  assert(o.found===false && o.available.includes('US Sumo Open'));
-});
-t('crew events are DISTINCT from honbasho — query_basho never returns them', () =>
-  assert(!runTool('query_basho', {}, refM).bashos.some(b => /US Sumo Open/.test(String(b.name||'')))));
 
 // ═══ 13. INJURY CARRY-OVER (schema/8) — last basho's injuries stay real until the viewer's Day 1 ═══
 // Jennie's rule: a condition left open last basho is presumed real through the intertournament gap
@@ -626,6 +555,140 @@ t('current-basho board untouched: Onosato hidden pre-onset (Day 1), full detail 
 });
 t('carry is MEMBER-ONLY (public view strips injuries entirely)', () => {
   assert((injPub.injuries||[]).length===0 && !JSON.stringify(injPub).includes('favoring the foot'));
+});
+
+// ═══ 14. ANALYTICS LAYER (schema/9) — registry-driven dimensions + cross-table measures ═══
+// The general consolidation layer that replaces the hard-coded field list (the thing that lost
+// mawashi in the schema/6 rewrite). Proves: mawashi + every profile dimension resolve; cross-table
+// measures (wins/kinboshi/henka/weight by stable/country) compute correctly and are SPOILER-GATED
+// over the bouts; a brand-new dimension supplied ONLY in snapshot.analytics works with no engine
+// change (the anti-whack-a-mole property); audience gating on member-only dims/measures; and a
+// canary that fails loudly if an anchor dimension ever silently drops again.
+console.log('\n[14] Analytics layer — registry-driven dimensions + cross-table measures');
+const SNAP_AN = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:15 },
+  rikishi:[
+    { name:'Onosato',      nicknames:[], stable:'Nishonoseki', country:'Japan',    mawashi:'navy blue',   heightCm:192, birthday:'2000-06-07', knownFor:['Powerhouse'], university:'NSSU' },
+    { name:'Hoshoryu',     nicknames:[], stable:'Tatsunami',   country:'Mongolia', mawashi:'purple',      heightCm:187, birthday:'1999-05-22', knownFor:['Showman'],    university:null   },
+    { name:'Kirishima',    nicknames:[], stable:'Tatsunami',   country:'Mongolia', mawashi:'deep purple', heightCm:186, birthday:'1996-04-08', knownFor:[],             university:null   },
+    { name:'Wakatakakage', nicknames:[], stable:'Arashio',     country:'Japan',    mawashi:'royal blue',  heightCm:182, birthday:'1994-12-05', knownFor:['Technician'], university:'NSSU' },
+  ],
+  banzuke:[
+    { name:'Onosato', rank:'Yokozuna', weightKg:191 }, { name:'Hoshoryu', rank:'Maegashira 1', weightKg:151 },
+    { name:'Kirishima', rank:'Maegashira 2', weightKg:162 }, { name:'Wakatakakage', rank:'Maegashira 3', weightKg:137 },
+  ],
+  kimarite:[],
+  bouts:[
+    { day:1, winner:'Onosato',      loser:'Hoshoryu',     goldStar:false, henka:null,   monoii:null,           boutOfDay:null, cushions:false },
+    { day:2, winner:'Wakatakakage', loser:'Kirishima',    goldStar:true,  henka:'Full', monoii:null,           boutOfDay:null, cushions:false },
+    { day:3, winner:'Hoshoryu',     loser:'Onosato',      goldStar:false, henka:null,   monoii:'Reversed (-R)',boutOfDay:'U',  cushions:true  },
+    { day:8, winner:'Kirishima',    loser:'Wakatakakage', goldStar:false, henka:'Full', monoii:null,           boutOfDay:null, cushions:false },
+  ],
+  master:[
+    { name:'Onosato', stable:'Nishonoseki', country:'Japan', highestRank:'Yokozuna', active:true },
+    { name:'Hoshoryu', stable:'Tatsunami', country:'Mongolia', highestRank:'Yokozuna', active:true },
+    { name:'Kirishima', stable:'Tatsunami', country:'Mongolia', highestRank:'Ozeki', active:true },
+    { name:'Wakatakakage', stable:'Arashio', country:'Japan', highestRank:'Sekiwake', active:true },
+  ],
+  days:[], injuries:[], catchphrases:[],
+  // The DATA registry: extends the engine default with a brand-new 'university' dimension. If the
+  // executor honors it with NO engine change, the anti-whack-a-mole property holds.
+  analytics:{
+    dimensions:[ { key:'university', label:'university', field:'university', audience:'public', defaultScope:'roster', rosterOnly:true } ],
+    measures:[],
+  },
+  history:{ basho:{} }, upcoming:null,
+};
+const anM   = gateSnapshot(SNAP_AN, 15, false, 'member');
+const anM3  = gateSnapshot(SNAP_AN, 3, false, 'member');   // gate 3: days 1-3 only
+const anM2  = gateSnapshot(SNAP_AN, 2, false, 'member');   // gate 2: days 1-2 only
+const anP   = gateSnapshot(SNAP_AN, 15, false, 'public');
+
+// -- mawashi: the flagship, restored and now maintenance-free --
+t('mawashi groups the current roster by color family (blue 2, purple 2)', () => {
+  const o = runTool('query_rollup', {field:'mawashi'}, anM);
+  assert(o.found && o.groupCount===2, `expected 2 families, got ${o.groupCount}`);
+  const blue = o.groups.find(g=>g.value==='blue'), purple = o.groups.find(g=>g.value==='purple');
+  assert(blue && blue.count===2 && blue.members.includes('Onosato') && blue.members.includes('Wakatakakage'), 'navy + royal fold to blue');
+  assert(purple && purple.count===2 && purple.members.includes('Kirishima'), 'deep purple folds to purple');
+});
+t('mawashi value=blue folds navy/royal into the blue family', () => {
+  const o = runTool('query_rollup', {field:'mawashi', value:'blue'}, anM);
+  assert(o.found && o.count===2);
+});
+t('mawashi is PUBLIC + reachable via belt/color aliases', () => {
+  assert(runTool('query_rollup', {field:'mawashi'}, anP).found===true);
+  assert(runTool('query_rollup', {field:'belt'}, anM).found===true);
+  assert(runTool('query_rollup', {field:'color'}, anM).found===true);
+});
+
+// -- cross-table measures: group by one table's dimension, compute over the bouts --
+t('wins by stable (Tatsunami 2, Nishonoseki 1, Arashio 1) at gate 15', () => {
+  const o = runTool('query_rollup', {field:'stable', measure:'wins'}, anM);
+  assert(o.found && o.measure==='wins' && o.agg==='sum');
+  const by = Object.fromEntries(o.groups.map(g=>[g.value, g.metric]));
+  assert(by.Tatsunami===2 && by.Nishonoseki===1 && by.Arashio===1, JSON.stringify(by));
+  assert(o.groups[0].value==='Tatsunami', 'ranked by metric desc');
+});
+t('wins by stable are SPOILER-GATED: Tatsunami has 0 through gate 2 (its wins are days 3 & 8)', () => {
+  const o2 = runTool('query_rollup', {field:'stable', measure:'wins'}, anM2);
+  const tat = o2.groups.find(g=>g.value==='Tatsunami');
+  assert(!tat || tat.metric===0, 'Tatsunami wins must not count days beyond the gate');
+  const o15 = runTool('query_rollup', {field:'stable', measure:'wins'}, anM);
+  assert(o15.groups.find(g=>g.value==='Tatsunami').metric===2, 'full count at gate 15');
+});
+t('kinboshi by stable: Arashio 1 (Wakatakakage day 2), attributed to the winner', () => {
+  const o = runTool('query_rollup', {field:'stable', measure:'kinboshi'}, anM);
+  const by = Object.fromEntries(o.groups.map(g=>[g.value, g.metric]));
+  assert(by.Arashio===1 && (by.Tatsunami||0)===0 && (by.Nishonoseki||0)===0, JSON.stringify(by));
+});
+t('henka by country: Japan 1 (Wakatakakage) + Mongolia 1 (Kirishima), winner-attributed', () => {
+  const o = runTool('query_rollup', {field:'country', measure:'henka'}, anM);
+  const by = Object.fromEntries(o.groups.map(g=>[g.value, g.metric]));
+  assert(by.Japan===1 && by.Mongolia===1, JSON.stringify(by));
+});
+t('avg weight by stable: Tatsunami 156.5, Nishonoseki 191, Arashio 137', () => {
+  const o = runTool('query_rollup', {field:'stable', measure:'weight', agg:'avg'}, anM);
+  const by = Object.fromEntries(o.groups.map(g=>[g.value, g.metric]));
+  assert(by.Tatsunami===156.5 && by.Nishonoseki===191 && by.Arashio===137, JSON.stringify(by));
+});
+t('measure value-filter returns one group with its metric', () => {
+  const o = runTool('query_rollup', {field:'stable', measure:'wins', value:'Tatsunami'}, anM);
+  assert(o.found && o.value==='Tatsunami' && o.metric===2 && o.members.length===2);
+});
+
+// -- the anti-whack-a-mole property: a dimension declared ONLY in the data registry works --
+t('a brand-new dimension supplied only in snapshot.analytics resolves with NO engine change', () => {
+  const o = runTool('query_rollup', {field:'university'}, anM);
+  assert(o.found && o.groups[0].value==='NSSU' && o.groups[0].count===2 && o.groups[0].members.includes('Onosato'));
+});
+
+// -- audience gating on the analytics layer --
+t('member-only dimension knownFor: public blocked, member allowed', () => {
+  assert(runTool('query_rollup', {field:'knownFor'}, anP).found===false);
+  assert(runTool('query_rollup', {field:'knownFor'}, anM).found===true);
+});
+t('member-only measure cushions: public blocked, member computes it', () => {
+  assert(runTool('query_rollup', {field:'stable', measure:'cushions'}, anP).found===false);
+  const o = runTool('query_rollup', {field:'stable', measure:'cushions'}, anM);   // day-3 cushions: Hoshoryu(Tatsunami) beat Onosato(Nishonoseki), attribution 'either'
+  const by = Object.fromEntries(o.groups.map(g=>[g.value, g.metric]));
+  assert(by.Tatsunami===1 && by.Nishonoseki===1, JSON.stringify(by));
+});
+t('public CAN still do the public measures (wins by stable)', () => {
+  const o = runTool('query_rollup', {field:'stable', measure:'wins'}, anP);
+  assert(o.found && o.groups.find(g=>g.value==='Tatsunami').metric===2);
+});
+t('unknown measure is rejected cleanly (defers, does not fabricate)', () => {
+  assert(runTool('query_rollup', {field:'stable', measure:'salt throws'}, anM).found===false);
+});
+
+// -- THE CANARY: the anchor dimensions must never silently vanish again (the mawashi regression) --
+t('CANARY: anchor dimensions mawashi/stable/country all resolve from the engine default', () => {
+  const bare = gateSnapshot({ ...SNAP_AN, analytics:null }, 15, false, 'member');   // no data registry at all
+  for(const dim of ['mawashi','stable','country']){
+    const o = runTool('query_rollup', {field:dim}, bare);
+    assert(o.found === true, `anchor dimension "${dim}" did not resolve — the mawashi-loss regression is back`);
+  }
 });
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
