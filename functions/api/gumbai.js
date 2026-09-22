@@ -18,6 +18,9 @@
 //   - LOGGING: member turns → Notion interaction log (as before); PUBLIC turns → Cloudflare Analytics
 //     Engine, so no public traffic ever touches Notion (Notion's rate limit is per-token = the lock-out
 //     path). The old NOTION_TOKEN fallback no longer carries public writes.
+//   - WHO (2026-09-22): the MEMBER interaction log now also records WHICH member asked (Member name +
+//     Member Email, straight from the session — never a client flag). Public turns stay anonymous by
+//     design (they go to Analytics Engine, no identity). Closes the "log should pull over the user" gap.
 //
 // Secrets/config (Cloudflare Pages → Settings → Environment variables / Bindings):
 //   ANTHROPIC_API_KEY   (required, encrypted)  — from console.anthropic.com
@@ -74,7 +77,8 @@ function classifyAnswer(capped, usedTools, reply){
 // ── MEMBER logging → Notion "Gumbai Interaction Log", fire-and-forget via waitUntil. ──
 // No-op unless both GUMBAI_LOG_DB and a token are configured. Only MEMBER turns reach this now,
 // so no public traffic can ever write to Notion (the per-token rate-limit lock-out path is closed).
-async function logInteraction(env, { question, reply, gateDay, showFull, usedTools, model, turns, capped }){
+// `user` (Member name + email, from the verified session) records WHO asked — member turns only.
+async function logInteraction(env, { question, reply, gateDay, showFull, usedTools, model, turns, capped, user }){
   const dbId  = env && env.GUMBAI_LOG_DB;
   const token = env && (env.GUMBAI_LOG_TOKEN || env.NOTION_TOKEN);
   if(!dbId || !token) return;                              // logging not configured — skip silently
@@ -90,6 +94,9 @@ async function logInteraction(env, { question, reply, gateDay, showFull, usedToo
     'Model':         { rich_text: [{ text:{ content: String(model||'').slice(0, 200) } }] },
     'Turns':         { number: Number.isInteger(turns) ? turns : null },
   };
+  // WHO asked — from the verified session (never a client flag). Member turns only; public stays anonymous.
+  if(user && user.name)  props['Member']       = { rich_text: [{ text:{ content: String(user.name).slice(0, 200) } }] };
+  if(user && user.email) props['Member Email'] = { email: String(user.email).slice(0, 200) };
   try {
     await fetch('https://api.notion.com/v1/pages', {
       method:'POST',
@@ -106,6 +113,7 @@ async function logInteraction(env, { question, reply, gateDay, showFull, usedToo
 // ── PUBLIC logging → Cloudflare Analytics Engine. NO Notion, so a public spike can never throttle
 // the crew's Notion. No-op if the GUMBAI_AE binding isn't configured. AE holds the raw firehose and
 // ages it out on its own retention; a nightly Action can roll deflections + a daily count into Notion.
+// No identity is logged for public turns (anonymous by design).
 function logPublic(env, { question, reply, gateDay, usedTools, model, turns, capped }){
   const ae = env && env.GUMBAI_AE;
   if(!ae || typeof ae.writeDataPoint !== 'function') return;   // AE binding not configured — skip
@@ -150,6 +158,8 @@ export async function onRequestPost(ctx){
   let session = null;
   try { session = await getSession(request, env); } catch(e){ session = null; }  // never let auth failure break the oracle
   const audience = session ? 'member' : 'public';
+  // WHO (member turns only) — the verified session's identity, for the interaction log. Never a client flag.
+  const user = session ? { email: session.email || null, name: session.name || null } : null;
 
   // ── gate BEFORE the model sees anything (day-gate AND audience-gate) ───────
   const gated = gateSnapshot(SNAP, day, showFull, audience);
@@ -161,9 +171,10 @@ export async function onRequestPost(ctx){
   const maxTokens = audience === 'public' ? MAX_TOKENS_PUBLIC : MAX_TOKENS_MEMBER;
   const maxHops   = audience === 'public' ? PUBLIC_TOOL_HOPS  : MAX_TOOL_HOPS;
 
-  // route each turn's log by audience: member → Notion (waitUntil), public → Analytics Engine (no Notion)
+  // route each turn's log by audience: member → Notion (waitUntil, WITH the asker's identity),
+  // public → Analytics Engine (no Notion, no identity — anonymous by design).
   const logTurn = (payload) => {
-    if(audience === 'member') ctx.waitUntil(logInteraction(env, payload));
+    if(audience === 'member') ctx.waitUntil(logInteraction(env, { ...payload, user }));
     else logPublic(env, payload);
   };
 
