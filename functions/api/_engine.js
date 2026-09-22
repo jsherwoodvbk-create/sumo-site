@@ -159,6 +159,15 @@ export function gateSnapshot(snapshot, day, showFull, audience='member'){
     analytics: snapshot.analytics || null,                      // registry: dimensions + measures (schema/9), timeless metadata
     history: snapshot.history || null,
     upcoming: snapshot.upcoming || null,
+    // ── the CARD layer (schema/10) — result-free pairings, UNGATED ──
+    // A matchup is not a result, so a day's CARD (who fights whom) is safe for ANY PUBLISHED day —
+    // past, current, or the next posted one. `cards` maps day -> { day, date, matchups[] } for every
+    // published day; query_upcoming serves any of them (default: the viewer's OWN next day, gate+1).
+    // Never gated — pairings carry no winner/kimarite. `today` is the real-world anchor so the model
+    // stops guessing what "today" is (Claude has no clock): what calendar day it is and which
+    // tournament day that maps to. Neither is a result.
+    cards: snapshot.cards || null,
+    today: snapshot.today || (snapshot.meta && snapshot.meta.today) || null,
   };
   // AUDIENCE gate (defense in depth): strip the member-only lanes for a public visitor.
   return audience === 'public' ? publicView(view) : view;
@@ -587,8 +596,8 @@ export const TOOLS = [
   },
   {
     name: 'query_upcoming',
-    description: "The NEXT day's scheduled card (torikumi): who is slated to fight whom. Optional name filters to one wrestler. UPCOMING matchups have NO results, so they are NOT spoilers and are safe to share in full, even for a viewer behind on their days. Returns available:false when the next card is not posted yet or the basho is over.",
-    input_schema: { type:'object', properties:{ name:{type:'string'} } }
+    description: "The CARD (torikumi) for a day: who is slated to fight whom, pairings only. A matchup carries NO result, so ANY PUBLISHED day's card is safe to share in full — a day already fought, a day this viewer hasn't watched, or the next posted day are all fine; it is never a spoiler. `day` (optional) = a specific published day (past, or the next posted one); OMIT `day` to get the viewer's OWN next day (the day right after what they've watched). `name` (optional) filters to one wrestler. Returns available:false only when that day's card was never published (a future day not posted yet, or before Day 1). Use for 'who does X fight next / today / tomorrow', 'pull up the Day N card / bout list', 'who's on the Day N card'. For RESULTS (who won, kimarite) use query_match_log, which stays gated to the viewer's day.",
+    input_schema: { type:'object', properties:{ day:{type:'integer'}, name:{type:'string'} } }
   },
   {
     name: 'query_condition',
@@ -837,25 +846,50 @@ export function runTool(toolName, input, gated){
         note: 'Makuuchi wins summed across the year, most wins first (win pct breaks ties). A completed year is exact; a current year includes the in-progress basho only through your gated day (see currentBasho).' };
     }
     case 'query_upcoming': {
+      // The CARD (pairings) for a day — result-free, so ANY PUBLISHED day is fair game (a matchup is
+      // not a result, Jennie 2026-09-22). Default (no `day`) = the viewer's OWN next day (gate+1),
+      // which fixes the old quirk where a delayed viewer got the tournament's next REAL card (further
+      // ahead than their next day) and could never get their actual next day. `cards` (schema/10)
+      // holds every published day's pairings keyed by day; we fall back to the single `upcoming` card
+      // for an old snapshot that predates the cards map.
+      const cards = (gated.cards && typeof gated.cards === 'object') ? gated.cards : null;
       const u = gated.upcoming;
-      if(!u || u.empty || !Array.isArray(u.matchups) || !u.matchups.length){
-        return { available:false, note: (u && u.day)
-          ? `The Day ${u.day} card is not posted yet — sumo is scheduled one day at a time, so it lands the evening before.`
-          : 'No upcoming card right now (the basho may be over, or the next card is not out yet).' };
+      const nextDay = (Number.isInteger(gated.gate) ? gated.gate : 0) + 1;
+      const cardFor = (d) => {
+        if(!Number.isInteger(d)) return null;
+        const c = cards && (cards[d] || cards[String(d)]);
+        if(c && Array.isArray(c.matchups) && c.matchups.length) return { day:d, date:c.date || null, matchups:c.matchups };
+        if(u && !u.empty && Number(u.day) === d && Array.isArray(u.matchups) && u.matchups.length)
+          return { day:d, date:u.date || null, matchups:u.matchups };
+        return null;
+      };
+      const asked = Number.isInteger(input.day) ? input.day : null;
+      const wantDay = asked != null ? asked : nextDay;
+      let card = cardFor(wantDay);
+      // No explicit day and the viewer's next day has no card yet (they are caught up to the real
+      // tournament) -> fall back to the latest posted card so "what's the next card" still answers.
+      if(!card && asked == null && u && !u.empty && Array.isArray(u.matchups) && u.matchups.length)
+        card = { day:u.day, date:u.date || null, matchups:u.matchups };
+      if(!card){
+        return { available:false, requestedDay: wantDay, viewerThroughDay: gated.gate,
+          note: asked != null
+            ? `No published card for Day ${wantDay} (sumo posts one day at a time, the evening before — a day's card is only here once the JSA published it).`
+            : `Your next day (Day ${wantDay}) card is not posted yet — sumo is scheduled one day at a time, so it lands the evening before.` };
       }
-      let matchups = u.matchups, filteredFor = null;
+      let matchups = card.matchups, filteredFor = null;
       if(input.name){
         const res = resolveName(input.name, gated.rikishi);
         filteredFor = res.name || input.name;
         const nm = norm(filteredFor);
         matchups = matchups.filter(m => norm(m.eastName)===nm || norm(m.westName)===nm);
-        if(!matchups.length) return { available:true, day:u.day, date:u.date, forRikishi:filteredFor, found:false,
-          note:`${filteredFor} is not on the Day ${u.day} card (sitting out, or double-check the name).`, didYouMean: res.near };
+        if(!matchups.length) return { available:true, day:card.day, date:card.date, forRikishi:filteredFor, found:false,
+          note:`${filteredFor} is not on the Day ${card.day} card (sitting out, or double-check the name).`, didYouMean: res.near };
       }
       return {
-        available:true, resultFree:true, day:u.day, date:u.date, forRikishi:filteredFor, count: matchups.length,
+        available:true, resultFree:true, day:card.day, date:card.date, forRikishi:filteredFor,
+        isYourNextDay: card.day === nextDay, viewerThroughDay: gated.gate, count: matchups.length,
         matchups: matchups.map(m=>({ east:m.eastName, eastRank:m.eastRank, west:m.westName, westRank:m.westRank })),
-        note:'Upcoming matchups only, no results attached. NEVER a spoiler. Safe to share in full.',
+        note:`The Day ${card.day} card — scheduled pairings only, no results attached, so it is NEVER a spoiler, even for a day already fought that this viewer hasn't watched. RESULTS stay gated (query_match_log, through your day ${gated.gate}).`,
       };
     }
     case 'query_condition': {
@@ -903,6 +937,12 @@ export function runTool(toolName, input, gated){
 // membership whisper; the sensitive lanes (injuries, storylines, member nets) are absent.
 export function buildSystemPrompt(gated, audience='member'){
   const isPublic = (audience === 'public') || (gated && gated.audience === 'public');
+  // REAL-WORLD TODAY anchor (schema/10): the model has no clock, so we FEED it what day it is instead
+  // of letting it guess. Neither the calendar date nor the tournament-day-in-real-life is a result.
+  const today = gated.today || null;
+  const todayLine = today
+    ? `REAL-WORLD TODAY (use these numbers; do NOT guess the date or day from memory, you have no clock): in the real world it is ${today.date || 'the current date'}${Number.isInteger(today.tournamentDay) ? `, and the tournament is on Day ${today.tournamentDay}` : ''}. This viewer has WATCHED through Day ${gated.gate}. So "today" means the real tournament day${Number.isInteger(today.tournamentDay) ? ` (Day ${today.tournamentDay})` : ''}; their NEXT UNWATCHED day is Day ${gated.gate + 1}. You CAN hand them the card (pairings) for their next day, or ANY published day, INCLUDING a day that really happened but they have not watched. But NEVER state or hint a RESULT past Day ${gated.gate}, even for a day that really occurred. The card is public; the result is not.`
+    : '';
   const roster = gated.rikishi.map(r=>{
     const nicks=(r.nicknames||[]).map(n=>`${n.nick}(${n.tag})`).join(', ');
     return `- ${r.name}${nicks?` [${nicks}]`:''}`;
@@ -951,7 +991,7 @@ SOFT DATA is color, never truth. Alongside results you have observed COLOR from 
 ${memberSoftRules}- CATCHPHRASE counts are a FLOOR, not a total ("at least N days"); the table under-captures, so never say "his most-used phrase."
 - If any field reads like an unconfirmed guess, hedge hard or stay silent; never state an unconfirmed item as fact.
 
-SPOILER SAFETY, absolute. The crew watches on delay, each at their own pace. Your tools already return ONLY what happened through the day this viewer is allowed to see (currently day ${gated.gate}${full}) — bouts AND all soft data (${spoilerSoftList}) are gated the same way, and roster breakdowns (query_rollup) compute their numbers over those same gated bouts. NEVER reveal or reason from anything beyond that, and NEVER pull a current result from memory. If a condition or storyline is not in view, it has not happened for them yet. Timeless facts (country, hometown, height, stable, shikona meaning, the banzuke, roster rollups, basho venues + dates, the glossary, the reading list, history) are never spoilers. UPCOMING matchups (query_upcoming) carry no results, so they are never spoilers; hand the whole card over freely.
+SPOILER SAFETY, absolute. The crew watches on delay, each at their own pace. Your tools already return ONLY what happened through the day this viewer is allowed to see (currently day ${gated.gate}${full}) — bouts AND all soft data (${spoilerSoftList}) are gated the same way, and roster breakdowns (query_rollup) compute their numbers over those same gated bouts. NEVER reveal or reason from anything beyond that, and NEVER pull a current result from memory. If a condition or storyline is not in view, it has not happened for them yet. Timeless facts (country, hometown, height, stable, shikona meaning, the banzuke, roster rollups, basho venues + dates, the glossary, the reading list, history) are never spoilers. A day's CARD / matchups (query_upcoming) carry no results, so they are NEVER gated and never a spoiler — hand over the pairings for ANY published day (the viewer's next day by default, or a specific day they ask for), even a day already fought that they haven't watched. Only RESULTS are gated.${todayLine ? '\n\n' + todayLine : ''}
 
 GROUNDING THE RACE: for anything about the championship, call query_standings and reason from the ACTUAL records, the gap to the leader, and days remaining. Do not write anyone off by rank alone. For eve-of-day questions ("can X still win," playoff scenarios) pull query_standings AND query_upcoming and lay out the if/then. That is analysis, not a spoiler.
 
