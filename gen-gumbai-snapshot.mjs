@@ -35,15 +35,16 @@
 //   it once they've watched Day 1 (then the live board governs). We never infer "healed" — we can't
 //   know until he fights. Prior basho is history, so this leaks nothing (Jennie's rule, 2026-09-13).
 //
-// SCHEMA gumbai-snapshot/9 (2026-09-21): master[] carries the FULL timeless profile. The roster-wide
-//   master lane was slim (7 fields) and had to be re-widened one field at a time every time a new
-//   roster-wide question came up; it now carries birthday/height/real name/past ring names/shikona
-//   meaning/debut/retirement/nicknames — every timeless field the per-wrestler profile already holds.
-//   This unblocks query_birthdays ("who has a September birthday") and any future roster scan. Also:
-//   the bashos[] lane now filters OUT Type=Special Event rows (added to 🏆 Bashos/Events for the
-//   public calendar) so Gumbai's basho lane stays the six honbasho — and those same rows now feed a
-//   NEW specialEvents[] lane (crew events: US Open, exhibitions) so Gumbai can recall them separately
-//   via query_events, never confusing a crew event with a grand tournament. No new Notion fields.
+// SCHEMA gumbai-snapshot/9 (2026-09-22): the ANALYTICS registry. Emits a top-level `analytics` block
+//   (dimensions + measures) that DECLARES, as DATA, what query_rollup can group by and compute — so a
+//   new breakdown is one registry line RIGHT HERE next to the field projection, never a new engine
+//   edit or a new tool. This replaces the hard-coded ROLLUP_FIELDS list in the engine, the thing that
+//   silently lost the mawashi rollup in the schema/6 rewrite. A PARITY GUARD below fails the build
+//   (red step, last-good snapshot kept) if an anchor dimension (mawashi/stable/country) stops
+//   resolving — the tripwire that was missing when mawashi vanished. The engine also ships a fallback
+//   default registry, so the two are belt-and-suspenders. See deliverables/Gumbai Analytical Layer —
+//   Spec v1.md. Registry rule (state/naming-conventions.md): a clean new field → one dimension line
+//   here; a new bout flag → one measure line; anything else is a genuinely new computation KIND (rare).
 //
 // SAFETY: validates the CORE (bouts/rikishi/banzuke) before writing; a broken core pull
 // exits non-zero and writes nothing. The soft-data + stables pulls are each wrapped so a
@@ -121,7 +122,6 @@ const multiOf = (p, prop) => (p.properties?.[prop]?.multi_select || []).map(o =>
 const numOf   = (p, prop) => (typeof p.properties?.[prop]?.number === 'number' ? p.properties[prop].number : null);
 const boolOf  = (p, prop) => p.properties?.[prop]?.checkbox === true;
 const dateOf  = (p, prop) => p.properties?.[prop]?.date?.start ? String(p.properties[prop].date.start).slice(0, 10) : null;
-const urlOf   = (p, prop) => (p.properties?.[prop]?.url || '').trim() || null;
 const relIds  = (p, prop) => (p.properties?.[prop]?.relation || []).map(r => idNoDash(r.id));
 const rel1    = (p, prop) => { const a = relIds(p, prop); return a[0] || null; };
 
@@ -289,31 +289,17 @@ async function main() {
   const rikishi = [...rosterIds].map(id => mrProfById.get(id)).filter(Boolean)
     .sort((a, b) => a.name.localeCompare(b.name));
 
-  // ── master[] : the WHOLE Master Rikishi roster (schema/6+9), the TIMELESS profile.
-  //    Powers query_rollup's "master" scope, query_birthdays, and "on the master" questions
-  //    beyond the current banzuke (retirees included). No results here, so the engine never gates it.
-  //    schema/9 (2026-09-21): widened from the old slim 7 fields to carry EVERY timeless background
-  //    field the profile already holds — birthday/height/real name/past ring names/shikona meaning/
-  //    debut/retirement/nicknames — so roster-wide questions ("September birthdays", "who's tallest",
-  //    "real name of X") answer straight from master[] and we stop re-widening it one field at a time.
-  //    Deliberately EXCLUDED: `story` (long Lane-2 narrative — reach it per-wrestler via query_rikishi,
-  //    not worth carrying x100 here) and `injuryNotes` (this-basho, NOT timeless — would be a spoiler).
+  // ── master[] : the WHOLE Master Rikishi roster (schema/6), slim + TIMELESS background only.
+  //    Powers query_rollup's "master" scope and "on the master" questions beyond the current
+  //    banzuke (retirees included). No results here, so the engine never gates it.
   const master = [...mrProfById.values()].map(r => ({
     name: r.name,
-    nicknames: r.nicknames,
     stable: r.stable,
     country: r.country,
     hometown: r.hometown,
     knownFor: r.knownFor,
     highestRank: r.highestRank,
     active: r.active,
-    birthday: r.birthday || null,            // schema/9: "YYYY-MM-DD" — powers query_birthdays + age rollups
-    heightCm: r.heightCm ?? null,            // schema/9: timeless — "who's tallest" roster scans
-    realName: r.realName,                    // schema/9
-    pastRingNames: r.pastRingNames,          // schema/9
-    shikonaMeaning: r.shikonaMeaning,        // schema/9
-    debut: r.debut || null,                  // schema/9
-    retirement: r.retirement || null,        // schema/9 (null = active)
   })).sort((a, b) => a.name.localeCompare(b.name));
 
     // mawashi color must end in a family word (last-word convention) — warn on any that don't.
@@ -322,6 +308,67 @@ async function main() {
     if(!r.mawashi) continue;
     const last = String(r.mawashi).trim().split(/\s+/).pop().toLowerCase();
     if(!FAM_WORDS.includes(last)) warn.push(`mawashi color off-convention (last word "${last}"): ${r.name} = "${r.mawashi}"`);
+  }
+
+  // ── analytics[] (schema/9) : the DATA registry query_rollup executes. Declared HERE, next to the
+  //    field projection above, so a dropped field drops its dimension line right beside it (this
+  //    colocation is what prevents the mawashi-style silent loss). The engine (_engine.js) executes
+  //    it and also carries a fallback default — the two are belt-and-suspenders. Every measure reads
+  //    the ALREADY-GATED view in the engine, so nothing here is a spoiler.
+  //    HOW TO EXTEND (state/naming-conventions.md): a clean new profile field → one `dimensions` line
+  //    (add a `normalize` only for a family-bucket field like mawashi); a new bout flag → one
+  //    `measures` line of kind 'bout'; a new per-wrestler number → kind 'num'. A genuinely new
+  //    computation shape (a new `kind`) is the only thing that also touches the engine.
+  const analytics = {
+    dimensions: [
+      { key:'stable',      label:'stable',        field:'stable',      audience:'public', defaultScope:'master' },
+      { key:'country',     label:'country',       field:'country',     audience:'public', defaultScope:'master' },
+      { key:'hometown',    label:'hometown',      field:'hometown',    audience:'public', defaultScope:'master' },
+      { key:'highestRank', label:'highest rank',  field:'highestRank', audience:'public', defaultScope:'master' },
+      { key:'knownFor',    label:'known for',     field:'knownFor',    audience:'member', defaultScope:'master', multi:true },
+      { key:'mawashi',     label:'mawashi color', field:'mawashi',     audience:'public', defaultScope:'roster', normalize:'lastWord', rosterOnly:true },
+    ],
+    measures: [
+      { key:'count',     label:'wrestlers',        kind:'count',  audience:'public' },
+      { key:'wins',      label:'wins',             kind:'bout', attribution:'winner',                  audience:'public', defaultAgg:'sum' },
+      { key:'losses',    label:'losses',           kind:'bout', attribution:'loser',                   audience:'public', defaultAgg:'sum' },
+      { key:'kinboshi',  label:'kinboshi',         kind:'bout', attribution:'winner', flag:'goldStar', audience:'public', defaultAgg:'sum' },
+      { key:'henka',     label:'henka',            kind:'bout', attribution:'winner', flag:'henka',    audience:'public', defaultAgg:'sum' },
+      { key:'monoii',    label:'monoii',           kind:'bout', attribution:'either', flag:'monoii',   audience:'public', defaultAgg:'sum' },
+      { key:'cushions',  label:'cushions thrown',  kind:'bout', attribution:'either', flag:'cushions', audience:'member', defaultAgg:'sum' },
+      { key:'boutOfDay', label:'bouts of the day', kind:'bout', attribution:'either', flag:'boutOfDay',audience:'member', defaultAgg:'sum' },
+      { key:'weight',    label:'weight (kg)',      kind:'num', source:'banzuke', field:'weightKg', audience:'public', defaultAgg:'avg' },
+      { key:'height',    label:'height (cm)',      kind:'num', source:'profile', field:'heightCm', audience:'public', defaultAgg:'avg' },
+      { key:'age',       label:'age',              kind:'num', source:'age',                       audience:'public', defaultAgg:'avg' },
+    ],
+  };
+
+  // ── PARITY GUARD (schema/9) : the registry must actually resolve against the data we just built.
+  //    This is the tripwire that was missing when the mawashi rollup silently vanished in the
+  //    schema/6 rewrite: if an ANCHOR dimension (mawashi/stable/country) stops producing groups — a
+  //    renamed/dropped field, or a dimension missing from the registry — the build goes RED HERE
+  //    (exit 1, nothing written, last-good snapshot kept) instead of the oracle quietly forgetting
+  //    how to answer. Anchors check against the rows they read from (mawashi → current roster;
+  //    stable/country → master, falling back to roster if master is empty).
+  {
+    const lastWord = v => { const s = String(v || '').trim(); return s ? s.split(/\s+/).pop().toLowerCase() : null; };
+    const distinct = (rows, get) => new Set(rows.map(get).filter(Boolean)).size;
+    const stableSrc = master.length ? master : rikishi;
+    const anchors = [
+      { key:'mawashi', groups: distinct(rikishi,   r => lastWord(r.mawashi)), have: rikishi.length },
+      { key:'stable',  groups: distinct(stableSrc, r => r.stable),            have: stableSrc.length },
+      { key:'country', groups: distinct(stableSrc, r => r.country),           have: stableSrc.length },
+    ];
+    const declared = new Set(analytics.dimensions.map(d => d.key));
+    const missing = ['mawashi', 'stable', 'country'].filter(k => !declared.has(k));
+    const broken  = anchors.filter(a => a.have > 0 && a.groups === 0);
+    if (missing.length || broken.length) {
+      console.error('ABORT — analytics parity guard failed (a dimension that should resolve does not — the mawashi-style silent loss is back):');
+      for (const k of missing) console.error(`  - anchor dimension "${k}" is MISSING from the analytics registry`);
+      for (const b of broken)  console.error(`  - dimension "${b.key}" resolves to 0 groups over ${b.have} rows (field renamed/dropped?)`);
+      process.exit(1);
+    }
+    console.log(`  ✓ analytics parity: ${analytics.dimensions.length} dimensions, ${analytics.measures.length} measures; anchors resolve (mawashi=${anchors[0].groups} families · stable=${anchors[1].groups} · country=${anchors[2].groups})`);
   }
 
   // ── kimarite glossary ──
@@ -336,10 +383,7 @@ async function main() {
   //    from Start Date) matches meta.bashoId so "July 2026 / 202607 / Nagoya 2026" all resolve.
   //    NOTE: `Notes` (memorable storylines) is deliberately EXCLUDED — for the CURRENT basho it
   //    would be a spoiler; revisit with per-basho gating if the crew wants past-basho recaps here.
-  //    HONBASHO-ONLY (2026-09-21): the 🏆 Bashos DB now also holds Type=Special Event rows (US Open,
-  //    etc.) added for the public calendar. Those are NOT grand tournaments, so they're filtered out
-  //    here — Gumbai's basho lane stays the six honbasho. (The calendar's own generator keeps both.)
-  const bashos = bashoPages.filter(p => selOf(p, 'Type') !== 'Special Event').map(p => {
+  const bashos = bashoPages.map(p => {
     const start = dateOf(p, 'Start Date');            // "YYYY-MM-DD"
     const code = start ? start.slice(0, 4) + start.slice(5, 7) : null;   // YYYYMM
     return {
@@ -353,22 +397,6 @@ async function main() {
     };
   }).filter(b => b.location || b.startDate || b.basho)
     .sort((a, b) => String(a.code || '').localeCompare(String(b.code || '')));
-
-  // ── specialEvents[] (schema/9) : the OTHER half of the 🏆 Bashos/Events table — Type=Special Event
-  //    (US Open, exhibitions, crew outings). The crew adds these in-app; they are the counterpart to
-  //    the honbasho lane above, kept SEPARATE so Gumbai never confuses a crew event with a grand
-  //    tournament. TIMELESS + PUBLIC: these carry no results and are the same events the public
-  //    calendar publishes, so the engine never gates them. Notes ARE included here (unlike the basho
-  //    lane) — a crew event's notes are descriptive color, never a current-basho spoiler.
-  const specialEvents = bashoPages.filter(p => selOf(p, 'Type') === 'Special Event').map(p => ({
-    name: titleOf(p, 'Tournament Name') || null,
-    startDate: dateOf(p, 'Start Date'),
-    endDate: dateOf(p, 'End Date'),
-    location: textOf(p, 'Event Location') || null,   // free-text venue/city (NOT the honbasho Location select)
-    url: urlOf(p, 'Event Link') || null,
-    notes: textOf(p, 'Notes') || null,
-  })).filter(e => e.name && e.startDate)
-    .sort((a, b) => String(a.startDate).localeCompare(String(b.startDate)));
 
   // ── glossary[] (schema/7) : general sumo vocabulary. Timeless reference, never gated.
   const glossary = glPages.map(p => {
@@ -547,9 +575,9 @@ async function main() {
       maxDay, schema: 'gumbai-snapshot/9', source: 'notion',
     },
     rikishi, banzuke, kimarite, bouts,
-    master,                            // schema/6+9: whole Master Rikishi roster (full timeless profile) for rollups, birthdays & "on the master"
+    master,                            // schema/6: whole Master Rikishi roster (timeless) for rollups & "on the master"
     bashos, glossary, library,         // schema/7: venue/dates · general sumo terms · citable books (all timeless)
-    specialEvents,                     // schema/9: crew events (US Open, exhibitions) — timeless/public, never gated
+    analytics,                         // schema/9: registry (dimensions + measures) query_rollup executes (timeless metadata)
     days, injuries, catchphrases,     // schema/4 soft-data lanes
     champion,                          // schema/5: current-basho yusho (null until complete; engine gates reveal)
     history,
@@ -565,7 +593,7 @@ async function main() {
 
   console.log(`✓ wrote ${OUT}`);
   console.log(`  basho=${BASHO_LABEL} maxDay=${maxDay} rikishi=${rikishi.length} master=${master.length} banzuke=${banzuke.length} kimarite=${kimarite.length} bouts=${bouts.length}`);
-  console.log(`  ref: bashos=${bashos.length} specialEvents=${specialEvents.length} glossary=${glossary.length} library=${library.length}`);
+  console.log(`  ref: bashos=${bashos.length} glossary=${glossary.length} library=${library.length}  analytics: dims=${analytics.dimensions.length} measures=${analytics.measures.length}`);
   console.log(`  soft: days=${days.length} injuries=${injuries.length} catchphrases=${catchphrases.length}`);
   if (warn.length) { console.log('⚠️ warnings:'); for (const w of [...new Set(warn)]) console.log('  - ' + w); }
 }
