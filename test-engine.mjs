@@ -1067,5 +1067,28 @@ t('ACCEPTANCE — "X vs Y history" answers for a PUBLIC visitor, no balking', ()
   assert(!JSON.stringify(bhP.crewHistory).includes('cushions'), 'member net must not leak to public');
 });
 
+// ── §22 — TONE invariants (2026-09-22g): the lane split stays silent internal scaffolding,
+// and an upcoming-card answer never teases a results readout. Prompt-string canaries, same
+// posture as the §10 origin-guard invariants — lock the wording so a later prompt edit can't
+// silently regress the tone Jennie called out.
+t('TONE: the lane split is declared INTERNAL and silent (never narrated to the user)', () => {
+  const p = buildSystemPrompt(cardM, 'member');
+  assert(/INTERNAL scaffolding/.test(p) && /Decide the lane silently/.test(p), 'lanes must be internal + silent');
+  assert(/never .{0,40}narrate/i.test(p) || /never something you name, label, or narrate/.test(p), 'must forbid narrating the lanes');
+});
+t('TONE: no "flagged lightly as background" preamble instruction survives', () => {
+  const p = buildSystemPrompt(cardM, 'member');
+  assert(!/flagged lightly as background/.test(p), 'the old provenance-preamble instruction must be gone');
+  assert(!/\bLane 2\b\)/.test(p), 'no "(Lane 2)" label reinforcement in the riffing rule');
+});
+t('TONE: an upcoming/next-day card answer must NOT offer to read results afterward', () => {
+  const p = buildSystemPrompt(cardM, 'member');
+  assert(/do NOT offer to read them the results afterward/.test(p), 'card guidance must forbid the results-offer close');
+});
+t('TONE: the results-offer ban rides the public prompt too', () => {
+  const p = buildSystemPrompt(cardP, 'public');
+  assert(/do NOT offer to read them the results afterward/.test(p), 'public card answers get the same tone rule');
+});
+
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
