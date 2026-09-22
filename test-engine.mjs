@@ -1,7 +1,7 @@
 // test-engine.mjs — spoiler-gate + soft-data + audience-split unit tests for gumbai-engine.
 // Run: node test-engine.mjs   (exits non-zero on any failure)
 import assert from 'node:assert';
-import { gateSnapshot, runTool, buildSystemPrompt, toolsFor, TOOLS } from './functions/api/_engine.js';
+import { gateSnapshot, runTool, buildSystemPrompt, toolsFor, TOOLS, SOURCE_REGISTRY } from './functions/api/_engine.js';
 let pass = 0, fail = 0;
 const ok = (name) => { pass++; console.log('  ✓ ' + name); };
 const bad = (name, e) => { fail++; console.log('  ✗ ' + name + '  — ' + (e && e.message || e)); };
@@ -967,6 +967,50 @@ t('no double-listing once §3d rolls the basho into the static lane (static owns
   const g = gateSnapshot(rolled, 9, false, 'member');
   const ns = runTool('query_yusho', {}, g).champions.filter(c=>c.basho==='Nagoya 2026');
   assert(ns.length===1 && !ns[0].derived && ns[0].yusho[0]==='Kirishima', 'static lane must own it, no derived dupe: '+JSON.stringify(ns));
+});
+
+// ═══ 20. Source registry — the master framework's gate table (schema/12) ═══
+// The gate now LOOPS a declared SOURCE_REGISTRY (per-lane temporal type + Axis A spoiler + Axis B
+// audience) instead of hand-coded per-lane logic. These canaries guard the two axes against a silent
+// tag flip — the same anti-regression discipline as the analytics canary. The full spoiler sweep (§1)
+// and audience split (§9) already prove the BEHAVIOR; this pins the DECLARATION.
+console.log('\n[20] Source registry — declared two-axis gate policy (schema/12)');
+const REG = Object.fromEntries(SOURCE_REGISTRY.map(l => [l.key, l]));
+t('CANARY: officially-recorded hard-fact lanes are PUBLIC on Axis B (both audiences)', () => {
+  for(const k of ['rikishi','banzuke','kimarite','bashos','history','banzukeHistory','cards','upcoming','champion','catchphrases'])
+    assert(REG[k] && REG[k].B === 'public', `${k} must be public on Axis B, got ${REG[k] && REG[k].B}`);
+});
+t('CANARY: crew-authored lanes are MEMBER on Axis B', () => {
+  for(const k of ['days','daysHistory','injuries'])
+    assert(REG[k] && REG[k].B === 'member', `${k} must be member on Axis B, got ${REG[k] && REG[k].B}`);
+  // bout lanes keep hard facts public but strip the crew nets
+  for(const k of ['bouts','crewHistory']) assert(REG[k].B === 'strip-nets', `${k} must strip nets`);
+});
+t('CANARY: only RESULT lanes are day-gated on Axis A; matchups + past + timeless are open', () => {
+  assert(REG.bouts.A === 'dayBouts' && REG.champion.A === 'champion', 'current results must be day-gated');
+  // the historical partitions + cards are OPEN even though per-basho (past / result-free are not spoilers)
+  for(const k of ['history','banzukeHistory','crewHistory','cards','upcoming']) assert(REG[k].A === 'open', `${k} must be open on Axis A`);
+});
+t('the new historical partitions gate correctly: banzukeHistory PUBLIC, daysHistory MEMBER', () => {
+  const snap = { meta:{ basho:'Aki 2026', maxDay:9 }, rikishi:[], banzuke:[], kimarite:[], bouts:[],
+    banzukeHistory:{ '202607':{ label:'Nagoya 2026', yusho:['Aonishiki'], rikishi:[] } },
+    daysHistory:[ { basho:'Nagoya 2026', day:3, storylines:'SENTINEL_HIST_STORY' } ] };
+  const mem = gateSnapshot(snap, 9, false, 'member');
+  const pub = gateSnapshot(snap, 9, false, 'public');
+  assert(mem.banzukeHistory && mem.banzukeHistory['202607'].yusho[0]==='Aonishiki', 'member sees banzukeHistory');
+  assert(pub.banzukeHistory && pub.banzukeHistory['202607'].yusho[0]==='Aonishiki', 'PUBLIC also sees banzukeHistory (officially-recorded)');
+  assert(mem.daysHistory && mem.daysHistory.length===1, 'member sees daysHistory');
+  assert(Array.isArray(pub.daysHistory) && pub.daysHistory.length===0, 'PUBLIC does NOT see daysHistory (crew-authored)');
+  assert(!JSON.stringify(pub).includes('SENTINEL_HIST_STORY'), 'no member storyline leaks to public');
+});
+t('the registry-driven gate still empties every member lane + keeps every public lane for public', () => {
+  const snap = { meta:{ maxDay:15 }, rikishi:[{name:'X'}], banzuke:[{name:'X',rank:'Y'}], kimarite:[{name:'yorikiri'}],
+    bouts:[], days:[{day:1,storylines:'s'}], injuries:[{rikishi:'X',severity:[{day:1,text:'26AkD1'}],onsetDay:1,fullMaxDay:1}], catchphrases:[] };
+  const pub = gateSnapshot(snap, 15, false, 'public');
+  for(const lane of SOURCE_REGISTRY){
+    if(lane.B === 'member') assert(Array.isArray(pub[lane.key]) ? pub[lane.key].length===0 : pub[lane.key]==null, `${lane.key} must be empty for public`);
+    if(lane.B === 'public') assert(pub[lane.key] !== undefined, `${lane.key} must be present for public`);
+  }
 });
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
