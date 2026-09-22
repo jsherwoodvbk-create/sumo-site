@@ -31,14 +31,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 197,
+        "w": 198,
         "l": 70,
-        "pct": ".738"
+        "pct": ".739"
       },
       "makuuchi": {
-        "w": 163,
+        "w": 164,
         "l": 60,
-        "pct": ".731"
+        "pct": ".732"
       },
       "crew": {
         "w": 98,
@@ -787,13 +787,13 @@
     "records": {
       "allDivision": {
         "w": 485,
-        "l": 313,
-        "pct": ".608"
+        "l": 314,
+        "pct": ".607"
       },
       "makuuchi": {
         "w": 346,
-        "l": 236,
-        "pct": ".595"
+        "l": 237,
+        "pct": ".593"
       },
       "crew": {
         "w": 107,
@@ -1796,21 +1796,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 153,
+        "w": 154,
         "l": 48,
-        "pct": ".761"
+        "pct": ".762"
       },
       "makuuchi": {
-        "w": 93,
+        "w": 94,
         "l": 36,
-        "pct": ".721"
+        "pct": ".723"
       },
       "crew": {
         "w": 93,
         "l": 36,
         "pct": ".721"
       },
-      "note": "For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -2611,14 +2611,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 269,
+        "w": 270,
         "l": 190,
-        "pct": ".586"
+        "pct": ".587"
       },
       "makuuchi": {
-        "w": 161,
+        "w": 162,
         "l": 133,
-        "pct": ".548"
+        "pct": ".549"
       },
       "crew": {
         "w": 92,
@@ -3416,13 +3416,13 @@
     "records": {
       "allDivision": {
         "w": 172,
-        "l": 111,
-        "pct": ".608"
+        "l": 112,
+        "pct": ".606"
       },
       "makuuchi": {
         "w": 93,
-        "l": 75,
-        "pct": ".554"
+        "l": 76,
+        "pct": ".550"
       },
       "crew": {
         "w": 82,
@@ -4196,14 +4196,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 354,
+        "w": 355,
         "l": 311,
-        "pct": ".532"
+        "pct": ".533"
       },
       "makuuchi": {
-        "w": 218,
+        "w": 219,
         "l": 235,
-        "pct": ".481"
+        "pct": ".482"
       },
       "crew": {
         "w": 81,
@@ -5086,13 +5086,13 @@
     "records": {
       "allDivision": {
         "w": 833,
-        "l": 635,
+        "l": 636,
         "pct": ".567"
       },
       "makuuchi": {
         "w": 673,
-        "l": 519,
-        "pct": ".565"
+        "l": 520,
+        "pct": ".564"
       },
       "crew": {
         "w": 82,
@@ -6302,14 +6302,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 238,
+        "w": 239,
         "l": 200,
-        "pct": ".543"
+        "pct": ".544"
       },
       "makuuchi": {
-        "w": 142,
+        "w": 143,
         "l": 152,
-        "pct": ".483"
+        "pct": ".485"
       },
       "crew": {
         "w": 72,
@@ -7089,13 +7089,13 @@
     "records": {
       "allDivision": {
         "w": 576,
-        "l": 500,
+        "l": 501,
         "pct": ".535"
       },
       "makuuchi": {
         "w": 317,
-        "l": 310,
-        "pct": ".506"
+        "l": 311,
+        "pct": ".505"
       },
       "crew": {
         "w": 74,
@@ -8189,13 +8189,13 @@
     "records": {
       "allDivision": {
         "w": 277,
-        "l": 219,
-        "pct": ".558"
+        "l": 220,
+        "pct": ".557"
       },
       "makuuchi": {
         "w": 109,
-        "l": 113,
-        "pct": ".491"
+        "l": 114,
+        "pct": ".489"
       },
       "crew": {
         "w": 67,
@@ -9038,14 +9038,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 435,
+        "w": 436,
         "l": 217,
-        "pct": ".667"
+        "pct": ".668"
       },
       "makuuchi": {
-        "w": 283,
+        "w": 284,
         "l": 180,
-        "pct": ".611"
+        "pct": ".612"
       },
       "crew": {
         "w": 40,
@@ -9903,13 +9903,13 @@
     "records": {
       "allDivision": {
         "w": 199,
-        "l": 124,
-        "pct": ".616"
+        "l": 125,
+        "pct": ".614"
       },
       "makuuchi": {
         "w": 30,
-        "l": 24,
-        "pct": ".556"
+        "l": 25,
+        "pct": ".545"
       },
       "crew": {
         "w": 31,
@@ -10608,13 +10608,13 @@
     "records": {
       "allDivision": {
         "w": 175,
-        "l": 79,
-        "pct": ".689"
+        "l": 80,
+        "pct": ".686"
       },
       "makuuchi": {
         "w": 69,
-        "l": 43,
-        "pct": ".616"
+        "l": 44,
+        "pct": ".611"
       },
       "crew": {
         "w": 48,
@@ -11308,14 +11308,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 427,
+        "w": 428,
         "l": 323,
-        "pct": ".569"
+        "pct": ".570"
       },
       "makuuchi": {
-        "w": 255,
+        "w": 256,
         "l": 265,
-        "pct": ".490"
+        "pct": ".491"
       },
       "crew": {
         "w": 75,
@@ -12323,13 +12323,13 @@
     "records": {
       "allDivision": {
         "w": 330,
-        "l": 293,
-        "pct": ".530"
+        "l": 294,
+        "pct": ".529"
       },
       "makuuchi": {
         "w": 200,
-        "l": 214,
-        "pct": ".483"
+        "l": 215,
+        "pct": ".482"
       },
       "crew": {
         "w": 74,
@@ -13268,14 +13268,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 501,
+        "w": 502,
         "l": 409,
         "pct": ".551"
       },
       "makuuchi": {
-        "w": 229,
+        "w": 230,
         "l": 197,
-        "pct": ".538"
+        "pct": ".539"
       },
       "crew": {
         "w": 72,
@@ -15142,13 +15142,13 @@
     "records": {
       "allDivision": {
         "w": 204,
-        "l": 162,
-        "pct": ".557"
+        "l": 163,
+        "pct": ".556"
       },
       "makuuchi": {
         "w": 77,
-        "l": 74,
-        "pct": ".510"
+        "l": 75,
+        "pct": ".507"
       },
       "crew": {
         "w": 71,
@@ -15936,13 +15936,13 @@
     "records": {
       "allDivision": {
         "w": 457,
-        "l": 432,
-        "pct": ".514"
+        "l": 433,
+        "pct": ".513"
       },
       "makuuchi": {
         "w": 260,
-        "l": 285,
-        "pct": ".477"
+        "l": 286,
+        "pct": ".476"
       },
       "crew": {
         "w": 69,
@@ -16908,13 +16908,13 @@
     "records": {
       "allDivision": {
         "w": 92,
-        "l": 56,
-        "pct": ".622"
+        "l": 57,
+        "pct": ".617"
       },
       "makuuchi": {
         "w": 4,
-        "l": 5,
-        "pct": ".444"
+        "l": 6,
+        "pct": ".400"
       },
       "crew": {
         "w": 6,
@@ -17852,14 +17852,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 366,
+        "w": 367,
         "l": 330,
-        "pct": ".526"
+        "pct": ".527"
       },
       "makuuchi": {
-        "w": 93,
+        "w": 94,
         "l": 126,
-        "pct": ".425"
+        "pct": ".427"
       },
       "crew": {
         "w": 29,
@@ -19576,13 +19576,13 @@
     "records": {
       "allDivision": {
         "w": 456,
-        "l": 312,
-        "pct": ".594"
+        "l": 313,
+        "pct": ".593"
       },
       "makuuchi": {
         "w": 322,
-        "l": 224,
-        "pct": ".590"
+        "l": 225,
+        "pct": ".589"
       },
       "crew": {
         "w": 81,
@@ -20562,21 +20562,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 150,
+        "w": 151,
         "l": 91,
-        "pct": ".622"
+        "pct": ".624"
       },
       "makuuchi": {
-        "w": 65,
+        "w": 66,
         "l": 49,
-        "pct": ".570"
+        "pct": ".574"
       },
       "crew": {
         "w": 65,
         "l": 49,
         "pct": ".570"
       },
-      "note": "For Fujinokawa, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -21264,13 +21264,13 @@
     "records": {
       "allDivision": {
         "w": 644,
-        "l": 526,
+        "l": 527,
         "pct": ".550"
       },
       "makuuchi": {
         "w": 493,
-        "l": 429,
-        "pct": ".535"
+        "l": 430,
+        "pct": ".534"
       },
       "crew": {
         "w": 81,
@@ -22319,13 +22319,13 @@
     "records": {
       "allDivision": {
         "w": 170,
-        "l": 115,
-        "pct": ".596"
+        "l": 116,
+        "pct": ".594"
       },
       "makuuchi": {
         "w": 38,
-        "l": 31,
-        "pct": ".551"
+        "l": 32,
+        "pct": ".543"
       },
       "crew": {
         "w": 41,
@@ -23010,21 +23010,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 114,
+        "w": 115,
         "l": 65,
-        "pct": ".637"
+        "pct": ".639"
       },
       "makuuchi": {
-        "w": 63,
+        "w": 64,
         "l": 51,
-        "pct": ".553"
+        "pct": ".557"
       },
       "crew": {
         "w": 64,
         "l": 51,
         "pct": ".557"
       },
-      "note": null
+      "note": "For Yoshinofuji, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
     "specials": [
       {
@@ -23675,13 +23675,13 @@
     "records": {
       "allDivision": {
         "w": 390,
-        "l": 365,
-        "pct": ".517"
+        "l": 366,
+        "pct": ".516"
       },
       "makuuchi": {
         "w": 136,
-        "l": 128,
-        "pct": ".515"
+        "l": 129,
+        "pct": ".513"
       },
       "crew": {
         "w": 81,
@@ -24609,21 +24609,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 74,
+        "w": 75,
         "l": 38,
-        "pct": ".661"
+        "pct": ".664"
       },
       "makuuchi": {
-        "w": 30,
+        "w": 31,
         "l": 24,
-        "pct": ".556"
+        "pct": ".564"
       },
       "crew": {
         "w": 30,
         "l": 24,
         "pct": ".556"
       },
-      "note": "For Fujiryoga, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -25104,14 +25104,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 212,
+        "w": 213,
         "l": 193,
-        "pct": ".523"
+        "pct": ".525"
       },
       "makuuchi": {
-        "w": 107,
+        "w": 108,
         "l": 112,
-        "pct": ".489"
+        "pct": ".491"
       },
       "crew": {
         "w": 76,
@@ -25864,14 +25864,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 351,
+        "w": 352,
         "l": 310,
-        "pct": ".531"
+        "pct": ".532"
       },
       "makuuchi": {
-        "w": 194,
+        "w": 195,
         "l": 229,
-        "pct": ".459"
+        "pct": ".460"
       },
       "crew": {
         "w": 70,
@@ -26792,14 +26792,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 356,
+        "w": 357,
         "l": 311,
         "pct": ".534"
       },
       "makuuchi": {
-        "w": 146,
+        "w": 147,
         "l": 162,
-        "pct": ".474"
+        "pct": ".476"
       },
       "crew": {
         "w": 52,
@@ -27675,14 +27675,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 350,
+        "w": 351,
         "l": 310,
-        "pct": ".530"
+        "pct": ".531"
       },
       "makuuchi": {
-        "w": 182,
+        "w": 183,
         "l": 187,
-        "pct": ".493"
+        "pct": ".495"
       },
       "crew": {
         "w": 74,
@@ -28584,13 +28584,13 @@
     "records": {
       "allDivision": {
         "w": 235,
-        "l": 183,
-        "pct": ".562"
+        "l": 184,
+        "pct": ".561"
       },
       "makuuchi": {
         "w": 76,
-        "l": 83,
-        "pct": ".478"
+        "l": 84,
+        "pct": ".475"
       },
       "crew": {
         "w": 71,
@@ -29407,14 +29407,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 220,
+        "w": 221,
         "l": 182,
-        "pct": ".547"
+        "pct": ".548"
       },
       "makuuchi": {
-        "w": 149,
+        "w": 150,
         "l": 158,
-        "pct": ".485"
+        "pct": ".487"
       },
       "crew": {
         "w": 81,
@@ -30193,12 +30193,12 @@
     "records": {
       "allDivision": {
         "w": 541,
-        "l": 489,
+        "l": 490,
         "pct": ".525"
       },
       "makuuchi": {
         "w": 473,
-        "l": 471,
+        "l": 472,
         "pct": ".501"
       },
       "crew": {
@@ -31203,21 +31203,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 130,
+        "w": 131,
         "l": 74,
-        "pct": ".637"
+        "pct": ".639"
       },
       "makuuchi": {
-        "w": 34,
+        "w": 35,
         "l": 35,
-        "pct": ".493"
+        "pct": ".500"
       },
       "crew": {
         "w": 35,
         "l": 35,
         "pct": ".500"
       },
-      "note": null
+      "note": "For Asahakuryu, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
     "specials": [
       {
@@ -31799,13 +31799,13 @@
     "records": {
       "allDivision": {
         "w": 523,
-        "l": 407,
+        "l": 408,
         "pct": ".562"
       },
       "makuuchi": {
         "w": 339,
-        "l": 302,
-        "pct": ".529"
+        "l": 303,
+        "pct": ".528"
       },
       "crew": {
         "w": 69,
@@ -32812,13 +32812,13 @@
     "records": {
       "allDivision": {
         "w": 599,
-        "l": 594,
+        "l": 595,
         "pct": ".502"
       },
       "makuuchi": {
         "w": 306,
-        "l": 373,
-        "pct": ".451"
+        "l": 374,
+        "pct": ".450"
       },
       "crew": {
         "w": 62,
@@ -33997,14 +33997,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 255,
+        "w": 256,
         "l": 204,
-        "pct": ".556"
+        "pct": ".557"
       },
       "makuuchi": {
-        "w": 82,
+        "w": 83,
         "l": 92,
-        "pct": ".471"
+        "pct": ".474"
       },
       "crew": {
         "w": 70,
@@ -34827,20 +34827,20 @@
     "records": {
       "allDivision": {
         "w": 90,
-        "l": 41,
-        "pct": ".687"
+        "l": 42,
+        "pct": ".682"
       },
       "makuuchi": {
         "w": 6,
-        "l": 3,
-        "pct": ".667"
+        "l": 4,
+        "pct": ".600"
       },
       "crew": {
         "w": 6,
         "l": 3,
         "pct": ".667"
       },
-      "note": "For Toshinofuji, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
