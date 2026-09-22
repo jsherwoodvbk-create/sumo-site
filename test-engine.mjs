@@ -858,5 +858,61 @@ t('UNITS: query_rikishi returns both systems; prompt leads standard by default, 
   assert(/METRIC \(centimeters/.test(buildSystemPrompt(metricView, 'member')));
 });
 
+// ═══ 17. Head-to-head + career span crewHistory (the most-recent basho before gen-history reruns) ═══
+// The bug (2026-09-22): historyH2H / careerFor read ONLY the frozen sumo-api `history` lane, so a
+// just-completed basho that lives only in the Notion Match Log (`crewHistory`) was invisible — AO's
+// Nagoya-2026 win over Onosato showed as 0-fought. Fix: read BOTH lanes, static lane owns its basho,
+// crewHistory fills any basho the static lane hasn't rolled forward yet, deduped so nothing counts twice.
+console.log('\n[17] Head-to-head + career span crewHistory (no double-count with the static lane)');
+t('head-to-head now includes the most-recent basho that lives ONLY in crewHistory (Nagoya 2026)', () => {
+  // static `history` lane (Natsu 2026): Onosato beat Hoshoryu once. crewHistory (Nagoya 2026): Hoshoryu
+  // beat Onosato once. So the PAST rivalry is 2 meetings, split 1-1 — Nagoya 2026 was invisible before.
+  const h = runTool('query_match_log', {rikishi:'Onosato', opponent:'Hoshoryu'}, hM9).historicalHeadToHead;
+  assert(h.meetings===2, 'expected 2 past meetings incl. Nagoya 2026, got '+JSON.stringify(h));
+  assert(h.Onosato===1 && h.Hoshoryu===1, 'past rivalry should be 1-1: '+JSON.stringify(h));
+  assert(h.bouts.some(b=>b.basho==='Nagoya 2026'), 'the Nagoya 2026 meeting must be present');
+  assert(h.bouts.some(b=>b.basho==='Natsu 2026'), 'the static-lane Natsu 2026 meeting must still be present');
+});
+t('head-to-head does NOT double-count a basho present in BOTH lanes (static lane owns it)', () => {
+  const dupe = { ...SNAP_HIST, crewHistory:[ ...SNAP_HIST.crewHistory,
+    { basho:'Natsu 2026', day:1, winner:'Onosato', loser:'Hoshoryu', kimarite:'oshidashi', goldStar:false } ] };
+  const g = gateSnapshot(dupe, 9, false, 'member');
+  const h = runTool('query_match_log', {rikishi:'Onosato', opponent:'Hoshoryu'}, g).historicalHeadToHead;
+  assert(h.meetings===2 && h.Onosato===1 && h.Hoshoryu===1, 'a basho in both lanes was double-counted: '+JSON.stringify(h));
+});
+t('the CURRENT basho stays out of the historical bucket (still gated + reported separately)', () => {
+  // Aki Day 3 Onosato beat Hoshoryu is in `bouts`, so it belongs to headToHead ("this basho only"),
+  // NOT historicalHeadToHead — crewHistory never carries the current basho, so no leak, no double.
+  const o = runTool('query_match_log', {rikishi:'Onosato', opponent:'Hoshoryu'}, hM9);
+  assert(o.headToHead.note==='this basho only' && o.headToHead.meetings===1, JSON.stringify(o.headToHead));
+  assert(!o.historicalHeadToHead.bouts.some(b=>b.basho==='Aki 2026'), 'current basho leaked into history');
+});
+t('career readout spans crewHistory: Nagoya 2026 appears in perBasho, tallied from the Match Log', () => {
+  // Hoshoryu in Nagoya 2026 (crewHistory): beat Onosato (W, day2), lost to Wakatakakage (L, day7) => 1-1.
+  const c = runTool('query_career', {name:'Hoshoryu'}, hM9);
+  const ng = c.perBasho.find(p=>p.basho==='Nagoya 2026');
+  assert(ng && ng.record==='1-1' && ng.fromMatchLog===true && ng.final===true, 'Nagoya 2026 career line missing/wrong: '+JSON.stringify(c.perBasho));
+});
+
+// ═══ 18. Today anchor NAMES the current basho (kills the past-basho drift) ═══
+// The slip (2026-09-22): a long chat about a PAST basho made the model call that past tournament "the
+// one in progress" — the date came through right but the basho name was confabulated. Fix: state the
+// current basho (meta.basho) as a FACT in the real-world-today line so it is never inferred.
+console.log('\n[18] Today anchor names the current basho as a fact');
+t('with a today anchor: the prompt states the basho in progress by name', () => {
+  const p = buildSystemPrompt(cardM, 'member');   // SNAP_CARD has today + meta.basho = "Aki 2026"
+  assert(/REAL-WORLD TODAY/.test(p), 'today anchor missing');
+  assert(/basho in progress is Aki 2026/.test(p), 'today line should name the current basho: not found');
+});
+t('no today anchor but a known basho: still states the current basho, full stop', () => {
+  const p = buildSystemPrompt(hM9, 'member');   // SNAP_HIST has meta.basho but no `today`
+  assert(/TOURNAMENT HAPPENING RIGHT NOW is Aki 2026/.test(p), 'current-basho fallback statement missing');
+});
+t('neither today nor a basho name: no crash, no anchor injected', () => {
+  const bare = gateSnapshot({ ...SNAP_HIST, meta:{ maxDay:9 } }, 9, false, 'member');
+  const p = buildSystemPrompt(bare, 'member');
+  assert(!/REAL-WORLD TODAY/.test(p) && !/TOURNAMENT HAPPENING RIGHT NOW/.test(p), 'should inject nothing when both are absent');
+});
+
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
