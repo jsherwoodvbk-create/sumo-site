@@ -207,6 +207,21 @@ function parseAllSeverity(text) {
   return out;
 }
 
+// Parse a Notion `Lineup` text back into matchups — the exact inverse of gen-torikumi's serializeLineup
+// ("East (Rank) vs West (Rank)", one bout per line). Keep the two in lockstep. (Source Framework: the card
+// now lives in Notion on the day's cardinal Highlights row, not only in tomorrow-card.json.)
+function parseLineup(text) {
+  const side = s => { s = String(s).trim(); const m = s.match(/^(.+?)\s*\(([^)]+)\)$/); return m ? { name: m[1].trim(), rank: m[2].trim() } : { name: s, rank: null }; };
+  const out = [];
+  for (const raw of String(text || '').split('\n')) {
+    const line = raw.trim(); if (!line) continue;
+    const m = line.match(/^(.*?)\s+vs\s+(.*)$/i); if (!m) continue;
+    const e = side(m[1]), w = side(m[2]);
+    if (e.name && w.name) out.push({ eastName: e.name, eastRank: e.rank, westName: w.name, westRank: w.rank });
+  }
+  return out;
+}
+
 async function main() {
   const warn = [];
   const scopedTournament = { property: 'Tournament', relation: { contains: TOURNAMENT_PAGE_ID } };
@@ -669,21 +684,43 @@ async function main() {
   } catch (e) { console.warn('  (no sumo-history.json — Gumbai runs without history):', e.message); }
 
   // ── fold in the CARDS (UNGATED — a scheduled bout has no result) + the real-world today anchor ──
-  //    `upcoming` = the single next scheduled card (back-compat); `cards` = every PUBLISHED day's
-  //    result-free pairings (schema/10) so the engine serves the viewer's own next day or ANY
-  //    published day; `today` = { date, tournamentDay } so the model has a real-world clock. Matchups
-  //    are not results, so none of this is gated (Jennie 2026-09-22: "matchups don't need gating").
+  //    `cards` = every PUBLISHED day's result-free pairings (schema/10); `upcoming` = the single next
+  //    scheduled card (back-compat); `today` = { date, tournamentDay } so the model has a clock. Matchups
+  //    are not results → none gated (Jennie: "matchups don't need gating").
+  //    SOURCE FRAMEWORK (schema/12): the card now lives in NOTION — gen-torikumi writes each day's lineup
+  //    to the 📅 Days `Lineup` field. So we build the cards map from those Day rows FIRST (Notion = source
+  //    of truth), and fold tomorrow-card.json in only as a FALLBACK for any day not yet in Notion (the
+  //    transition, and belt-and-suspenders if a Notion write ever hiccuped). `today` is computed here from
+  //    the basho Start Date + the real date, so it is never stale (the earlier stale-today bug).
   let upcoming = null, cards = null, today = null;
+  const curStart = (() => { for (const p of bashoPages) if (idNoDash(p.id) === curTid) return dateOf(p, 'Start Date'); return null; })();
+  const dateForDay = (d) => { if (!curStart) return null; const dt = new Date(curStart); if (isNaN(dt)) return null; dt.setUTCDate(dt.getUTCDate() + (d - 1)); return dt.toISOString().slice(0, 10); };
+  // cards from the Notion Lineup field (integer days only — the cardinal Highlights rows)
+  const cardsFromNotion = {};
+  for (const p of dayPages) {
+    const d = numOf(p, 'Day #'); if (!Number.isInteger(d)) continue;
+    const mus = parseLineup(textOf(p, 'Lineup'));
+    if (mus.length) cardsFromNotion[String(d)] = { day: d, date: dateForDay(d), matchups: mus };
+  }
+  // tomorrow-card.json (fallback for days not yet in Notion + the back-compat `upcoming`)
+  let jsonCards = {};
   try {
     const u = JSON.parse(fs.readFileSync('tomorrow-card.json', 'utf8'));
     upcoming = (u && !u.empty && Array.isArray(u.matchups) && u.matchups.length)
       ? { meta: u.meta || {}, day: u.day, date: u.date, matchups: u.matchups }
       : { empty: true, day: (u && u.day) || null };
-    if (u && u.cards && typeof u.cards === 'object') cards = u.cards;
-    if (u && u.today) today = u.today;
-    const nCards = cards ? Object.keys(cards).length : 0;
-    console.log(`  + upcoming: ${upcoming.empty ? 'none' : `Day ${upcoming.day} (${upcoming.matchups.length} matchups)`}; cards: ${nCards} published day(s); today: ${today ? `${today.date} (Day ${today.tournamentDay ?? '?'})` : 'none'}`);
-  } catch (e) { console.warn('  (no tomorrow-card.json — Gumbai runs without cards/upcoming):', e.message); }
+    if (u && u.cards && typeof u.cards === 'object') jsonCards = u.cards;
+  } catch (e) { console.warn('  (no tomorrow-card.json — cards come from Notion only):', e.message); }
+  // Notion WINS per day; the JSON fills any gap.
+  cards = { ...jsonCards, ...cardsFromNotion };
+  if (!Object.keys(cards).length) cards = null;
+  // today — computed fresh from the basho Start Date so it can't go stale
+  const todayISO = new Date().toISOString().slice(0, 10);
+  let tournamentDay = null;
+  if (curStart) { const diff = Math.floor((Date.parse(todayISO) - Date.parse(curStart)) / 86400000) + 1; tournamentDay = Math.max(0, Math.min(15, diff)); }
+  today = { date: todayISO, tournamentDay };
+  const nCards = cards ? Object.keys(cards).length : 0;
+  console.log(`  + cards: ${nCards} published day(s) (${Object.keys(cardsFromNotion).length} from Notion Lineup, rest from JSON fallback); upcoming: ${upcoming && !upcoming.empty ? `Day ${upcoming.day} (${upcoming.matchups.length} matchups)` : 'none'}; today: ${today.date} (Day ${today.tournamentDay ?? '?'})`);
 
   // ── current-basho champion (yusho): sumo-api, the SAME source of truth as the standings page ──
   // The `yusho` array is EMPTY until the tournament is officially over (playoff included), so this stays
