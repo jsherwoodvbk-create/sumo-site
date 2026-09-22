@@ -914,5 +914,60 @@ t('neither today nor a basho name: no crash, no anchor injected', () => {
   assert(!/REAL-WORLD TODAY/.test(p) && !/TOURNAMENT HAPPENING RIGHT NOW/.test(p), 'should inject nothing when both are absent');
 });
 
+// ═══ 19. Yusho derived from crewHistory — "who won the last tournament" before the roll-forward ═══
+// The gap (2026-09-22): query_yusho read only the static sumo-api `history` lane, so the most-recent
+// completed basho (Nagoya 2026, live-synced to Notion but not yet in that lane) had no champion — Gumbai
+// couldn't say who won the last tournament. Fix (Jennie: "gumbai should be able to grab it from there"):
+// derive the champion from crewHistory (top win-count), honest about a playoff tie, no double-listing.
+console.log('\n[19] Yusho derived from crewHistory (most-recent completed basho before the roll-forward)');
+const SNAP_YU = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:9 },
+  rikishi:[ {name:'Onosato',nicknames:[]}, {name:'Hoshoryu',nicknames:[]}, {name:'Kirishima',nicknames:[]} ],
+  banzuke:[ {name:'Onosato',rank:'Yokozuna',weightKg:191}, {name:'Hoshoryu',rank:'Yokozuna',weightKg:151}, {name:'Kirishima',rank:'Ozeki',weightKg:166} ],
+  kimarite:[], bouts:[], master:[],
+  crewHistory:[  // Nagoya 2026 (past, NOT in the static lane): Onosato 3 wins, Hoshoryu 1 -> clean solo yusho
+    { basho:'Nagoya 2026', day:1, winner:'Onosato', loser:'Hoshoryu', kimarite:'yorikiri' },
+    { basho:'Nagoya 2026', day:2, winner:'Onosato', loser:'Kirishima', kimarite:'oshidashi' },
+    { basho:'Nagoya 2026', day:3, winner:'Onosato', loser:'Hoshoryu', kimarite:'yorikiri' },
+    { basho:'Nagoya 2026', day:4, winner:'Hoshoryu', loser:'Kirishima', kimarite:'hatakikomi' },
+  ],
+  history:{ basho:{ '202605':{ label:'Natsu 2026', rikishi:[{name:'Hoshoryu',rank:'Yokozuna',wins:13,losses:2}], yusho:['Hoshoryu'], bouts:[] } } },
+  days:[], injuries:[], catchphrases:[], upcoming:null,
+};
+const yuM = gateSnapshot(SNAP_YU, 9, false, 'member');
+t('who won the last tournament: champions list leads with the DERIVED most-recent basho', () => {
+  const r = runTool('query_yusho', {}, yuM);
+  assert(r.champions[0].basho==='Nagoya 2026' && r.champions[0].derived===true, 'derived Nagoya 2026 should lead: '+JSON.stringify(r.champions.map(c=>c.basho)));
+  assert(r.champions[0].yusho.length===1 && r.champions[0].yusho[0]==='Onosato', 'Onosato should be the derived champ: '+JSON.stringify(r.champions[0]));
+  assert(r.champions.some(c=>c.basho==='Natsu 2026' && (c.yusho||[]).includes('Hoshoryu')), 'the static-lane basho still lists');
+});
+t('named query credits the derived (clean solo) yusho to the wrestler', () => {
+  const r = runTool('query_yusho', {name:'Onosato'}, yuM);
+  assert(r.yusho.includes('Nagoya 2026') && r.yushoCount>=1, JSON.stringify(r));
+});
+t('career yushoCount includes the derived clean yusho', () => {
+  const c = runTool('query_career', {name:'Onosato'}, yuM);
+  assert(c.yusho.includes('Nagoya 2026'), 'career should count the derived title: '+JSON.stringify(c.yusho));
+});
+t('a PLAYOFF tie in the derived basho is reported honestly, never crowned', () => {
+  const tie = { ...SNAP_YU, crewHistory:[  // Onosato + Hoshoryu tie at 1 win -> playoff, unresolved from the log
+    { basho:'Nagoya 2026', day:1, winner:'Onosato', loser:'Kirishima' },
+    { basho:'Nagoya 2026', day:2, winner:'Hoshoryu', loser:'Kirishima' },
+  ]};
+  const g = gateSnapshot(tie, 9, false, 'member');
+  const ng = runTool('query_yusho', {}, g).champions.find(c=>c.basho==='Nagoya 2026');
+  assert(ng.playoff===true && ng.yusho.length===2, 'should flag a 2-way playoff, not crown one: '+JSON.stringify(ng));
+  assert(!runTool('query_yusho', {name:'Onosato'}, g).yusho.includes('Nagoya 2026'), 'a playoff tie must NOT credit a name');
+});
+t('no double-listing once §3d rolls the basho into the static lane (static owns it)', () => {
+  const rolled = { ...SNAP_YU, history:{ basho:{
+    '202605':{ label:'Natsu 2026', rikishi:[], yusho:['Hoshoryu'], bouts:[] },
+    '202607':{ label:'Nagoya 2026', rikishi:[], yusho:['Kirishima'], bouts:[] },   // rolled in, with the real (playoff-resolved) champ
+  } } };
+  const g = gateSnapshot(rolled, 9, false, 'member');
+  const ns = runTool('query_yusho', {}, g).champions.filter(c=>c.basho==='Nagoya 2026');
+  assert(ns.length===1 && !ns[0].derived && ns[0].yusho[0]==='Kirishima', 'static lane must own it, no derived dupe: '+JSON.stringify(ns));
+});
+
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
