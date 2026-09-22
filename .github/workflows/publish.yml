@@ -46,17 +46,27 @@ jobs:
 
       - name: Rebuild tomorrow's card (torikumi) from sumo-api
         # THE FIX (2026-09-22): wire the next-day matchup pull into the daily publish. gen-torikumi.mjs
-        # pulls the NEXT day's scheduled card (sumo-api /basho/{id}/torikumi/Makuuchi/{day}) into
+        # pulls each published day's scheduled card (sumo-api /basho/{id}/torikumi/Makuuchi/{day}) into
         # tomorrow-card.json, which the Gumbai snapshot step below folds into the snapshot's ungated
-        # `upcoming` lane (query_upcoming). Before this, the card only refreshed on a MANUAL torikumi.yml
-        # run, so during a live basho Gumbai could hand out a stale "tomorrow's card." Now it refreshes
-        # every publish. MUST run BEFORE gen-gumbai-snapshot.mjs (which reads the file off disk).
-        # Hits sumo-api only (no NOTION_TOKEN); reachable from Actions. BASHO is baked into the generator
-        # (default 202609, updated at each banzuke drop like the other generators).
-        # Non-fatal by the same last-good logic as the snapshots: on a 404 / not-posted-yet / Day-15 /
-        # off-basho the generator writes an empty card and exits 0, so a hiccup can never block the
-        # snapshot + standings publish below. FORCE_DAY=<n> overrides the auto next-day (testing only).
+        # `cards`/`upcoming` lanes (query_upcoming). Before this, the card only refreshed on a MANUAL
+        # torikumi.yml run, so during a live basho Gumbai could hand out a stale "tomorrow's card." Now it
+        # refreshes every publish. MUST run BEFORE gen-gumbai-snapshot.mjs (which reads the file off disk).
+        #
+        # SOURCE FRAMEWORK (2026-09-22): the lineup ALSO lands in Notion — gen-torikumi upserts each day's
+        # `Lineup` onto the (Basho, Day #) Highlights row (the SAME key notion_push.py / ensureDayRow use,
+        # so it converges to one clean row; the box's push later patches the transcript onto the same row).
+        # BEST-EFFORT: it runs AFTER tomorrow-card.json is written and never throws, so a Notion hiccup
+        # can't block the snapshot + standings publish, and the card falls back to the JSON. Needs the WRITE
+        # token (NOTION_TOKEN_WRITE = sumo-notion-sync — the SAME secret sync-notion.yml already uses daily,
+        # full-tracker r/w with Days already in scope, so no new secret and no new access). Without the
+        # token the Notion write self-skips and only tomorrow-card.json is written. TOURNAMENT_PAGE_ID +
+        # BASHO_LABEL join the per-basho flip (they default in-code to Aki, so this works either way).
+        # FORCE_DAY=<n> overrides the auto next-day (testing only).
         continue-on-error: true
+        env:
+          NOTION_TOKEN_WRITE: ${{ secrets.NOTION_TOKEN_WRITE }}
+          TOURNAMENT_PAGE_ID: "3351ade1-241f-8011-8987-d959538f54a0"
+          BASHO_LABEL: "Aki 2026"
         run: node gen-torikumi.mjs
 
       - name: Rebuild Gumbai snapshot from Notion
@@ -133,6 +143,7 @@ jobs:
           # tomorrow-card.json is written by gen-torikumi.mjs (continue-on-error, and it self-aborts to an
           # empty card off-basho / on a 404), so it may be absent — same present-only guard as the others,
           # so a missing card can never fail this step and block standings + snapshot from committing.
+          # (The lineup ALSO lands in Notion now — that write produces no file, so nothing to add here.)
           if [ -f tomorrow-card.json ]; then git add tomorrow-card.json; fi
           if git diff --cached --quiet; then
             echo "No change — nothing to publish."
