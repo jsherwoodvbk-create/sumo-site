@@ -62,6 +62,16 @@
 //   static history pull rides its OWN resilient lane (empty + warn on failure) so it never breaks the small
 //   dynamic daily snapshot; notion()'s 429/529 back-off lets that full pull complete.
 //
+// SCHEMA gumbai-snapshot/12 (2026-09-22): the SOURCE FRAMEWORK's historical partitions. Adds two lanes so
+//   nearly every per-basho table now projects BOTH a current slice and a historical slice (not one table at
+//   a time). `banzukeHistory` = the AUTHORITATIVE per-basho summary from the 📋 Banzuke table (rank, final
+//   record, yusho = the champion with the playoff already resolved by whoever recorded it, special prizes,
+//   gold stars, kyujo), past tournaments only, UNGATED + PUBLIC — so "who won X" and the per-basho career
+//   read answer from Notion, not a sumo-api guess. `daysHistory` = past storylines/scorekeeper notes (the
+//   Days table's historical partition), MEMBER + ungated. Both ride resilient unscoped pulls. The engine's
+//   SOURCE_REGISTRY declares each lane's two-axis gate policy. See deliverables/Gumbai Source Framework —
+//   Spec v1.md. (Note: Wins/Losses/Gold Stars are Match-Log ROLLUPS on the Banzuke row → rollNumOf.)
+//
 // SAFETY: validates the CORE (bouts/rikishi/banzuke) before writing; a broken core pull
 // exits non-zero and writes nothing. The soft-data + stables pulls are each wrapped so a
 // missing integration share (the classic Kimarite 404) degrades that ONE lane to empty +
@@ -143,6 +153,8 @@ const textOf  = (p, prop) => (p.properties?.[prop]?.rich_text || []).map(t => t.
 const selOf   = (p, prop) => p.properties?.[prop]?.select?.name ?? null;
 const multiOf = (p, prop) => (p.properties?.[prop]?.multi_select || []).map(o => o.name);
 const numOf   = (p, prop) => (typeof p.properties?.[prop]?.number === 'number' ? p.properties[prop].number : null);
+// ROLLUP number reader (Banzuke Wins/Losses/Gold Stars are rollups from the Match Log, not plain numbers).
+const rollNumOf = (p, prop) => { const r = p.properties?.[prop]?.rollup; return (r && typeof r.number === 'number') ? r.number : null; };
 const boolOf  = (p, prop) => p.properties?.[prop]?.checkbox === true;
 const dateOf  = (p, prop) => p.properties?.[prop]?.date?.start ? String(p.properties[prop].date.start).slice(0, 10) : null;
 const relIds  = (p, prop) => (p.properties?.[prop]?.relation || []).map(r => idNoDash(r.id));
@@ -554,6 +566,73 @@ async function main() {
   if (crewHistory.length) console.log(`  + crewHistory: ${crewHistory.length} past crew-tracked bouts (with nets) — ungated`);
   else warn.push('crewHistory[] empty — no past crew-tracked bouts in the Match Log (or all rows are the current basho). History-spanning nets will be current-basho only until past basho accrue.');
 
+  // tournament page id -> YYYYMM code (the Bashos pages ARE the Tournament relation targets). Keys the
+  // per-basho history maps by code so they line up with the sumo-api `history` lane and meta.bashoId.
+  const bashoCodeById = new Map();
+  for (const p of bashoPages) {
+    const start = dateOf(p, 'Start Date');
+    const code = start ? start.slice(0, 4) + start.slice(5, 7) : null;
+    if (code) bashoCodeById.set(idNoDash(p.id), code);
+  }
+
+  // ── banzukeHistory (schema/12, the Source Framework): the AUTHORITATIVE per-basho SUMMARY straight
+  //    from the Notion 📋 Banzuke table — rank, final record, yusho (the champion, playoff already
+  //    resolved by whoever recorded it), special prizes (sansho), gold stars, kyujo. PAST tournaments
+  //    ONLY (the current basho's Yusho isn't set until senshuraku, so it stays in the gated `champion`
+  //    lane — no spoiler). UNGATED + PUBLIC (officially-recorded). This is what lets "who won X" and the
+  //    per-basho career read answer from Notion instead of a sumo-api guess or a bout-count derivation.
+  //    Wins/Losses/Gold Stars are ROLLUPS from the Match Log (rollNumOf, not numOf). See the Source
+  //    Framework spec. RESILIENT unscoped pull (empty + warn on failure, never breaks the daily snapshot).
+  const bzAllPages = await queryLane('banzuke-all', DB.banzuke, undefined, warn);
+  const banzukeHistory = {};   // YYYYMM code -> { label, rikishi:[{name,rank,wins,losses,yusho,prizes,goldStars,absences}], yusho:[names] }
+  for (const p of bzAllPages) {
+    const tid = rel1(p, 'Tournament');
+    if (!tid || tid === curTid) continue;                          // current basho stays gated (champion lane)
+    const rid = rel1(p, 'Rikishi');
+    const name = (rid && mrNameById.get(rid)) || titleOf(p, 'Entry').split(' — ')[0].trim();
+    if (!name) continue;
+    const code = bashoCodeById.get(tid) || tid;
+    const b = banzukeHistory[code] || (banzukeHistory[code] = { label: bashoLabelById.get(tid) || null, rikishi: [], yusho: [] });
+    const won = boolOf(p, 'Yusho');
+    b.rikishi.push({
+      name,
+      rank: selOf(p, 'Rank'),
+      wins: rollNumOf(p, 'Wins'),
+      losses: rollNumOf(p, 'Losses'),
+      yusho: won,
+      prizes: multiOf(p, 'Special Prizes'),                        // [] or ["Technique", "Fighting Spirit", ...]
+      goldStars: rollNumOf(p, 'Gold Stars'),
+      absences: numOf(p, 'Absences'),
+    });
+    if (won) b.yusho.push(name);
+  }
+  const bzHistN = Object.keys(banzukeHistory).length;
+  if (bzHistN) console.log(`  + banzukeHistory: ${bzHistN} past basho (authoritative yusho/prizes/records from the Banzuke table)`);
+  else warn.push('banzukeHistory empty — no PAST Banzuke entries resolved (unscoped 📋 Banzuke pull failed/unshared, or every entry is the current basho). "Who won X" falls back to the sumo-api history lane + the crewHistory derivation.');
+
+  // ── daysHistory (schema/12): the PAST storylines + scorekeeper notes (the Days table's historical
+  //    partition). MEMBER (crew-authored color), UNGATED (past basho are not spoilers). Mirrors the
+  //    current `days` lane but for completed basho. Resilient unscoped pull.
+  const dayAllPages = await queryLane('days-all', DB.days, undefined, warn);
+  const daysHistory = [];
+  for (const p of dayAllPages) {
+    const bId = rel1(p, 'Basho');
+    if (!bId || bId === curTid) continue;                          // current basho stays in the gated `days` lane
+    const day = numOf(p, 'Day #');
+    if (!Number.isInteger(day)) continue;
+    const aId = rel1(p, 'Announcer');
+    const storylines = textOf(p, 'Storylines') || null;
+    const scorekeeperNotes = textOf(p, 'Scorekeeper Notes') || null;
+    if (!storylines && !scorekeeperNotes) continue;                // nothing to carry
+    daysHistory.push({
+      basho: bashoLabelById.get(bId) || null,
+      day, storylines, scorekeeperNotes,
+      announcer: (aId && annNameById.get(aId)) || null,
+    });
+  }
+  daysHistory.sort((a, b) => String(a.basho).localeCompare(String(b.basho)) || a.day - b.day);
+  if (daysHistory.length) console.log(`  + daysHistory: ${daysHistory.length} past day notes (member, ungated)`);
+
   const maxDay = Math.max(0, ...bouts.map(b => b.day));
 
   // A brand-new basho (banzuke announced, Day 1 not yet fought) legitimately has 0 bouts / maxDay 0.
@@ -646,7 +725,7 @@ async function main() {
     meta: {
       basho: BASHO_LABEL, bashoId: BASHO,
       horizon: 'Live data is the current basho; history goes back to Jan 2025 (when the crew got into sumo).',
-      maxDay, schema: 'gumbai-snapshot/11', source: 'notion',
+      maxDay, schema: 'gumbai-snapshot/12', source: 'notion',
     },
     rikishi, banzuke, kimarite, bouts,
     master,                            // schema/6: whole Master Rikishi roster (timeless) for rollups & "on the master"
@@ -659,6 +738,8 @@ async function main() {
     cards,                             // schema/10: every PUBLISHED day's result-free pairings (ungated — a matchup is not a result)
     today,                             // schema/10: real-world anchor { date, tournamentDay } so the model has a clock
     crewHistory,                       // schema/11: past crew-tracked bouts WITH nets (ungated) — history-spanning analytics + query_rate
+    banzukeHistory,                    // schema/12: AUTHORITATIVE per-basho summary from Banzuke (yusho/prizes/record/rank), past only, public
+    daysHistory,                       // schema/12: past storylines/scorekeeper notes (member, ungated) — the Days table's historical partition
   };
 
   const banner = `// AUTO-GENERATED by gen-gumbai-snapshot.mjs from Notion — do not edit by hand.
