@@ -691,5 +691,84 @@ t('CANARY: anchor dimensions mawashi/stable/country all resolve from the engine 
   }
 });
 
+// ═══ 15. CARD LAYER (schema/10) — matchups ungated for ANY published day; results stay gated ═══
+// Jennie's rule: "matchups do not need to be gated, results do." A card (pairings) is result-free, so
+// query_upcoming serves ANY published day (past, current, or next), defaulting to the VIEWER's own
+// next day (gate+1) — fixing the quirk where a delayed viewer got the tournament's next REAL card
+// (further ahead than their next day) and could never get their actual next day. RESULTS remain gated
+// in query_match_log. Plus the real-world `today` anchor lands in the prompt (the model has no clock).
+console.log('\n[15] Card layer — ungated matchups (any published day) + gate+1 default + today anchor');
+const SNAP_CARD = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:9 },   // crew synced/watched through Day 9
+  rikishi:[ {name:'Aonishiki',nicknames:[]}, {name:'Takanosho',nicknames:[]}, {name:'Onosato',nicknames:[]}, {name:'Hoshoryu',nicknames:[]} ],
+  banzuke:[ {name:'Aonishiki',rank:'Ozeki',weightKg:150}, {name:'Takanosho',rank:'Maegashira 4',weightKg:160}, {name:'Onosato',rank:'Yokozuna',weightKg:191}, {name:'Hoshoryu',rank:'Yokozuna',weightKg:151} ],
+  kimarite:[], bouts:[ {day:9,winner:'Onosato',loser:'Hoshoryu',kimarite:'yorikiri'} ],
+  master:[], days:[], injuries:[], catchphrases:[], history:{ basho:{} },
+  // the tournament's next REAL scheduled card = Day 11 (the old single-card behavior would hand this out)
+  upcoming:{ meta:{}, day:11, date:'2026-09-23', matchups:[ {eastName:'Aonishiki',eastRank:'O',westName:'Takanosho',westRank:'M4'} ] },
+  // every PUBLISHED day's result-free pairings, keyed by day (string keys, as JSON stores them)
+  cards:{
+    '10': { day:10, date:'2026-09-22', matchups:[ {eastName:'Aonishiki',eastRank:'O',westName:'Onosato',westRank:'Y'}, {eastName:'Hoshoryu',eastRank:'Y',westName:'Takanosho',westRank:'M4'} ] },
+    '11': { day:11, date:'2026-09-23', matchups:[ {eastName:'Aonishiki',eastRank:'O',westName:'Takanosho',westRank:'M4'} ] },
+    '12': { day:12, date:'2026-09-24', matchups:[ {eastName:'Onosato',eastRank:'Y',westName:'Aonishiki',westRank:'O'} ] },
+  },
+  today:{ date:'2026-09-22', tournamentDay:10 },
+};
+const cardM = gateSnapshot(SNAP_CARD, 9, false, 'member');   // watched through Day 9
+const cardP = gateSnapshot(SNAP_CARD, 9, false, 'public');
+t('default (no day) returns the VIEWER\'s next day (Day 10), not the tournament\'s next real card (Day 11)', () => {
+  const o = runTool('query_upcoming', {}, cardM);
+  assert(o.available && o.day===10 && o.isYourNextDay===true, `expected Day 10, got ${o.day}`);
+  assert(o.matchups.some(m => m.east==='Aonishiki' && m.west==='Onosato'));
+});
+t('ANY published day is servable even far past the gate (Day 12 to a Day-9 viewer) — matchups are ungated', () => {
+  const o = runTool('query_upcoming', {day:12}, cardM);
+  assert(o.available && o.day===12 && o.matchups.length===1, 'Day 12 card must come back');
+  assert(o.isYourNextDay===false);
+});
+t('a card carries NO result field (structural firewall: pairings only)', () => {
+  const o = runTool('query_upcoming', {day:10}, cardM);
+  for(const m of o.matchups){
+    assert(!('winner' in m) && !('loser' in m) && !('kimarite' in m) && !('result' in m), 'card matchup leaked a result field');
+    assert('east' in m && 'west' in m);
+  }
+});
+t('RESULTS stay gated even though the card is open: match_log Day 10 is empty at gate 9', () => {
+  assert(runTool('query_match_log', {day:10}, cardM).bouts.length===0);
+  assert(runTool('query_match_log', {day:9}, cardM).bouts.length===1);   // watched day still returns its result
+});
+t('an unpublished future day (Day 13, not in cards) returns available:false', () => {
+  const o = runTool('query_upcoming', {day:13}, cardM);
+  assert(o.available===false && o.requestedDay===13);
+});
+t('name filter narrows a card to one wrestler', () => {
+  const o = runTool('query_upcoming', {day:10, name:'Onosato'}, cardM);
+  assert(o.available && o.matchups.length===1 && (o.matchups[0].east==='Onosato' || o.matchups[0].west==='Onosato'));
+});
+t('cards are PUBLIC too (a matchup is not member-only)', () => {
+  assert(runTool('query_upcoming', {day:12}, cardP).available===true);
+  assert(runTool('query_upcoming', {}, cardP).day===10);
+});
+t('REAL-WORLD TODAY anchor lands in the prompt with the tournament day + next-unwatched day', () => {
+  const p = buildSystemPrompt(cardM, 'member');
+  assert(/REAL-WORLD TODAY/.test(p), 'today anchor missing');
+  assert(/Day 10/.test(p), 'should name the real tournament day (10)');
+  assert(/2026-09-22/.test(p), 'should name the calendar date');
+});
+t('back-compat: a snapshot with only `upcoming` (no cards map) still answers via fallback', () => {
+  const legacy = gateSnapshot({ ...SNAP_CARD, cards:null, today:null }, 9, false, 'member');
+  const o = runTool('query_upcoming', {}, legacy);   // no gate+1 card available -> falls back to the single next card
+  assert(o.available===true && o.day===11);
+  assert(!/REAL-WORLD TODAY/.test(buildSystemPrompt(legacy, 'member')));   // no today -> no anchor (no crash)
+});
+t('caught-up viewer: next-day card served when published, honest available:false when their next day is not out yet', () => {
+  // maxDay=11 lets the viewer gate up to 11; Day 12 is NOT published (not in cards, upcoming empty).
+  const S = { ...SNAP_CARD, meta:{ ...SNAP_CARD.meta, maxDay:11 },
+    upcoming:{ empty:true, day:12 },
+    cards:{ '10':SNAP_CARD.cards['10'], '11':SNAP_CARD.cards['11'] } };
+  assert(runTool('query_upcoming', {}, gateSnapshot(S, 10, false, 'member')).day===11);           // gate+1=11, present
+  assert(runTool('query_upcoming', {}, gateSnapshot(S, 11, false, 'member')).available===false);  // gate+1=12, not published -> honest no
+});
+
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
