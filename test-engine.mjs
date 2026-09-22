@@ -314,11 +314,11 @@ const SNAP_AUD = {
 const noLeak = (text) => { for(const s of AUD_SENTINELS) assert(!String(text).includes(s), 'leaked ' + s); };
 const memV = gateSnapshot(SNAP_AUD, 15, false, 'member');
 const pubV = gateSnapshot(SNAP_AUD, 15, false, 'public');
-t('toolsFor(member) is the full 16', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 16));
-t('toolsFor(public) = 14, omits condition+storylines, keeps catchphrases + rollup + the reference tools', () => {
+t('toolsFor(member) is the full 17', () => assert(toolsFor('member').length === TOOLS.length && TOOLS.length === 17));
+t('toolsFor(public) = 15, omits condition+storylines, keeps catchphrases + rollup + rate + the reference tools', () => {
   const p = toolsFor('public').map(x=>x.name);
-  assert(p.length===14 && !p.includes('query_condition') && !p.includes('query_storylines')
-    && p.includes('query_catchphrases') && p.includes('query_rollup')
+  assert(p.length===15 && !p.includes('query_condition') && !p.includes('query_storylines')
+    && p.includes('query_catchphrases') && p.includes('query_rollup') && p.includes('query_rate')
     && p.includes('query_basho') && p.includes('query_glossary') && p.includes('query_library'));
 });
 t('member view keeps injuries + days + nets (no regression)', () =>
@@ -768,6 +768,94 @@ t('caught-up viewer: next-day card served when published, honest available:false
     cards:{ '10':SNAP_CARD.cards['10'], '11':SNAP_CARD.cards['11'] } };
   assert(runTool('query_upcoming', {}, gateSnapshot(S, 10, false, 'member')).day===11);           // gate+1=11, present
   assert(runTool('query_upcoming', {}, gateSnapshot(S, 11, false, 'member')).available===false);  // gate+1=12, not published -> honest no
+});
+
+// ═══ 16. HISTORY-SPANNING analytics (schema/11) + query_rate + units ═══
+// Jennie's north star: "gumbai needs to glean and speak to ALL the historical information ... and do
+// on-the-fly analysis." The measures were fenced to the current basho only because the snapshot pulled
+// only the current tournament's bouts. Now a `crewHistory` lane (past crew-logged bouts WITH nets,
+// ungated) + `span` let the measures reach the whole tracked history; the current basho stays gated.
+console.log('\n[16] History-spanning analytics + query_rate + units');
+const SNAP_HIST = {
+  meta:{ basho:'Aki 2026', bashoId:'202609', maxDay:9 },
+  rikishi:[
+    { name:'Onosato', nicknames:[], stable:'Nishonoseki', country:'Japan', heightCm:192, birthday:'2000-06-07' },
+    { name:'Hoshoryu', nicknames:[], stable:'Tatsunami', country:'Mongolia', heightCm:187, birthday:'1999-05-22' },
+    { name:'Wakatakakage', nicknames:[], stable:'Arashio', country:'Japan', heightCm:182, birthday:'1994-12-05' },
+  ],
+  banzuke:[ { name:'Onosato', rank:'Yokozuna', weightKg:191 }, { name:'Hoshoryu', rank:'Yokozuna', weightKg:151 }, { name:'Wakatakakage', rank:'Maegashira 3', weightKg:137 } ],
+  kimarite:[],
+  bouts:[  // current basho, gated
+    { day:3, winner:'Onosato', loser:'Hoshoryu', kimarite:'yorikiri', henka:null, goldStar:false, cushions:false, boutOfDay:null },
+    { day:5, winner:'Hoshoryu', loser:'Wakatakakage', kimarite:'hatakikomi', henka:'Full', goldStar:false, cushions:false, boutOfDay:null },
+  ],
+  master:[
+    { name:'Onosato', stable:'Nishonoseki', country:'Japan', highestRank:'Yokozuna', active:true },
+    { name:'Hoshoryu', stable:'Tatsunami', country:'Mongolia', highestRank:'Yokozuna', active:true },
+    { name:'Wakatakakage', stable:'Arashio', country:'Japan', highestRank:'Sekiwake', active:true },
+  ],
+  crewHistory:[  // past crew-tracked basho, WITH the crew's live nets — the fenced-off data
+    { basho:'Nagoya 2026', day:2, winner:'Hoshoryu', loser:'Onosato', kimarite:'hatakikomi', henka:'Full', goldStar:false, cushions:true, boutOfDay:'U' },
+    { basho:'Nagoya 2026', day:7, winner:'Wakatakakage', loser:'Hoshoryu', kimarite:'tsukiotoshi', henka:'Full', goldStar:true },
+    { basho:'Nagoya 2026', day:9, winner:'Onosato', loser:'Wakatakakage', kimarite:'yorikiri', henka:null, goldStar:false },
+  ],
+  history:{ basho:{ '202605':{ label:'Natsu 2026', rikishi:[], yusho:[], bouts:[  // sumo-api backfill, hard only (no nets)
+    { day:1, winner:'Onosato', loser:'Hoshoryu', kimarite:'oshidashi', goldStar:false },
+    { day:3, winner:'Hoshoryu', loser:'Wakatakakage', kimarite:'yorikiri', goldStar:true },
+  ] } } },
+  days:[], injuries:[], catchphrases:[], upcoming:null,
+};
+const hM9 = gateSnapshot(SNAP_HIST, 9, false, 'member');
+const hM2 = gateSnapshot(SNAP_HIST, 2, false, 'member');
+const hP9 = gateSnapshot(SNAP_HIST, 9, false, 'public');
+t('span default (basho) is current-only; span:all reaches the whole logged history (henka by stable)', () => {
+  const curBy = Object.fromEntries(runTool('query_rollup', {field:'stable', measure:'henka'}, hM9).groups.map(g=>[g.value,g.metric]));
+  assert((curBy.Tatsunami||0)===1 && (curBy.Arashio||0)===0, 'current-basho henka: '+JSON.stringify(curBy));
+  const all = runTool('query_rollup', {field:'stable', measure:'henka', span:'all'}, hM9);
+  const allBy = Object.fromEntries(all.groups.map(g=>[g.value,g.metric]));
+  assert(all.span==='all' && allBy.Tatsunami===2 && allBy.Arashio===1, 'career henka: '+JSON.stringify(allBy));
+});
+t('the current basho STAYS gated inside a span:all query (wins by stable differ at gate 2 vs 9)', () => {
+  const by9 = Object.fromEntries(runTool('query_rollup', {field:'stable', measure:'wins', span:'all'}, hM9).groups.map(g=>[g.value,g.metric]));
+  assert(by9.Nishonoseki===3 && by9.Tatsunami===3 && by9.Arashio===1, 'gate9: '+JSON.stringify(by9));
+  const by2 = Object.fromEntries(runTool('query_rollup', {field:'stable', measure:'wins', span:'all'}, hM2).groups.map(g=>[g.value,g.metric]));
+  assert(by2.Nishonoseki===2 && by2.Tatsunami===2, 'gate2 must drop the ungated current bouts: '+JSON.stringify(by2));
+});
+t('kinboshi spans BOTH the crew history and the sumo-api backfill (goldStar exists in both)', () => {
+  const by = Object.fromEntries(runTool('query_rollup', {field:'stable', measure:'kinboshi', span:'all'}, hM9).groups.map(g=>[g.value,g.metric]));
+  assert(by.Arashio===1 && by.Tatsunami===1, 'kinboshi all-time: '+JSON.stringify(by));   // Wakatakakage (crew) + Hoshoryu (backfill)
+});
+t('henka does NOT falsely span the sumo-api backfill (no henka field there) — crew-logged basho only', () => {
+  const by = Object.fromEntries(runTool('query_rollup', {field:'stable', measure:'henka', span:'history'}, hM9).groups.map(g=>[g.value,g.metric]));
+  assert((by.Tatsunami||0)===1 && (by.Arashio||0)===1, 'past-only henka: '+JSON.stringify(by));
+});
+t('query_rate: a wrestler\'s henka rate vs the field average, career-spanning by default', () => {
+  const o = runTool('query_rate', {name:'Hoshoryu', metric:'henka'}, hM9);
+  // henka's field baseline is the crew-logged bouts only (the backfill has no henka to average), so
+  // Hoshoryu is 2-in-4 (2 current + 2 crew-history), not counting the net-less sumo-api bouts.
+  assert(o.found && o.count===2 && o.bouts===4, JSON.stringify(o));
+  assert(o.rate>0 && o.fieldRate>0 && typeof o.ratio==='number' && typeof o.vsField==='string');
+});
+t('query_rate defers on a raw-total metric (wins) — that is a rollup/leaderboard job', () => {
+  assert(runTool('query_rate', {name:'Onosato', metric:'wins'}, hM9).found===false);
+});
+t('crewHistory is UNGATED (past = not a spoiler) but PUBLIC still loses the member nets', () => {
+  assert(Array.isArray(hM9.crewHistory) && hM9.crewHistory.length===3);
+  const memBout = hM9.crewHistory.find(b=>b.day===2);
+  assert(memBout.cushions===true && memBout.boutOfDay==='U');
+  const pubBout = hP9.crewHistory.find(b=>b.day===2);
+  assert(pubBout.cushions===undefined && pubBout.boutOfDay===undefined && pubBout.henka==='Full');
+});
+t('member-only rate (cushions) blocked for public, allowed for member', () => {
+  assert(runTool('query_rate', {name:'Hoshoryu', metric:'cushions'}, hP9).found===false);
+  assert(runTool('query_rate', {name:'Onosato', metric:'cushions', span:'all'}, hM9).found===true);
+});
+t('UNITS: query_rikishi returns both systems; prompt leads standard by default, metric when set', () => {
+  const r = runTool('query_rikishi', {name:'Onosato'}, hM9);
+  assert(r.heightCm===192 && r.heightImperial==="6'4\"" && r.weightKg===191 && r.weightLb===421, JSON.stringify({h:r.heightImperial, w:r.weightLb}));
+  assert(/STANDARD units/.test(buildSystemPrompt(hM9, 'member')));
+  const metricView = gateSnapshot(SNAP_HIST, 9, false, 'member'); metricView.units = 'metric';
+  assert(/METRIC \(centimeters/.test(buildSystemPrompt(metricView, 'member')));
 });
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
