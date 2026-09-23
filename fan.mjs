@@ -60,6 +60,7 @@ const DB = {
   catcher:    '0caf1338-72e8-4097-acfb-905af5b1d9f1',   // crew ear-grab intake (write-in / jewel-vote / flag)
   injuries:   '7a44f06d-389d-4bd6-aa84-314225d06085',
   rikishi:    'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',
+  matchLog:   '1a2bad82-ebf5-4472-87ea-cb2c2481f9f1',   // 🥊 Match Log — set "Bout of the Day" (L/U) here
 };
 
 // Canonical announcer roster - only ever CREATE a genuinely new voice.
@@ -700,6 +701,8 @@ async function catcherBackfill(row) {
       const tx = body.split(/Transcript \(auto-landed/i).pop();
       await runCatcherLane(row, dayNum, norm(tx || body), annId, resolved.name, show, air, catcherRows);
     } else { note('   catcher: nothing open to backfill'); }
+    // retry BOTD on a re-fire (the Match Log bouts may have synced since Pass 1); set-if-empty, idempotent
+    await resolveBoutOfDay(row, dayNum);
   } catch (e) { problem(`catcher backfill failed (${e.message}) - non-fatal`); }
 }
 
@@ -772,6 +775,101 @@ async function resolveAnnouncer(dayRow, ex, catcherRows) {
   return { name: null, how: 'undetermined (HOLD catchphrases)' };
 }
 const canonical = name => ROSTER.find(n => norm(n) === norm(name)) || name;
+
+// ---------------------------------------------------------------------------
+// BOUT OF THE DAY BY ON-SCREEN CARD (vision) - the box attaches top-band montage sheets to the Day row
+// ("BOTD Frame"); we read the "bout of the day" card(s) and flag the matching Match Log bout(s). The
+// card is the BOOTH's SELECTION (color), NOT a result: we read ONLY the two shikona and deliberately
+// ignore the records/stats on the card; the result still comes only from the Match Log. Up to 2 cards
+// per show (never 3): the first seen sets "L", the second sets "U" (appearance order). Firewall unaffected.
+// ---------------------------------------------------------------------------
+const BOTD_VISION_MODEL = process.env.BOTD_VISION_MODEL || ANNOUNCER_VISION_MODEL;
+const BOTD_MAX_SHEETS = Number(process.env.BOTD_MAX_SHEETS || 12);
+function botdFrameUrls(dayRow) {
+  const files = dayRow.properties?.['BOTD Frame']?.files || [];   // undefined until Jennie adds the property -> []
+  return files.map(f => f.file?.url || f.external?.url).filter(Boolean);
+}
+// parse the vision reply ("NAME1 vs NAME2" per line) into ordered [a,b] pairs (pure; exported for test)
+function parseBotdPairs(text) {
+  const pairs = [];
+  for (const raw of String(text || '').split('\n')) {
+    const line = raw.trim();
+    if (!line || /^none\b/i.test(line)) continue;
+    const parts = line.replace(/^[-*\d.)\s]+/, '').split(/\s+(?:vs\.?|v\.?|versus)\s+/i);
+    if (parts.length >= 2 && parts[0].trim() && parts[1].trim()) pairs.push([parts[0].trim(), parts[1].trim()]);
+  }
+  return pairs.slice(0, 2);   // never 3 (Jennie: never seen three in an episode)
+}
+async function resolveBoutOfDayVision(dayRow) {
+  if (!ANTHROPIC_API_KEY) return [];
+  const urls = botdFrameUrls(dayRow);
+  if (!urls.length) return [];
+  const images = [];
+  for (const u of urls.slice(0, BOTD_MAX_SHEETS)) {
+    try {
+      const r = await fetch(u);
+      if (!r.ok) { problem(`BOTD frame fetch ${r.status}`); continue; }
+      const media_type = (r.headers.get('content-type') || 'image/jpeg').split(';')[0];
+      const buf = Buffer.from(await r.arrayBuffer());
+      if (buf.length > 4_500_000) { problem('BOTD frame too large - skipped'); continue; }
+      images.push({ type: 'image', source: { type: 'base64', media_type, data: buf.toString('base64') } });
+    } catch (e) { problem(`BOTD frame error: ${e.message}`); }
+  }
+  if (!images.length) return [];
+  const ask = `These are contact-sheet frames from an NHK World Grand Sumo Highlights broadcast. Find every "bout of the day" card: each has a "bout of the day" banner across the top and TWO wrestlers side by side, each with a large capitalized SHIKONA name (for example AONISHIKI, ATAMIFUJI). There are usually two such cards in an episode, sometimes back to back. For EACH card, output the two shikona as "NAME1 vs NAME2", one card per line, in the order the cards appear (scan the sheets top to bottom, left to right). Read ONLY the two large names. IGNORE every number, record, rank, height, weight, and age on the card. If there are no such cards, output exactly NONE. Output only the lines, no other text.`;
+  let data;
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'x-api-key': ANTHROPIC_API_KEY, 'anthropic-version': ANTHROPIC_VERSION, 'content-type': 'application/json' },
+      body: JSON.stringify({ model: BOTD_VISION_MODEL, max_tokens: 80, messages: [{ role: 'user', content: [...images, { type: 'text', text: ask }] }] }),
+    });
+    const text = await res.text();
+    if (!res.ok) { problem(`BOTD vision call ${res.status}: ${text.slice(0, 120)}`); return []; }
+    data = JSON.parse(text);
+  } catch (e) { problem(`BOTD vision error: ${e.message}`); return []; }
+  recordSpend(data.usage);
+  const out = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join('\n').trim();
+  const pairs = parseBotdPairs(out);
+  if (!pairs.length) note(`   BOTD vision: no card found ("${out.slice(0, 40)}")`);
+  return pairs;
+}
+// set "Bout of the Day" (L then U, appearance order) on the matching Match Log bouts. Set-if-empty
+// (never clobber a human/scorekeeper value). Needs the day's bouts in the Match Log (synced from
+// sumo-api); if they are not there yet, holds (no bad write) and a later re-fire picks it up.
+async function resolveBoutOfDay(dayRow, dayNum) {
+  try {
+    if (!botdFrameUrls(dayRow).length) return;   // box attached nothing (or the property does not exist) -> silent no-op
+    const pairs = await resolveBoutOfDayVision(dayRow);
+    if (!pairs.length) return;
+    let bouts;
+    try {
+      bouts = await queryAll(DB.matchLog, { and: [
+        { property: 'Tournament', relation: { contains: idNoDash(TOURNAMENT_PAGE_ID) } },
+        { property: 'Day #', number: { equals: dayNum } },
+      ] });
+    } catch (e) { problem(`BOTD: Match Log query failed (${e.message}) - held`); return; }
+    if (!bouts.length) { problem(`BOTD: no Match Log bouts for Day ${dayNum} yet (results not synced) - held; a re-fire will set it`); return; }
+    const slots = ['L', 'U'];
+    const done = new Set();
+    for (let i = 0; i < pairs.length && i < 2; i++) {
+      const [na, nb] = pairs[i];
+      const ida = await findRikishiId(na), idb = await findRikishiId(nb);
+      if (!ida || !idb) { problem(`BOTD: could not resolve "${na}" vs "${nb}" to the roster - skipped`); continue; }
+      const bout = bouts.find(b => {
+        if (done.has(b.id)) return false;
+        const set = new Set([idNoDash(pRel(b, 'Winner')[0] || ''), idNoDash(pRel(b, 'Loser')[0] || '')]);
+        return set.has(idNoDash(ida)) && set.has(idNoDash(idb));
+      });
+      if (!bout) { problem(`BOTD: no Day ${dayNum} bout found for "${na}" vs "${nb}" - skipped`); continue; }
+      done.add(bout.id);
+      const cur = pSelect(bout, 'Bout of the Day');
+      if (cur) { note(`   BOTD "${na} vs ${nb}" already ${cur} (human/prior) - not clobbering`); continue; }
+      await updatePage(bout.id, { 'Bout of the Day': wSelect(slots[i]) }, `BOTD ${slots[i]}`);
+      note(`   BOTD ${slots[i]} = ${na} vs ${nb}`);
+    }
+  } catch (e) { problem(`BOTD lane failed (${e.message}) - non-fatal`); }
+}
 
 // ---------------------------------------------------------------------------
 // FIND THE READY ROW
@@ -896,6 +994,10 @@ async function pass1() {
       await writeCatchphrases(row, ex.catchphrases, annId, resolved.name, show, air, { allowJewel: !crewPresent, skipExisting: true });
     } catch (e) { problem(`catchphrase/catcher lane failed (${e.message}) - storylines + injuries still landed`); }
   } else note('   catchphrases skipped (.5 row)');
+
+  // BOUT OF THE DAY: read the on-screen card(s) off the box montage and flag the Match Log bout(s) L/U.
+  // Fault-isolated (best-effort inside); Highlights only (a .5 row has no bouts).
+  if (!type.includes('Live/Preview')) await resolveBoutOfDay(row, dayNum);
 
   // bio + verify flags -> report only (PROPOSE / never auto-write)
   if ((ex.bio_proposals || []).length) note(`   bio PROPOSED (not written): ${ex.bio_proposals.map(b => b.rikishi).join(', ')}`);
@@ -1036,4 +1138,5 @@ if (invokedDirectly) {
 // exported for offline testing (stubbed fetch); harmless in production
 export const __test = { clean, writeCatchphrases, writeInjury, resolveAnnouncer, priceFor, recordSpend, spend,
   corePhrase, tiesToTranscript, readCatcherDay, runCatcherLane, catcherBackfill, announcerFromNotes,
-  announcerFrameUrls, resolveAnnouncerVision, sweepStragglers };
+  announcerFrameUrls, resolveAnnouncerVision, sweepStragglers,
+  parseBotdPairs, botdFrameUrls, resolveBoutOfDay, resolveBoutOfDayVision };
