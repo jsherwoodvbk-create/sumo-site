@@ -123,6 +123,29 @@ jobs:
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
         run: node gen-rikishi-metrics.mjs
 
+      - name: Verify per-rikishi metrics (independent dashboard publish gate)
+        # THE 9.5→10 GATE (2026-09-23). The dashboard renders client-side from rikishi-metrics.json, so
+        # this is the adversarial second pass on THAT artifact: an independently-written re-pull of
+        # sumo-api + Notion reconciles every hard figure, plus cross-field invariants (makuuchi ≤ career,
+        # caliber per-basho sums == crew record, kimarite slices sum to 100, specials count ≥ its chips,
+        # pct strings recompute), the firewall + house style (no macrons, no transcript-sourced hard slot,
+        # sample never shipped, expiring-portrait freshness), and — when ANTHROPIC_API_KEY is present — a
+        # fresh-context model pass over the soft copy for age-relative / soft-as-hard claims and AI tells.
+        # It exits non-zero on any BLOCKING exception. Runs right after the metrics rebuild, same gate, so
+        # the heavy re-pull only fires on the two metrics crons + manual runs. continue-on-error keeps the
+        # job going (standings/snapshot still publish) — but the commit step below refuses to STAGE
+        # rikishi-metrics.json when this outcome is 'failure', so a bad dashboard never publishes (the last
+        # good one stays live), and the final step turns the whole run RED so the failure can't be ignored.
+        # ANTHROPIC_API_KEY is OPTIONAL: unset → the deterministic gate still runs, the model layer is
+        # simply skipped. STRICT_SOURCE stays off so a sumo-api outage warns rather than wedging publish.
+        if: ${{ github.event_name == 'workflow_dispatch' || github.event.schedule == '32 15 * * *' || github.event.schedule == '32 22 * * *' }}
+        id: verify_metrics
+        continue-on-error: true
+        env:
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: node verify-rikishi-metrics.mjs
+
       - name: Commit & push if anything changed
         # FIX 2026-07-30: stage FIRST, then check the staged diff. The old gate used
         # `git diff --quiet -- <paths>`, which only sees TRACKED files — so a regenerated
@@ -136,7 +159,15 @@ jobs:
           # rikishi-metrics.json may be absent on a run where the (gated, continue-on-error) metrics
           # rebuild didn't run or bailed. `git add <missing-path>` is FATAL under bash -e and would fail
           # this whole step — stopping standings + snapshot from ever committing. Add it only if present.
-          if [ -f rikishi-metrics.json ]; then git add rikishi-metrics.json; fi
+          # DASHBOARD GATE (2026-09-23): and only when the independent verifier did NOT block. On a
+          # 'failure' outcome we hold the file back so the last good dashboard data stays live; on a
+          # non-rebuild run the verify step is 'skipped' (!= failure), so the unchanged file stages as a
+          # no-op exactly as before. The run still goes red via the final step below.
+          if [ -f rikishi-metrics.json ] && [ "${{ steps.verify_metrics.outcome }}" != "failure" ]; then
+            git add rikishi-metrics.json
+          elif [ -f rikishi-metrics.json ]; then
+            echo "rikishi-metrics.json NOT staged — the dashboard verifier flagged a blocking exception; last good dashboard data stays live."
+          fi
           # calendar.json is created by gen-calendar.mjs; it won't exist until the first successful run
           # (and the generator self-aborts on an empty pull). Add it only if present, same guard.
           if [ -f calendar.json ]; then git add calendar.json; fi
@@ -151,3 +182,13 @@ jobs:
             git commit -m "Auto-update standings + homepage + Gumbai snapshot + tomorrow's card + drinking game + calendar + rikishi metrics ($(date -u +%Y-%m-%dT%H:%MZ))"
             git push
           fi
+
+      - name: Fail the run if the dashboard verifier blocked
+        # Runs AFTER the commit, so standings/snapshot/etc. have already published. This turns the whole
+        # run RED when the verifier held back rikishi-metrics.json, so a genuine dashboard problem is loud
+        # (email/badge) and gets a human's eyes — the "ignoring errors is not good form" rule — without
+        # ever blocking the other surfaces from shipping.
+        if: ${{ steps.verify_metrics.outcome == 'failure' }}
+        run: |
+          echo "::error::Dashboard verifier found BLOCKING exceptions — rikishi-metrics.json was held back (last good stays live). See the 'Verify per-rikishi metrics' step log for the exception report."
+          exit 1
