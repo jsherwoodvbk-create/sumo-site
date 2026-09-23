@@ -841,9 +841,11 @@
         "jp": "Kanto-sho",
         "en": "Fighting Spirit",
         "count": 4,
-        "basho": [],
+        "basho": [
+          "25Ht"
+        ],
         "era": "career",
-        "pre": 4
+        "pre": 3
       },
       {
         "jp": "Gino-sho",
@@ -1871,9 +1873,11 @@
         "jp": "Kanto-sho",
         "en": "Fighting Spirit",
         "count": 2,
-        "basho": [],
+        "basho": [
+          "25Hr"
+        ],
         "era": "career",
-        "pre": 2
+        "pre": 1
       },
       {
         "jp": "Gino-sho",
@@ -5243,9 +5247,11 @@
         "jp": "Gino-sho",
         "en": "Technique",
         "count": 3,
-        "basho": [],
+        "basho": [
+          "25Hr"
+        ],
         "era": "career",
-        "pre": 3
+        "pre": 2
       },
       {
         "jp": "Yusho",
@@ -12622,9 +12628,11 @@
         "jp": "Gino-sho",
         "en": "Technique",
         "count": 1,
-        "basho": [],
+        "basho": [
+          "25Ht"
+        ],
         "era": "career",
-        "pre": 1
+        "pre": 0
       },
       {
         "jp": "Yusho",
@@ -24161,9 +24169,11 @@
         "jp": "Kanto-sho",
         "en": "Fighting Spirit",
         "count": 1,
-        "basho": [],
+        "basho": [
+          "25Hr"
+        ],
         "era": "career",
-        "pre": 1
+        "pre": 0
       },
       {
         "jp": "Gino-sho",
@@ -30020,9 +30030,11 @@
         "jp": "Kanto-sho",
         "en": "Fighting Spirit",
         "count": 2,
-        "basho": [],
+        "basho": [
+          "25Ht"
+        ],
         "era": "career",
-        "pre": 2
+        "pre": 1
       },
       {
         "jp": "Gino-sho",
