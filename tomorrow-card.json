@@ -11,169 +11,161 @@
     "date": "2026-09-24",
     "tournamentDay": 12
   },
-  "nextDay": 12,
-  "day": 12,
-  "date": "2026-09-24",
+  "nextDay": 13,
+  "day": 13,
+  "date": "2026-09-25",
   "matchups": [
     {
-      "eastName": "Tobizaru",
-      "eastRank": "M14",
-      "eastId": 21,
-      "westName": "Kyokukaiyu",
-      "westRank": "J1",
-      "westId": 8855
-    },
-    {
-      "eastName": "Chiyoshoma",
-      "eastRank": "M14",
-      "eastId": 39,
+      "eastName": "Toshinofuji",
+      "eastRank": "M16",
+      "eastId": 8866,
       "westName": "Abi",
       "westRank": "M13",
       "westId": 22
     },
     {
-      "eastName": "Toshinofuji",
-      "eastRank": "M16",
-      "eastId": 8866,
+      "eastName": "Tokihayate",
+      "eastRank": "M15",
+      "eastId": 83,
       "westName": "Asahakuryu",
       "westRank": "M12",
       "westId": 607
     },
     {
-      "eastName": "Oho",
-      "eastRank": "M10",
-      "eastId": 41,
-      "westName": "Shonannoumi",
-      "westRank": "M17",
-      "westId": 49
-    },
-    {
-      "eastName": "Ura",
-      "eastRank": "M9",
-      "eastId": 28,
-      "westName": "Tokihayate",
-      "westRank": "M15",
-      "westId": 83
-    },
-    {
-      "eastName": "Takerufuji",
-      "eastRank": "M8",
-      "eastId": 5,
-      "westName": "Asasuiryu",
-      "westRank": "M15",
-      "westId": 8859
-    },
-    {
-      "eastName": "Asakoryu",
-      "eastRank": "M13",
-      "eastId": 164,
-      "westName": "Hiradoumi",
-      "westRank": "M8",
-      "westId": 24
-    },
-    {
-      "eastName": "Fujiseiun",
-      "eastRank": "M7",
-      "eastId": 82,
+      "eastName": "Shonannoumi",
+      "eastRank": "M17",
+      "eastId": 49,
       "westName": "Shodai",
       "westRank": "M11",
       "westId": 33
     },
     {
-      "eastName": "Shishi",
-      "eastRank": "M9",
-      "eastId": 86,
-      "westName": "Nishikifuji",
-      "westRank": "M7",
-      "westId": 40
+      "eastName": "Oho",
+      "eastRank": "M10",
+      "eastId": 41,
+      "westName": "Tobizaru",
+      "westRank": "M14",
+      "westId": 21
+    },
+    {
+      "eastName": "Chiyoshoma",
+      "eastRank": "M14",
+      "eastId": 39,
+      "westName": "Shishi",
+      "westRank": "M9",
+      "westId": 86
     },
     {
       "eastName": "Wakamotoharu",
       "eastRank": "M11",
       "eastId": 13,
-      "westName": "Ichiyamamoto",
-      "westRank": "M6",
-      "westId": 11
+      "westName": "Hiradoumi",
+      "westRank": "M8",
+      "westId": 24
     },
     {
-      "eastName": "Asanoyama",
-      "eastRank": "M6",
-      "eastId": 2,
-      "westName": "Churanoumi",
-      "westRank": "M3",
-      "westId": 71
-    },
-    {
-      "eastName": "Roga",
-      "eastRank": "M5",
-      "eastId": 55,
-      "westName": "Yoshinofuji",
-      "westRank": "M2",
-      "westId": 8857
-    },
-    {
-      "eastName": "Kotoshoho",
-      "eastRank": "M1",
-      "eastId": 8,
-      "westName": "Fujiryoga",
-      "westRank": "M4",
-      "westId": 9051
-    },
-    {
-      "eastName": "Takanosho",
-      "eastRank": "M4",
-      "eastId": 37,
-      "westName": "Kotoeiho",
-      "westRank": "M1",
-      "westId": 112
-    },
-    {
-      "eastName": "Hakunofuji",
-      "eastRank": "Komusubi",
-      "eastId": 3,
-      "westName": "Gonoyama",
-      "westRank": "M3",
-      "westId": 56
-    },
-    {
-      "eastName": "Takayasu",
-      "eastRank": "M2",
-      "eastId": 44,
-      "westName": "Daieisho",
-      "westRank": "Komusubi",
-      "westId": 9
-    },
-    {
-      "eastName": "Oshoma",
-      "eastRank": "M5",
-      "eastId": 61,
-      "westName": "Kotozakura",
-      "westRank": "Ozeki",
-      "westId": 20
-    },
-    {
-      "eastName": "Kirishima",
-      "eastRank": "Ozeki",
-      "eastId": 7,
-      "westName": "Fujinokawa",
-      "westRank": "Sekiwake",
-      "westId": 615
-    },
-    {
-      "eastName": "Aonishiki",
-      "eastRank": "Ozeki",
-      "eastId": 8854,
+      "eastName": "Takerufuji",
+      "eastRank": "M8",
+      "eastId": 5,
       "westName": "Kinbozan",
       "westRank": "M10",
       "westId": 50
     },
     {
+      "eastName": "Asakoryu",
+      "eastRank": "M13",
+      "eastId": 164,
+      "westName": "Nishikifuji",
+      "westRank": "M7",
+      "westId": 40
+    },
+    {
+      "eastName": "Fujiseiun",
+      "eastRank": "M7",
+      "eastId": 82,
+      "westName": "Ura",
+      "westRank": "M9",
+      "westId": 28
+    },
+    {
+      "eastName": "Asasuiryu",
+      "eastRank": "M15",
+      "eastId": 8859,
+      "westName": "Ichiyamamoto",
+      "westRank": "M6",
+      "westId": 11
+    },
+    {
+      "eastName": "Oshoma",
+      "eastRank": "M5",
+      "eastId": 61,
+      "westName": "Yoshinofuji",
+      "westRank": "M2",
+      "westId": 8857
+    },
+    {
+      "eastName": "Takayasu",
+      "eastRank": "M2",
+      "eastId": 44,
+      "westName": "Gonoyama",
+      "westRank": "M3",
+      "westId": 56
+    },
+    {
+      "eastName": "Roga",
+      "eastRank": "M5",
+      "eastId": 55,
+      "westName": "Kotoeiho",
+      "westRank": "M1",
+      "westId": 112
+    },
+    {
+      "eastName": "Fujiryoga",
+      "eastRank": "M4",
+      "eastId": 9051,
+      "westName": "Daieisho",
+      "westRank": "Komusubi",
+      "westId": 9
+    },
+    {
+      "eastName": "Hakunofuji",
+      "eastRank": "Komusubi",
+      "eastId": 3,
+      "westName": "Takanosho",
+      "westRank": "M4",
+      "westId": 37
+    },
+    {
+      "eastName": "Churanoumi",
+      "eastRank": "M3",
+      "eastId": 71,
+      "westName": "Fujinokawa",
+      "westRank": "Sekiwake",
+      "westId": 615
+    },
+    {
+      "eastName": "Atamifuji",
+      "eastRank": "Sekiwake",
+      "eastId": 74,
+      "westName": "Asanoyama",
+      "westRank": "M6",
+      "westId": 2
+    },
+    {
+      "eastName": "Aonishiki",
+      "eastRank": "Ozeki",
+      "eastId": 8854,
+      "westName": "Kotozakura",
+      "westRank": "Ozeki",
+      "westId": 20
+    },
+    {
       "eastName": "Onosato",
       "eastRank": "Yokozuna",
       "eastId": 8850,
-      "westName": "Atamifuji",
-      "westRank": "Sekiwake",
-      "westId": 74
+      "westName": "Kirishima",
+      "westRank": "Ozeki",
+      "westId": 7
     }
   ],
   "empty": false,
@@ -2167,6 +2159,164 @@
           "westName": "Atamifuji",
           "westRank": "Sekiwake",
           "westId": 74
+        }
+      ]
+    },
+    "13": {
+      "day": 13,
+      "date": "2026-09-25",
+      "matchups": [
+        {
+          "eastName": "Toshinofuji",
+          "eastRank": "M16",
+          "eastId": 8866,
+          "westName": "Abi",
+          "westRank": "M13",
+          "westId": 22
+        },
+        {
+          "eastName": "Tokihayate",
+          "eastRank": "M15",
+          "eastId": 83,
+          "westName": "Asahakuryu",
+          "westRank": "M12",
+          "westId": 607
+        },
+        {
+          "eastName": "Shonannoumi",
+          "eastRank": "M17",
+          "eastId": 49,
+          "westName": "Shodai",
+          "westRank": "M11",
+          "westId": 33
+        },
+        {
+          "eastName": "Oho",
+          "eastRank": "M10",
+          "eastId": 41,
+          "westName": "Tobizaru",
+          "westRank": "M14",
+          "westId": 21
+        },
+        {
+          "eastName": "Chiyoshoma",
+          "eastRank": "M14",
+          "eastId": 39,
+          "westName": "Shishi",
+          "westRank": "M9",
+          "westId": 86
+        },
+        {
+          "eastName": "Wakamotoharu",
+          "eastRank": "M11",
+          "eastId": 13,
+          "westName": "Hiradoumi",
+          "westRank": "M8",
+          "westId": 24
+        },
+        {
+          "eastName": "Takerufuji",
+          "eastRank": "M8",
+          "eastId": 5,
+          "westName": "Kinbozan",
+          "westRank": "M10",
+          "westId": 50
+        },
+        {
+          "eastName": "Asakoryu",
+          "eastRank": "M13",
+          "eastId": 164,
+          "westName": "Nishikifuji",
+          "westRank": "M7",
+          "westId": 40
+        },
+        {
+          "eastName": "Fujiseiun",
+          "eastRank": "M7",
+          "eastId": 82,
+          "westName": "Ura",
+          "westRank": "M9",
+          "westId": 28
+        },
+        {
+          "eastName": "Asasuiryu",
+          "eastRank": "M15",
+          "eastId": 8859,
+          "westName": "Ichiyamamoto",
+          "westRank": "M6",
+          "westId": 11
+        },
+        {
+          "eastName": "Oshoma",
+          "eastRank": "M5",
+          "eastId": 61,
+          "westName": "Yoshinofuji",
+          "westRank": "M2",
+          "westId": 8857
+        },
+        {
+          "eastName": "Takayasu",
+          "eastRank": "M2",
+          "eastId": 44,
+          "westName": "Gonoyama",
+          "westRank": "M3",
+          "westId": 56
+        },
+        {
+          "eastName": "Roga",
+          "eastRank": "M5",
+          "eastId": 55,
+          "westName": "Kotoeiho",
+          "westRank": "M1",
+          "westId": 112
+        },
+        {
+          "eastName": "Fujiryoga",
+          "eastRank": "M4",
+          "eastId": 9051,
+          "westName": "Daieisho",
+          "westRank": "Komusubi",
+          "westId": 9
+        },
+        {
+          "eastName": "Hakunofuji",
+          "eastRank": "Komusubi",
+          "eastId": 3,
+          "westName": "Takanosho",
+          "westRank": "M4",
+          "westId": 37
+        },
+        {
+          "eastName": "Churanoumi",
+          "eastRank": "M3",
+          "eastId": 71,
+          "westName": "Fujinokawa",
+          "westRank": "Sekiwake",
+          "westId": 615
+        },
+        {
+          "eastName": "Atamifuji",
+          "eastRank": "Sekiwake",
+          "eastId": 74,
+          "westName": "Asanoyama",
+          "westRank": "M6",
+          "westId": 2
+        },
+        {
+          "eastName": "Aonishiki",
+          "eastRank": "Ozeki",
+          "eastId": 8854,
+          "westName": "Kotozakura",
+          "westRank": "Ozeki",
+          "westId": 20
+        },
+        {
+          "eastName": "Onosato",
+          "eastRank": "Yokozuna",
+          "eastId": 8850,
+          "westName": "Kirishima",
+          "westRank": "Ozeki",
+          "westId": 7
         }
       ]
     }
