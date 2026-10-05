@@ -193,6 +193,7 @@ export async function onRequestPost(ctx){
     let forceToolNext = false;   // RC4: force a tool on the next request (the verify pass)
   try {
     for(let hop=0; hop<maxHops; hop++){
+          const useToolChoice = forceToolNext; forceToolNext = false;   // RC4: consume the one-shot flag
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method:'POST',
         headers:{
@@ -202,8 +203,9 @@ export async function onRequestPost(ctx){
         },
         body: JSON.stringify({
           model, max_tokens: maxTokens, system, tools, messages: convo,
+          ...(useToolChoice ? { tool_choice: { type:'any' } } : {}),   // RC4: force a tool on the verify pass
         }),
-      });
+      }); 
 
       if(!resp.ok){
         const status = resp.status;
@@ -236,11 +238,20 @@ export async function onRequestPost(ctx){
         continue; // let the model read the tool output and either call more or answer
       }
 
-      // final answer
+          // final answer
       const reply = blocks.filter(b=>b.type==='text').map(b=>b.text).join('').trim();
+
+      // RC4: a record/rank with NO tool call is the fabrication pattern — force one verify pass.
+      if(!usedTools.length && !forcedVerify && HARD_FACT_RE.test(reply)){
+        forcedVerify = true; forceToolNext = true;
+        convo.push({ role:'assistant', content: blocks });
+        convo.push({ role:'user', content: VERIFY_NUDGE });
+        continue;
+      }
+
       logTurn({ question, reply, gateDay: gated.gate,
         showFull: gated.showFull, usedTools, model, turns: messages.length, capped:false });
-      return json({ reply, gateDay: gated.gate, showFull: gated.showFull, usedTools });
+      return json({ reply, gateDay: gated.gate, showFull: gated.showFull, usedTools }); 
     }
     // exhausted hops without a final answer
     const stuck = "Hmm, I tangled myself up chasing that one down — mind rephrasing? 😅";
