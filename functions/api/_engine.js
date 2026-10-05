@@ -282,26 +282,6 @@ export function resolveName(query, rikishi, master){
     .sort((a,b)=>a.d-b.d).slice(0,4).map(x=>x.name);
   return { name:null, matched:null, near };
 }
-  let hit = aliases.find(a => a.key === q);
-  if(hit) return { name: hit.name, matched: hit.via, how: hit.kind, near:[] };
-  const contains = aliases.filter(a => a.key.length>=3 && (q.includes(a.key) || a.key.includes(q)));
-  if(contains.length===1) return { name: contains[0].name, matched: contains[0].via, how:'partial: '+contains[0].kind, near:[] };
-  if(contains.length>1){
-    contains.sort((a,b)=> b.key.length - a.key.length);
-    const uniq=[...new Set(contains.map(c=>c.name))];
-    if(uniq.length===1) return { name: contains[0].name, matched: contains[0].via, how:'partial: '+contains[0].kind, near:[] };
-  }
-  let best=null;
-  for(const a of aliases){
-    const d = editDistance(q, a.key);
-    const tol = Math.max(2, Math.floor(Math.max(q.length, a.key.length) * 0.34));
-    if(d <= tol && (!best || d < best.d)) best={ ...a, d };
-  }
-  if(best) return { name: best.name, matched: best.via, how:'fuzzy: '+best.kind, near:[] };
-  const near = rikishi.map(r => ({ name:r.name, d: editDistance(q, r.name) }))
-    .sort((a,b)=>a.d-b.d).slice(0,4).map(x=>x.name);
-  return { name:null, matched:null, near };
-}
 
 // ────────────────────────────────────────────────────────────────────────────
 // DERIVED-STAT HELPERS — computed over the GATED bouts, so always spoiler-safe.
