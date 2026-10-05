@@ -1,7 +1,7 @@
 // test-engine.mjs — spoiler-gate + soft-data + audience-split unit tests for gumbai-engine.
 // Run: node test-engine.mjs   (exits non-zero on any failure)
 import assert from 'node:assert';
-import { gateSnapshot, runTool, buildSystemPrompt, toolsFor, TOOLS, SOURCE_REGISTRY } from './functions/api/_engine.js';
+import { gateSnapshot, runTool, buildSystemPrompt, toolsFor, TOOLS, SOURCE_REGISTRY, resolveName } from './functions/api/_engine.js';
 let pass = 0, fail = 0;
 const ok = (name) => { pass++; console.log('  ✓ ' + name); };
 const bad = (name, e) => { fail++; console.log('  ✗ ' + name + '  — ' + (e && e.message || e)); };
@@ -1089,6 +1089,71 @@ t('TONE: the results-offer ban rides the public prompt too', () => {
   const p = buildSystemPrompt(cardP, 'public');
   assert(/do NOT offer to read them the results afterward/.test(p), 'public card answers get the same tone rule');
 });
+
+// ═══ 23. NAME RESOLUTION (RC3) — Master Rikishi fallback + ambiguity guard, no silent wrong pick ═══
+// The MJ miss (2026-09-27): "Oshoumi" fuzzy-matched to Oshoma and was then called not-in-roster,
+// because resolveName searched ONLY the makuuchi snapshot. Fix: an EXACT hit on the full Master
+// Rikishi roster beats any fuzzy guess (so Oshoumi resolves to Oshoumi), and a true near-tie between
+// two real wrestlers is surfaced for the caller to ASK instead of silently picking the nearest.
+console.log('\n[23] Name resolution — Master Rikishi fallback + ambiguity guard (RC3)');
+const NR_ROSTER = ['Oshoma','Onosato','Hoshoryu','Kotoshoho','Kotozakura','Wakatakakage','Wakamotoharu','Takerufuji','Nishikifuji']
+  .map(n => ({ name:n, nicknames:[] }));
+const NR_MASTER = [
+  ...NR_ROSTER.map(r => ({ name:r.name, stable:'Tatsunami', country:'Japan', highestRank:'Maegashira', active:true })),
+  { name:'Oshoumi', stable:'Onomatsu', country:'Japan', highestRank:'Juryo 3', active:true },   // tracked, NOT in makuuchi — the near-twin of Oshoma
+];
+const NR_SNAP = { meta:{ basho:'Aki 2026', maxDay:15 }, rikishi:NR_ROSTER,
+  banzuke:NR_ROSTER.map((r,i)=>({ name:r.name, rank:`Maegashira ${i+1}`, weightKg:150 })),
+  kimarite:[], bouts:[], master:NR_MASTER, days:[], injuries:[], catchphrases:[], history:{ basho:{} }, upcoming:null };
+const nrG = gateSnapshot(NR_SNAP, 15, false, 'member');
+
+t('exact roster name resolves in-roster', () => {
+  const r = resolveName('Oshoma', nrG.rikishi, nrG.master);
+  assert(r.name==='Oshoma' && r.inRoster===true);
+});
+t('THE FIX: "Oshoumi" resolves to Oshoumi from Master Rikishi, never fuzzes to Oshoma', () => {
+  const r = resolveName('Oshoumi', nrG.rikishi, nrG.master);
+  assert(r.name==='Oshoumi' && r.inRoster===false, 'Oshoumi must resolve to itself, got '+JSON.stringify(r));
+});
+t('query_rikishi on a master-only wrestler returns inMakuuchi:false background, NOT another wrestler', () => {
+  const o = runTool('query_rikishi', {name:'Oshoumi'}, nrG);
+  assert(o.found===true && o.inMakuuchi===false && o.name==='Oshoumi', 'should be Oshoumi background: '+JSON.stringify(o));
+  assert(o.currentRank===undefined && /not in the current makuuchi/i.test(o.note), 'must not hand back makuuchi data');
+});
+t('a garble between two real wrestlers (Oshouma ~ Oshoma/Oshoumi) is AMBIGUOUS, not silently picked', () => {
+  const r = resolveName('Oshouma', nrG.rikishi, nrG.master);
+  assert(r.name===null && r.ambiguous===true, 'must refuse to guess: '+JSON.stringify(r));
+  assert(r.near.includes('Oshoma') && r.near.includes('Oshoumi'), 'both candidates offered: '+JSON.stringify(r.near));
+});
+t('dense family exacts resolve to THEMSELVES, never a sibling (Koto-/Waka-/-fuji)', () => {
+  for(const nm of ['Kotoshoho','Kotozakura','Wakatakakage','Wakamotoharu','Takerufuji','Nishikifuji']){
+    const r = resolveName(nm, nrG.rikishi, nrG.master);
+    assert(r.name===nm, `${nm} cross-resolved to ${r.name}`);
+  }
+});
+t('a clean typo of a UNIQUE name still fuzzes confidently (no over-asking regression)', () => {
+  const r = resolveName('Hoshryu', nrG.rikishi, nrG.master);   // 1 edit from Hoshoryu, no near twin
+  assert(r.name==='Hoshoryu' && r.inRoster===true, 'confident fuzzy should still land: '+JSON.stringify(r));
+});
+t('an unknown name defers with a didYouMean near list (never a fabricated match)', () => {
+  const r = resolveName('Zzxqq', nrG.rikishi, nrG.master);
+  assert(r.name===null && Array.isArray(r.near) && r.near.length>0);
+});
+
+// ═══ 24. TRUTH-WALL + NAME-RESOLUTION prompt invariants (RC4 + RC3) ═══
+// Prompt-string canaries (same posture as §10/§22): lock the clauses the fixes added so a later prompt
+// edit can't silently drop them. The RC4 Function-side force-tool verify pass lives in gumbai.js and is
+// out of this engine's scope; here we pin the behavioral half that rides the system prompt.
+console.log('\n[24] Truth-wall + name-resolution prompt invariants (RC4 + RC3)');
+for(const aud of ['member','public']){
+  const g = gateSnapshot(NR_SNAP, 15, false, aud);
+  const p = buildSystemPrompt(g, aud);
+  t(`${aud} prompt forbids an unsourced stat (RC4)`, () => assert(/NEVER TYPE A STAT YOU DID NOT JUST PULL/.test(p)));
+  t(`${aud} prompt holds the anti-sycophancy clause (RC4)`, () => assert(/THE USER IS NOT A SOURCE/.test(p)));
+  t(`${aud} prompt bans a fake "verified" (RC4)`, () => assert(/DO NOT CLAIM "VERIFIED\."/.test(p) || /unless a tool returned it/.test(p)));
+  t(`${aud} prompt keeps one-basho-per-line (RC4)`, () => assert(/ONE BASHO PER LINE/.test(p)));
+  t(`${aud} prompt carries the ambiguous/confirm-back name rule (RC3)`, () => assert(/didYouMean or ambiguous/.test(p) && /inMakuuchi:false/.test(p)));
+}
 
 console.log(`\n${'═'.repeat(48)}\nRESULT: ${pass} passed, ${fail} failed\n`);
 process.exit(fail ? 1 : 0);
