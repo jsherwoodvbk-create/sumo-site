@@ -59,6 +59,14 @@ const FAN_DOWN =
   "🪭 Gumbai's fan is down for the month — no tachiai till the calendar flips. " +
   "*(We've hit this month's question budget; he's back next month.)*";
 
+// RC4 truth-wall net (2026-10-05). The confirmed failure (MJ 9/27): Gumbai stated records/ranks from
+// MEMORY with no tool call — 23 no-tool turns invented numbers while the Notion data was correct. A
+// win-loss ("7-8") or a bare maegashira rank ("M2") in a FINAL answer that used NO tool is that pattern.
+// We force ONE verify pass: tool_choice makes the model call a tool, then it answers from the result.
+// Deliberately narrow (W-L + M# ranks only) to avoid nagging Lane-2 culture answers; broaden if needed.
+const HARD_FACT_RE = /\b\d{1,2}-\d{1,2}\b|\bM1[0-8]\b|\bM[1-9]\b/;
+const VERIFY_NUDGE = "You stated a record, rank, or result but called NO tool. Records, ranks, yusho, and any result are tool-only — never from memory and never from what the user said. Call the right tool now (query_career / query_match_log / query_banzuke / query_standings / query_yusho) and redo your answer using ONLY the tool's numbers. If no tool has it, say you don't have it. Do not guess.";
+
 const json = (obj, status=200) => new Response(JSON.stringify(obj), {
   status, headers: { 'content-type':'application/json; charset=utf-8', 'cache-control':'no-store' }
 });
@@ -181,6 +189,8 @@ export async function onRequestPost(ctx){
   // ── agent loop ────────────────────────────────────────────────────────────
   const convo = messages.slice();       // Claude-format message list we grow with tool turns
   const usedTools = [];
+    let forcedVerify  = false;   // RC4: only ever force the verify pass once per turn
+    let forceToolNext = false;   // RC4: force a tool on the next request (the verify pass)
   try {
     for(let hop=0; hop<maxHops; hop++){
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
