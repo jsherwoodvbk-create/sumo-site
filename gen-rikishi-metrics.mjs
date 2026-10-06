@@ -674,9 +674,6 @@ const demac = s => String(s ?? '').normalize('NFD').replace(/[\u0304\u0302]/g, '
 // escape for the strings we drop into the template's innerHTML (bio/story values render as HTML)
 function esc(s){ return demac(s).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c])); }
 
-// escape for the strings we drop into the template's innerHTML (bio/story values render as HTML)
-function esc(s){ return String(s ?? '').replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c])); }
-
 // The story panel reads the crew-written "Story" field on Master Rikishi (human-owned, never
 // auto-invented — the firewall rule). Escape it, turn blank lines into paragraph breaks, and accent
 // the first mention of the wrestler's name. Empty → a plain honest placeholder (no fake "drafted" text).
