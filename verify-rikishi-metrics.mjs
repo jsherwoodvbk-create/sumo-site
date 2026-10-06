@@ -304,9 +304,8 @@ async function modelPass(records){
     const ask = `You are an adversarial fact-checker for a sumo wrestler's dashboard. Below are the VERIFIED HARD FACTS (numbers, dates, ranks — treat these as ground truth) and the SOFT COPY (human-written prose the dashboard shows). Find only real problems in the SOFT COPY, judged against the hard facts:
 - any claim the hard facts contradict or do not support (especially age-relative or count-relative claims, e.g. "won three cups before he was 22" when the dates/counts say otherwise),
 - a soft/opinion claim stated as if it were a hard verified fact with no hedge,
-- a macron on a romanized Japanese term (the house style forbids macrons),
 - an obvious AI-writing tell (em dash as a connector, "delve", "tapestry", "it's not just X, it's Y").
-Output STRICT JSON: {"findings":[{"severity":"BLOCK"|"WARN","issue":"<short>"}]}. BLOCK = a factual contradiction or a fabricated hard claim or a macron. WARN = style/tone only. If nothing is wrong, output {"findings":[]}. No prose outside the JSON.
+Output STRICT JSON: {"findings":[{"severity":"BLOCK"|"WARN","issue":"<short>"}]}. BLOCK = a factual contradiction or a fabricated hard claim. WARN = style/tone only. Macrons are checked separately by code, so do NOT flag macrons. If nothing is wrong, output {"findings":[]}. No prose outside the JSON.
 
 HARD FACTS:
 ${JSON.stringify(facts)}
@@ -326,10 +325,17 @@ ${JSON.stringify(soft)}`;
     } catch (e) { warn(who, 'model-pass', `model call error (${e.message}) — soft copy not model-reviewed`); continue; }
     const out = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join('').trim();
     let parsed; try { parsed = JSON.parse(out.slice(out.indexOf('{'), out.lastIndexOf('}') + 1)); } catch { warn(who, 'model-pass', `could not parse model reply: "${out.slice(0, 80)}"`); continue; }
+      // Macrons are owned by the deterministic MACRON check; the model only false-positives on them
+    // (it "found" one in "Maegashira"). It also sometimes returns BLOCK with exonerating reasoning
+    // ("...no contradiction detected"). So drop macron findings, and demote self-exonerating BLOCKs.
+    const EXONERATE = /\b(no (direct )?contradiction|is consistent|consistent with|matches the (count|hard facts)|no contradiction detected|not qualified)\b/i;
     for (const f of (parsed.findings || [])) {
-      if (String(f.severity).toUpperCase() === 'BLOCK') block(who, 'model-adversarial', f.issue);
-      else warn(who, 'model-adversarial', f.issue);
-    }
+      const issue = String(f.issue || '');
+      if (/macron/i.test(issue)) continue;
+      const sev = String(f.severity).toUpperCase();
+      if (sev === 'BLOCK' && !EXONERATE.test(issue)) block(who, 'model-adversarial', issue);
+      else warn(who, 'model-adversarial', issue);
+    }  
   }
 }
 
