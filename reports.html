@@ -46,6 +46,10 @@
   .card .ico svg{width:34px;height:34px;display:block;margin-bottom:10px}
   .card h3{margin:0 0 5px;font-size:18px;font-weight:700}
   .card p{margin:0;font-size:13.5px;color:var(--muted);line-height:1.45}
+  /* crew tag — purple is the member accent across the arena (prediction mark, ghost CTAs). Marks a crew-only room. */
+  .tag{display:inline-block;font:800 10px/1 'Inter',sans-serif;text-transform:uppercase;letter-spacing:.09em;
+    color:var(--purple);border:1.5px solid var(--purple);background:transparent;padding:2.5px 6.5px;border-radius:999px;
+    vertical-align:middle;margin-left:7px;position:relative;top:-1px}
   .coming{margin:18px 2px 0;font-size:12.5px;color:var(--muted);line-height:1.55}
   .coming b{color:var(--ink);font-weight:700}
   footer{margin-top:34px;text-align:center;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:18px}
@@ -92,6 +96,18 @@
         <rect x="52" y="44" width="16" height="34" rx="4" fill="#b23a2e" transform="rotate(-12 60 60)"/>
       </g>
     </symbol>
+    <symbol id="ic-predtracker" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="none" stroke="#211a12" stroke-width="3.3"><circle cx="54" cy="64" r="23"/><circle cx="54" cy="64" r="13.5"/></g>
+        <circle cx="54" cy="64" r="5.3" fill="#211a12"/>
+        <path d="M90 30 L57 61" stroke="#b23a2e" stroke-width="4.6" stroke-linecap="round"/>
+        <path d="M57 61 l12.5 -3.2 l-9.3 -9 Z" fill="#b23a2e"/>
+        <path d="M90 30 l-1.5 8.5 M90 30 l-8.5 1.5" stroke="#b23a2e" stroke-width="3.2" stroke-linecap="round"/>
+      </g>
+    </symbol>
   </defs></svg>
 
 <div class="wrap">
@@ -119,9 +135,14 @@
       <h3>Mawashi Colors</h3>
       <p>What the makuuchi wears. Who's in blue, who's the lone pink, the whole division by belt.</p>
     </a>
+    <a class="card" href="/app/pred-tracker">
+      <div class="ico"><svg viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-predtracker"/></svg></div>
+      <h3>Prediction Tracker <span class="tag">Crew</span></h3>
+      <p>How the crew's banzuke picks held up, basho by basho. Predicted rank against where he really landed, who leans which way, and where to tighten the next round.</p>
+    </a>
   </div>
 
-  <p class="coming"><b>More always on the way</b>, whenever a new curiosity strikes.</p>
+  <p class="coming"><b>On the way:</b> a superlatives rack (the real technique king, best and worst records, the henka wall of shame), milestone alerts, and the birthday-curse check.</p>
 
   <footer><b>Salt Stats &amp; Sumo</b>, a Staves &amp; Hoop production for the crew.</footer>
 </div>
