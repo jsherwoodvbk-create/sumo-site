@@ -325,17 +325,16 @@ ${JSON.stringify(soft)}`;
     } catch (e) { warn(who, 'model-pass', `model call error (${e.message}) — soft copy not model-reviewed`); continue; }
     const out = (data.content || []).filter(c => c.type === 'text').map(c => c.text).join('').trim();
     let parsed; try { parsed = JSON.parse(out.slice(out.indexOf('{'), out.lastIndexOf('}') + 1)); } catch { warn(who, 'model-pass', `could not parse model reply: "${out.slice(0, 80)}"`); continue; }
-      // Macrons are owned by the deterministic MACRON check; the model only false-positives on them
-    // (it "found" one in "Maegashira"). It also sometimes returns BLOCK with exonerating reasoning
-    // ("...no contradiction detected"). So drop macron findings, and demote self-exonerating BLOCKs.
-    const EXONERATE = /\b(no (direct )?contradiction|is consistent|consistent with|matches the (count|hard facts)|no contradiction detected|not qualified)\b/i;
+    // The model layer is ADVISORY, not a gate. It gets the current snapshot + per-type sansho COUNTS
+    // but NO per-basho ledger, so it confidently false-BLOCKs true dated feats ("won the cup at the
+    // July 2025 basho" -> "unsupported/fabricated") and even misreads 2025 as "future". Numbers are
+    // code's job (the deterministic gate above handles every hard fact). So model findings only ever
+    // WARN -- surfaced for human review, never holding back publish. Macrons are owned by the code check.
     for (const f of (parsed.findings || [])) {
       const issue = String(f.issue || '');
       if (/macron/i.test(issue)) continue;
-      const sev = String(f.severity).toUpperCase();
-      if (sev === 'BLOCK' && !EXONERATE.test(issue)) block(who, 'model-adversarial', issue);
-      else warn(who, 'model-adversarial', issue);
-    }  
+      warn(who, 'model-adversarial', issue);
+    } 
   }
 }
 
