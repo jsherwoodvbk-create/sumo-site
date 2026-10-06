@@ -49,6 +49,7 @@ const VERIFY_MODEL = process.env.VERIFY_MODEL || 'claude-haiku-4-5';
 const VERIFY_MODEL_MAX = Number(process.env.VERIFY_MODEL_MAX || 12);
 const STRICT_SOURCE = (process.env.STRICT_SOURCE === '1' || String(process.env.STRICT_SOURCE).toLowerCase() === 'true');
 const ANTHROPIC_VERSION = '2023-06-01';
+const TODAY = new Date().toISOString().slice(0, 10);  // real-world today, fed to the model (it has no clock)
 
 const API = 'https://www.sumo-api.com/api';
 const UA = 'salt-stats-sumo-verify/1.0 (+https://sumo.stavesandhoop.com; dashboard publish gate)';
@@ -301,7 +302,7 @@ async function modelPass(records){
       records: rec.records, specials: (rec.specials || []).map(s => ({ prize: s.en, count: s.count })),
     };
     const soft = { story: stripHtml(rec.story.html), bio: (rec.bio || []).map(b => `${b.k}: ${stripHtml(b.v)} [src:${b.src}]`), note: rec.records?.note || null };
-    const ask = `You are an adversarial fact-checker for a sumo wrestler's dashboard. Below are the VERIFIED HARD FACTS (numbers, dates, ranks — treat these as ground truth) and the SOFT COPY (human-written prose the dashboard shows). Find only real problems in the SOFT COPY, judged against the hard facts:
+    const ask = `You are an adversarial fact-checker for a sumo wrestler's dashboard. Today's date is ${TODAY}; any date on or before today is HISTORY, never "the future." You are given per-TYPE career prize COUNTS and the current snapshot, NOT a per-basho ledger, so you CANNOT confirm which basho a prize or title was won in. Do NOT flag a dated feat (e.g. "won the cup at the July 2025 basho") as unsupported or fabricated just because you can't see that basho in the hard facts; only flag a claim the hard facts positively CONTRADICT. Below are the VERIFIED HARD FACTS (numbers, dates, ranks — treat these as ground truth) and the SOFT COPY (human-written prose the dashboard shows). Find only real problems in the SOFT COPY, judged against the hard facts: 
 - any claim the hard facts contradict or do not support (especially age-relative or count-relative claims, e.g. "won three cups before he was 22" when the dates/counts say otherwise),
 - a soft/opinion claim stated as if it were a hard verified fact with no hedge,
 - an obvious AI-writing tell (em dash as a connector, "delve", "tapestry", "it's not just X, it's Y").
