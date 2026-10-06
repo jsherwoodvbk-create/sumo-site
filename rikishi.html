@@ -139,6 +139,34 @@ svg{display:block;max-width:100%;height:auto;}
 .story .eyebrow{display:flex;align-items:center;gap:8px;font-family:'Inter',system-ui,sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--faint);margin:0 0 8px;}
 .story .body{font-family:'Inter',system-ui,sans-serif;font-size:16.5px;line-height:1.55;margin:0;color:var(--ink);max-width:80ch;}
 .story .body .who{color:var(--accent);font-weight:600;}
+/* ---- RANK ARC: hover tooltip + companion standings-history table (MJ, 2026-09-26) ---- */
+.arcwrap{position:relative;}
+.arctip{position:absolute;transform:translate(-50%,-100%);background:var(--ink);color:var(--ground);
+  font-size:11.5px;font-family:'Inter',system-ui,sans-serif;padding:5px 9px;border-radius:7px;white-space:nowrap;
+  pointer-events:none;z-index:5;box-shadow:0 4px 12px rgba(0,0,0,.28);}
+.arctip b{font-weight:700;}
+.arctip .wl{display:inline;height:auto;background:none;border-radius:0;}
+.arctable{margin-top:14px;border-top:1px solid var(--line);padding-top:4px;}
+.arctable>summary{font-family:'Inter',system-ui,sans-serif;font-size:11px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--faint);cursor:pointer;padding:7px 0;list-style:none;}
+.arctable>summary::-webkit-details-marker{display:none;}
+.arctable>summary::before{content:"▸ ";color:var(--faint);}
+.arctable[open]>summary::before{content:"▾ ";}
+.arctblscroll{max-height:300px;overflow-y:auto;margin-top:2px;}
+table.arctbl{border-collapse:collapse;width:100%;font-size:13px;}
+table.arctbl th{position:sticky;top:0;background:var(--surface);text-align:left;font-family:'Inter',system-ui,sans-serif;
+  font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--faint);font-weight:600;padding:6px 10px;border-bottom:1px solid var(--line);}
+table.arctbl th.r{text-align:right;}
+table.arctbl td{padding:6px 10px;border-bottom:1px solid var(--line);}
+table.arctbl tbody tr:last-child td{border-bottom:0;}
+table.arctbl td.bk{font-family:'Inter',system-ui,sans-serif;font-weight:600;white-space:nowrap;}
+table.arctbl td.rk{font-family:'Inter',system-ui,sans-serif;font-weight:600;}
+table.arctbl td.rec{text-align:right;font-variant-numeric:tabular-nums;color:var(--ink);}
+table.arctbl td.rec.win{color:var(--win);} table.arctbl td.rec.loss{color:var(--loss);}
+table.arctbl td.rec small{color:var(--faint);font-weight:400;}
+table.arctbl td.rec .na{color:var(--faint);} table.arctbl td.rec .in{color:var(--faint);font-style:italic;}
+table.arctbl tr.cur td{background:color-mix(in srgb,var(--accent) 7%,transparent);}
+table.arctbl .curdot{color:var(--accent);font-weight:700;}
 /* ---- INJURY PANEL (chronic band + caliber-style by-basho DL log) ---- */
 .chronic{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:13px;}
 .chronic .chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--line);
@@ -293,9 +321,9 @@ const METRICS = {
       source:"Built from our banzuke and yusho records (no web). Crew edits the prose."
     },
     arc:{ fromJuryo:true, from:"from Juryo", points:[
-      {b:"Hru25",v:19,r:"M15"},{b:"Ntu25",v:13,r:"M9"},{b:"Ngy25",v:5,r:"M1"},
-      {b:"Aki25",v:4,r:"K"},{b:"Kyu25",v:3,r:"S"},{b:"Hts26",v:2,r:"O"},{b:"Hru26",v:2,r:"O"},
-      {b:"Ntu26",v:2,r:"O"},{b:"Ngy26",v:3,r:"S"},{b:"Aki26",v:2,r:"O"} ]},
+      {b:"Hru25",v:19,r:"M15",wl:{w:10,l:5}},{b:"Ntu25",v:13,r:"M9",wl:{w:11,l:4}},{b:"Ngy25",v:5,r:"M1",wl:{w:11,l:4}},
+      {b:"Aki25",v:4,r:"K",wl:{w:10,l:5}},{b:"Kyu25",v:3,r:"S",wl:{w:13,l:2}},{b:"Hts26",v:2,r:"O",wl:{w:13,l:2}},{b:"Hru26",v:2,r:"O",wl:{w:9,l:6}},
+      {b:"Ntu26",v:2,r:"O",wl:{w:8,l:7}},{b:"Ngy26",v:3,r:"S",wl:{w:12,l:3}},{b:"Aki26",v:2,r:"O",cur:true} ]},
     kimarite:{ window:"since Jan 2025", totalWins:118, slices:[
       {name:"Yorikiri",pct:30,color:"#cf5a2c"},{name:"Oshidashi",pct:19,color:"#2f8f5b"},
       {name:"Tsukiotoshi",pct:12,color:"#7a4fb0"},{name:"Uwatenage",pct:9,color:"#4a7fb5"},
@@ -357,6 +385,25 @@ const dash = a => (a&&a.length)? a.join(', ') : '—';
 function recCell(o){ return (o && o.w!=null && o.l!=null)
   ? `${o.w}–${o.l} <small>${esc(o.pct??'')}</small>`
   : `<span class="missing">—</span>`; }
+
+/* ---- rank-arc helpers for MJ's tooltip + companion table (2026-09-26) ---- */
+/* arc x-label ("Aki26", "Hts26") → full basho label ("Aki 2026", "Hatsu 2026"). */
+const ARC_MONTH = { Hts:'Hatsu', Hru:'Haru', Ntu:'Natsu', Ngy:'Nagoya', Aki:'Aki', Kyu:'Kyushu' };
+function arcBashoLabel(b){ const m=String(b||'').match(/^([A-Za-z]+)(\d{2})$/);
+  return m ? `${ARC_MONTH[m[1]]||m[1]} 20${m[2]}` : String(b||''); }
+/* short arc rank code ("O","S","M3","J","Ms") → full name for the tooltip/table. */
+const RANK_FULL = { Y:'Yokozuna', O:'Ozeki', S:'Sekiwake', K:'Komusubi', J:'Juryo', Ms:'Makushita', Sd:'Sandanme', Jd:'Jonidan', Jk:'Jonokuchi' };
+function rankFull(r){ const s=String(r||''); if(RANK_FULL[s]) return RANK_FULL[s];
+  const m=s.match(/^M(\d+)$/); return m ? ('Maegashira '+m[1]) : s; }
+const wlStr = o => (o && o.w!=null && o.l!=null) ? `${o.w}–${o.l}` : null;
+const wlClass = o => (!o)?'' : (o.w>o.l?'win':(o.w<o.l?'loss':''));
+/* the current basho's running W-L through the viewer's watched day, from the same per-day series the
+   crew band gates on — so the arc point / table row can never show more than the day-gated record. */
+function curBashoWL(R){
+  const g=R.gate; if(!g||!g.crew||!g.crew.days) return null;
+  let w=0,l=0; for(const d in g.crew.days){ if(WATCHED_DAY==null||+d<=WATCHED_DAY){ w+=g.crew.days[d].w; l+=g.crew.days[d].l; } }
+  return { w, l };
+}
 
 /* ---- R3 watched-day gate: compute the crew-era tiles AS OF the viewer's watched day, from the
    generator's prior-basho baseline + current-basho per-day deltas (record.gate). No gate / no ?d →
@@ -442,8 +489,10 @@ function render(R){
     <p class="body">${R.story.html}</p></section>`;
 
   const arcPanel = `<section class="panel"><div class="phead"><h2>Banzuke rank over time</h2><span class="tag hard">Hard · full career</span></div>
-    <svg id="arc" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rank over time"></svg>
-    <p class="note">Oldest → newest · marker color = rank tier · ranks below M17 (Juryo and lower) sit in the compressed band at the bottom, so a fall out of makuuchi shows as a real drop.</p></section>`;
+    <div class="arcwrap"><svg id="arc" viewBox="0 0 1000 300" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Rank over time"></svg><div class="arctip" id="arctip" hidden></div></div>
+    <p class="note">Oldest → newest · marker color = rank tier · hover a basho for its rank and record · ranks below M17 (Juryo and lower) sit in the compressed band at the bottom, so a fall out of makuuchi shows as a real drop.</p>
+    <details class="arctable" id="arctblwrap" open><summary>Rank &amp; record, basho by basho</summary>
+      <div class="arctblscroll"><table class="arctbl" id="arctbl"></table></div></details></section>`;
 
   const charts2a = `<div class="charts2">
     <section class="panel" style="margin-bottom:0"><div class="phead"><h2>Kimarite: how he wins</h2><span class="tag hard">Hard</span></div>
@@ -498,6 +547,7 @@ function render(R){
     + row1 + row2 + row3 + story + arcPanel + crewPanels + bio + footer;
 
   drawArc(R);
+  drawArcTable(R);
   if(!limited){ drawPie(R); drawMawashi(R); drawCaliber(R); drawHenka(R); drawInjuries(R); }
   initUnits(R);
 }
@@ -546,7 +596,53 @@ function drawArc(R){
   const pkc=tcol(ARC[pk].v), pkx=x(pk), pky=y(ARC[pk].v), chAbove=pky-25>padT+2;
   s+=`<circle cx="${pkx}" cy="${pky}" r="${mr+3.5}" fill="none" stroke="${pkc}" stroke-width="1.5"/>`;
   s+=`<text x="${pkx}" y="${chAbove?pky-24:pky+20}" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="600" font-size="8.5" letter-spacing=".05em" fill="${pkc}">CAREER HIGH</text>`;
+  // Hover layer (MJ, 2026-09-26): a transparent hit-circle per point → tooltip "<Basho Year> · <Rank> · <W-L>".
+  // Current-basho point shows its running W-L through the watched day (gated); past basho show the final.
+  ARC.forEach((p,i)=>{ s+=`<circle class="archit" data-i="${i}" cx="${x(i)}" cy="${y(p.v)}" r="${Math.max(mr+6,11)}" fill="transparent" style="cursor:pointer"/>`; });
   document.getElementById('arc').innerHTML=s;
+
+  // wire the tooltip
+  const wrap=document.querySelector('.arcwrap'), tip=document.getElementById('arctip');
+  const curWL = curBashoWL(R);
+  function tipFor(p){
+    let wl;
+    if(p.cur){ wl = curWL ? (wlStr(curWL)+(WATCHED_DAY!=null?` · thru D${WATCHED_DAY}`:'')) : 'in progress'; }
+    else wl = p.wl ? wlStr(p.wl) : '—';
+    return `<b>${esc(arcBashoLabel(p.b))}</b> · ${esc(rankFull(p.r))} · ${wl}`;
+  }
+  document.querySelectorAll('.archit').forEach(h=>{
+    const p=ARC[+h.dataset.i];
+    h.addEventListener('mouseenter',()=>{
+      tip.innerHTML=tipFor(p); tip.hidden=false;
+      const hr=h.getBoundingClientRect(), wr=wrap.getBoundingClientRect();
+      tip.style.left=(hr.left+hr.width/2-wr.left)+'px';
+      tip.style.top=(hr.top-wr.top-6)+'px';
+    });
+    h.addEventListener('mouseleave',()=>{ tip.hidden=true; });
+  });
+}
+
+/* ---- rank-arc companion: standings-history table (MJ, 2026-09-26) ----
+   The same (rank, final W-L) per-basho data the arc plots, laid out newest-first so the record reads
+   at a glance without hovering. Crew-era W-L (Jan 2025+, from the Match Log); pre-epoch / lower-division
+   basho carry rank only (W-L shows "—"). The current basho shows its running W-L through the watched day. */
+function drawArcTable(R){
+  const el=document.getElementById('arctbl'); if(!el) return;
+  const ARC=(R.arc&&R.arc.points)||[];
+  if(!ARC.length){ const w=document.getElementById('arctblwrap'); if(w) w.hidden=true; return; }
+  const curWL = curBashoWL(R);
+  const rows = ARC.slice().reverse().map(p=>{   // newest first
+    const col = tierColorForRank(p.r);
+    let rec, cls='';
+    if(p.cur){ if(curWL){ rec = `${wlStr(curWL)}${WATCHED_DAY!=null?` <small>thru D${WATCHED_DAY}</small>`:''}`; cls=wlClass(curWL); }
+               else rec = `<span class="in">in progress</span>`; }
+    else if(p.wl){ rec = wlStr(p.wl); cls=wlClass(p.wl); }
+    else rec = `<span class="na">—</span>`;
+    return `<tr class="${p.cur?'cur':''}"><td class="bk">${esc(arcBashoLabel(p.b))}${p.cur?' <span class="curdot">•</span>':''}</td>
+      <td class="rk" style="color:${col}">${esc(rankFull(p.r))}</td>
+      <td class="rec ${cls}">${rec}</td></tr>`;
+  }).join('');
+  el.innerHTML = `<thead><tr><th>Basho</th><th>Rank</th><th class="r">Record</th></tr></thead><tbody>${rows}</tbody>`;
 }
 
 /* ---- kimarite pie ---- */
