@@ -1,0 +1,346 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prediction Tracker · Salt Stats &amp; Sumo</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+  :root { --ink:#3D2713; --accent:#8A2A20; --band:#F1E4C7; --head:#6E1F1F; --line:#C9B184;
+          --paper:#fff; --muted:#8C7550; --gold:#B8860B; --kk:#2f6b3d; --mk:#9a3b2a; --vermilion:#cf5a2c;
+          --pace:#8a6a2e; --good:#2f6b3d; --warn:#b2792a; --bad:#9a3b2a; --zebra:#FBF6E9; }
+  * { box-sizing:border-box; }
+  body { margin:0; font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+         background:var(--band); color:var(--ink); min-height:100vh; padding:22px 14px; }
+  .wrap { max-width:900px; margin:0 auto; }
+  .card { background:var(--paper); border:1px solid var(--line); border-radius:12px;
+          box-shadow:0 6px 24px rgba(61,39,19,.12); overflow:hidden; }
+  .card > header { background:var(--head); color:#fff; padding:20px 22px; }
+  .hdrow { display:flex; align-items:center; gap:14px; }
+  .hdrow h1 { margin:0; font-size:21px; }
+  .hdrow .sub { margin:4px 0 0; font-size:12.5px; opacity:.9; }
+  .homecrest { width:32px; height:32px; border-radius:50%; margin-left:auto; overflow:hidden; background:#efe7d5;
+               box-shadow:0 0 0 1px rgba(255,255,255,.3),0 2px 6px rgba(0,0,0,.28); flex:0 0 auto; }
+  .homecrest img { width:100%; height:100%; object-fit:cover; display:block; }
+  .body { padding:18px 18px 24px; }
+  .controls { display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 16px; }
+  .controls label { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700; }
+  select { font:inherit; font-size:15px; font-weight:600; color:var(--ink); background:#F7EEDA;
+           border:1px solid var(--line); border-radius:8px; padding:8px 12px; cursor:pointer; }
+  .dl { margin-left:auto; background:var(--kk); color:#fff; border:0; border-radius:8px; font:inherit;
+        font-weight:600; font-size:13.5px; padding:9px 15px; cursor:pointer; }
+  .dl:hover { background:#255330; }
+  /* per-tournament summary chips */
+  .summ { display:flex; gap:10px; flex-wrap:wrap; margin:0 0 16px; }
+  .scard { background:#F7EEDA; border:1px solid var(--line); border-radius:10px; padding:10px 13px; flex:1 1 180px; }
+  .scard .t { font-size:11px; text-transform:uppercase; letter-spacing:.04em; color:var(--muted); font-weight:700; }
+  .scard .big { font-size:16px; font-weight:700; margin-top:3px; }
+  .scard .big .pl { color:var(--muted); font-weight:600; font-size:13px; }
+  /* analytics */
+  .analytics { background:#FAF3E2; border:1px solid var(--line); border-radius:10px; padding:14px 16px; margin:0 0 18px; }
+  .analytics h3 { margin:0 0 4px; font-size:13px; color:var(--head); text-transform:uppercase; letter-spacing:.04em; }
+  .analytics .lede { font-size:12px; color:var(--muted); margin:0 0 11px; }
+  .biasgrid { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:9px; margin:0 0 12px; }
+  .bias { background:#fff; border:1px solid var(--line); border-radius:8px; padding:9px 11px; }
+  .bias .lbl { font-size:11px; color:var(--muted); text-transform:uppercase; letter-spacing:.03em; }
+  .bias .val { font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px; }
+  .bias .note { font-size:11px; color:var(--muted); margin-top:1px; }
+  .leans { font-size:12.5px; line-height:1.6; }
+  .leans b { color:var(--ink); }
+  .over { color:var(--bad); font-weight:600; } .under { color:var(--good); font-weight:600; }
+  /* grid */
+  .tablewrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
+  table { border-collapse:collapse; font-size:13px; min-width:640px; width:100%; }
+  thead .grp th { background:var(--head); color:#fff; font-size:11px; letter-spacing:.03em; text-transform:uppercase;
+                  padding:7px 8px; text-align:center; border-left:2px solid #fff; }
+  thead .grp th.wn { background:#5a1818; text-align:left; }
+  thead .sub th { background:#F1E4C7; color:var(--muted); font-size:10px; text-transform:uppercase; letter-spacing:.03em;
+                  padding:5px 8px; border-bottom:2px solid var(--line); white-space:nowrap; text-align:center; }
+  thead .sub th.wn { text-align:left; position:sticky; left:0; background:#F1E4C7; }
+  tbody td { padding:7px 8px; border-bottom:1px solid #EFE3C6; text-align:center; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  tbody tr:nth-child(even){ background:var(--zebra); }
+  td.wn { text-align:left; font-weight:600; position:sticky; left:0; background:inherit; }
+  tbody tr:nth-child(even) td.wn { background:var(--zebra); }
+  tbody tr:nth-child(odd) td.wn { background:var(--paper); }
+  td.grpstart { border-left:2px solid var(--line); }
+  .cell-empty { color:#CBB990; }
+  .d0 { color:var(--good); font-weight:700; } .dsm { color:var(--ink); } .dmd { color:var(--warn); font-weight:600; } .dlg { color:var(--bad); font-weight:700; }
+  .wl { font-weight:600; }
+  .yusho { color:var(--gold); } .kk { color:var(--kk); } .mk { color:var(--mk); }
+  .san { display:inline-block; font-size:9px; font-weight:800; color:#fff; border-radius:4px; padding:1px 4px; margin-left:3px; vertical-align:middle; }
+  .san.OP { background:#9a7d1e; } .san.FS { background:#b2792a; } .san.TE { background:#3f6aa0; }
+  .legend { font-size:11.5px; color:var(--muted); margin:12px 2px 0; line-height:1.6; }
+  .foot { text-align:center; margin-top:14px; font-size:11.5px; color:var(--muted); }
+  thead .grp th.ctx { background:#7d4141; color:#f0dcdc; font-style:italic; }
+  thead .sub th.gs { border-left:2px solid var(--line); }
+  .hdicon { width:46px; height:46px; flex:0 0 auto; }
+  .hdnav { margin-left:auto; display:flex; align-items:center; gap:9px; }
+  .navcoin { width:33px; height:33px; flex:0 0 auto; border-radius:50%; overflow:hidden; display:block;
+             box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);
+             transition:transform .12s ease, box-shadow .12s ease; }
+  .navcoin:hover, .homecrest:hover { transform:translateY(-1px); box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34); }
+  .navcoin svg { width:100%; height:100%; display:block; }
+  .homecrest { width:33px; height:33px; border-radius:50%; flex:0 0 auto; overflow:hidden; background:#efe7d5;
+               box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28); transition:transform .12s ease, box-shadow .12s ease; }
+  .homecrest img { width:100%; height:100%; object-fit:cover; display:block; }
+</style>
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+    <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+    <!-- Prediction Tracker mark: target & dart (prediction accuracy) -->
+    <symbol id="ic-predtracker" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="none" stroke="#211a12" stroke-width="3.3"><circle cx="54" cy="64" r="23"/><circle cx="54" cy="64" r="13.5"/></g>
+        <circle cx="54" cy="64" r="5.3" fill="#211a12"/>
+        <path d="M90 30 L57 61" stroke="#b23a2e" stroke-width="4.6" stroke-linecap="round"/>
+        <path d="M57 61 l12.5 -3.2 l-9.3 -9 Z" fill="#b23a2e"/>
+        <path d="M90 30 l-1.5 8.5 M90 30 l-8.5 1.5" stroke="#b23a2e" stroke-width="3.2" stroke-linecap="round"/>
+      </g>
+    </symbol>
+    <!-- Reports hub mark: bars + red trend line (per style guide) -->
+    <symbol id="ic-reports" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+      <g clip-path="url(#coinClip)" filter="url(#inkS)">
+        <g fill="#211a12"><rect x="35" y="64" width="12" height="21" rx="2"/><rect x="54" y="54" width="12" height="31" rx="2"/><rect x="73" y="60" width="12" height="25" rx="2"/></g>
+        <polyline points="35,56 54,44 73,50 91,34" fill="none" stroke="#b23a2e" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="91" cy="34" r="4.6" fill="#b23a2e"/>
+      </g>
+    </symbol>
+  </defs></svg>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <div class="hdrow">
+          <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-predtracker"/></svg>
+          <div>
+            <h1>Prediction Tracker</h1>
+            <p class="sub" id="sub">How each member's picks held up against the real banzuke, basho by basho.</p>
+          </div>
+          <nav class="hdnav">
+            <a class="navcoin" id="reportshome" href="/app/reports" title="Reports home" aria-label="Reports home"><svg viewBox="0 0 120 120"><use href="#ic-reports"/></svg></a>
+            <a class="homecrest" id="crest" href="/app" title="Crew home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+          </nav>
+        </div>
+      </header>
+      <div class="body" id="body"><p style="color:var(--muted)">Loading…</p></div>
+    </div>
+    <p class="foot">Δ is your predicted rank minus where he actually landed. Positive means you ranked him lower than he finished (underrated), negative means too high (overrated). The closer to zero, the better the call.</p>
+  </div>
+<script>const DATA={"generated":"2026-10-06","members":[{"key":"jennie","name":"Jennie"},{"key":"mj","name":"MJ"},{"key":"sherry","name":"Sherry"},{"key":"james","name":"James"},{"key":"gumbai","name":"Gumbai","pace":true}],"tournaments":[{"id":"202511","label":"Kyushu 2025","short":"Kyushu '25","juryoValue":23,"yusho":"Aonishiki","hasPred":false,"wrestlers":{"Fujinokawa":{"actual":"m12","actualVal":16,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":null},"Oshoma":{"actual":"m4","actualVal":8,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":null},"Chiyoshoma":{"actual":"m17","actualVal":21,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":null},"Shishi":{"actual":"m11","actualVal":15,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":null},"Hiradoumi":{"actual":"m3","actualVal":7,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":null},"Fujiryoga":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Arashifuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Atamifuji":{"actual":"m6","actualVal":10,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Hakunofuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Wakatakakage":{"actual":"m1","actualVal":5,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Asasuiryu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Mitakeumi":{"actual":"m13","actualVal":17,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Tamawashi":{"actual":"m4","actualVal":8,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Ryuden":{"actual":"m14","actualVal":18,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Hoshoryu":{"actual":"y","actualVal":1,"record":"12-3","wins":12,"yusho":false,"sansho":[],"prior":null},"Asakoryu":{"actual":"m17","actualVal":21,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Wakamotoharu":{"actual":"m2","actualVal":6,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Tobizaru":{"actual":"m9","actualVal":13,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":null},"Shodai":{"actual":"m5","actualVal":9,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":null},"Aonishiki":{"actual":"s","actualVal":3,"record":"12-3","wins":12,"yusho":true,"sansho":["Outstanding Performance","Technique"],"prior":null},"Kazekeno":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Oho":{"actual":"s","actualVal":3,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Oshoumi":{"actual":"m16","actualVal":20,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Churanoumi":{"actual":"m7","actualVal":11,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Fujiseiun":{"actual":"j","actualVal":23,"record":"0-2","wins":0,"yusho":false,"sansho":[],"prior":null},"Daiseizan":{"actual":"j","actualVal":23,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":null},"Nishikifuji":{"actual":"m15","actualVal":19,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":null},"Kotoeiho":{"actual":"j","actualVal":23,"record":"1-1","wins":1,"yusho":false,"sansho":[],"prior":null},"Takanosho":{"actual":"k","actualVal":4,"record":"5-10","wins":5,"yusho":false,"sansho":["Fighting Spirit"],"prior":null},"Asanoyama":{"actual":"j","actualVal":23,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":null},"Tokihayate":{"actual":"m14","actualVal":18,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":null},"Wakanosho":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Takerufuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Yoshinofuji":{"actual":"m5","actualVal":9,"record":"9-6","wins":9,"yusho":false,"sansho":["Technique"],"prior":null},"Roga":{"actual":"m11","actualVal":15,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Abi":{"actual":"m7","actualVal":11,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":null},"Shonannoumi":{"actual":"m15","actualVal":19,"record":"3-12","wins":3,"yusho":false,"sansho":[],"prior":null},"Onosato":{"actual":"y","actualVal":1,"record":"11-4","wins":11,"yusho":false,"sansho":[],"prior":null},"Kirishima":{"actual":"m2","actualVal":6,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"prior":null},"Daieisho":{"actual":"m10","actualVal":14,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":null},"Kinbozan":{"actual":"m8","actualVal":12,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Ichiyamamoto":{"actual":"m8","actualVal":12,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"prior":null},"Kotoshoho":{"actual":"m10","actualVal":14,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Asahakuryu":{"actual":"j","actualVal":23,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":null},"Dewanoryu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Gonoyama":{"actual":"m13","actualVal":17,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":null},"Sadanoumi":{"actual":"m16","actualVal":20,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":null},"Kazuma":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Kyokukaiyu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Toshinofuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Ura":{"actual":"m3","actualVal":7,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Kotozakura":{"actual":"o","actualVal":2,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Takayasu":{"actual":"k","actualVal":4,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":null},"Onokatsu":{"actual":"m6","actualVal":10,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null}}},{"id":"202601","label":"Hatsu 2026","short":"Hatsu '26","juryoValue":22,"yusho":"Aonishiki","hasPred":false,"wrestlers":{"Fujinokawa":{"actual":"m7","actualVal":11,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m12"},"Oshoma":{"actual":"m7","actualVal":11,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m4"},"Chiyoshoma":{"actual":"m11","actualVal":15,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m17"},"Shishi":{"actual":"m14","actualVal":18,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m11"},"Hiradoumi":{"actual":"m6","actualVal":10,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m3"},"Fujiryoga":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Arashifuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Atamifuji":{"actual":"m4","actualVal":8,"record":"12-3","wins":12,"yusho":false,"sansho":["Fighting Spirit"],"prior":"m6"},"Hakunofuji":{"actual":"m3","actualVal":7,"record":"5-8","wins":5,"yusho":false,"sansho":[],"prior":null},"Wakatakakage":{"actual":"m2","actualVal":6,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m1"},"Asasuiryu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Mitakeumi":{"actual":"m14","actualVal":18,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m13"},"Tamawashi":{"actual":"m5","actualVal":9,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m4"},"Ryuden":{"actual":"m15","actualVal":19,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m14"},"Hoshoryu":{"actual":"y","actualVal":1,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"y"},"Asakoryu":{"actual":"m15","actualVal":19,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m17"},"Wakamotoharu":{"actual":"k","actualVal":4,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m2"},"Tobizaru":{"actual":"m13","actualVal":17,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m9"},"Shodai":{"actual":"m8","actualVal":12,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m5"},"Aonishiki":{"actual":"o","actualVal":2,"record":"12-3","wins":12,"yusho":true,"sansho":[],"prior":"s"},"Kazekeno":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Oho":{"actual":"k","actualVal":4,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"s"},"Oshoumi":{"actual":"m16","actualVal":20,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m16"},"Churanoumi":{"actual":"m5","actualVal":9,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m7"},"Fujiseiun":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":"j"},"Daiseizan":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":"j"},"Nishikifuji":{"actual":"m11","actualVal":15,"record":"6-6","wins":6,"yusho":false,"sansho":[],"prior":"m15"},"Kotoeiho":{"actual":"j","actualVal":22,"record":"1-1","wins":1,"yusho":false,"sansho":[],"prior":"j"},"Takanosho":{"actual":"m3","actualVal":7,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"k"},"Asanoyama":{"actual":"m16","actualVal":20,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"j"},"Tokihayate":{"actual":"m10","actualVal":14,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m14"},"Wakanosho":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Takerufuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Yoshinofuji":{"actual":"m1","actualVal":5,"record":"8-7","wins":8,"yusho":false,"sansho":["Outstanding Performance"],"prior":"m5"},"Roga":{"actual":"m9","actualVal":13,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m11"},"Abi":{"actual":"m12","actualVal":16,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m7"},"Shonannoumi":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":"m15"},"Onosato":{"actual":"y","actualVal":1,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"y"},"Kirishima":{"actual":"s","actualVal":3,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"prior":"m2"},"Daieisho":{"actual":"m4","actualVal":8,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m10"},"Kinbozan":{"actual":"m8","actualVal":12,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"m8"},"Ichiyamamoto":{"actual":"m1","actualVal":5,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"m8"},"Kotoshoho":{"actual":"m10","actualVal":14,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m10"},"Asahakuryu":{"actual":"m17","actualVal":21,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"j"},"Dewanoryu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Gonoyama":{"actual":"m9","actualVal":13,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m13"},"Sadanoumi":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"prior":"m16"},"Kazuma":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Kyokukaiyu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Toshinofuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Ura":{"actual":"m2","actualVal":6,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"m3"},"Kotozakura":{"actual":"o","actualVal":2,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"o"},"Takayasu":{"actual":"s","actualVal":3,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"k"},"Onokatsu":{"actual":"m6","actualVal":10,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m6"}}},{"id":"202603","label":"Haru 2026","short":"Haru '26","juryoValue":22,"yusho":"Kirishima","hasPred":false,"wrestlers":{"Fujinokawa":{"actual":"m2","actualVal":6,"record":"8-7","wins":8,"yusho":false,"sansho":["Technique"],"prior":"m7"},"Oshoma":{"actual":"m7","actualVal":11,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m7"},"Chiyoshoma":{"actual":"m14","actualVal":18,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m11"},"Shishi":{"actual":"m11","actualVal":15,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m14"},"Hiradoumi":{"actual":"m3","actualVal":7,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m6"},"Fujiryoga":{"actual":"m17","actualVal":21,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":null},"Arashifuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Atamifuji":{"actual":"k","actualVal":4,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m4"},"Hakunofuji":{"actual":"m7","actualVal":11,"record":"5-6","wins":5,"yusho":false,"sansho":[],"prior":"m3"},"Wakatakakage":{"actual":"m1","actualVal":5,"record":"8-6","wins":8,"yusho":false,"sansho":[],"prior":"m2"},"Asasuiryu":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"prior":null},"Mitakeumi":{"actual":"m15","actualVal":19,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m14"},"Tamawashi":{"actual":"m9","actualVal":13,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m5"},"Ryuden":{"actual":"j","actualVal":22,"record":"1-1","wins":1,"yusho":false,"sansho":[],"prior":"m15"},"Hoshoryu":{"actual":"y","actualVal":1,"record":"11-4","wins":11,"yusho":false,"sansho":[],"prior":"y"},"Asakoryu":{"actual":"m12","actualVal":16,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m15"},"Wakamotoharu":{"actual":"k","actualVal":4,"record":"3-12","wins":3,"yusho":false,"sansho":[],"prior":"k"},"Tobizaru":{"actual":"m13","actualVal":17,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m13"},"Shodai":{"actual":"m8","actualVal":12,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m8"},"Aonishiki":{"actual":"o","actualVal":2,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"o"},"Kazekeno":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Oho":{"actual":"m3","actualVal":7,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"k"},"Oshoumi":{"actual":"m11","actualVal":15,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m16"},"Churanoumi":{"actual":"m2","actualVal":6,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"m5"},"Fujiseiun":{"actual":"m13","actualVal":17,"record":"10-5","wins":10,"yusho":false,"sansho":["Fighting Spirit"],"prior":null},"Daiseizan":{"actual":"j","actualVal":22,"record":"0-2","wins":0,"yusho":false,"sansho":[],"prior":null},"Nishikifuji":{"actual":"m14","actualVal":18,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m11"},"Kotoeiho":{"actual":"m17","actualVal":21,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"j"},"Takanosho":{"actual":"m4","actualVal":8,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m3"},"Asanoyama":{"actual":"m12","actualVal":16,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m16"},"Tokihayate":{"actual":"m9","actualVal":13,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m10"},"Wakanosho":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"prior":null},"Takerufuji":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":null},"Yoshinofuji":{"actual":"m1","actualVal":5,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m1"},"Roga":{"actual":"m10","actualVal":14,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m9"},"Abi":{"actual":"m5","actualVal":9,"record":"4-6","wins":4,"yusho":false,"sansho":[],"prior":"m12"},"Shonannoumi":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Onosato":{"actual":"y","actualVal":1,"record":"0-4","wins":0,"yusho":false,"sansho":[],"prior":"y"},"Kirishima":{"actual":"s","actualVal":3,"record":"12-3","wins":12,"yusho":true,"sansho":["Outstanding Performance"],"prior":"s"},"Daieisho":{"actual":"m4","actualVal":8,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m4"},"Kinbozan":{"actual":"m16","actualVal":20,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m8"},"Ichiyamamoto":{"actual":"m6","actualVal":10,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m1"},"Kotoshoho":{"actual":"m5","actualVal":9,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"prior":"m10"},"Asahakuryu":{"actual":"m16","actualVal":20,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m17"},"Dewanoryu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Gonoyama":{"actual":"m10","actualVal":14,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m9"},"Sadanoumi":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"prior":"j"},"Kazuma":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Kyokukaiyu":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Toshinofuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Ura":{"actual":"m8","actualVal":12,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m2"},"Kotozakura":{"actual":"o","actualVal":2,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"o"},"Takayasu":{"actual":"s","actualVal":3,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"s"},"Onokatsu":{"actual":"m6","actualVal":10,"record":"1-6","wins":1,"yusho":false,"sansho":[],"prior":"m6"}}},{"id":"202605","label":"Natsu 2026","short":"Natsu '26","juryoValue":22,"yusho":"Wakatakakage","hasPred":false,"wrestlers":{"Fujinokawa":{"actual":"m1","actualVal":5,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m2"},"Oshoma":{"actual":"m8","actualVal":12,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m7"},"Chiyoshoma":{"actual":"m7","actualVal":11,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m14"},"Shishi":{"actual":"m12","actualVal":16,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m11"},"Hiradoumi":{"actual":"m3","actualVal":7,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m3"},"Fujiryoga":{"actual":"m17","actualVal":21,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m17"},"Arashifuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Atamifuji":{"actual":"s","actualVal":3,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"k"},"Hakunofuji":{"actual":"m10","actualVal":14,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"prior":"m7"},"Wakatakakage":{"actual":"k","actualVal":4,"record":"12-3","wins":12,"yusho":true,"sansho":["Technique"],"prior":"m1"},"Asasuiryu":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":"j"},"Mitakeumi":{"actual":"m14","actualVal":18,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m15"},"Tamawashi":{"actual":"m13","actualVal":17,"record":"2-13","wins":2,"yusho":false,"sansho":[],"prior":"m9"},"Ryuden":{"actual":"m16","actualVal":20,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"j"},"Hoshoryu":{"actual":"y","actualVal":1,"record":"0-2","wins":0,"yusho":false,"sansho":[],"prior":"y"},"Asakoryu":{"actual":"m7","actualVal":11,"record":"3-4","wins":3,"yusho":false,"sansho":[],"prior":"m12"},"Wakamotoharu":{"actual":"m5","actualVal":9,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"k"},"Tobizaru":{"actual":"m15","actualVal":19,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m13"},"Shodai":{"actual":"m5","actualVal":9,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m8"},"Aonishiki":{"actual":"o","actualVal":2,"record":"0-0","wins":0,"yusho":false,"sansho":[],"prior":"o"},"Kazekeno":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Oho":{"actual":"m3","actualVal":7,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m3"},"Oshoumi":{"actual":"m15","actualVal":19,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"m11"},"Churanoumi":{"actual":"m6","actualVal":10,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m2"},"Fujiseiun":{"actual":"m6","actualVal":10,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m13"},"Daiseizan":{"actual":"j","actualVal":22,"record":"2-0","wins":2,"yusho":false,"sansho":[],"prior":"j"},"Nishikifuji":{"actual":"m9","actualVal":13,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m14"},"Kotoeiho":{"actual":"m13","actualVal":17,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m17"},"Takanosho":{"actual":"m1","actualVal":5,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m4"},"Asanoyama":{"actual":"m10","actualVal":14,"record":"7-5","wins":7,"yusho":false,"sansho":[],"prior":"m12"},"Tokihayate":{"actual":"m12","actualVal":16,"record":"4-11","wins":4,"yusho":false,"sansho":[],"prior":"m9"},"Wakanosho":{"actual":"m16","actualVal":20,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"j"},"Takerufuji":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":"j"},"Yoshinofuji":{"actual":"m2","actualVal":6,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"prior":"m1"},"Roga":{"actual":"m14","actualVal":18,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m10"},"Abi":{"actual":"m9","actualVal":13,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m5"},"Shonannoumi":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Onosato":{"actual":"y","actualVal":1,"record":"0-0","wins":0,"yusho":false,"sansho":[],"prior":"y"},"Kirishima":{"actual":"o","actualVal":2,"record":"12-3","wins":12,"yusho":false,"sansho":[],"prior":"s"},"Daieisho":{"actual":"m4","actualVal":8,"record":"7-8","wins":7,"yusho":false,"sansho":[],"prior":"m4"},"Kinbozan":{"actual":"m11","actualVal":15,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m16"},"Ichiyamamoto":{"actual":"m2","actualVal":6,"record":"6-9","wins":6,"yusho":false,"sansho":[],"prior":"m6"},"Kotoshoho":{"actual":"s","actualVal":3,"record":"9-6","wins":9,"yusho":false,"sansho":[],"prior":"m5"},"Asahakuryu":{"actual":"m8","actualVal":12,"record":"5-10","wins":5,"yusho":false,"sansho":[],"prior":"m16"},"Dewanoryu":{"actual":"j","actualVal":22,"record":"2-0","wins":2,"yusho":false,"sansho":[],"prior":null},"Gonoyama":{"actual":"m4","actualVal":8,"record":"8-7","wins":8,"yusho":false,"sansho":[],"prior":"m10"},"Sadanoumi":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":"j"},"Kazuma":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Kyokukaiyu":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":null},"Toshinofuji":{"actual":null,"actualVal":null,"record":null,"wins":null,"yusho":false,"sansho":[],"prior":null},"Ura":{"actual":"m11","actualVal":15,"record":"10-5","wins":10,"yusho":false,"sansho":[],"prior":"m8"},"Kotozakura":{"actual":"o","actualVal":2,"record":"3-9","wins":3,"yusho":false,"sansho":[],"prior":"o"},"Takayasu":{"actual":"k","actualVal":4,"record":"2-2","wins":2,"yusho":false,"sansho":[],"prior":"s"},"Onokatsu":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"prior":"m6"}}},{"id":"202607","label":"Nagoya 2026","short":"Nagoya '26","juryoValue":22,"yusho":"Aonishiki","wrestlers":{"Takerufuji":{"actual":"m13","actualVal":17,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"gumbai":null},"prior":"j"},"Fujinokawa":{"actual":"m1","actualVal":5,"record":"8-7","wins":8,"yusho":false,"sansho":["Outstanding Performance"],"pred":{"jennie":"m1","mj":"m2","sherry":"m1","gumbai":"m1"},"prior":"m1"},"Tokihayate":{"actual":"j","actualVal":22,"record":null,"wins":null,"yusho":false,"sansho":[],"pred":{"jennie":"m15","mj":"m15","sherry":"m15","gumbai":"m15"},"prior":"m12"},"Shishi":{"actual":"m14","actualVal":18,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m14","mj":"m15","sherry":"m14","gumbai":"m14"},"prior":"m12"},"Onosato":{"actual":"y","actualVal":1,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"y","mj":"y","sherry":"y","gumbai":"y"},"prior":"y"},"Kirishima":{"actual":"o","actualVal":2,"record":"12-3","wins":12,"yusho":false,"sansho":[],"pred":{"jennie":"o","mj":"o","sherry":"o","gumbai":"o"},"prior":"o"},"Ura":{"actual":"m5","actualVal":9,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m5","mj":"m5","sherry":"m5","gumbai":"m4"},"prior":"m11"},"Wakatakakage":{"actual":"s","actualVal":3,"record":"—","wins":null,"yusho":false,"sansho":[],"pred":{"jennie":"s","mj":"s","sherry":"s","gumbai":"s"},"prior":"k"},"Hoshoryu":{"actual":"y","actualVal":1,"record":"7-7","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"y","mj":"y","sherry":"y","gumbai":"y"},"prior":"y"},"Fujiseiun":{"actual":"m6","actualVal":10,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m6","mj":"m7","sherry":"m6","gumbai":"m6"},"prior":"m6"},"Mitakeumi":{"actual":"m11","actualVal":15,"record":"2-13","wins":2,"yusho":false,"sansho":[],"pred":{"jennie":"m12","mj":"m13","sherry":"m11","gumbai":"m11"},"prior":"m14"},"Ichiyamamoto":{"actual":"m4","actualVal":8,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"m4","mj":"m5","sherry":"m6","gumbai":"m5"},"prior":"m2"},"Daiseizan":{"actual":"m16","actualVal":20,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"gumbai":null},"prior":"j"},"Chiyoshoma":{"actual":"m10","actualVal":14,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m10","mj":"m11","sherry":"m10","gumbai":"m10"},"prior":"m7"},"Takayasu":{"actual":"m7","actualVal":11,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"pred":{"jennie":"m2","mj":"m1","sherry":"m2","gumbai":"m6"},"prior":"k"},"Nishikifuji":{"actual":"m13","actualVal":17,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m13","mj":"m14","sherry":"m12","gumbai":"m13"},"prior":"m9"},"Kotoshoho":{"actual":"s","actualVal":3,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"s","mj":"s","sherry":"s","gumbai":"s"},"prior":"s"},"Ryuden":{"actual":"j","actualVal":22,"record":null,"wins":null,"yusho":false,"sansho":[],"pred":{"jennie":"j","mj":"j","sherry":"j","gumbai":"j"},"prior":"m16"},"Oho":{"actual":"k","actualVal":4,"record":"2-13","wins":2,"yusho":false,"sansho":[],"pred":{"jennie":"k","mj":"m1","sherry":"k","gumbai":"k"},"prior":"m3"},"Hakunofuji":{"actual":"m3","actualVal":7,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m6","mj":"m4","sherry":"m4","gumbai":"m2"},"prior":"m10"},"Hiradoumi":{"actual":"m3","actualVal":7,"record":"4-11","wins":4,"yusho":false,"sansho":[],"pred":{"jennie":"m3","mj":"m4","sherry":"m3","gumbai":"m3"},"prior":"m3"},"Yoshinofuji":{"actual":"k","actualVal":4,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"k","mj":"k","sherry":"k","gumbai":"k"},"prior":"m2"},"Wakamotoharu":{"actual":"m8","actualVal":12,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"m8","mj":"m8","sherry":"m9","gumbai":"m9"},"prior":"m5"},"Takanosho":{"actual":"m1","actualVal":5,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"m1","mj":"m2","sherry":"m1","gumbai":"m1"},"prior":"m1"},"Churanoumi":{"actual":"m2","actualVal":6,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m3","mj":"m3","sherry":"m3","gumbai":"m3"},"prior":"m6"},"Daieisho":{"actual":"m4","actualVal":8,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m4","mj":"m6","sherry":"m4","gumbai":"m5"},"prior":"m4"},"Onokatsu":{"actual":"m15","actualVal":19,"record":"4-11","wins":4,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"gumbai":null},"prior":"j"},"Kotoeiho":{"actual":"m7","actualVal":11,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"pred":{"jennie":"m7","mj":"m6","sherry":"m7","gumbai":"m4"},"prior":"m13"},"Shodai":{"actual":"m6","actualVal":10,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m7","mj":"m8","sherry":"m6","gumbai":"m7"},"prior":"m5"},"Asanoyama":{"actual":"m10","actualVal":14,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m10","mj":"m9","sherry":"m10","gumbai":"m10"},"prior":"m10"},"Oshoma":{"actual":"m5","actualVal":9,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m5","mj":"m7","sherry":"m7","gumbai":"m8"},"prior":"m8"},"Kotozakura":{"actual":"o","actualVal":2,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":"o","mj":"o","sherry":"o","gumbai":"o"},"prior":"o"},"Aonishiki":{"actual":"s","actualVal":3,"record":"12-3","wins":12,"yusho":true,"sansho":["Technique"],"pred":{"jennie":"s","mj":"s","sherry":"s","gumbai":"s"},"prior":"o"},"Gonoyama":{"actual":"m2","actualVal":6,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m2","mj":"m3","sherry":"m2","gumbai":"m2"},"prior":"m4"},"Fujiryoga":{"actual":"m9","actualVal":13,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m9","mj":"m12","sherry":"m8","gumbai":"m9"},"prior":"m17"},"Roga":{"actual":"m8","actualVal":12,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m9","mj":"m10","sherry":"m8","gumbai":"m7"},"prior":"m14"},"Asakoryu":{"actual":"m16","actualVal":20,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m8","mj":"m9","sherry":"m13","gumbai":"m12"},"prior":"m7"},"Abi":{"actual":"m12","actualVal":16,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m13","mj":"m14","sherry":"m13","gumbai":"m13"},"prior":"m9"},"Kazuma":{"actual":"m15","actualVal":19,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"gumbai":null},"prior":null},"Tobizaru":{"actual":"m9","actualVal":13,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m11","mj":"m11","sherry":"m9","gumbai":"m8"},"prior":"m15"},"Kinbozan":{"actual":"m14","actualVal":18,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m14","mj":"m13","sherry":"m12","gumbai":"m14"},"prior":"m11"},"Asahakuryu":{"actual":"m12","actualVal":16,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m12","mj":"m10","sherry":"m14","gumbai":"m12"},"prior":"m8"},"Atamifuji":{"actual":"s","actualVal":3,"record":"12-3","wins":12,"yusho":false,"sansho":["Fighting Spirit"],"pred":{"jennie":"s","mj":"s","sherry":"s","gumbai":"s"},"prior":"s"},"Oshoumi":{"actual":"j","actualVal":22,"record":null,"wins":null,"yusho":false,"sansho":[],"pred":{"jennie":"j","mj":"j","sherry":"j","gumbai":"j"},"prior":"m15"},"Tamawashi":{"actual":"j","actualVal":22,"record":null,"wins":null,"yusho":false,"sansho":[],"pred":{"jennie":"j","mj":"j","sherry":"j","gumbai":"j"},"prior":"m13"},"Wakanosho":{"actual":"m11","actualVal":15,"record":"5-2","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m12","mj":"m12","sherry":"m11","gumbai":"m11"},"prior":"m16"}},"hasPred":true},{"id":"202609","label":"Aki 2026","short":"Aki '26","juryoValue":22,"yusho":"Onosato","wrestlers":{"Takerufuji":{"actual":"m8","actualVal":12,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m11","mj":"m9","sherry":"m9","james":"m11","gumbai":"m8"},"prior":"m13"},"Fujinokawa":{"actual":"s","actualVal":3,"record":"11-4","wins":11,"yusho":false,"sansho":["Fighting Spirit"],"pred":{"jennie":"k","mj":"k","sherry":"k","james":"s","gumbai":"k"},"prior":"m1"},"Tokihayate":{"actual":"m15","actualVal":19,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":"j"},"Shishi":{"actual":"m9","actualVal":13,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m12","mj":"m8","sherry":"m8","james":"m10","gumbai":"m9"},"prior":"m14"},"Onosato":{"actual":"y","actualVal":1,"record":"12-3","wins":12,"yusho":true,"sansho":[],"pred":{"jennie":"y","mj":"y","sherry":"y","james":"y","gumbai":"y"},"prior":"y"},"Kirishima":{"actual":"o","actualVal":2,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":"o","mj":"o","sherry":"o","james":"o","gumbai":"o"},"prior":"o"},"Kazekeno":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Ura":{"actual":"m9","actualVal":13,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m9","mj":"m10","sherry":"m10","james":"m9","gumbai":"m10"},"prior":"m5"},"Wakatakakage":{"actual":"m12","actualVal":16,"record":"0-0","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":"m9","mj":"m5","sherry":"m5","james":"m8","gumbai":"m6"},"prior":"s"},"Hoshoryu":{"actual":"y","actualVal":1,"record":"0-0","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":"y","mj":"y","sherry":"y","james":"y","gumbai":"y"},"prior":"y"},"Fujiseiun":{"actual":"m7","actualVal":11,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m7","mj":"m7","sherry":"m7","james":"m7","gumbai":"m7"},"prior":"m6"},"Mitakeumi":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":"m17","mj":"m17","sherry":"j","james":"r","gumbai":"j"},"prior":"m11"},"Ichiyamamoto":{"actual":"m6","actualVal":10,"record":"4-11","wins":4,"yusho":false,"sansho":[],"pred":{"jennie":"m6","mj":"m7","sherry":"m7","james":"m5","gumbai":"m7"},"prior":"m4"},"Daiseizan":{"actual":"j","actualVal":22,"record":"1-1","wins":1,"yusho":false,"sansho":[],"pred":{"jennie":"j","mj":"j","sherry":"j","james":"j","gumbai":"j"},"prior":"m16"},"Chiyoshoma":{"actual":"m14","actualVal":18,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m15","mj":"m15","sherry":"m15","james":"m14","gumbai":"m15"},"prior":"m10"},"Takayasu":{"actual":"m2","actualVal":6,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m2","mj":"m1","sherry":"m1","james":"k","gumbai":"m2"},"prior":"m7"},"Nishikifuji":{"actual":"m7","actualVal":11,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m10","mj":"m9","sherry":"m9","james":"m11","gumbai":"m8"},"prior":"m13"},"Kotoshoho":{"actual":"m1","actualVal":5,"record":"5-7","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"k","mj":"m2","sherry":"m2","james":"m3","gumbai":"m1"},"prior":"s"},"Sadanoumi":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Kyokukaiyu":{"actual":"j","actualVal":22,"record":"1-1","wins":1,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Shonannoumi":{"actual":"m17","actualVal":21,"record":"3-12","wins":3,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Oho":{"actual":"m10","actualVal":14,"record":"7-8","wins":7,"yusho":false,"sansho":[],"pred":{"jennie":"m7","mj":"m6","sherry":"m6","james":"m6","gumbai":"m8"},"prior":"k"},"Hakunofuji":{"actual":"k","actualVal":4,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m1","mj":"k","sherry":"k","james":"m1","gumbai":"k"},"prior":"m3"},"Hiradoumi":{"actual":"m8","actualVal":12,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m8","mj":"m10","sherry":"m10","james":"m8","gumbai":"m10"},"prior":"m3"},"Yoshinofuji":{"actual":"m2","actualVal":6,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m2","mj":"m2","sherry":"m2","james":"m2","gumbai":"m2"},"prior":"k"},"Dewanoryu":{"actual":"j","actualVal":22,"record":"2-0","wins":2,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Asasuiryu":{"actual":"m15","actualVal":19,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Wakamotoharu":{"actual":"m11","actualVal":15,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m11","mj":"m11","sherry":"m12","james":"m10","gumbai":"m11"},"prior":"m8"},"Takanosho":{"actual":"m4","actualVal":8,"record":"4-9","wins":4,"yusho":false,"sansho":[],"pred":{"jennie":"m4","mj":"m4","sherry":"m4","james":"m4","gumbai":"m4"},"prior":"m1"},"Churanoumi":{"actual":"m3","actualVal":7,"record":"10-5","wins":10,"yusho":false,"sansho":["Fighting Spirit"],"pred":{"jennie":"m3","mj":"m3","sherry":"m3","james":"m2","gumbai":"m3"},"prior":"m2"},"Daieisho":{"actual":"k","actualVal":4,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m1","mj":"s","sherry":"s","james":"m1","gumbai":"m1"},"prior":"m4"},"Arashifuji":{"actual":"j","actualVal":22,"record":"1-0","wins":1,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Onokatsu":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":"j","mj":"j","sherry":"j","james":"j","gumbai":"j"},"prior":"m15"},"Kotoeiho":{"actual":"m1","actualVal":5,"record":"5-10","wins":5,"yusho":false,"sansho":[],"pred":{"jennie":"m3","mj":"m1","sherry":"m1","james":"k","gumbai":"m2"},"prior":"m7"},"Shodai":{"actual":"m11","actualVal":15,"record":"3-12","wins":3,"yusho":false,"sansho":[],"pred":{"jennie":"m10","mj":"m11","sherry":"m11","james":"m9","gumbai":"m11"},"prior":"m6"},"Asanoyama":{"actual":"m6","actualVal":10,"record":"10-5","wins":10,"yusho":false,"sansho":[],"pred":{"jennie":"m8","mj":"m8","sherry":"m8","james":"m7","gumbai":"m7"},"prior":"m10"},"Oshoma":{"actual":"m5","actualVal":9,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"m6","mj":"m6","sherry":"m6","james":"m4","gumbai":"m6"},"prior":"m5"},"Kotozakura":{"actual":"o","actualVal":2,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"o","mj":"o","sherry":"o","james":"o","gumbai":"o"},"prior":"o"},"Aonishiki":{"actual":"o","actualVal":2,"record":"11-4","wins":11,"yusho":false,"sansho":[],"pred":{"jennie":"o","mj":"o","sherry":"o","james":"o","gumbai":"s"},"prior":"s"},"Gonoyama":{"actual":"m3","actualVal":7,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"m4","mj":"m3","sherry":"m3","james":"m3","gumbai":"m3"},"prior":"m2"},"Fujiryoga":{"actual":"m4","actualVal":8,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":"m5","mj":"m4","sherry":"m4","james":"m5","gumbai":"m4"},"prior":"m9"},"Roga":{"actual":"m5","actualVal":9,"record":"6-9","wins":6,"yusho":false,"sansho":[],"pred":{"jennie":"m5","mj":"m5","sherry":"m5","james":"m6","gumbai":"m5"},"prior":"m8"},"Asakoryu":{"actual":"m13","actualVal":17,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m13","mj":"m12","sherry":"m12","james":"m14","gumbai":"m13"},"prior":"m16"},"Abi":{"actual":"m13","actualVal":17,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":"m14","mj":"m13","sherry":"m13","james":"m13","gumbai":"m13"},"prior":"m12"},"Kazuma":{"actual":"j","actualVal":22,"record":"1-1","wins":1,"yusho":false,"sansho":[],"pred":{"jennie":"j","mj":"j","sherry":"j","james":"j","gumbai":"j"},"prior":"m15"},"Tobizaru":{"actual":"m14","actualVal":18,"record":"4-11","wins":4,"yusho":false,"sansho":[],"pred":{"jennie":"m13","mj":"m14","sherry":"m14","james":"m12","gumbai":"m14"},"prior":"m9"},"Kinbozan":{"actual":"m10","actualVal":14,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":"m12","mj":"m12","sherry":"m11","james":"m13","gumbai":"m11"},"prior":"m14"},"Toshinofuji":{"actual":"m16","actualVal":20,"record":"9-6","wins":9,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":null},"Asahakuryu":{"actual":"m12","actualVal":16,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":"m14","mj":"m13","sherry":"m13","james":"m15","gumbai":"m13"},"prior":"m12"},"Atamifuji":{"actual":"s","actualVal":3,"record":"8-7","wins":8,"yusho":false,"sansho":[],"pred":{"jennie":"s","mj":"s","sherry":"s","james":"s","gumbai":"s"},"prior":"s"},"Tamawashi":{"actual":"j","actualVal":22,"record":"0-1","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":null,"mj":null,"sherry":null,"james":null,"gumbai":null},"prior":"j"},"Wakanosho":{"actual":"m16","actualVal":20,"record":"0-0","wins":0,"yusho":false,"sansho":[],"pred":{"jennie":"m15","mj":"m14","sherry":"m14","james":"m12","gumbai":"m12"},"prior":"m11"}},"hasPred":true}]};</script>
+<script>
+(function(){
+  var body=document.getElementById('body');
+  var state={who:(DATA.members.find(function(m){return !m.pace;})||DATA.members[0]).key, sortT:(DATA.tournaments.filter(function(t){return t.hasPred;}).slice(-1)[0]||DATA.tournaments[DATA.tournaments.length-1]).id};
+  var RLABEL={y:'Y',o:'O',s:'S',k:'K',j:'Jur',r:'Ret'};
+  var SAN={'Outstanding Performance':'OP','Fighting Spirit':'FS','Technique':'TE'};
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function rlabel(c){ if(c==null) return '—'; if(RLABEL[c]) return RLABEL[c]; var m=String(c).match(/^m(\d+)$/); return m?('M'+m[1]):String(c).toUpperCase(); }
+  function rval(c,jv){ if(c==null) return null; if(c==='y')return 1;if(c==='o')return 2;if(c==='s')return 3;if(c==='k')return 4; if(c==='j')return jv; if(c==='r')return jv+2; var m=String(c).match(/^m(\d+)$/); return m?4+ +m[1]:null; }
+  function tour(id){ return DATA.tournaments.filter(function(t){return t.id===id;})[0]; }
+  function predOf(tw,who){ return tw && tw.pred ? tw.pred[who] : undefined; }
+  // makuuchi = a real top-division rank (not blank, not juryo, not retired)
+  function isMak(c){ if(c==null||c==='j'||c==='r') return false; return c==='y'||c==='o'||c==='s'||c==='k'||/^m\d+$/.test(String(c)); }
+
+  // wrestlers with a makuuchi ACTUAL rank in at least one tournament (drop blank/juryo-only names)
+  function rowsFor(who){
+    var names={};
+    DATA.tournaments.forEach(function(t){ Object.keys(t.wrestlers).forEach(function(n){ if(isMak(t.wrestlers[n].actual)) names[n]=1; }); });
+    return Object.keys(names).map(function(n){
+      var cells=DATA.tournaments.map(function(t){
+        var w=t.wrestlers[n]; if(!w) return {t:t, empty:true};
+        var pred=(t.hasPred && w.pred)?w.pred[who]:null; var pv=rval(pred,t.juryoValue);
+        var delta=(pv!=null && w.actualVal!=null)? (pv-w.actualVal):null;
+        return {t:t, hasPred:t.hasPred, pred:pred, actual:w.actual, delta:delta, record:w.record, wins:w.wins, yusho:w.yusho, sansho:w.sansho||[]};
+      });
+      return {name:n, cells:cells};
+    });
+  }
+  function sortRows(rows){
+    var si=DATA.tournaments.map(function(t){return t.id;}).indexOf(state.sortT);
+    return rows.slice().sort(function(a,b){
+      var ca=a.cells[si], cb=b.cells[si];
+      var wa=(ca&&ca.wins!=null)?ca.wins:-1, wb=(cb&&cb.wins!=null)?cb.wins:-1;
+      if(wb!==wa) return wb-wa;              // W-L desc
+      var ra=(ca&&ca.actual!=null)?rval(ca.actual, ca.t.juryoValue):999;
+      var rb=(cb&&cb.actual!=null)?rval(cb.actual, cb.t.juryoValue):999;
+      return ra-rb;                          // then actual rank asc
+    });
+  }
+  function dcls(d){ if(d==null)return''; var a=Math.abs(d); return a===0?'d0':a<=2?'dsm':a<=5?'dmd':'dlg'; }
+  function wlcls(rec){ if(!rec)return''; var m=rec.match(/(\d+)-(\d+)/); if(!m)return''; return (+m[1]>+m[2])?'kk':(+m[1]<+m[2]?'mk':''); }
+
+  // per-member golf + placement per tournament
+  function golfAll(t){
+    var g={};
+    DATA.members.forEach(function(mem){
+      var tot=0, any=false;
+      Object.keys(t.wrestlers).forEach(function(n){
+        var w=t.wrestlers[n]; var pc=w.pred?w.pred[mem.key]:null; if(pc==null) return; any=true;
+        if(pc==='r'||w.actual==='r'){ tot+=(pc==='r'&&w.actual==='r')?0:1; return; }
+        var pv=rval(pc,t.juryoValue), av=w.actualVal; if(pv==null||av==null) return; tot+=Math.abs(pv-av);
+      });
+      if(any) g[mem.key]=tot;
+    });
+    return g;
+  }
+  function placements(g){
+    var humans=DATA.members.filter(function(m){return !m.pace && g[m.key]!=null;}).map(function(m){return {k:m.key,golf:g[m.key]};}).sort(function(a,b){return a.golf-b.golf;});
+    var pl={},p=0,seen=0,prev=null; humans.forEach(function(h){ seen++; if(prev===null||h.golf!==prev){p=seen;prev=h.golf;} pl[h.k]=p; }); return pl;
+  }
+  function ord(n){var s=['th','st','nd','rd'],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);}
+
+  function summaryHTML(who){
+    return '<div class="summ">'+DATA.tournaments.filter(function(t){return t.hasPred;}).map(function(t){
+      var g=golfAll(t), pl=placements(g); var mine=g[who];
+      if(mine==null) return '<div class="scard"><div class="t">'+esc(t.short)+'</div><div class="big" style="color:var(--muted)">didn’t play</div></div>';
+      var isPace=DATA.members.filter(function(m){return m.key===who;})[0].pace;
+      var place=isPace?'<span class="pl">pace</span>':('<span class="pl"> · '+ord(pl[who]||0)+' of '+Object.keys(pl).length+'</span>');
+      return '<div class="scard"><div class="t">'+esc(t.short)+(t.yusho?(' · 🏆 '+esc(t.yusho)):'')+'</div><div class="big">score '+mine+place+'</div></div>';
+    }).join('')+'</div>';
+  }
+
+  // Analytics: signed bias by actual rank-tier (over/under-rating) + standout calls, for the selected member
+  function analyticsHTML(who){
+    var tierSum={sanyaku:[0,0],upper:[0,0],lower:[0,0]}; // [sumSignedDelta, n]
+    var calls=[];
+    DATA.tournaments.forEach(function(t){
+      Object.keys(t.wrestlers).forEach(function(n){
+        var w=t.wrestlers[n]; var pc=w.pred?w.pred[who]:null; if(pc==null||pc==='r'||w.actual==='r'||w.actualVal==null) return;
+        var pv=rval(pc,t.juryoValue); if(pv==null) return; var d=pv-w.actualVal;
+        var av=w.actualVal; var tier= av<=4?'sanyaku': (av<=12?'upper':'lower');
+        tierSum[tier][0]+=d; tierSum[tier][1]++;
+        calls.push({name:n, t:t.short, d:d, pred:pc, actual:w.actual});
+      });
+    });
+    function avg(a){ return a[1]? (a[0]/a[1]):null; }
+    function biasCard(lbl,a){
+      var v=avg(a); if(v==null) return '<div class="bias"><div class="lbl">'+lbl+'</div><div class="val">—</div></div>';
+      var vr=v.toFixed(1); var note=Math.abs(v)<0.4?'on the money':(v>0?'tends to underrate':'tends to overrate');
+      return '<div class="bias"><div class="lbl">'+lbl+'</div><div class="val" style="color:'+(Math.abs(v)<0.4?'var(--good)':(Math.abs(v)<1.3?'var(--warn)':'var(--bad)'))+'">'+(v>0?'+':'')+vr+'</div><div class="note">'+note+' ('+a[1]+')</div></div>';
+    }
+    var over=calls.slice().sort(function(a,b){return a.d-b.d;}).slice(0,3);  // most negative = overrated
+    var under=calls.slice().sort(function(a,b){return b.d-a.d;}).slice(0,3); // most positive = underrated
+    function li(c){ return esc(c.name)+' ('+esc(c.t)+'): called '+rlabel(c.pred)+', landed '+rlabel(c.actual)+' <b>('+(c.d>0?'+':'')+c.d+')</b>'; }
+    var whoName=DATA.members.filter(function(m){return m.key===who;})[0].name;
+    return '<div class="analytics"><h3>How '+esc(whoName)+'’s picks lean</h3>'+
+      '<p class="lede">Your average miss, grouped by where the wrestler actually landed. Positive means you ranked them too low, negative too high. Near zero means you had the range.</p>'+
+      '<div class="biasgrid">'+biasCard("San'yaku (Y–K)",tierSum.sanyaku)+biasCard('Upper Maegashira (M1–8)',tierSum.upper)+biasCard('Lower Maegashira (M9+)',tierSum.lower)+'</div>'+
+      '<div class="leans"><b>Most overrated:</b> <span class="over">'+over.map(li).join(' · ')+'</span><br>'+
+      '<b>Most underrated:</b> <span class="under">'+under.map(li).join(' · ')+'</span></div></div>';
+  }
+
+  // Movement blind spots: prediction error grouped by how far the wrestler ACTUALLY moved from the prior banzuke.
+  function movementHTML(who){
+    var B=[{lbl:'Big rise',sub:'↑5+'},{lbl:'Rose',sub:'↑2–4'},{lbl:'Held',sub:'±1'},{lbl:'Fell',sub:'↓2–4'},{lbl:'Big fall',sub:'↓5+'}];
+    B.forEach(function(b){ b.sum=0; b.abs=0; b.n=0; });
+    function bk(mv){ return mv>=5?B[0]: mv>=2?B[1]: mv>=-1?B[2]: mv>=-4?B[3]:B[4]; }
+    DATA.tournaments.forEach(function(t){
+      Object.keys(t.wrestlers).forEach(function(n){
+        var w=t.wrestlers[n]; var pc=w.pred?w.pred[who]:null;
+        if(pc==null||pc==='r'||w.actual==='r') return;
+        if(!isMak(w.actual)||!isMak(w.prior)) return;
+        var pv=rval(pc,t.juryoValue), av=w.actualVal, prv=rval(w.prior,t.juryoValue);
+        if(pv==null||av==null||prv==null) return;
+        var b=bk(prv-av); b.sum+=(pv-av); b.abs+=Math.abs(pv-av); b.n++;
+      });
+    });
+    function card(b){
+      if(!b.n) return '<div class="bias"><div class="lbl">'+b.lbl+' <span style="color:var(--muted)">'+b.sub+'</span></div><div class="val">—</div></div>';
+      var av=b.sum/b.n, col=Math.abs(av)<0.6?'var(--good)':(Math.abs(av)<1.6?'var(--warn)':'var(--bad)');
+      return '<div class="bias"><div class="lbl">'+b.lbl+' <span style="color:var(--muted)">'+b.sub+'</span></div>'+
+        '<div class="val" style="color:'+col+'">'+(av>0?'+':'')+av.toFixed(1)+'</div>'+
+        '<div class="note">avg Δ · '+(b.abs/b.n).toFixed(1)+' off ('+b.n+')</div></div>';
+    }
+    var worst=B.filter(function(b){return b.n>=2;}).sort(function(a,b){return Math.abs(b.sum/b.n)-Math.abs(a.sum/a.n);})[0];
+    var take='';
+    if(worst){ var av=worst.sum/worst.n;
+      take= Math.abs(av)<0.6
+        ? '<p class="leans" style="margin-top:9px">No big blind spot here, your calls track the movers well.</p>'
+        : '<p class="leans" style="margin-top:9px">Biggest blind spot: when a wrestler <b>'+worst.lbl.toLowerCase()+'</b> ('+worst.sub+'), you '+(av>0?'ranked them too low':'ranked them too high')+' by <b>'+Math.abs(av).toFixed(1)+'</b> on average. Nudge those calls '+(av>0?'higher':'lower')+'.</p>';
+    }
+    return '<div class="analytics"><h3>Reading the movers</h3>'+
+      '<p class="lede">Average Δ grouped by how far the wrestler actually moved from the prior banzuke. Big numbers mean you are not pricing in the jumps and falls.</p>'+
+      '<div class="biasgrid">'+B.map(card).join('')+'</div>'+take+'</div>';
+  }
+
+  function gridHTML(who){
+    var rows=sortRows(rowsFor(who));
+    var grp='<tr class="grp"><th class="wn" rowspan="2">Rikishi</th>'+DATA.tournaments.map(function(t){
+      return '<th colspan="'+(t.hasPred?4:2)+'"'+(t.hasPred?'':' class="ctx"')+'>'+esc(t.short)+'</th>';}).join('')+'</tr>';
+    var sub='<tr class="sub">'+DATA.tournaments.map(function(t){
+      return t.hasPred?'<th class="gs">Pred</th><th>Act</th><th>Δ</th><th>W–L</th>':'<th class="gs">Act</th><th>W–L</th>'; }).join('')+'</tr>';
+    var trs=rows.map(function(r){
+      var tds=r.cells.map(function(c){
+        var cols=c.t.hasPred?4:2;
+        if(c.empty){ var e='<td class="grpstart cell-empty">—</td>'; for(var i=1;i<cols;i++) e+='<td class="cell-empty">—</td>'; return e; }
+        var san=(c.sansho||[]).map(function(s){return '<span class="san '+SAN[s]+'">'+SAN[s]+'</span>';}).join('');
+        var wl=c.record?('<span class="wl '+wlcls(c.record)+'">'+esc(c.record)+'</span>'):'<span class="cell-empty">—</span>';
+        var ytag=c.yusho?' <span class="yusho" title="Yusho">🏆</span>':'';
+        if(c.hasPred){
+          var pred=c.pred==null?'<span class="cell-empty">—</span>':rlabel(c.pred);
+          var dtxt=c.delta==null?'—':((c.delta>0?'+':'')+c.delta);
+          return '<td class="grpstart">'+pred+'</td><td>'+rlabel(c.actual)+'</td>'+
+                 '<td class="'+dcls(c.delta)+'">'+dtxt+'</td><td>'+wl+ytag+san+'</td>';
+        }
+        return '<td class="grpstart ctx">'+rlabel(c.actual)+'</td><td class="ctx">'+wl+ytag+san+'</td>';
+      }).join('');
+      return '<tr><td class="wn">'+esc(r.name)+'</td>'+tds+'</tr>';
+    }).join('');
+    return '<div class="tablewrap"><table><thead>'+grp+sub+'</thead><tbody>'+trs+'</tbody></table></div>'+
+      '<p class="legend">Predicted basho show Pred · Act · Δ · W–L; context basho (no crew picks) show Act · W–L. Rows sorted by '+esc(tour(state.sortT).short)+' record, then actual rank. '+
+      '🏆 = champion · <span class="san OP">OP</span> · <span class="san FS">FS</span> · <span class="san TE">TE</span> sanshō · '+
+      '<span class="kk">green</span> winning, <span class="mk">maroon</span> losing.</p>';
+  }
+
+  function controlsHTML(){
+    var opts=DATA.members.map(function(m){return '<option value="'+m.key+'"'+(m.key===state.who?' selected':'')+'>'+esc(m.name)+(m.pace?' (pace car)':'')+'</option>';}).join('');
+    var sopts=DATA.tournaments.map(function(t){return '<option value="'+t.id+'"'+(t.id===state.sortT?' selected':'')+'>'+esc(t.short)+'</option>';}).join('');
+    return '<div class="controls"><label for="who">Crew member</label><select id="who">'+opts+'</select>'+
+      '<label for="sortT" style="margin-left:6px">Sort by</label><select id="sortT">'+sopts+'</select>'+
+      '<button class="dl" id="dl">⬇ Download to Excel</button></div>';
+  }
+
+  function render(){
+    body.innerHTML=controlsHTML()+summaryHTML(state.who)+analyticsHTML(state.who)+movementHTML(state.who)+gridHTML(state.who);
+    document.getElementById('who').onchange=function(){state.who=this.value;render();};
+    document.getElementById('sortT').onchange=function(){state.sortT=this.value;render();};
+    document.getElementById('dl').onclick=downloadXlsx;
+  }
+
+  // Excel: a working sheet per member (the selected one), rows=rikishi, cols per tournament, + a Δ the user can re-tweak.
+  function downloadXlsx(){
+    var who=state.who; var whoName=DATA.members.filter(function(m){return m.key===who;})[0].name;
+    var rows=sortRows(rowsFor(who));
+    var head=['Rikishi'];
+    DATA.tournaments.forEach(function(t){ head.push(t.short+' Pred', t.short+' Actual', t.short+' Δ', t.short+' W-L', t.short+' Prize'); });
+    var aoa=[head];
+    rows.forEach(function(r){
+      var line=[r.name];
+      r.cells.forEach(function(c){
+        if(c.empty){ line.push('','','','',''); return; }
+        var prize=(c.yusho?'Yusho':'')+((c.sansho||[]).length?((c.yusho?'; ':'')+c.sansho.map(function(s){return SAN[s];}).join('+')):'');
+        line.push((c.hasPred&&c.pred!=null)?rlabel(c.pred):'', rlabel(c.actual), (c.hasPred&&c.delta!=null)?c.delta:'', c.record||'', prize);
+      });
+      aoa.push(line);
+    });
+    var ws=XLSX.utils.aoa_to_sheet(aoa);
+    ws['!cols']=head.map(function(h){return {wch: h==='Rikishi'?14:Math.max(8,h.length+1)};});
+    var wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, whoName+' Predictions');
+    XLSX.writeFile(wb, 'SSS-Prediction-Tracker-'+whoName+'.xlsx');
+  }
+
+  render();
+})();
+</script>
+</body>
+</html>
