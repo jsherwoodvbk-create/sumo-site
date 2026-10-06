@@ -664,6 +664,16 @@ function tourneyLabel(bzPages, tid){
   for (const p of bzPages) { const t = rel1(p, 'Tournament'); if (t === tid) return titleOf(p, 'Entry').split(' — ')[1] || ''; }
   return '';
 }
+
+// House style: NO MACRONS (or circumflexes) anywhere rendered — the site writes Hoshoryu, not
+// Hōshōryū. Fold them at the render boundary so a macron in a Notion soft field (Translation /
+// Known For / Notes / Story / Nicknames) can never reach the dashboard and trip the publish verifier.
+// NFD splits a macronned/circumflexed vowel into base + combining mark; dropping U+0304 (macron)
+// and U+0302 (circumflex) leaves the plain letter. Raw Notion data is untouched.
+const demac = s => String(s ?? '').normalize('NFD').replace(/[\u0304\u0302]/g, '').normalize('NFC');
+// escape for the strings we drop into the template's innerHTML (bio/story values render as HTML)
+function esc(s){ return demac(s).replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c])); }
+
 // escape for the strings we drop into the template's innerHTML (bio/story values render as HTML)
 function esc(s){ return String(s ?? '').replace(/[&<>]/g, c => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[c])); }
 
