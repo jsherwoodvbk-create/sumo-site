@@ -1,40 +1,56 @@
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Aki 2026 · Prediction Grade</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Zen+Old+Mincho:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#efe1c2;--bg2:#e6d3ab;--panel:#fdf7e9;--card:#fbf1d9;--line:#c9b184;--ink:#3d2713;--muted:#8c7550;--gold:#c8912b;--vermilion:#cf4b2a;--win:#227a4b;--purple:#8a5cc0;}
-*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--ink);font-family:'Trebuchet MS',Verdana,sans-serif;line-height:1.4}
+:root{--bg:#f1e9db;--bg2:#ece0c6;--surface:#fbf7ef;--panel:#fbf7ef;--card:#efe6d3;--line:#e2d9c7;--ink:#26262b;--muted:#6f695d;--clay:#a9742c;--clay-soft:#e6cf9f;--gold:#a9742c;--vermilion:#cf5a2c;--win:#227a4b;--purple:#6a3d9a;}
+@media (prefers-color-scheme:dark){:root{--bg:#171719;--bg2:#1d1d22;--surface:#212127;--panel:#212127;--card:#2a2a31;--line:#33333b;--ink:#ece4d4;--muted:#a49c8b;--clay:#d2a35c;--clay-soft:#40331d;--gold:#d2a35c;--vermilion:#e5814f;--win:#49bd82;--purple:#b892e4;}}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,var(--bg),var(--bg2));color:var(--ink);font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.4}
+h1,h2{font-family:'Zen Old Mincho','Inter',Georgia,serif}
 .wrap{max-width:1040px;margin:0 auto;padding:22px 14px 60px}
-header.site{background:repeating-linear-gradient(178deg,rgba(0,0,0,.14) 0 1px,transparent 1px 4px),linear-gradient(160deg,#6e4826,#432a15);color:#fff;border-radius:14px;padding:18px 22px;border:1px solid #38230f;box-shadow:0 8px 22px rgba(50,30,10,.28);margin-bottom:14px}
-header.site h1{margin:0 0 3px;font-size:23px}header.site p{margin:0;color:#f0e6d0;opacity:.9;font-size:13.5px}
+header.site{background:repeating-linear-gradient(178deg,rgba(0,0,0,.14) 0 1px,transparent 1px 4px),repeating-linear-gradient(90deg,rgba(0,0,0,.05) 0 2px,transparent 2px 44px),linear-gradient(160deg,#6e4826,#432a15);color:#fff;border-radius:14px;padding:18px 22px;border:1px solid #38230f;box-shadow:0 8px 22px rgba(50,30,10,.28);margin-bottom:14px}
+header.site h1{margin:0 0 3px;font-size:23px;color:#fff}header.site p{margin:0;color:#f0e6d0;opacity:.9;font-size:13.5px}
 .hbrand{display:flex;align-items:center;gap:14px}
+.hdicon{width:50px;height:50px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
 .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;margin-left:auto;overflow:hidden;background:#efe7d5;box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease,box-shadow .12s ease}
 .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
 .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
 h2{font-size:16px;margin:22px 0 8px;color:var(--ink)}
 .note{background:var(--panel);border:1px solid var(--line);border-left:5px solid var(--gold);border-radius:10px;padding:10px 14px;font-size:13px;margin:10px 0}
 table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:10px;overflow:hidden;font-size:13.5px}
-thead th{background:#efe0bd;text-align:left;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:2px solid var(--line)}
-td{padding:7px 8px;border-bottom:1px solid #efe3c6}
+thead th{background:var(--clay-soft);text-align:left;font-size:11px;letter-spacing:.03em;text-transform:uppercase;color:var(--muted);padding:8px 8px;border-bottom:2px solid var(--line)}
+td{padding:7px 8px;border-bottom:1px solid var(--line)}
 .board td.pl{width:44px;font-weight:800;color:var(--muted)}.board td.nm{font-weight:700}.board .n{text-align:right;font-variant-numeric:tabular-nums}.board .fin{font-weight:800;font-size:15px}
-.board tr.lead{background:#fbf4df}.ai{font-size:11px;color:var(--purple);font-weight:700}
+.board tr.lead{background:color-mix(in srgb,var(--clay) 12%,transparent)}.ai{font-size:11px;color:var(--purple);font-weight:700}
 .board .pts{font-weight:800;color:var(--gold)}
-.pacecar{display:flex;align-items:center;gap:12px;background:#f3ecda;border:1px solid #d8c79e;border-radius:10px;padding:11px 15px;margin:10px 0}
-.pacecar .pcimg{font-size:26px;flex:0 0 auto}.pacecar .pctxt{font-size:13px;color:#5f5340;line-height:1.45}.pacecar .pctxt b{color:var(--purple)}
-.pacecar .pcp{margin-left:auto;text-align:center;flex:0 0 auto}.pacecar .pcp .pn{font-weight:800;font-size:20px;color:var(--purple)}.pacecar .pcp .pl2{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:#9a8a66}
+.pacecar{display:flex;align-items:center;gap:12px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:11px 15px;margin:10px 0}
+.pacecar .pcimg{font-size:26px;flex:0 0 auto}.pacecar .pctxt{font-size:13px;color:var(--muted);line-height:1.45}.pacecar .pctxt b{color:var(--purple)}
+.pacecar .pcp{margin-left:auto;text-align:center;flex:0 0 auto}.pacecar .pcp .pn{font-weight:800;font-size:20px;color:var(--purple)}.pacecar .pcp .pl2{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
 .grid{overflow-x:auto}
 .grid th.pcol,.grid td.pk{text-align:center}
-.grid td.wr{font-weight:700;white-space:nowrap}.grid td.ac{text-align:center;font-weight:800;background:#f3e7c9}
+.grid td.wr{font-weight:700;white-space:nowrap}.grid td.ac{text-align:center;font-weight:800;background:var(--clay-soft)}
 .fell{font-size:10px;color:var(--vermilion);font-weight:700}
 .pk .c{font-weight:700;display:block;font-size:13px}.pk .d{display:block;font-size:10px;color:var(--muted);font-variant-numeric:tabular-nums}
-.pk.hit{background:#dcefd6}.pk.hit .d{color:var(--win);font-weight:800}
-.pk.close{background:#f2eecb}.pk.far{background:#f6ddd3}.pk.far .d{color:var(--vermilion);font-weight:700}
+.pk.hit{background:color-mix(in srgb,var(--win) 20%,var(--surface))}.pk.hit .d{color:var(--win);font-weight:800}
+.pk.close{background:color-mix(in srgb,var(--clay) 16%,var(--surface))}.pk.far{background:color-mix(in srgb,var(--vermilion) 20%,var(--surface))}.pk.far .d{color:var(--vermilion);font-weight:700}
 .bonus{display:flex;flex-wrap:wrap;gap:14px}.bcol{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 14px;min-width:190px}
 .bcol h4{margin:0 0 6px}.bcol ul{margin:0;padding:0;list-style:none;font-size:13px}.bcol li{padding:2px 0}
 .br{color:var(--muted);font-weight:700}.bhit{color:var(--win);font-weight:700}.bmiss{color:var(--muted)}
 .legend{font-size:12px;color:var(--muted);margin-top:8px}.legend b{color:var(--ink)}
 </style>
 <div class="wrap">
-<header class="site"><div class="hbrand"><div><h1>🏵️ Aki 2026 · Prediction Grade</h1><p>Everyone's banzuke picks next to where the wrestlers actually landed. Lowest score wins: each pick counts the rungs it missed by.</p></div><a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a></div></header>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<filter id="inkS" x="-6%" y="-6%" width="112%" height="112%"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/></filter>
+<clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+<symbol id="ic-basho-aki" viewBox="0 0 120 120">
+  <circle cx="60" cy="60" r="58" fill="#efe7d5"/><circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/><circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+  <g clip-path="url(#coinClip)" filter="url(#inkS)">
+    <path fill="#211a12" d="M60 26 L71 41 L89 43 L75 57 L82 72 L66 70 L60 74 L54 70 L38 72 L45 57 L31 43 L49 41 Z"/>
+    <rect x="58.5" y="73" width="3" height="16" rx="1.5" fill="#b23a2e"/>
+  </g>
+</symbol>
+</defs></svg>
+<header class="site"><div class="hbrand"><svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-basho-aki"/></svg><div><h1>Aki 2026 · Prediction Grade</h1><p>Everyone's banzuke picks next to where the wrestlers actually landed. Lowest score wins: each pick counts the rungs it missed by.</p></div><a class="homecrest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a></div></header>
 
 <h2>Leaderboard · the crew's crown</h2>
 <table class="board"><thead><tr><th>#</th><th>Player</th><th class="n">Score</th><th class="n">Bonus</th><th class="n">Final</th><th class="n">Points</th></tr></thead><tbody>
