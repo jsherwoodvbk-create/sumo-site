@@ -87,10 +87,11 @@
         "basho": [
           "25Hr",
           "25Nt",
-          "25Ak"
+          "25Ak",
+          "26Ak"
         ],
         "era": "career",
-        "pre": 3
+        "pre": 2
       }
     ],
     "story": {
@@ -23335,10 +23336,11 @@
         "en": "Fighting Spirit",
         "count": 2,
         "basho": [
-          "25Ng"
+          "25Ng",
+          "26Ak"
         ],
         "era": "career",
-        "pre": 1
+        "pre": 0
       },
       {
         "jp": "Gino-sho",
@@ -26925,10 +26927,11 @@
         "en": "Fighting Spirit",
         "count": 2,
         "basho": [
-          "25Hr"
+          "25Hr",
+          "26Ak"
         ],
         "era": "career",
-        "pre": 1
+        "pre": 0
       },
       {
         "jp": "Gino-sho",
