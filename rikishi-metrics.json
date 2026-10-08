@@ -4671,6 +4671,46 @@
     ],
     "injuries": [
       {
+        "area": "Head / neck",
+        "nature": [
+          "Acute"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye",
+          "Booth mention"
+        ],
+        "condition": "Hakunofuji — head / neck (off-dohyo landing)",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): HEAD FIRST OFF THE DOHYO with Kotoshoho on top of him. A little wobbly getting up but seemed to walk it off. (Jennie, bout 15.)"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "The booth saw the aftermath only: 'Hakunofuji very slow to get up. Is he okay?' The eye caught the mechanism, which is the part that matters on a head impact."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WATCH CONDITION, set by Jennie 2026-10-07: if he is on the card and fighting normally on Day 8, close this row. If he is not, it is more serious than it looked and potentially a concussion protocol. He IS carded for Day 8, bout 19 against Kotozakura, so Day 8 answers this on its own."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WHY A ROW AT ALL for a man who walked away: a head is the one area where 'seemed fine on the day' is the weakest evidence on the sheet. Absence of symptoms in the next ten seconds is not absence of injury, and the cost of an open row that closes tomorrow is nothing."
+          }
+        ]
+      },
+      {
         "area": "nose / face",
         "nature": [
           "Acute"
@@ -9128,7 +9168,7 @@
     "henka": [],
     "injuries": [
       {
-        "area": "lower body/legs (unspecified)",
+        "area": "lower body/legs (unspecified) - right leg above+below knee (D1), left ankle (D7)",
         "nature": [
           "Suspected chronic"
         ],
@@ -9158,6 +9198,18 @@
             "bashoCode": null,
             "day": null,
             "text": "ONSET CORRECTED 2026-09-24: Onset Day moved from Aki Day 12 (booth's first mention) to Aki Day 1 (Scorekeeper Eye's first evidence), on Jennie's call. The booth entry above is kept in place as the later corroboration it actually is."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): LEFT ANKLE TAPED. 'Takan l ankle taped' (Jennie). Bout 13 vs Takayasu."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "LOGGED AS A LAYER, NOT A NEW ROW (Jennie, 2026-10-07). This row is deliberately filed as unspecified lower body, built from a booth read plus the Day 1 right-leg tape. A left ankle is more evidence FOR that vague row, not a separate claim, so it layers. Note this is the opposite call from Fujiseiun's left knee the same day, which got its own row because his existing row was specific (left foot and ankle) and a knee did not belong in it. The test is whether the existing row is specific enough to be wrong about the new site."
           }
         ]
       }
@@ -11117,6 +11169,12 @@
             "bashoCode": null,
             "day": null,
             "text": "THE RULE PAID OFF IMMEDIATELY. Had absent tape been allowed to ease this row on Day 3, Day 4 would have reopened it a day later. What the first three days actually showed was days he chose not to strap it, not a condition going quiet. Status was Active throughout and stays Active. Note for anyone reading the earlier layers: the absence was never evidence, and this is the proof."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): LEFT FOOT STILL TAPED. (Jennie) Second observed day running with the Lisfranc strapped, after D4. The on-and-off pattern of D1 through D3 has not come back. Status stays Active."
           }
         ]
       }
@@ -11941,6 +11999,39 @@
     },
     "henka": [],
     "injuries": [
+      {
+        "area": "Left knee",
+        "nature": [
+          "Acute"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Fujiseiun — left knee",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): LEFT KNEE TAPED ABOVE AND BELOW. 'F L Knee taped above and below' (Jennie). Bout 10 vs Asanoyama, the day's Lower bout of the day."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "SPLIT FROM THE FOOT ROW ON PURPOSE (Jennie, 2026-10-07). His other row is left foot and left ankle, first seen D4. A knee taped above and below is a different joint and a different mechanism, so it gets its own row rather than a Severity Log layer. Same reasoning as the Ura knees-versus-feet split on 2026-09-24."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WORTH KNOWING: he carried nothing at all through D3. In four days he has gone from clean to two separate sites on the same leg, which is a pattern rather than two unrelated knocks."
+          }
+        ]
+      },
       {
         "area": "Left foot; left ankle",
         "nature": [
@@ -19063,7 +19154,7 @@
     "henka": [],
     "injuries": [
       {
-        "area": "Right elbow; left foot; both arches; left knee",
+        "area": "Right elbow; left foot; both arches; left knee (closed D7)",
         "nature": [
           "Acute"
         ],
@@ -19099,6 +19190,18 @@
             "bashoCode": null,
             "day": null,
             "text": "26AkD4 (Scorekeeper Eye): NEW AREA — LEFT KNEE, taped above and below. Confirmed by Jennie 2026-09-28. Third site on this row alongside the right elbow and left foot. (Jennie)"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): LEFT KNEE WRAP GONE. 'no knee wrap now' (Jennie). The knee lasted D4 through D6 and is off by D7."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "PARTIAL CLOSE, NOT A ROW CLOSE. The activation rule closes an acute item when the tape goes, but this row carries four sites and only one of them went quiet. The row stays Active on the right elbow, left foot and arches; the left knee is marked closed in Area above. Flagged for the build side: the activation rule is written per-item and the schema is per-row, so a multi-site acute row cannot express a partial close except in prose. That is a real gap, not a one-off."
           }
         ]
       }
@@ -19724,16 +19827,61 @@
     ],
     "injuries": [
       {
-        "area": "Right eye",
+        "area": "Left eye / brow",
         "nature": [
           "Acute"
         ],
         "status": "Active",
         "source": [
+          "Seen-in-bout"
+        ],
+        "condition": "Asasuiryu — left eye / brow (bandaged)",
+        "firstBasho": "26Ak",
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": "Aki 2026",
+            "bashoCode": "26Ak",
+            "day": 7,
+            "text": "BAND-AID NOW ON THE LEFT BROW, and the right-brow one is gone."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Crew-caught by Sherry Robinson in the Salt Stats & Sumo thread: 'He started the tourney with one on his right eye brow. And on day 7 has one on his Left brow.' Jennie confirmed 2026-10-07: 'Sherry was correct and i missed it, band aid moved to the left eye, right eye bandaid gone.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "SEPARATE ROW FROM THE RIGHT EYE ON PURPOSE. The right-brow band-aid is gone, so that acute item closed to Dormant under the activation rule, and this is a new item on the other side. Two rows rather than one renamed row, so both dates survive and a third brow keeps counting toward a recurrence call."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "PROVENANCE NOTE: this is the first injury item this basho caught by the CREW rather than by the scorekeeper or the booth, and it is an item the scorekeeper pass missed. The lane has a third source and it is worth the spec saying so."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "This is also where his crew nickname comes from."
+          }
+        ]
+      },
+      {
+        "area": "Right eye",
+        "nature": [
+          "Acute"
+        ],
+        "status": "Dormant",
+        "source": [
           "Scorekeeper Eye"
         ],
         "condition": "Asasuiryu — right eye (bandaged)",
-        "firstBasho": null,
+        "firstBasho": "26Ak",
         "chronicSafe": false,
         "layers": [
           {
@@ -19741,6 +19889,18 @@
             "bashoCode": null,
             "day": null,
             "text": "26AkD1 (Scorekeeper Eye): Band-aid on the right eye on his Makuuchi debut day. (Jennie)"
+          },
+          {
+            "basho": "Aki 2026",
+            "bashoCode": "26Ak",
+            "day": 7,
+            "text": "RIGHT-BROW BAND-AID GONE. Status set to Dormant. Crew-caught by Sherry Robinson, confirmed by Jennie 2026-10-07: 'band aid moved to the left eye, right eye bandaid gone.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "IT DID NOT COME OFF, IT MOVED. A separate row was opened the same day for the left eye / brow. Dormant here says the record cannot see this one any more, not that it healed, and two rows keep both dates so a third brow still counts toward a recurrence call."
           }
         ]
       }
@@ -28415,7 +28575,7 @@
     "henka": [],
     "injuries": [
       {
-        "area": "Right knee; right hand; left ankle",
+        "area": "Right knee; right hand; left ankle; right ankle",
         "nature": [
           "Acute"
         ],
@@ -28438,6 +28598,12 @@
             "bashoCode": null,
             "day": null,
             "text": "26AkD2 (Scorekeeper Eye): Left ankle taped - new area, added. (Jennie)"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): RIGHT ANKLE TAPED - new area, added. 'F r ankle taped' (Jennie). Fourth site on this row. Both ankles are now on it, which is worth noting as a pattern rather than two unrelated knocks."
           }
         ]
       }
@@ -32437,7 +32603,7 @@
         "nature": [
           "Acute"
         ],
-        "status": "Active",
+        "status": "Dormant",
         "source": [
           "Scorekeeper Eye"
         ],
@@ -32450,6 +32616,18 @@
             "bashoCode": null,
             "day": null,
             "text": "26AkD1 (Scorekeeper Eye): Left ankle taped. (Jennie)"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD7 (Scorekeeper Eye): NO TAPE ON THE LEFT ANKLE. 'H no tape on l ankle' (Jennie). Status set to Dormant."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE ACTIVATION RULE, CLEAN. Single-site acute item, tape gone, row closes to Dormant rather than to healed. Dormant says the record cannot see it any more, not that it is better. If the tape comes back the row reopens to Active on the same row, the way Asanoyama's Lisfranc did on D4."
           }
         ]
       }
