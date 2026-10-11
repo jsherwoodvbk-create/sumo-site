@@ -2782,8 +2782,7 @@
       {
         "area": "Left foot — toe + ankle",
         "nature": [
-          "Chronic",
-          "Flared"
+          "Chronic"
         ],
         "status": "Active",
         "source": [
@@ -2810,7 +2809,7 @@
             "basho": "Nagoya 2026",
             "bashoCode": "26Ng",
             "day": 8,
-            "text": "Reaggravated on the win over Takanosho, goes down badly, hesitates to leave the dohyo, immediately stretches the leg out, dragging the foot in clear pain (flare). Into Day-9 vs Onosato."
+            "text": "Reaggravated on the win over Takanosho, goes down badly, dragging the foot in clear pain (flare)."
           },
           {
             "basho": "Nagoya 2026",
@@ -2822,19 +2821,19 @@
             "basho": "Nagoya 2026",
             "bashoCode": "26Ng",
             "day": 12,
-            "text": "Loses as sole leader to Kotoshoho, lower half not planted (off his low stance), foot aggravated by a jump off the dohyo; limps back to the shitakubeya."
+            "text": "Loses as sole leader to Kotoshoho, lower half not planted; limps back to the shitakubeya."
           },
           {
             "basho": "Nagoya 2026",
             "bashoCode": "26Ng",
             "day": 13,
-            "text": "'Struggling to walk at times' per the booth, yet beats Kirishima (katasukashi, minimal foot movement) to reclaim SOLE lead 11-2, winning sumo when it counts."
+            "text": "'Struggling to walk at times' per the booth, yet beats Kirishima to reclaim SOLE lead 11-2."
           },
           {
             "basho": "Nagoya 2026",
             "bashoCode": "26Ng",
             "day": 14,
-            "text": "Beats Takerufuji on the bad foot ('has the answer at the edge'), smart-fighting through the injury; stays SOLE leader 12-2 into the Day-15 decider."
+            "text": "Beats Takerufuji on the bad foot, smart-fighting through the injury."
           },
           {
             "basho": "Nagoya 2026",
@@ -2846,91 +2845,73 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26Aki Preview (0.5, air 09-11): Enters Aki the consensus favorite, presumed fit after playing through to the Nagoya cup. [booth]"
+            "text": "26Aki Preview (0.5, air 09-11): Enters Aki the consensus favorite, presumed fit. [booth]"
           },
           {
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 1,
-            "text": "Booth, likely not close to top form yet, still reeling from the left-foot injury; won his Ozeki-return bout (vs Kotoeiho) regardless. [booth: Raja]"
+            "text": "Booth, likely not close to top form yet, still reeling from the left-foot injury. [booth: Raja]"
           },
           {
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 1,
-            "text": "5 (live, air 09-13): Left ankle and foot visibly bandaged, booth says he can use it much like Nagoya despite the wrapping though clearly not at top form. Traces the injury to early May, before the Natsu basho. [booth: Raja]"
+            "text": "5 (live, air 09-13): Left ankle and foot visibly bandaged; traces the injury to early May. [booth: Raja]"
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "Aki2026D9: He may have re aggravated his left foot injury. Walking funny, back to his side of the dojo is Aonishiki, but look at the Ozeki's toughness. [booth, carrying]"
+            "text": "26AkD1 (Scorekeeper Eye): Left foot and ankle taped. Toe reads RECOVERED - the break now believed healed - but the left ankle is still not looking good. (Jennie)"
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "Aki2026D1: The Ukrainian's condition is likely not close to top form yet. He is still reeling from that left foot injury. [booth, carrying]"
+            "text": "26AkD3 (Scorekeeper Eye): Got up GINGERLY but there was NO LIMPING. Reads as a knock, not an aggravation. (Jennie)"
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "Aki2026D12: Aonishiki has aggravated his left foot injury, but is tough enough to not only keep fighting, but to fight well [booth, carrying]"
+            "text": "26AkD9 (Scorekeeper Eye): FLARE. 'A definitely limpling after that victory throw' (Jennie, bout 19 vs Yoshinofuji). Nature tagged Flared. First flare on this row since Nagoya, called on her own marker: limping is what distinguishes an aggravation from a knock."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD1 (Scorekeeper Eye): Left foot and ankle taped. Toe reads RECOVERED - the break that hampered him through the year now believed healed - but the left ankle is still not looking good. Splits the row's two halves for the first time. (Jennie)"
+            "text": "26AkD10 (Scorekeeper Eye): FLARE HOLDS, from new evidence. 'AO still protecting that left foot on the squats (completely flat footed and weight more on the right side).' The shikiri rather than the bout - a steady-state read of what he trusts the foot to do, with nobody forcing anything."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD3 (Scorekeeper Eye): Won the bout (BOTD-U, also a crew pick) and both men landed off the dohyo. Booth said no injuries. Aonishiki got up GINGERLY but there was NO LIMPING - worth the distinction, since limping is what has marked every real flare on this row since Nagoya Day 6. Reads as a knock, not an aggravation. Tape unchanged. (Jennie)"
+            "text": "26AkD12 (Scorekeeper Eye): FLARE TAG DROPPED. CHRONIC STAYS ACTIVE. 'a squat left foot back on toe' (Jennie, bout 19 vs Kinbozan, which he won)."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD9 (Scorekeeper Eye): FLARE. 'A definitely limpling after that victory throw' (Jennie, bout 19 vs Yoshinofuji, won by sukuinage). Nature tagged Flared, Status stays Active."
+            "text": "THE PROTECTION IS GONE AND THE SAME MEASUREMENT CAUGHT IT. On D10 the left foot was completely flat with the weight shifted right; on D12 it is back on the toe, which is the normal sonkyo posture. He is loading it again. The flare opened on a limp, held on a guarded squat, and closed on the squat returning to normal - three readings, one of them the thing that closed it."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THIS IS THE FIRST FLARE ON THIS ROW SINCE NAGOYA, and it is called on the marker Jennie set herself on D3: LIMPING is what distinguishes a real aggravation from a knock on this foot."
+            "text": "UNDER THE ACTIVATION RULE a flare tag drops when the flare goes and the chronic underneath does not move. Nature is back to Chronic alone; Status stays Active and always would have."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "NOTE THE INDEPENDENCE: the booth hedged the same bout as 'he MAY have re-aggravated his left foot injury, walking funny.' The eye did not need the booth and did not take its wording. 'Walking funny' is the booth's phrase; 'definitely limping' is hers, and only the second one meets the standing test."
+            "text": "THE METHOD POINT WORTH KEEPING: the squats turned out to be the better instrument twice. They caught the protection on D10 when the walk-off said nothing, and they caught its absence on D12. A limp is an event; the shikiri is a measurement, repeated four times before every bout in full view."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD10 (Scorekeeper Eye): FLARE HOLDS, AND FROM A NEW KIND OF EVIDENCE. 'AO still protecting that left foot on the squats (completely flat footed and weight more on the right side)' (Jennie, bout 17 vs Churanoumi, which he won)."
-          },
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "THIS IS THE SHIKIRI, NOT THE BOUT. Every observation on this row for a year and a half has come from how he moved during or after a fight. This one comes from the pre-bout squats, where the man is not under pressure and is not reacting to anything. Flat-footed on that side with the weight shifted to the right leg is him choosing not to load it, in a moment when nobody has made him."
-          },
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "WHY THAT IS BETTER EVIDENCE THAN A LIMP. A limp after a throw can be a knock that walks off, which is exactly the D3 reading. A guarded stance in the ritual is a steady-state measurement of what he trusts the foot to do, repeated four times before every bout, in full view. Worth adding to the standing watch on this row: check the squats, not just the walk-off."
-          },
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Flare tag stays until the protection goes."
+            "text": "The booth on this day still had him 'fighting through an aggravated left foot injury', which the eye now outruns."
           }
         ]
       }
@@ -4716,9 +4697,10 @@
       {
         "area": "Head / neck",
         "nature": [
-          "Acute"
+          "Acute",
+          "Worsened"
         ],
-        "status": "Dormant",
+        "status": "Active",
         "source": [
           "Scorekeeper Eye",
           "Booth mention"
@@ -4743,7 +4725,7 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "WATCH CONDITION, set by Jennie 2026-10-07: if he is on the card and fighting normally on Day 8, close this row. If he is not, it is more serious than it looked and potentially a concussion protocol."
+            "text": "WATCH CONDITION, set by Jennie: if he is on the card and fighting normally on Day 8, close this row. If he is not, it is more serious than it looked and potentially a concussion protocol."
           },
           {
             "basho": null,
@@ -4761,13 +4743,43 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THE WATCH CONDITION DID ITS JOB. He was back the next day and drove an Ozeki out of the ring, which is the opposite of a man protecting a head. The row existed for about twenty-four hours and cost nothing; had he been scratched or passive instead, it would have been the earliest marker of something serious and dated to the right day. That asymmetry is the argument for opening this kind of row at all."
+            "text": "THE WATCH CONDITION DID ITS JOB. He was back the next day and drove an Ozeki out of the ring, which is the opposite of a man protecting a head."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "READ DORMANT CORRECTLY: this says the record cannot see it any more, not that nothing happened. The landing is still on the record with its date."
+            "text": "26AkD11 (Scorekeeper Eye): REOPENED TO ACTIVE. 'H was slow to get up but it didn't look like that hard of a fall. they must be adding up.' (Jennie, bout 16 vs Takayasu, a loss that gave him makekoshi.) Booth: 'Hakunofuji slowly get up. It's okay. He hit his body hard against the clay. Seems to be alright.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WHAT CHANGED IS THE CLAIM, NOT THE EVENT. D7 was one hard landing. This is the SECOND slow rise in five days, off a fall Jennie judged NOT hard - and that mismatch is the whole observation. A man taking longer to get up after a smaller fall is the shape of accumulation, which is what she called: 'they must be adding up.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THIS IS A CUMULATIVE READ, AND IT IS HERS, NOT A DIAGNOSIS. Nothing says concussion, nothing says a specific structure. What is on the record is two slow rises, the second disproportionate to its cause."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NATURE TAGGED WORSENED, not Flared. A flare is a known condition getting louder; this is a pattern forming that the original single-event row did not anticipate."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE ROW TITLE NOW UNDER-DESCRIBES IT. It says 'off-dohyo landing', which was true of D7 and is not true of D11. The title is a claim and this one has outgrown it. Flagged for Jennie: rename, or split the cumulative read onto its own row. Not done unilaterally, because a title change rewrites what the row has been asserting for four days."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WATCH: whether a third one appears, and whether it again looks out of proportion to the fall. Four days of the basho left."
           }
         ]
       },
@@ -5786,6 +5798,83 @@
     },
     "henka": [],
     "injuries": [
+      {
+        "area": "Head / jaw - CONCUSSION",
+        "nature": [
+          "Acute",
+          "Worsened"
+        ],
+        "status": "Withdrawn",
+        "source": [
+          "Scorekeeper Eye",
+          "Booth mention"
+        ],
+        "condition": "Kotoshoho — concussion (forehead to chin, kyujo)",
+        "firstBasho": "26Ak",
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": "Aki 2026",
+            "bashoCode": "26Ak",
+            "day": 11,
+            "text": "HEAD IMPACT. Churanoumi's forehead into Kotoshoho's chin at the tachiai; he went down hard. The booth said it twice, on the call and again on the replay, and volunteered that walking back to the shitakubeya under his own power was 'a good sign'."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "JENNIE (Scorekeeper Eye), bout 14: 'need to keep an eye on k.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "ROW OPENED ON THE HAKUNOFUJI PRECEDENT: a head impact gets a row even when the man walks away, because a head is the one area where 'seemed fine on the day' is the weakest evidence available."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WATCH CONDITION SET: on the card and fighting normally on Day 12 closes this to Dormant. Absent, passive, or slow again and it is more than a knock."
+          },
+          {
+            "basho": "Aki 2026",
+            "bashoCode": "26Ak",
+            "day": 12,
+            "text": "KYUJO. CONCUSSION. He does not appear. He withdraws from Day 12 with a concussion sustained in the Day 11 bout, and Fujiryoga takes bout 13 by fusen. Status set to Withdrawn, which comes from results data rather than from the booth. Nature gains Worsened."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THIS IS THE CASE THE RULE WAS WRITTEN FOR. The argument for opening a head row on a man who walks away was the asymmetry: an open row that closes the next day costs nothing, and the absence of a row costs the onset date on the one occasion it matters. This is that occasion. Because the row existed, the concussion is dated to DAY 11, attributed to the mechanism that caused it, and tied to the bout - instead of surfacing as a Day 12 withdrawal with no history behind it."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE BOOTH'S 'GOOD SIGN' LINE STAYS ON THIS ROW EXACTLY AS IT WAS SAID. It was wrong. Walking back unaided is not a concussion screen, and a record that quietly deletes the reassurance it was given learns nothing. Keep it as the counter-example."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NOTHING ATTACHES TO CHURANOUMI. A legal tachiai and the commonest collision in the sport. No conduct tag, nothing on his record."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE WATCH CONDITION DID THE WORK. Three head-ish events on this card in six days and the same pattern resolved all three: Hakunofuji D7 closed D8 then reopened D11 on accumulation, Takayasu D9 closed D10, Kotoshoho D11 escalated to kyujo D12. Two of the three turned out to be more than they looked on the day."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "SEPARATE FROM his left knee / left ball of foot acute row, which is unaffected."
+          }
+        ]
+      },
       {
         "area": "Left knee; left ball of foot",
         "nature": [
@@ -10467,7 +10556,7 @@
       }
     ],
     "story": {
-      "html": "<span class=\"who\">Asanoyama</span> is a former Ozeki on the way back. The tracker caught him down in juryo in late 2025, and from there he has climbed back up through the division. His shikona reads as \"morning mountain,\" the \"asa\" marking him as a Takasago man, and he fought earlier as Ishibashi. He wears a deep plum purple mawashi. A former top-ranker rebuilding in real time is one of the more compelling arcs on the board.",
+      "html": "<span class=\"who\">Asanoyama</span> is a former Ozeki on the way back. The tracker caught him down in juryo in late 2025, and from there he has climbed back up through the division. His shikona reads as \"morning mountain,\" the \"asa\" marking him as a Takasago man, and he fought earlier as Ishibashi. He wears a deep plum purple mawashi. A former top-ranker rebuilding in real time is one of the more compelling arcs on the board.<br><br>He has said how close it came to ending. Before the Aki 2026 basho he told announcer Hiro Morita that after facing so many challenges he once thought about quitting, and that he kept going because he wanted to repay his loyal fans and knew he still had more he wanted to accomplish. Morita shared it on air on day 11, the day Asanoyama beat Kinbozan for his winning record.",
       "source": "Crew-written."
     },
     "arc": {
@@ -12951,6 +13040,51 @@
       }
     ],
     "injuries": [
+      {
+        "area": "Left shoulder",
+        "nature": [
+          "Suspected chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Takerufuji — left shoulder (cupping)",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26AkD11 (Scorekeeper Eye): FRESH CUPPING BRUISE ON THE LEFT SHOULDER. 'T fresh cupping bruise on left shoulder' (Jennie, bout 7 vs Abi)."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NEW ROW, NOT A LAYER ON THE BACK ROW. His 'Takerufuji - back (cupping)' row is specifically the back, and a left shoulder would make that row lie, so it splits under the new-row-vs-layer test. The back row stays EASED: no fresh marks have appeared on the back, only here."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WHY FRESH MATTERS. The standing rule on cupping is that a fading bruise is a weak signal, because it only tells you the cupping happened a while ago. A FRESH bruise is the opposite: it dates the treatment to within a day or two and means something was being treated right now. That is why this opens a row rather than sitting as colour."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Nature is Suspected chronic rather than Acute for the same reason the back row is: the area is inferred from where the marks are, not from a stated diagnosis."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THIRD SITE ON THIS MAN. He already carries the right elbow and forearm (Active, since D1) and the back (Eased). The booth flagged unspecified 'injury concerns' on him twice this basho, D5 and earlier, and never named anything. Three separate treated sites in eleven days is itself worth reading, and it is the kind of pattern the end-of-basho remodel should be able to surface without a human noticing it by hand."
+          }
+        ]
+      },
       {
         "area": "Back",
         "nature": [
@@ -19311,7 +19445,7 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD3 (booth: Murray, bout 4 vs Abi): 'I wonder how long you can compete in this tournament, that arm is really bothering him.' Name not in the transcript at that point — the passage is cut — but attributed to Tobizaru by Jennie. Raises the elbow from a tape observation to a booth-flagged concern about whether he finishes the basho. Worth watching for a mid-basho withdrawal. (Jennie + booth)"
+            "text": "26AkD3 (booth: Murray, bout 4 vs Abi): 'I wonder how long you can compete in this tournament, that arm is really bothering him.' Name not in the transcript at that point — the passage is cut — but attributed to Tobizaru by Jennie. Raises the elbow from a tape observation to a booth-flagged concern about whether he finishes the basho."
           },
           {
             "basho": null,
@@ -19323,19 +19457,49 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD4 (Scorekeeper Eye): NEW AREA — LEFT KNEE, taped above and below. Confirmed by Jennie 2026-09-28. Third site on this row alongside the right elbow and left foot. (Jennie)"
+            "text": "26AkD4 (Scorekeeper Eye): NEW AREA — LEFT KNEE, taped above and below. Third site on this row."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD7 (Scorekeeper Eye): LEFT KNEE WRAP GONE. 'no knee wrap now' (Jennie). The knee lasted D4 through D6 and is off by D7."
+            "text": "26AkD7 (Scorekeeper Eye): LEFT KNEE WRAP GONE. 'no knee wrap now' (Jennie). Partial close on a multi-site row, marked in Area; the row stays Active on the other three sites."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "PARTIAL CLOSE, NOT A ROW CLOSE. The activation rule closes an acute item when the tape goes, but this row carries four sites and only one of them went quiet. The row stays Active on the right elbow, left foot and arches; the left knee is marked closed in Area above. Flagged for the build side: the activation rule is written per-item and the schema is per-row, so a multi-site acute row cannot express a partial close except in prose. That is a real gap, not a one-off."
+            "text": "26AkD11 (Scorekeeper Eye): DIRECT HIT ON THE RIGHT ELBOW, AND IT HELD. Wakamotoharu landed a kachiage on it at the tachiai. Booth, three separate lines: 'a forearm shiver kachiage, with big damage to Tobizaru' / 'Tobizaru unable to recover, he lost his balance immediately' / 'right elbow, blast to Tobizaru, Tobizaru not recovering.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "JENNIE'S READ: 'T elbow is still taped and the tachiai did seem to favor the bad side but it didnt look like more damage was done.'"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THREE THINGS IN THAT, AND THEY PULL DIFFERENT WAYS. The tape is still on, so no change there. He FAVOURED the bad side going in, which is a functional observation on a row that has only ever held anatomical ones - he is altering his tachiai around it. And despite the booth calling it big damage three times, her eye says no new damage was done."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "SO THE BOOTH'S 'DAMAGE' IS ABOUT THE BOUT, NOT THE MAN. 'Not recovering' meant he could not recover his balance and lost. Taken as an injury report it reads far worse than what actually happened, and this is a clean example of why the eye overrides the booth on condition."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NO STATUS CHANGE. The first thing ever seen to HAPPEN to this elbow rather than just be taped, and the answer is that it took a direct kachiage and came through it. That is worth more than another day of tape."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Booth the same bout, cutting the other way: 'Tobizaru is looking much sharper this time around, quicker on his feet, more mobile and attacking with real aggression.'"
           }
         ]
       }
@@ -26292,7 +26456,14 @@
         }
       }
     },
-    "henka": [],
+    "henka": [
+      {
+        "label": "Partial",
+        "his": 1.2,
+        "avg": 0.2,
+        "n": "1 in 81 bouts"
+      }
+    ],
     "injuries": [
       {
         "area": "Right hand",
@@ -30739,7 +30910,7 @@
         "nature": [
           "Suspected chronic"
         ],
-        "status": "Eased",
+        "status": "Active",
         "source": [
           "Booth mention"
         ],
@@ -30751,61 +30922,73 @@
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 5,
-            "text": "First logged this basho (true onset earlier/unknown). Booth: nothing beyond what he normally carries, looked weak. [booth — verify]"
+            "text": "First logged this basho. Booth: nothing beyond what he normally carries, looked weak. [booth — verify]"
           },
           {
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 6,
-            "text": "Murray named a lower back problem specifically. Still no power, taken straight back and lost again to fall to 0-6; booth said he is not providing any opposition at all and hopes the injury is not threatening him. [booth, carrying]"
+            "text": "Murray named a lower back problem specifically. No power, taken straight back, 0-6. [booth, carrying]"
           },
           {
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 7,
-            "text": "No observation. Jennie logged nothing on him this day, so the row is unchanged rather than confirmed."
+            "text": "No observation."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD8 (Scorekeeper Eye): FIRST POSITIVE SIGNAL. 'Long Bout Ichi hung in there so maybe he's doing better' (Jennie, bout 10 vs Ura). Status deliberately left Active: a hedge is evidence, not a verdict."
+            "text": "26AkD8 (Scorekeeper Eye): First positive signal. 'Long Bout Ichi hung in there so maybe he's doing better.' Status left Active: a hedge is evidence, not a verdict."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD9 (Scorekeeper Eye): CALL DEFERRED AGAIN. 'long bout but under a minute, ichi slow to get up after a throw. if ichi's issue is back, that throw might have tweaked him. let's keep him on the list for at least another day.' Sustained upper-body battle, went for an arm inside, caught by a kotenage. Recovery signal and a possible setback in the same bout."
+            "text": "26AkD9 (Scorekeeper Eye): Deferred. Sustained upper-body battle, went for an arm inside, caught by a kotenage, slow to get up."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD10 (Scorekeeper Eye): EASED. 'another long bout over 30s. lets ease ichi formally.' (Jennie, bout 10 vs Oho.)"
+            "text": "26AkD10 (Scorekeeper Eye): EASED. 'another long bout over 30s. lets ease ichi formally.' He took a left-hand inside grip, turned it into a power game against a man about 20 kg heavier, and drove Oho to the edge and out."
+          },
+          {
+            "basho": "Aki 2026",
+            "bashoCode": "26Ak",
+            "day": 11,
+            "text": "The booth contradicted the ease ('his trademark forward charge is almost non-existent') and the eye did not: 'holding his own while losing... held on till the throw.' Eased held. The booth measures a man against his usual form; this row measures whether he can generate anything at all."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "WHAT CLOSED IT. This row's entire content was a FUNCTIONAL deficit: no pushing power, no opposition at all, taken straight back. On D10 he took a strong left-hand inside grip, turned it into a power game against a man roughly 20 kg heavier, and drove Oho to the edge and out for a rare second win. The booth's own pre-bout read had been a TECHNIQUE criticism rather than an injury one: 'he's just tachiai'd too high, he needs to get lower, then he has no power.'"
+            "text": "26AkD12 (Scorekeeper Eye): REOPENED TO ACTIVE. 'I offered no resistance today' (Jennie, bout 10 vs Wakamotoharu)."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THE SIGNAL WAS NEVER THE RESULT. He also won on D7, off Nishikifuji pulling at the tachiai, and that demonstrated nothing about him. Four days of evidence, and the three that counted were a long bout he endured (D8), a real fight he lost to a technique (D9), and a power win on his own grip (D10). The one win that was handed to him is the one that proved least."
+            "text": "THAT IS THE DEFICIT, IN THE ROW'S OWN WORDS. The original D6 entry reads 'not providing any opposition at all'. 'Offered no resistance' is the same observation, from the eye this time rather than the booth, and it is a flat statement rather than a hedge."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "EASED, NOT DORMANT. The deficit is no longer observable but the row is Suspected chronic and the booth's lower-back claim was never evidenced or disproved. Eased says looking better; it does not say the thing never existed. Area stays general / unknown, and it never took the booth's area at any point."
+            "text": "WHY THIS REOPENS AND D11 DID NOT. On D11 she described him DOING something - holding his own, hanging on until the throw - and a loss earned in a contest is not the deficit. Here she describes him doing nothing. The row has always tracked capability, not results, and the capability is what went away."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "FIRST FULL LIFECYCLE OF A FUNCTIONAL ROW: opened on a deficit D5, escalated by the booth D6, held through two hedges, closed on capability returning D10. The methodology in state/injury-lane-backlog.md was written mid-run against this exact case and it held."
+            "text": "STATUS CHANGED WITHOUT AN EXPLICIT 'REOPEN IT' FROM JENNIE, on the reasoning that the standing rule is a HEDGE needs her call, and this is not a hedge. The functional equivalent of tape reappearing is the deficit reappearing, and the activation rule reopens on reappearance without asking. Easily reversed if she reads it otherwise."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "FOUR-DAY SHAPE: eased D10 on a power win, held D11 on a competitive loss, reopened D12 on a no-contest. The row is behaving like a sensor rather than a verdict, which is what it was built to be."
           }
         ]
       }
@@ -31798,9 +31981,9 @@
       },
       {
         "label": "Partial",
-        "his": 1.9,
+        "his": 2.8,
         "avg": 0.2,
-        "n": "2 in 106 bouts"
+        "n": "3 in 106 bouts"
       }
     ],
     "injuries": [
@@ -39105,19 +39288,31 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26AkD9 (Scorekeeper Eye): ESCALATED. 'C right foot is either booted or entirely taped up to ankle' (Jennie, bout 5 vs Kinbozan, the day's Lower bout of the day). A boot or full-foot strapping is a long way past the single ankle tape this started as."
+            "text": "26AkD9 (Scorekeeper Eye): ESCALATED. 'C right foot is either booted or entirely taped up to ankle' (Jennie, bout 5 vs Kinbozan). A boot or full-foot strapping is a long way past the single ankle tape this started as."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "ROW SPLIT OUT 2026-10-07, ONSET BACKDATED TO DAY 1. The right-ankle observation had been living as a Severity Log layer on 'Chiyoshoma - chronic lower back', which is a different area entirely and a chronic rather than an acute. It never belonged there. The layer stays on that row for audit; this row is now where the right foot lives, dated to its first evidence on Day 1 rather than to the day it was noticed as its own thing."
+            "text": "ROW SPLIT OUT 2026-10-07, ONSET BACKDATED TO DAY 1. The right-ankle observation had been living as a Severity Log layer on 'Chiyoshoma - chronic lower back', which is a different area entirely and a chronic rather than an acute. It never belonged there."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "Same onset-correction principle as Takanosho's right leg on 2026-09-24: the date is the first evidence, not the first time anyone filed it properly."
+            "text": "26AkD11 (Scorekeeper Eye): STILL BOOTED. 'c still has bootie' (Jennie, bout 1 vs Dewanoryu). Two days running."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THIS IS THE ONE FOOT ITEM THE NEW EXCLUSION RULE DOES NOT TOUCH. Jennie clarified the same day that a tight wrap around the top of the ankle does not log, on the same near-universality reasoning as wrist tape. A boot or a full strapping up the foot is the opposite of near-universal: nobody else on the card has one, and it is the single most conspicuous piece of support in the division right now."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WATCH: whether it comes off before the basho ends, and whether his sumo changes around it. He is 35 and chasing his first kachikoshi in three tournaments."
           }
         ]
       },
