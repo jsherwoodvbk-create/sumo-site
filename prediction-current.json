@@ -1,10 +1,264 @@
 {
   "cfg": {
-    "basho": "Aki 2026",
-    "refBasho": "Nagoya 2026",
+    "basho": "Kyushu 2026",
+    "refBasho": "Aki 2026",
     "phase": "open",
-    "sheetEditUrl": "https://docs.google.com/spreadsheets/d/1iQBelrHKmwar3IWH072kvoZCcqP01UD9/edit?gid=523517538#gid=523517538",
+    "sheetEditUrl": "",
     "csvUrl": "",
-    "lockNote": "Reveals when the Aki banzuke is announced."
-  }
+    "lockNote": "Reveals when the Kyushu banzuke is announced."
+  },
+  "roster": [
+    {
+      "n": "Onosato",
+      "r": "Yokozuna",
+      "rec": "12–3",
+      "kk": "KK"
+    },
+    {
+      "n": "Hoshoryu",
+      "r": "Yokozuna",
+      "rec": "—",
+      "kk": ""
+    },
+    {
+      "n": "Kirishima",
+      "r": "Ozeki",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Aonishiki",
+      "r": "Ozeki",
+      "rec": "11–4",
+      "kk": "KK"
+    },
+    {
+      "n": "Kotozakura",
+      "r": "Ozeki",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Atamifuji",
+      "r": "Sekiwake",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Fujinokawa",
+      "r": "Sekiwake",
+      "rec": "11–4",
+      "kk": "KK"
+    },
+    {
+      "n": "Daieisho",
+      "r": "Komusubi",
+      "rec": "5–10",
+      "kk": "MK"
+    },
+    {
+      "n": "Hakunofuji",
+      "r": "Komusubi",
+      "rec": "5–10",
+      "kk": "MK"
+    },
+    {
+      "n": "Kotoshoho",
+      "r": "M1",
+      "rec": "5–7",
+      "kk": ""
+    },
+    {
+      "n": "Kotoeiho",
+      "r": "M1",
+      "rec": "5–10",
+      "kk": "MK"
+    },
+    {
+      "n": "Takayasu",
+      "r": "M2",
+      "rec": "7–8",
+      "kk": "MK"
+    },
+    {
+      "n": "Yoshinofuji",
+      "r": "M2",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Gonoyama",
+      "r": "M3",
+      "rec": "6–9",
+      "kk": "MK"
+    },
+    {
+      "n": "Churanoumi",
+      "r": "M3",
+      "rec": "10–5",
+      "kk": "KK"
+    },
+    {
+      "n": "Takanosho",
+      "r": "M4",
+      "rec": "4–9",
+      "kk": "MK"
+    },
+    {
+      "n": "Fujiryoga",
+      "r": "M4",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Oshoma",
+      "r": "M5",
+      "rec": "6–9",
+      "kk": "MK"
+    },
+    {
+      "n": "Roga",
+      "r": "M5",
+      "rec": "6–9",
+      "kk": "MK"
+    },
+    {
+      "n": "Asanoyama",
+      "r": "M6",
+      "rec": "10–5",
+      "kk": "KK"
+    },
+    {
+      "n": "Ichiyamamoto",
+      "r": "M6",
+      "rec": "4–11",
+      "kk": "MK"
+    },
+    {
+      "n": "Nishikifuji",
+      "r": "M7",
+      "rec": "7–8",
+      "kk": "MK"
+    },
+    {
+      "n": "Fujiseiun",
+      "r": "M7",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Hiradoumi",
+      "r": "M8",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Takerufuji",
+      "r": "M8",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Shishi",
+      "r": "M9",
+      "rec": "7–8",
+      "kk": "MK"
+    },
+    {
+      "n": "Ura",
+      "r": "M9",
+      "rec": "10–5",
+      "kk": "KK"
+    },
+    {
+      "n": "Oho",
+      "r": "M10",
+      "rec": "7–8",
+      "kk": "MK"
+    },
+    {
+      "n": "Kinbozan",
+      "r": "M10",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Shodai",
+      "r": "M11",
+      "rec": "3–12",
+      "kk": "MK"
+    },
+    {
+      "n": "Wakamotoharu",
+      "r": "M11",
+      "rec": "10–5",
+      "kk": "KK"
+    },
+    {
+      "n": "Wakatakakage",
+      "r": "M12",
+      "rec": "—",
+      "kk": ""
+    },
+    {
+      "n": "Asahakuryu",
+      "r": "M12",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Asakoryu",
+      "r": "M13",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Abi",
+      "r": "M13",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Tobizaru",
+      "r": "M14",
+      "rec": "4–11",
+      "kk": "MK"
+    },
+    {
+      "n": "Chiyoshoma",
+      "r": "M14",
+      "rec": "5–10",
+      "kk": "MK"
+    },
+    {
+      "n": "Tokihayate",
+      "r": "M15",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Asasuiryu",
+      "r": "M15",
+      "rec": "8–7",
+      "kk": "KK"
+    },
+    {
+      "n": "Wakanosho",
+      "r": "M16",
+      "rec": "—",
+      "kk": ""
+    },
+    {
+      "n": "Toshinofuji",
+      "r": "M16",
+      "rec": "9–6",
+      "kk": "KK"
+    },
+    {
+      "n": "Shonannoumi",
+      "r": "M17",
+      "rec": "3–12",
+      "kk": "MK"
+    }
+  ]
 }
