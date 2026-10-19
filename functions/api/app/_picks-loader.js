@@ -8,9 +8,10 @@
 //    The caller passes it in; the loader returns it verbatim. Unchanged behavior for Aki.
 //  • LIVE KV — the open / just-closed basho (e.g. Kyushu). Human picks the crew typed on the pick
 //    screen, stored by prediction.js as  pred:{bashoCode}:{email} -> {email,name,basho,picks,savedAt}.
-//    KV binding: PREDICTIONS. One doc per member. NOTE: the app form captures RANKS ONLY — it never
-//    stores juryo->makuuchi `bonus` picks — so live players grade on base only (bonus:[]) unless a
-//    bonus source is added later. (A doc that happens to carry a `bonus` array is still honored.)
+//    KV binding: PREDICTIONS. One doc per member. The app form (app/prediction.html) saves picks
+//    NESTED as  { ranks:{Name:code}, bonus:[{name,rank}] }; this loader reads picks.ranks (the flat
+//    map the engine grades) and picks.bonus (juryo->makuuchi guesses, -1 each on a name+rank hit).
+//    A legacy flat { Name:code } doc is still tolerated (ranks = picks). Gumbai sits out the bonus.
 //  • GUMBAI (the pace car) never POSTs through the member endpoint, so for a live basho its picks
 //    come from an optional per-basho module handed in as `gumbaiPlayer` (same {key,name,ranks,bonus}
 //    shape, authored from the rollover workbook's Gumbai column). Absent -> no pace car that basho;
@@ -47,14 +48,19 @@ async function livePlayers(env, bashoCode) {
       if (!raw) continue;
       let doc;
       try { doc = JSON.parse(raw); } catch { continue; }
-      const ranks = doc && doc.picks ? doc.picks : {};
+      // The member form saves picks NESTED: { ranks:{Name:code}, bonus:[{name,rank}] }. Pull the flat
+      // rank map out of picks.ranks (the engine iterates player.ranks as {Name:code}) and the juryo
+      // bonus out of picks.bonus. Tolerate a legacy flat { Name:code } doc (ranks = picks).
+      const p = (doc && doc.picks) || {};
+      const ranks = (p.ranks && typeof p.ranks === 'object') ? p.ranks : p;
+      const bonus = Array.isArray(p.bonus) ? p.bonus : [];
       if (!ranks || !Object.keys(ranks).length) continue;   // skip empty / started-but-blank saves
       players.push({
         key: keyForName(doc.name),
         name: doc.name || keyForName(doc.name),
         ranks,
-        bonus: Array.isArray(doc.bonus) ? doc.bonus : [],    // app form stores ranks only today
-      });
+        bonus,
+      });  
     }
     cursor = page.list_complete ? null : page.cursor;
   } while (cursor);
