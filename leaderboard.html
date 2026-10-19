@@ -67,6 +67,12 @@
   td.num.sub { color:var(--muted); font-weight:600; font-size:14px; }
   td.num.sub.eng { color:var(--purple); }
   thead th.num.eng { color:var(--purple); }
+  /* grouped header for the per-basho scoreboard (Banzuke prediction spans Score + Pts) */
+  thead th.grphd { text-align:center; color:var(--clay); border-bottom:1px solid var(--line); padding-bottom:5px; }
+  @media (max-width:430px){
+    thead th, tbody td { padding-left:6px; padding-right:6px; }
+    td.num.sub { font-size:13px; }
+  }
   .pts { font-weight:800; font-size:17px; }
   .golf { color:var(--muted); font-variant-numeric:tabular-nums; }
   /* pace car strip — Gumbai, the benchmark. Warm parchment, on-palette. */
@@ -165,19 +171,51 @@
     var humans = v.rows.filter(function(r){return !r.pace;});
     var pace = v.rows.filter(function(r){return r.pace;})[0];
     if(pace){ // pace car's finishing position in the full field (for the strip text)
-      pace.aheadRank = v.rows.filter(function(r){return r.golf < pace.golf;}).length + 1;
+      pace.aheadRank = v.rows.filter(function(r){return r.golf!=null && r.golf < pace.golf;}).length + 1;
     }
-    var rows = humans.map(function(r){
-      var med = MEDAL[r.place] ? '<span class="medal">'+MEDAL[r.place]+'</span>' : r.place;
-      return '<tr class="'+(r.place===1?'leader':'')+'">'+
+    // With participation banked for this basho, show the full scoreboard and rank by Total;
+    // before the tournament ends (no participation yet) it stays the prediction result by Score.
+    var hasPart = !!v.hasPart || humans.some(function(r){ return (r.part||0) > 0; });
+    var g = function(x){ return x.golf==null ? Infinity : x.golf; };
+    var tot = function(x){ return x.total==null ? x.points : x.total; };
+    var ordered = humans.slice().sort(hasPart
+      ? function(a,b){ return (tot(b)-tot(a)) || (g(a)-g(b)); }
+      : function(a,b){ return g(a)-g(b); });
+    var rank=0, prev=null;
+    var rows = ordered.map(function(r,i){
+      var med, lead;
+      if(hasPart){
+        var k = tot(r);
+        if(prev===null || k!==prev){ rank=i+1; prev=k; }
+        med = MEDAL[rank] ? '<span class="medal">'+MEDAL[rank]+'</span>' : rank;
+        lead = (rank===1 && k>0);
+      } else {
+        med = MEDAL[r.place] ? '<span class="medal">'+MEDAL[r.place]+'</span>' : r.place;
+        lead = (r.place===1);
+      }
+      var golf = (r.golf==null ? '—' : r.golf);
+      var tail = hasPart
+        ? '<td class="num sub">'+r.points+'</td>'+
+          '<td class="num sub eng">'+(r.part==null?0:r.part)+'</td>'+
+          '<td class="num"><span class="pts">'+tot(r)+'</span></td>'
+        : '<td class="num"><span class="pts">'+r.points+'</span></td>';
+      return '<tr class="'+(lead?'leader':'')+'">'+
         '<td class="place">'+med+'</td>'+
         '<td class="who">'+esc(r.name)+'</td>'+
-        '<td class="num golf">'+r.golf+'</td>'+
-        '<td class="num"><span class="pts">'+r.points+'</span></td></tr>';
+        '<td class="num golf">'+golf+'</td>'+ tail +'</tr>';
     }).join('');
+    var head = hasPart
+      ? '<tr class="grp"><th rowspan="2">#</th><th rowspan="2">Crew</th>'+
+        '<th class="num grphd" colspan="2">Banzuke prediction</th>'+
+        '<th class="num eng" rowspan="2">Partic.</th><th class="num" rowspan="2">Total</th></tr>'+
+        '<tr><th class="num">Score ↓</th><th class="num">Pts</th></tr>'
+      : '<tr><th>#</th><th>Crew</th><th class="num">Score ↓</th><th class="num">Points</th></tr>';
+    var hint = hasPart
+      ? 'Banzuke prediction: Score is how far your picks landed from where the wrestlers actually finished (lower is better), and Pts is the 3·2·1 it earns. Participation is the drinking-game and Gumbai points banked over the tournament. Total decides the basho.'
+      : 'Score = how far your picks landed from the real banzuke, added up. ↓ Lowest wins.';
     return '<p class="viewhead">'+esc(v.basho)+' · final</p>'+
-      '<p class="scorehint">Score = how far your picks landed from the real banzuke, added up. ↓ Lowest wins.</p>'+
-      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Score</th><th class="num">Points</th></tr></thead>'+
+      '<p class="scorehint">'+hint+'</p>'+
+      '<table><thead>'+head+'</thead>'+
       '<tbody>'+rows+'</tbody></table>'+ paceStrip(pace,'thisBasho');
   }
   function renderPoints(v, label){
@@ -218,7 +256,7 @@
       inner = renderPoints(v.allTime, 'All-time · points');
     }
     body.innerHTML = tabsHTML() + pendingHTML() + inner + ctaHTML() +
-      '<p class="rules">Within a basho, each pick is graded by rank-distance from where the wrestler actually landed, and the lowest total score wins. Season points come two ways, both flat 3·2·1: banzuke picks each basho, and participation (the drinking-game and Gumbai boards). The columns break each total into Picks + Participation. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
+      '<p class="rules">Each basho, your picks are graded by how far they landed from the real banzuke; the lowest score earns the top banzuke points (3·2·1). Participation adds more on the same flat 3·2·1, from the drinking-game and Gumbai boards. The two combine into each basho’s Total and the season standings. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
     body.querySelectorAll('.tabs button').forEach(function(b){
       b.onclick = function(){ state.view = b.dataset.v; render(); };
     });
