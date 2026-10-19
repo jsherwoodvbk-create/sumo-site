@@ -63,6 +63,10 @@
   .place { font-weight:700; color:var(--muted); width:40px; }
   .medal { font-size:17px; }
   .who { font-weight:600; }
+  /* season points split into columns: Picks + Participation = Total */
+  td.num.sub { color:var(--muted); font-weight:600; font-size:14px; }
+  td.num.sub.eng { color:var(--purple); }
+  thead th.num.eng { color:var(--purple); }
   .pts { font-weight:800; font-size:17px; }
   .golf { color:var(--muted); font-variant-numeric:tabular-nums; }
   /* pace car strip — Gumbai, the benchmark. Warm parchment, on-palette. */
@@ -179,18 +183,28 @@
   function renderPoints(v, label){
     var humans = v.rows.filter(function(r){return !r.pace;});
     var pace = v.rows.filter(function(r){return r.pace;})[0];
+    // Break the total into Picks + Participation columns only when this view carries engagement.
+    var hasPart = humans.some(function(r){ return (r.part||0) > 0; });
     // dense rank by points (ties share)
     var rank=0, prev=null;
     var rows = humans.map(function(r,i){
       if(prev===null || r.points!==prev){ rank=i+1; prev=r.points; }
       var med = MEDAL[rank] ? '<span class="medal">'+MEDAL[rank]+'</span>' : rank;
+      var grade = (r.grade==null ? r.points : r.grade), part = (r.part==null ? 0 : r.part);
+      var cells = hasPart
+        ? '<td class="num sub">'+grade+'</td>'+
+          '<td class="num sub eng">'+part+'</td>'+
+          '<td class="num"><span class="pts">'+r.points+'</span></td>'
+        : '<td class="num"><span class="pts">'+r.points+'</span></td>';
       return '<tr class="'+(rank===1&&r.points>0?'leader':'')+'">'+
         '<td class="place">'+med+'</td>'+
-        '<td class="who">'+esc(r.name)+'</td>'+
-        '<td class="num"><span class="pts">'+r.points+'</span></td></tr>';
+        '<td class="who">'+esc(r.name)+'</td>'+ cells +'</tr>';
     }).join('');
+    var head = hasPart
+      ? '<th>#</th><th>Crew</th><th class="num">Picks</th><th class="num eng">Partic.</th><th class="num">Total</th>'
+      : '<th>#</th><th>Crew</th><th class="num">Points</th>';
     return '<p class="viewhead">'+esc(label)+'</p>'+
-      '<table><thead><tr><th>#</th><th>Crew</th><th class="num">Points</th></tr></thead>'+
+      '<table><thead><tr>'+head+'</tr></thead>'+
       '<tbody>'+rows+'</tbody></table>'+ paceStrip(pace, 'points');
   }
   function render(){
@@ -204,7 +218,7 @@
       inner = renderPoints(v.allTime, 'All-time · points');
     }
     body.innerHTML = tabsHTML() + pendingHTML() + inner + ctaHTML() +
-      '<p class="rules">Within a basho, each pick is graded by rank-distance from where the wrestler actually landed, and the lowest total score wins. The closest three crew members earn 3·2·1 toward the season. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
+      '<p class="rules">Within a basho, each pick is graded by rank-distance from where the wrestler actually landed, and the lowest total score wins. Season points come two ways, both flat 3·2·1: banzuke picks each basho, and participation (the drinking-game and Gumbai boards). The columns break each total into Picks + Participation. Gumbai plays too, as the pace car: it earns the medal its own finish would take, but the crew crown is settled among the humans.</p>';
     body.querySelectorAll('.tabs button').forEach(function(b){
       b.onclick = function(){ state.view = b.dataset.v; render(); };
     });
