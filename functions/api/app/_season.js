@@ -8,6 +8,15 @@
 //    and earns the medal its OWN overall finish takes (1st in field→3, 2nd→2, 3rd→1,
 //    off-podium→0). It earns what it actually places — not an assumed win. Flag it AI;
 //    never crowned. Its number can coincide with a human's — it's a benchmark overlay.
+//
+// PARTICIPATION (added 2026-10-19): engagement streams join the season on the SAME flat 3/2/1.
+//  • Each basho the kill-skill tally awards 3/2/1 per stream (drinking game, Gumbai) by raw
+//    row count, locks it in the 🏅 Participation Points Notion DB (system of record), then
+//    bakes the per-member sum here as one PARTICIPATION entry (same way NAGOYA is baked).
+//  • Human-only — Gumbai the bot sits out these streams (it's the pace car elsewhere, not here).
+//  • Folds into the SEASON TOTALS (this-year + all-time points), not the per-basho golf table.
+//    No separate column: a participation point is a season point, same weight as a banzuke grade.
+//  • Future (Ky26+): same append pattern, or read live from KV alongside picks.
 
 export const PACE_KEY = 'gumbai';
 
@@ -31,6 +40,16 @@ export const NAGOYA = {
     { key: 'mj',     golf: 51 },
   ],
 };
+
+// Participation points banked per basho (kill-skill tally → Notion → baked here).
+// points = per-member SUM across all streams that basho. Human keys only (Gumbai sits out).
+// Aki 2026 (locked 2026-10-19 in the 🏅 Participation Points DB):
+//   drinking game 3/2/1 → MJ 3, James 2, Sherry 1   (host ceded her point to Sherry)
+//   Gumbai        3/2/1 → Jennie 3, MJ 2             (James, Sherry 0 — didn't ask)
+//   sums → MJ 5, Jennie 3, James 2, Sherry 1
+export const PARTICIPATION = [
+  { bashoId: '202609', year: 2026, points: { mj: 5, jennie: 3, james: 2, sherry: 1 } },
+];
 
 function nameOf(key) { const r = ROSTER.find((r) => r.key === key); return r ? r.name : key; }
 export function isPace(key) { return key === PACE_KEY; }
@@ -60,21 +79,32 @@ export function gradeBashoSeason(meta, field) {
   return { basho: meta.basho, bashoId: meta.bashoId, year: meta.year, standings: placementPoints(field) };
 }
 
-// Sum points across a list of completed bashos → full-roster rows (unplayed = 0), sorted.
-function aggregate(completed) {
+// Sum points across a list of completed bashos + any participation entries → full-roster rows
+// (unplayed = 0), sorted. `grade` = banzuke points, `part` = participation points; total = both.
+function aggregate(completed, participation) {
   const totals = {};
+  const slot = (key) => (totals[key] || (totals[key] = { grade: 0, part: 0, bashos: 0 }));
   for (const b of completed) {
     for (const s of b.standings) {
-      if (!totals[s.key]) totals[s.key] = { points: 0, bashos: 0 };
-      totals[s.key].points += s.points;
-      totals[s.key].bashos += 1;
+      const t = slot(s.key);
+      t.grade  += s.points;
+      t.bashos += 1;
     }
   }
-  const rows = ROSTER.map((r) => ({
-    key: r.key, name: r.name, pace: !!r.pace,
-    points: totals[r.key] ? totals[r.key].points : 0,
-    bashos: totals[r.key] ? totals[r.key].bashos : 0,
-  }));
+  for (const p of (participation || [])) {
+    for (const key of Object.keys(p.points || {})) {
+      slot(key).part += p.points[key];
+    }
+  }
+  const rows = ROSTER.map((r) => {
+    const t = totals[r.key] || { grade: 0, part: 0, bashos: 0 };
+    return {
+      key: r.key, name: r.name, pace: !!r.pace,
+      points: t.grade + t.part,   // the season total — banzuke grade + participation
+      grade: t.grade, part: t.part,
+      bashos: t.bashos,
+    };
+  });
   rows.sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
   return rows;
 }
@@ -88,9 +118,10 @@ export function seasonViews(completed) {
     rows: latest.standings.slice().sort((a, b) => a.golf - b.golf), // by golf (the actual result)
   } : null;
   const yearList = completed.filter((b) => b.year === currentYear);
+  const partYear = PARTICIPATION.filter((p) => p.year === currentYear);
   return {
     thisBasho,
-    thisYear: { year: currentYear, rows: aggregate(yearList) },
-    allTime:  { rows: aggregate(completed) },
+    thisYear: { year: currentYear, rows: aggregate(yearList, partYear) },
+    allTime:  { rows: aggregate(completed, PARTICIPATION) },
   };
 }
