@@ -240,7 +240,7 @@ const EXTRACTION_SCHEMA = {
     },
     catchphrases: {
       type: 'array',
-      description: 'ONLY genuine announcer idioms. EXCLUDE garbled kimarite, mangled rikishi names, and known nicknames. Template the subject to X.',
+      description: 'The booth\'s memorable lines: recurring announcer idioms AND vivid one-off situational color (the funniest/most memorable calls of the day - the Jewel material), plus interviewee catchphrases (e.g. the "my own brand of sumo" family, speaker:Interviewee). Do NOT limit to recurring house-isms. EXCLUDE garbled kimarite, mangled rikishi names, and known nicknames. Template the subject to X.',
       items: {
         type: 'object',
         properties: {
@@ -285,7 +285,7 @@ const EXTRACTION_SCHEMA = {
 function extractionPrompt({ mode, type, dayNum, sourceText, announcerHint, libraryHint }) {
   const rails = `RAILS (hold these):
 - FIREWALL: the transcript is COLOR ONLY. Never state a result, record, kimarite, rank, or win/loss as a hard fact. Booth NARRATIVE about the day is fine (storylines), but any result-shaped specific claim goes in verify_flags, not asserted.
-- Catchphrases are announcer IDIOM only. EXCLUDE: garbled kimarite (yori kitty=yorikiri, etc.), mangled rikishi names, and known rikishi nicknames (a nickname travels with the WRESTLER; a catchphrase travels with the VOICE). Template the subject to X; keep escalations as distinct phrases ("Guns blazing" vs "Guns blazing bang bang bang").
+- Catchphrases are the booth's memorable lines: recurring announcer IDIOM, vivid one-off SITUATIONAL COLOR (the funniest/most memorable calls - Jewel material; don't drop a great one-off just because it isn't a recurring house-ism), and INTERVIEWEE catchphrases (the wrestler's own repeated lines, e.g. the "my own brand of sumo" family - set speaker:Interviewee). EXCLUDE: garbled kimarite (yori kitty=yorikiri, etc.), mangled rikishi names, and known rikishi nicknames (a nickname travels with the WRESTLER; a catchphrase travels with the VOICE). Template the subject to X; keep escalations as distinct phrases ("Guns blazing" vs "Guns blazing bang bang bang").
 - Injuries: report what the booth OBSERVED. "carrying"/ongoing framing = carrying:true (Suspected chronic), a fresh event = carrying:false (Acute). Area + setting + booth_read.
 - Bio is PROPOSE-only soft color, never hard facts.
 - Plain prose, no em dashes, no macrons.`;
@@ -520,7 +520,36 @@ function tiesToTranscript(submission, txNorm) {
   const hit = words.filter(w => txNorm.includes(w)).length;
   const frac = hit / words.length;
   if (frac >= 0.6) return { tie: true, how: `fuzzy ${hit}/${words.length}` };
+  // UPGRADE B (length-aware): short phrases (<=3 content words) are harsh under the 60% rule - one ASR
+  // miss tanks a vivid short line ("Eats him for lunch"). A single DISTINCTIVE anchor (a content word
+  // >=5 chars present verbatim) is enough to corroborate a short phrase.
+  if (words.length <= 3 && hit >= 1) {
+    const anchor = words.find(w => w.length >= 5 && txNorm.includes(w));
+    if (anchor) return { tie: true, how: `short-anchor "${anchor}" ${hit}/${words.length}` };
+  }
   return { tie: false, how: `weak ${hit}/${words.length}` };
+}
+
+// UPGRADE A (known-phrase corroboration): a crew re-catch of a phrase ALREADY in this announcer's
+// Library is almost certainly real even when that day's ASR garbled it. Announcer-scoped fuzzy match:
+// substring either way, or >=60% content-word overlap of the shorter phrase (catches idiom families
+// like "train on the tracks"). Returns { id, phrase } or null.
+function libMatchForAnnouncer(lib, submission) {
+  const core = corePhrase(submission);
+  if (!core) return null;
+  const cw = core.split(/\s+/).filter(w => w.length >= 3 && !STOP.has(w));
+  for (const r of lib) {
+    const title = pTitle(r, 'Phrase');
+    const lp = corePhrase(title);
+    if (!lp) continue;
+    if (lp === core || lp.includes(core) || core.includes(lp)) return { id: r.id, phrase: title };
+    const lw = lp.split(/\s+/).filter(w => w.length >= 3 && !STOP.has(w));
+    if (cw.length && lw.length) {
+      const inter = cw.filter(w => lw.includes(w)).length;
+      if (inter / Math.min(cw.length, lw.length) >= 0.6) return { id: r.id, phrase: title };
+    }
+  }
+  return null;
 }
 
 async function readCatcherDay(dayNum) {
@@ -579,12 +608,18 @@ async function runCatcherLane(dayRow, dayNum, txNorm, annId, annName, show, air,
     const submission = pTitle(row, 'Submission');
     const phrase = clean(submission);   // the crew's own wording is the Phrase (they template names to X; we trust that)
     if (!phrase) { problem(`catcher: a Day ${dayNum} write-in has an empty Submission - skipped`); continue; }
-    const t = tiesToTranscript(submission, txNorm);
+    let t = tiesToTranscript(submission, txNorm);
+    // UPGRADE A: if the transcript tie is weak but the crew's wording matches a known Library phrase
+    // for this announcer, corroborate on the Library (a re-caught recurring idiom is almost certainly real).
+    const libMatch = t.tie ? null : libMatchForAnnouncer(lib, submission);
+    if (libMatch) t = { tie: true, how: `known Library phrase "${clean(libMatch.phrase)}"` };
     if (!t.tie) { review(`catcher: "${submission}" (Day ${dayNum}) did not corroborate against the transcript (${t.how}) - left OPEN for review, not written`); continue; }
-    // find-or-create Library {announcer, phrase}
-    let libRow = lib.find(r => norm(pTitle(r, 'Phrase')) === norm(phrase));
+    // find-or-create Library {announcer, phrase}. A library match (upgrade A) links to the EXISTING
+    // canonical phrase, keeping the idiom family together instead of minting a near-duplicate.
+    let libRow = libMatch ? null : lib.find(r => norm(pTitle(r, 'Phrase')) === norm(phrase));
     let libId;
-    if (libRow) { libId = libRow.id; }
+    if (libMatch) { libId = libMatch.id; }
+    else if (libRow) { libId = libRow.id; }
     else {
       const r = await createPage(DB.library, {
         Phrase: wTitle(phrase),
