@@ -13,7 +13,7 @@ import PICKS from './_aki-picks.js';
 import { NAGOYA } from './_season.js';
 // Gumbai's authored picks for a LIVE basho (the bot never POSTs to KV). Drop in per basho at grade
 // time, ported from that basho's rollover workbook Gumbai column, then set it as `gumbai` below.
-// import KY26_GUMBAI from './_ky26-gumbai.js';
+import KY26_GUMBAI from './_ky26-gumbai.js';
 
 // Finalized bashos (golf frozen in _season.js). Grows at each roll.
 export const BAKED = [NAGOYA];
@@ -22,7 +22,7 @@ export const BAKED = [NAGOYA];
 // holds (or LEADERBOARD_LIVE forces). Aki = frozen module; Kyushu+ = live KV via _picks-loader.
 export const TARGETS = [
   { basho: 'Aki 2026',    bashoId: '202609', bashoCode: 'Aki',  year: 2026, frozen: PICKS },
-  { basho: 'Kyushu 2026', bashoId: '202611', bashoCode: 'Ky26', year: 2026, live: true, gumbai: null /* KY26_GUMBAI */ },
+  { basho: 'Kyushu 2026', bashoId: '202611', bashoCode: 'Ky26', year: 2026, live: true, gumbai: KY26_GUMBAI },
 ];
 
 // Which target does the current snapshot (or the manual flag) select? At most one.
