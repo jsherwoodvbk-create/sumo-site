@@ -14,8 +14,9 @@
 //    row count, locks it in the 🏅 Participation Points Notion DB (system of record), then
 //    bakes the per-member sum here as one PARTICIPATION entry (same way NAGOYA is baked).
 //  • Human-only — Gumbai the bot sits out these streams (it's the pace car elsewhere, not here).
-//  • Folds into the SEASON TOTALS (this-year + all-time points), not the per-basho golf table.
-//    No separate column: a participation point is a season point, same weight as a banzuke grade.
+//  • Shows on every view: the per-basho scoreboard (Score + banzuke pts + participation + total)
+//    and the season totals (this-year + all-time). A participation point is a season point,
+//    the same flat weight as a banzuke grade.
 //  • Future (Ky26+): same append pattern, or read live from KV alongside picks.
 
 export const PACE_KEY = 'gumbai';
@@ -113,9 +114,28 @@ function aggregate(completed, participation) {
 export function seasonViews(completed) {
   const latest = completed.length ? completed[completed.length - 1] : null;
   const currentYear = latest ? latest.year : null; // "current season" = latest banked basho's year
+  // This-basho view carries that tournament's participation too, so it shows the full per-basho
+  // scoreboard: banzuke score + banzuke pts, participation, and the combined total that decides it.
+  const latestPart = latest ? (PARTICIPATION.find((p) => p.bashoId === latest.bashoId) || null) : null;
+  let tbRows = [];
+  if (latest) {
+    tbRows = latest.standings.map((s) => {
+      const part = (latestPart && !s.pace) ? (latestPart.points[s.key] || 0) : 0;
+      return Object.assign({}, s, { part: part, total: s.points + part });
+    });
+    if (latestPart) { // include members who banked participation but skipped the picks (golf = null)
+      const have = {};
+      for (const s of latest.standings) have[s.key] = true;
+      for (const key in latestPart.points) {
+        if (!have[key] && !isPace(key)) {
+          const p = latestPart.points[key];
+          tbRows.push({ key: key, name: nameOf(key), golf: null, pace: false, place: null, points: 0, part: p, total: p });
+        }
+      }
+    }
+  }
   const thisBasho = latest ? {
-    basho: latest.basho, bashoId: latest.bashoId, year: latest.year,
-    rows: latest.standings.slice().sort((a, b) => a.golf - b.golf), // by golf (the actual result)
+    basho: latest.basho, bashoId: latest.bashoId, year: latest.year, hasPart: !!latestPart, rows: tbRows,
   } : null;
   const yearList = completed.filter((b) => b.year === currentYear);
   const partYear = PARTICIPATION.filter((p) => p.year === currentYear);
