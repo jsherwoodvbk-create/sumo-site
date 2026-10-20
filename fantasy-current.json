@@ -1,0 +1,10 @@
+{
+  "cfg": {
+    "basho": "Aki 2026 (dry run)",
+    "bashoCode": "26Ak-dry",
+    "leagueId": "crew",
+    "leagueName": "The Crew",
+    "phase": "open",
+    "lockNote": "Dry run on the Aki field. Draft a full roster to test the flow end to end."
+  }
+}
