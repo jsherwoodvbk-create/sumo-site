@@ -40,6 +40,11 @@
     box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease, box-shadow .12s ease}
   .navcoin:hover,.homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
   .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
+  .tabs{display:flex;gap:8px;margin:0 0 14px}
+  .tabs a{font-size:13px;font-weight:600;text-decoration:none;color:var(--muted);border:1px solid var(--line);
+    background:var(--surface);border-radius:999px;padding:6px 14px;transition:color .12s,border-color .12s}
+  .tabs a.on{color:#fff;background:var(--vermilion);border-color:var(--vermilion)}
+  .tabs a:not(.on):hover{color:var(--ink);border-color:var(--clay)}
   .intro{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 14px}
   .banner{display:flex;align-items:center;gap:10px;border-radius:10px;padding:11px 14px;margin:0 0 16px;font-size:13.5px;
     background:var(--surface-2);border:1px solid var(--line);border-left:4px solid var(--clay)}
@@ -110,6 +115,10 @@
       </nav>
     </div>
   </header>
+  <div class="tabs">
+    <a href="/app/fantasy" class="on">Draft</a>
+    <a href="/app/fantasy-standings">Standings</a>
+  </div>
   <p class="intro">Draft <b>one wrestler at every rank</b> down the banzuke, from the Yokozuna rung to the bottom of the maegashira. You score each wrestler's wins minus losses over the 15 days, added up. Picks lock <b>Friday end of day, before Day&nbsp;1</b>, so draft with the pregame show in hand.</p>
   <div class="banner" id="banner"></div>
   <div class="whorow" id="whorow"></div>
