@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Fantasy Standings &middot; Salt Stats &amp; Sumo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Zen+Old+Mincho:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f1e9db; --surface:#fbf7ef; --surface-2:#efe6d3; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
+    --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c; --win:#227a4b; --loss:#a93327;
+    --pace:#6a3d9a;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{--bg:#171719; --surface:#212127; --surface-2:#1b1b21; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;
+      --pace:#b892e4;}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);padding:16px 16px 64px;
+    font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  h1,h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  .wrap{max-width:680px;margin:0 auto}
+  header{background:
+      repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
+      repeating-linear-gradient(90deg, rgba(0,0,0,.05) 0 2px, transparent 2px 44px),
+      linear-gradient(160deg,#6e4826,#432a15);
+    color:#fff;border-radius:14px;padding:18px 20px;margin-bottom:16px;border:1px solid #38230f;
+    box-shadow:0 8px 22px rgba(50,30,10,.28)}
+  .hdrow{display:flex;align-items:center;gap:14px}
+  .hdicon{width:50px;height:50px;flex:0 0 auto;filter:drop-shadow(0 2px 5px rgba(0,0,0,.3))}
+  .hdrow h1{margin:0;font-size:23px;font-weight:900}
+  .hdrow .sub{margin:3px 0 0;font-size:13px;opacity:.9}
+  .hdnav{margin-left:auto;display:flex;align-items:center;gap:9px}
+  .navcoin{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;display:block;
+    box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease, box-shadow .12s ease}
+  .navcoin svg{width:100%;height:100%;display:block}
+  .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;overflow:hidden;background:#efe7d5;
+    box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease, box-shadow .12s ease}
+  .navcoin:hover,.homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+  .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
+  .tabs{display:flex;gap:8px;margin:0 0 14px}
+  .tabs a{font-size:13px;font-weight:600;text-decoration:none;color:var(--muted);border:1px solid var(--line);
+    background:var(--surface);border-radius:999px;padding:6px 14px;transition:color .12s,border-color .12s}
+  .tabs a.on{color:#fff;background:var(--vermilion);border-color:var(--vermilion)}
+  .tabs a:not(.on):hover{color:var(--ink);border-color:var(--clay)}
+  .intro{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 14px}
+  .watched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
+    border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:13px;margin:0 0 14px}
+  .watched b{color:var(--purple)}
+  .watched button{margin-left:auto;font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--purple);
+    border:none;border-radius:8px;padding:6px 13px;cursor:pointer}
+  .watched button:hover{filter:brightness(1.08)}
+  .banner{display:flex;align-items:center;gap:10px;border-radius:10px;padding:11px 14px;margin:0 0 16px;font-size:13.5px;
+    background:var(--surface-2);border:1px solid var(--line);border-left:4px solid var(--clay)}
+  .hold{background:var(--surface-2);border:1px dashed var(--purple);border-radius:12px;padding:20px 18px;text-align:center;
+    font-size:14px;color:var(--muted);line-height:1.5;margin:0 0 16px}
+  .hold b{color:var(--ink)}
+  .hold button{margin-top:12px;font:inherit;font-size:14px;font-weight:700;color:#fff;background:var(--purple);
+    border:none;border-radius:9px;padding:9px 18px;cursor:pointer}
+  table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  thead th{text-align:left;padding:9px 11px;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);
+    background:var(--clay-soft);border-bottom:2px solid var(--line)}
+  @media (prefers-color-scheme:dark){thead th{color:var(--clay)}}
+  thead th.num,tbody td.num{text-align:right;font-variant-numeric:tabular-nums}
+  tbody td{padding:11px;border-top:1px solid var(--line);font-size:15px;vertical-align:middle}
+  tbody tr.leader{background:color-mix(in srgb, var(--clay) 13%, transparent)}
+  tbody tr.me td{box-shadow:inset 3px 0 0 var(--vermilion)}
+  .place{width:40px;color:var(--muted);font-weight:700}
+  .medal{font-size:17px}
+  .who{font-weight:600}
+  .me-tag{font-size:10px;font-weight:700;color:var(--vermilion);text-transform:uppercase;letter-spacing:.04em;margin-left:6px}
+  .mgn{font-variant-numeric:tabular-nums;font-weight:700}
+  .mgn.pos{color:var(--win)} .mgn.neg{color:var(--loss)} .mgn.zero{color:var(--muted)}
+  .pts{font-weight:800;font-size:17px}
+  .pts.zero{color:var(--muted);font-weight:600}
+  .tb{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .cochamp{font-size:10px;font-weight:700;color:var(--clay);text-transform:uppercase;letter-spacing:.04em}
+  /* pace car strip — Gumbai, the benchmark */
+  .pacecar{margin:16px 0 4px;display:flex;align-items:center;gap:13px;
+    background:var(--surface-2);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .pacecar .botcoin{width:40px;height:40px;flex:0 0 auto}
+  .pacecar .txt{font-size:13px;line-height:1.45;color:var(--muted)}
+  .pacecar .txt b{color:var(--pace)}
+  .pacecar .p{margin-left:auto;text-align:center;flex:0 0 auto}
+  .pacecar .p .n{font-weight:800;font-size:20px;color:var(--pace);font-variant-numeric:tabular-nums}
+  .pacecar .p .l{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+  .beatbot{font-size:12.5px;color:var(--muted);margin:10px 0 0}
+  .beatbot b{color:var(--ink)}
+  /* per-member report */
+  h2.sech{font-size:16px;margin:26px 0 10px;font-weight:900}
+  details.rep{background:var(--surface);border:1px solid var(--line);border-radius:11px;margin:0 0 9px;overflow:hidden}
+  details.rep>summary{list-style:none;cursor:pointer;padding:11px 14px;display:flex;align-items:center;gap:10px;font-size:14.5px}
+  details.rep>summary::-webkit-details-marker{display:none}
+  details.rep .caret{color:var(--muted);transition:transform .15s;flex:0 0 auto}
+  details.rep[open] .caret{transform:rotate(90deg)}
+  details.rep .rname{font-weight:700}
+  details.rep .rtot{margin-left:auto;font-variant-numeric:tabular-nums;font-weight:700}
+  .rtbl{width:100%;border-collapse:collapse;border-top:1px solid var(--line)}
+  .rtbl td{padding:6px 14px;border-top:1px solid var(--line);font-size:13px}
+  .rtbl td.rung{font-family:'Zen Old Mincho',Georgia,serif;font-weight:700;width:70px;color:var(--muted)}
+  .rtbl td.pk{font-weight:600}
+  .rtbl td.rec{text-align:right;font-variant-numeric:tabular-nums;width:60px;color:var(--muted)}
+  .rtbl td.m{text-align:right;font-variant-numeric:tabular-nums;width:48px;font-weight:700}
+  .rtbl td.m.pos{color:var(--win)} .rtbl td.m.neg{color:var(--loss)} .rtbl td.m.zero{color:var(--muted)}
+  .honor{display:inline-block;font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;
+    padding:1px 5px;border-radius:5px;margin-left:5px;vertical-align:middle}
+  .honor.y{background:var(--purple);color:#fff}
+  .honor.s{background:var(--clay-soft);color:var(--clay)}
+  @media (prefers-color-scheme:dark){.honor.s{color:var(--clay)}}
+  .note{font-size:12px;color:var(--muted);margin:14px 0 0;border-top:1px solid var(--line);padding-top:12px;line-height:1.5}
+  .note b{color:var(--clay)}
+  .hidden-el{display:none !important}
+  /* gate overlay */
+  .gate{position:fixed;inset:0;background:rgba(20,20,22,.74);backdrop-filter:blur(3px);display:flex;
+    align-items:center;justify-content:center;padding:20px;z-index:50}
+  .gatebox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--purple);
+    border-radius:14px;padding:26px 24px;max-width:380px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+  .gatebox .flag{font-size:32px;margin-bottom:8px}
+  .gatebox h2{margin:0 0 6px;font-size:20px}
+  .gatebox p{margin:0 0 18px;font-size:14px;color:var(--muted)}
+  .gaterow{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .gaterow select{font:inherit;font-size:16px;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+  .gaterow button{font:inherit;font-size:15px;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:10px 18px;cursor:pointer}
+  .gaterow button:hover{filter:brightness(1.08)}
+  .gate .fine{margin-top:14px;font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <filter id="inkS" x="-6%" y="-6%" width="112%" height="112%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="1.3" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <clipPath id="coinClip"><circle cx="60" cy="60" r="55"/></clipPath>
+  <symbol id="ic-fantasy" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+    <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+    <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+    <g clip-path="url(#coinClip)" filter="url(#inkS)">
+      <circle cx="60" cy="33" r="11" fill="#b23a2e"/>
+      <path d="M27 80 Q 45 51 60 41 Q 75 51 93 80 Z" fill="#211a12"/>
+      <path d="M60 41 Q 51 48 48 54 L 52 51 L 56 55 L 60 51 L 64 55 L 68 51 L 72 54 Q 69 48 60 41 Z" fill="#efe7d5"/>
+    </g>
+  </symbol>
+  <symbol id="ic-games" viewBox="0 0 120 120">
+    <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
+    <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
+    <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
+    <g clip-path="url(#coinClip)" filter="url(#inkS)" fill="#211a12">
+      <rect x="37" y="37" width="20" height="20" rx="4"/>
+      <rect x="63" y="37" width="20" height="20" rx="4"/>
+      <rect x="37" y="63" width="20" height="20" rx="4"/>
+      <rect x="63" y="63" width="20" height="20" rx="4" fill="#b23a2e"/>
+    </g>
+  </symbol>
+</defs></svg>
+<div class="wrap">
+  <header>
+    <div class="hdrow">
+      <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-fantasy"/></svg>
+      <div>
+        <h1>Fantasy Standings</h1>
+        <p class="sub" id="sub">The Crew</p>
+      </div>
+      <nav class="hdnav">
+        <a class="navcoin" href="/app" title="Back to Games" aria-label="Back to Games"><svg viewBox="0 0 120 120"><use href="#ic-games"/></svg></a>
+        <a class="homecrest" href="/app" title="Crew home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
+      </nav>
+    </div>
+  </header>
+  <div class="tabs">
+    <a href="/app/fantasy">Draft</a>
+    <a href="/app/fantasy-standings" class="on">Standings</a>
+  </div>
+  <p class="intro">Each roster scores its wrestlers' <b>wins minus losses</b> over the 15 days, added up. Top three in the league earn 3, 2, and 1 points toward the season. Gumbai drafts too, as the pace car. Beat the bot.</p>
+
+  <div class="watched hidden-el" id="watched">
+    <span>Showing final results. <b id="thruLbl">caught up through Day 15</b>.</span>
+    <button id="changeDay">Change day</button>
+  </div>
+
+  <div id="board" class="hidden-el">
+    <div class="banner hidden-el" id="waiting"></div>
+    <table id="tblwrap">
+      <thead><tr><th class="place">#</th><th>Crew</th><th class="num">Margin</th><th class="num">Pts</th></tr></thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="pacecar hidden-el" id="pacecar">
+      <svg class="botcoin" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-fantasy"/></svg>
+      <div class="txt" id="pacetxt"></div>
+      <div class="p"><div class="n" id="pacepts">0</div><div class="l">pace pts</div></div>
+    </div>
+    <p class="beatbot hidden-el" id="beatbot"></p>
+
+    <h2 class="sech" id="reph">Every roster, rung by rung</h2>
+    <div id="reports"></div>
+
+    <p class="note"><b>How it scores.</b> Your margin is each rostered wrestler's wins minus losses, summed. A wrestler who sat the basho out scores zero, no penalty. Ties break on who rostered the yusho winner, then the three sansho (Outstanding Performance, Technique, Fighting Spirit); still level and you share the spot. Gumbai runs the race and earns the medal its own finish takes, but never takes the crew crown.</p>
+  </div>
+</div>
+
+<div class="gate" id="gate">
+  <div class="gatebox">
+    <div class="flag">🚧</div>
+    <h2>Mind the spoilers</h2>
+    <p>Fantasy standings are final results. Tell us how far <i>you</i>'ve watched; the board unlocks once you're caught up to the last day.</p>
+    <div class="gaterow">
+      <label for="daySel" style="font-size:14px">Caught up through</label>
+      <select id="daySel"></select>
+      <button id="enter">Show standings</button>
+    </div>
+    <div class="fine">Set it once; we remember your day on this browser.</div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var MAX_DAY=15, MEMBERS={jennie:"Jennie", mj:"MJ", sherry:"Sherry", james:"James", gumbai:"Gumbai"};
+  var DATA=null, MEKEY=null, thruDay=null;
+
+  function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
+  function nm(k,fallback){ return MEMBERS[k] || fallback || k; }
+  function mgnClass(m){ return m>0?"pos":(m<0?"neg":"zero"); }
+  function sign(m){ return (m>0?"+":"")+m; }
+  var MEDAL={1:"🥇",2:"🥈",3:"🥉"};
+
+  // day selector 1..15
+  var daySel=document.getElementById("daySel");
+  for(var d=1;d<=MAX_DAY;d++){var o=document.createElement("option");o.value=d;o.textContent="Day "+d;if(d===MAX_DAY)o.selected=true;daySel.appendChild(o);}
+
+  function honorTags(detailRow){
+    var t="";
+    if(detailRow.yusho) t+='<span class="honor y" title="Yusho · Emperor&#39;s Cup">cup</span>';
+    (detailRow.sansho||[]).forEach(function(s){
+      var lab = s==="Outstanding Performance"?"shukun" : s==="Technique"?"gino" : s==="Fighting Spirit"?"kanto" : s;
+      t+='<span class="honor s" title="'+esc(s)+'">'+lab+'</span>';
+    });
+    return t;
+  }
+
+  function render(){
+    var revealed = thruDay>=MAX_DAY;   // fantasy board is final-day data: unlock only when caught up
+    document.getElementById("board").classList.toggle("hidden-el", !revealed);
+    document.getElementById("watched").classList.toggle("hidden-el", !revealed);
+    document.getElementById("thruLbl").textContent = revealed ? "caught up through Day "+MAX_DAY : "";
+    if(!revealed){ document.getElementById("gate").classList.remove("hidden-el"); return; }
+
+    if(!DATA || !DATA.scored){
+      document.getElementById("tblwrap").classList.add("hidden-el");
+      document.getElementById("reph").classList.add("hidden-el");
+      document.getElementById("reports").innerHTML="";
+      var w=document.getElementById("waiting"); w.classList.remove("hidden-el");
+      w.textContent = (DATA&&DATA.note) ? DATA.note : "Results are not in yet. The board posts when the basho is scored.";
+      return;
+    }
+    document.getElementById("waiting").classList.add("hidden-el");
+    document.getElementById("tblwrap").classList.remove("hidden-el");
+    var standings = DATA.standings||[];
+    var humans = standings.filter(function(s){return !s.isPaceCar;});
+    var pace = standings.filter(function(s){return s.isPaceCar;})[0] || null;
+
+    // standings table (humans, ranked among themselves)
+    var tb=document.getElementById("rows"); tb.innerHTML="";
+    humans.forEach(function(s){
+      var leader = s.humanPlace===1;
+      var isMe = s.key===MEKEY;
+      var medal = MEDAL[s.humanPlace] ? '<span class="medal">'+MEDAL[s.humanPlace]+'</span>' : s.humanPlace;
+      var co = ''; // co-champion marker when a human shares place 1
+      if(leader && humans.filter(function(h){return h.humanPlace===1;}).length>1) co='<span class="tb cochamp">co-champions</span>';
+      tb.insertAdjacentHTML("beforeend",
+        '<tr class="'+(leader?'leader ':'')+(isMe?'me':'')+'">'+
+        '<td class="place">'+medal+'</td>'+
+        '<td class="who">'+esc(nm(s.key,s.name))+(isMe?'<span class="me-tag">you</span>':'')+co+'</td>'+
+        '<td class="num"><span class="mgn '+mgnClass(s.margin)+'">'+sign(s.margin)+'</span></td>'+
+        '<td class="num"><span class="pts'+(s.points?'':' zero')+'">'+(s.points||0)+'</span></td></tr>');
+    });
+
+    // pace-car strip
+    var pc=document.getElementById("pacecar"), bb=document.getElementById("beatbot");
+    if(pace){
+      pc.classList.remove("hidden-el");
+      var beat = humans.filter(function(h){return h.beatPaceCar;}).length;
+      document.getElementById("pacetxt").innerHTML =
+        '<b>Gumbai</b> &middot; the pace car. Drafted chalk and finished <b>#'+pace.place+'</b> overall at '+sign(pace.margin)+
+        '. It plays and gets scored, but stays out of the crew crown, taking whatever medal its own finish earns.';
+      document.getElementById("pacepts").textContent = pace.points||0;
+      bb.classList.remove("hidden-el");
+      bb.innerHTML = beat>0
+        ? '<b>'+beat+' of '+humans.length+'</b> out-picked the bot this basho.'
+        : 'Nobody beat the bot this basho. Chalk held.';
+    } else { pc.classList.add("hidden-el"); bb.classList.add("hidden-el"); }
+
+    // per-member reports (humans first, then the pace car), viewer's own open by default
+    var reps=document.getElementById("reports"); reps.innerHTML="";
+    document.getElementById("reph").classList.remove("hidden-el");
+    document.getElementById("tblwrap").classList.remove("hidden-el");
+    standings.forEach(function(s){
+      var open = (s.key===MEKEY) ? " open" : "";
+      var rows = (s.detail||[]).map(function(dRow){
+        var m = dRow.margin||0, found = dRow.found!==false;
+        var rec = found ? (dRow.w+"–"+dRow.l) : "—";
+        return '<tr><td class="rung">'+esc(dRow.rung)+'</td>'+
+          '<td class="pk">'+esc(dRow.pick||"—")+honorTags(dRow)+'</td>'+
+          '<td class="rec">'+rec+'</td>'+
+          '<td class="m '+mgnClass(m)+'">'+sign(m)+'</td></tr>';
+      }).join("");
+      reps.insertAdjacentHTML("beforeend",
+        '<details class="rep"'+open+'><summary>'+
+        '<span class="caret">▸</span><span class="rname">'+esc(nm(s.key,s.name))+(s.isPaceCar?' · pace car':'')+'</span>'+
+        '<span class="rtot mgn '+mgnClass(s.margin)+'">'+sign(s.margin)+'</span></summary>'+
+        '<table class="rtbl"><tbody>'+rows+'</tbody></table></details>');
+    });
+  }
+
+  function loadBoard(){
+    fetch("/api/app/fantasy-scores",{headers:{Accept:"application/json"}})
+      .then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+      .then(function(d){ DATA=d; render(); });
+  }
+
+  // gate wiring
+  document.getElementById("enter").onclick=function(){
+    thruDay=+daySel.value;
+    try{ localStorage.setItem('ss_watched_day', daySel.value); }catch(e){}
+    document.getElementById("gate").classList.toggle("hidden-el", thruDay>=MAX_DAY);
+    render();
+  };
+  document.getElementById("changeDay").onclick=function(){ document.getElementById("gate").classList.remove("hidden-el"); };
+
+  // identity + config + the day carried over from any other surface
+  Promise.all([
+    fetch("/api/auth/me",{headers:{Accept:"application/json"}}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}),
+    fetch("/fantasy-current.json",{cache:"no-store"}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+  ]).then(function(res){
+    var me=res[0], cfg=res[1]&&res[1].cfg;
+    if(cfg){ document.getElementById("sub").textContent=(cfg.leagueName||"The Crew")+"  ·  "+(cfg.basho||""); }
+    var who = me && (me.name||me.email);
+    if(who){ for(var k in MEMBERS){ if(MEMBERS[k].toLowerCase()===String(who).toLowerCase()) MEKEY=k; } }
+    loadBoard();
+    // carry over the watched day (query ?d= or shared localStorage); auto-reveal if already caught up
+    var raw=null;
+    try{ raw=new URLSearchParams(location.search).get('d'); }catch(e){}
+    if(!raw){ try{ raw=localStorage.getItem('ss_watched_day'); }catch(e){} }
+    var n=parseInt(raw,10);
+    if(n>=1){ n=Math.min(n,MAX_DAY); daySel.value=n; thruDay=n; try{localStorage.setItem('ss_watched_day',n);}catch(e){}
+      document.getElementById("gate").classList.toggle("hidden-el", thruDay>=MAX_DAY); render(); }
+  });
+})();
+</script>
+</body>
+</html>
