@@ -248,6 +248,10 @@ function rankToArc(rankStr){
 const CODE2 = { '01':['Hts','Ht'], '03':['Hru','Hr'], '05':['Ntu','Nt'], '07':['Ngy','Ng'], '09':['Aki','Ak'], '11':['Kyu','Ky'] };
 function arcLabel(code){ const m = String(code).match(/^(\d{4})(\d{2})$/); return m && CODE2[m[2]] ? CODE2[m[2]][0] + m[1].slice(2) : String(code || ''); }
 
+// sumo-api rankHistory basho code (YYYYMM) → the crew "yyMon" join key ("202509" → "25Ak"), matching
+// labelToCode(), so an arc point joins to its Match Log per-basho W-L (MJ's tooltip + table, 2026-09-26).
+function ymToCode2(code){ const m = String(code).match(/^(\d{4})(\d{2})$/); return m && CODE2[m[2]] ? m[1].slice(2) + CODE2[m[2]][1] : null; }
+
 async function fetchProfile(id){
   const p = await getJson(`${API}/rikishi/${id}`); if (!p) return {};
   const out = { heightCm: num(p.height), weightKg: num(p.weight), birthDate: p.birthDate ? String(p.birthDate).slice(0,10) : null, shusshin: p.shusshin || null, heya: p.heya || null };
@@ -260,7 +264,7 @@ async function fetchArc(id){
   if (!hist.length) { diag('rikishi/{id}?ranks', r); return { points: [], highest: null, fromJuryo: false }; }
   const rows = hist.map(h => ({ code: h.bashoId ?? h.basho ?? h.id ?? null, rank: h.rank, rankValue: num(h.rankValue) }))
                    .sort((a, b) => String(a.code).localeCompare(String(b.code)));
-  const points = rows.map(r2 => { const a = rankToArc(r2.rank); return a ? { b: arcLabel(r2.code), v: a.v, r: a.r } : null; }).filter(Boolean);
+  const points = rows.map(r2 => { const a = rankToArc(r2.rank); return a ? { b: arcLabel(r2.code), v: a.v, r: a.r, k: ymToCode2(r2.code) } : null; }).filter(Boolean);
   let peak = null; for (const r2 of rows) { if (r2.rankValue != null && (peak == null || r2.rankValue < peak.rankValue)) peak = r2; }
   const highest = peak ? (rankTier(rankShort(peak.rank)) === 'Maegashira' ? rankShort(peak.rank) : rankTier(rankShort(peak.rank))) : null;
   const fromJuryo = rows.some(r2 => /Juryo|Makushita|Sandanme|Jonidan|Jonokuchi/i.test(String(r2.rank)));
@@ -521,8 +525,23 @@ async function main(){
       kimarite.slices = slices;
     }
 
-    // arc: fall back current point if sumo-api gave nothing
-    const arcPoints = arc.points.length ? arc.points : [];
+    // arc: attach each basho's crew-era final W-L (MJ's tooltip + companion table, 2026-09-26) from the
+    // Match Log bouts we already have — per-basho (rank, final W-L) is the pair both ride. Keyed by the
+    // "yyMon" code the arc point carries. The CURRENT basho is flagged cur:true and NEVER baked (its W-L
+    // is day-gated at render from gate.crew.days); pre-epoch / lower-division points have no crew W-L → null.
+    const wlByCode = {};
+    if (ml) {
+      const byT = new Map();
+      for (const bt of ml.bouts) { if (!bt.tid) continue; const t = byT.get(bt.tid) || { w:0, l:0 }; if (bt.won) t.w++; else t.l++; byT.set(bt.tid, t); }
+      for (const [tid, wl] of byT) { const lc = labelToCode(tourneyLabel(bzPages, tid)); if (lc.code) wlByCode[lc.code] = { w: wl.w, l: wl.l }; }
+    }
+    const arcPoints = (arc.points || []).map(p => {
+      const cur = p.k === curBasho.code;
+      const o = { b: p.b, v: p.v, r: p.r };
+      if (cur) o.cur = true;
+      else if (p.k && wlByCode[p.k]) o.wl = wlByCode[p.k];
+      return o;
+    });
     const arcBlock = { fromJuryo: arc.fromJuryo, from: 'from Juryo', points: arcPoints };
 
     // caliber (member): opponent-tier W-L per basho the wrestler fought (Match Log × Banzuke ranks)
