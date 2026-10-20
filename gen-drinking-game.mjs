@@ -123,24 +123,6 @@
         <path d="M60 39 l2.5 5.1 l5.6 .5 l-4.2 3.7 l1.3 5.5 l-5.2 -2.9 l-5.2 2.9 l1.3 -5.5 l-4.2 -3.7 l5.6 -.5 Z" fill="#b23a2e"/>
       </g>
     </symbol>
-    <symbol id="ic-games" viewBox="0 0 120 120">
-      <circle cx="60" cy="60" r="58" fill="#efe7d5"/>
-      <circle cx="60" cy="60" r="55.5" fill="none" stroke="#c06a34" stroke-width="4.5"/>
-      <circle cx="60" cy="60" r="49" fill="none" stroke="#c06a34" stroke-width="1.3"/>
-      <g clip-path="url(#coinClip)" filter="url(#inkS)">
-        <g stroke="#211a12" stroke-width="2.6" stroke-linecap="round">
-          <line x1="51" y1="35" x2="51" y2="85"/><line x1="69" y1="35" x2="69" y2="85"/>
-          <line x1="35" y1="51" x2="85" y2="51"/><line x1="35" y1="69" x2="85" y2="69"/>
-        </g>
-        <circle cx="77" cy="43" r="4.4" fill="none" stroke="#211a12" stroke-width="2.6"/>
-        <circle cx="43" cy="77" r="4.4" fill="none" stroke="#211a12" stroke-width="2.6"/>
-        <g stroke="#b23a2e" stroke-width="3" stroke-linecap="round">
-          <line x1="39" y1="39" x2="47" y2="47"/><line x1="47" y1="39" x2="39" y2="47"/>
-          <line x1="56" y1="56" x2="64" y2="64"/><line x1="64" y1="56" x2="56" y2="64"/>
-          <line x1="73" y1="73" x2="81" y2="81"/><line x1="81" y1="73" x2="73" y2="81"/>
-        </g>
-      </g>
-    </symbol>
   </defs></svg>
   <div class="wrap">
     <header>
@@ -151,7 +133,6 @@
           <p class="sub" id="sub">The crew's ranking this basho, this year, or all-time.</p>
         </div>
         <nav class="hdnav">
-          <a class="navcoin" id="gameshome" href="/app" title="Back to Games" aria-label="Back to Games" hidden><svg viewBox="0 0 120 120"><use href="#ic-games"/></svg></a>
           <a class="homecrest" id="crest" href="/" title="Salt Stats &amp; Sumo · home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
         </nav>
       </div>
@@ -314,7 +295,6 @@
   try{ document.body.setAttribute('data-surface', s||'site'); }catch(e){}
   if(s==='app'){
     var c=document.getElementById('crest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); }
-    var g=document.getElementById('gameshome'); if(g){ g.removeAttribute('hidden'); }
   }
 })();
 </script>
