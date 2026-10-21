@@ -1,7 +1,8 @@
 // Cloudflare Pages Function — POST /api/fan
 // Single intake endpoint for the Catchphrase Catcher (Notion).
-// Writes one row per user submission: write-in / jewel-vote / flag.
+// Writes one row per user submission: write-in / jewel-vote / flag / catch.
 // Votes upsert on (Source, Day) so a viewer's crown updates in place, never stacks.
+// Live catches upsert on (Source, Day, Related Phrase) and bump a Count each tap (multiples).
 //
 // MEMBER ATTRIBUTION (A7, 2026-09-21): when the submitter is a logged-in member, the endpoint
 // resolves their VERIFIED identity server-side (same resolveMember() the gallery + cal-event use —
@@ -14,6 +15,15 @@
 //     and switching devices doesn't stack crowns. (Anonymous submitters keep their session token.)
 // This is ADDITIVE: anonymous play/submit still works today. The full member-ONLY lockdown (reject
 // anonymous + hide the write-in/crown when logged out on the board) is a separate board pass.
+//
+// LIVE CATCH (type "catch", 2026-10-20): tapping a board phrase the moment you hear it logs a
+// claim that the phrase was said on the watched day. Each tap bumps `Count` on one row per
+// (Source, Day, phrase) — the RAW claimed count (multiples). It is NOT the score: the claim is
+// capped at the transcript's actual `Times Today` for that phrase/day at the basho-end
+// reconciliation (runCatcherLane / the §3c learning pass) — you can tap 10 times but only the real
+// instances count. Live we can't cap (the transcript isn't in yet), so we store the raw claim and
+// reconcile later. Anonymous catches log too; only a verified member's catch is attributable/scorable.
+// Requires a `Count` number property on the Catchphrase Catcher DB.
 //
 // Required Cloudflare Pages env vars (Settings → Variables and Secrets):
 //   Sumo_Fan_Intake — the sumo-fan-intake Notion integration secret (starts with "ntn_").
@@ -29,7 +39,7 @@ import { resolveMember } from "./members/_members.js";
 
 const NOTION_VERSION = "2022-06-28";
 const DEFAULT_DB = "0caf1338-72e8-4097-acfb-905af5b1d9f1";
-const TYPES = ["write-in", "jewel-vote", "flag"];
+const TYPES = ["write-in", "jewel-vote", "flag", "catch"];
 const REASONS = ["promote-to-jewel", "dupe-of", "not-said", "mis-worded", "not-funny"];
 
 function json(obj, status = 200) {
@@ -91,7 +101,7 @@ export async function onRequestPost({ request, env }) {
 
   // ---- build properties ----
   const props = {
-    "Submission": { title: [{ text: { content: text || (type === "jewel-vote" ? "(crown)" : "(submission)") } }] },
+    "Submission": { title: [{ text: { content: text || (type === "jewel-vote" ? "(crown)" : type === "catch" ? "(caught)" : "(submission)") } }] },
     "Type": { select: { name: type } },
     "Status": { select: { name: "new" } },
     "Submitted at": { date: { start: now } },
@@ -121,10 +131,35 @@ export async function onRequestPost({ request, env }) {
         return json({ ok: true, updated: true, verified });
       }
     }
+
+    // ---- live catch: upsert per (Source, Day, phrase) — bump the RAW claimed Count each tap.
+    // The claim is capped against the transcript's actual Times-Today at basho-end reconciliation,
+    // not here (the transcript isn't in yet live). Needs a `Count` number field on the Catcher DB.
+    if (type === "catch" && source && day !== null && pid) {
+      const q = await notion(token, `/databases/${db}/query`, "POST", {
+        page_size: 1,
+        filter: {
+          and: [
+            { property: "Source", rich_text: { equals: source } },
+            { property: "Day", number: { equals: day } },
+            { property: "Type", select: { equals: "catch" } },
+            { property: "Related Phrase", relation: { contains: pid } },
+          ],
+        },
+      });
+      if (q.ok && q.data.results && q.data.results.length) {
+        const page = q.data.results[0];
+        const prev = (page.properties && page.properties.Count && page.properties.Count.number) || 0;
+        await notion(token, `/pages/${page.id}`, "PATCH", { properties: { ...props, "Count": { number: prev + 1 } } });
+        return json({ ok: true, updated: true, count: prev + 1, verified });
+      }
+      props["Count"] = { number: 1 };
+    }
+
     // ---- create ----
     const c = await notion(token, "/pages", "POST", { parent: { database_id: db }, properties: props });
     if (!c.ok) return json({ ok: false, error: "notion", detail: c.data && c.data.message }, 200);
-    return json({ ok: true, created: true, verified });
+    return json({ ok: true, created: true, count: type === "catch" ? 1 : undefined, verified });
   } catch (e) {
     return json({ ok: false, error: "exception" }, 200);
   }
