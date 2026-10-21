@@ -181,6 +181,7 @@
     });
   }
   function sortRows(rows){
+    if(state.sortT==='__az__'){ return rows.slice().sort(function(a,b){ return String(a.name).localeCompare(String(b.name)); }); }
     var si=DATA.tournaments.map(function(t){return t.id;}).indexOf(state.sortT);
     return rows.slice().sort(function(a,b){
       var ca=a.cells[si], cb=b.cells[si];
@@ -317,14 +318,15 @@
       return '<tr><td class="wn">'+esc(r.name)+'</td>'+tds+'</tr>';
     }).join('');
     return '<div class="tablewrap"><table><thead>'+grp+sub+'</thead><tbody>'+trs+'</tbody></table></div>'+
-      '<p class="legend">Predicted basho show Pred · Act · Δ · W–L; context basho (no crew picks) show Act · W–L. Rows sorted by '+esc(tour(state.sortT).short)+' record, then actual rank. '+
+      '<p class="legend">Predicted basho show Pred · Act · Δ · W–L; context basho (no crew picks) show Act · W–L. Rows sorted by '+(state.sortT==='__az__'?'rikishi name (A–Z)':(esc(tour(state.sortT).short)+' record, then actual rank'))+'. '+
       '🏆 = champion · <span class="san OP">OP</span> · <span class="san FS">FS</span> · <span class="san TE">TE</span> sanshō · '+
       '<span class="kk">green</span> winning, <span class="mk">maroon</span> losing.</p>';
   }
 
   function controlsHTML(){
     var opts=DATA.members.map(function(m){return '<option value="'+m.key+'"'+(m.key===state.who?' selected':'')+'>'+esc(m.name)+(m.pace?' (pace car)':'')+'</option>';}).join('');
-    var sopts=DATA.tournaments.map(function(t){return '<option value="'+t.id+'"'+(t.id===state.sortT?' selected':'')+'>'+esc(t.short)+'</option>';}).join('');
+    var sopts='<option value="__az__"'+(state.sortT==='__az__'?' selected':'')+'>A–Z (rikishi)</option>'+
+      DATA.tournaments.map(function(t){return '<option value="'+t.id+'"'+(t.id===state.sortT?' selected':'')+'>'+esc(t.short)+'</option>';}).join('');
     return '<div class="controls"><label for="who">Crew member</label><select id="who">'+opts+'</select>'+
       '<label for="sortT" style="margin-left:6px">Sort by</label><select id="sortT">'+sopts+'</select>'+
       (EDIT&&state.who===MYKEY?'<button class="dl" id="savep" style="background:var(--win)">\uD83D\uDCBE Save my '+esc(OPENSHORT)+' picks</button>':'')+'<button class="dl" id="dl">⬇ Download to Excel</button></div>';
@@ -332,7 +334,9 @@
 
   function render(){
     var editing=EDIT&&state.who===MYKEY;
-    body.innerHTML=controlsHTML()+(editing?'<p class="legend" id="pstatus" style="margin:0 0 10px;min-height:1em"></p>':'')+summaryHTML(state.who)+analyticsHTML(state.who)+movementHTML(state.who)+gridHTML(state.who)+(editing?bonusHTML():'');
+    var locked = !!(MYKEY && state.who===MYKEY && openTour() && !editing);
+    var lockNote = locked ? '<p class="legend" style="margin:0 0 10px;color:var(--muted)">'+esc(OPENSHORT)+' picks are locked. '+(PHASE==='scored'?'The banzuke is in and picks are graded.':'The window is closed.')+' Your submitted picks show in the '+esc(OPENSHORT)+' column below.</p>' : '';
+    body.innerHTML=controlsHTML()+(editing?'<p class="legend" id="pstatus" style="margin:0 0 10px;min-height:1em"></p>':'')+lockNote+summaryHTML(state.who)+analyticsHTML(state.who)+movementHTML(state.who)+gridHTML(state.who)+(editing?bonusHTML():'');
     document.getElementById('who').onchange=function(){state.who=this.value;render();};
     document.getElementById('sortT').onchange=function(){state.sortT=this.value;render();};
     document.getElementById('dl').onclick=downloadXlsx;
@@ -366,7 +370,7 @@
   // The baked DATA above is frozen history. At load we fetch the member's identity + the
   // current roster + their saved picks, append ONE open tournament (editable for the logged-in
   // member only), and re-render. Picks save to the same KV the leaderboard grades from.
-  var MYKEY=null, EDIT=false, KPICKS={}, BONUS=[], DIRTY=false;
+  var MYKEY=null, EDIT=false, KPICKS={}, BONUS=[], DIRTY=false, PHASE='open';
   var OPENID='ky26', OPENSHORT="Kyushu '26";
   var RANKOPTS=[['y','Y'],['o','O'],['s','S'],['k','K']];
   for(var _i=1;_i<=18;_i++) RANKOPTS.push(['m'+_i,'M'+_i]);
@@ -419,9 +423,11 @@
   function boot(){
     Promise.all([
       fetch('/api/app/roster').then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }),
-      fetch('/api/app/prediction').then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
+      fetch('/api/app/prediction').then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }),
+      fetch('/prediction-current.json',{cache:'no-store'}).then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
     ]).then(function(res){
-      var rd=res[0]||{}, saved=res[1]||{};
+      var rd=res[0]||{}, saved=res[1]||{}, cur=res[2]||{};
+      PHASE=(cur&&cur.cfg&&cur.cfg.phase)?String(cur.cfg.phase).toLowerCase():'open';
       var myName=(saved&&saved.name)||'';
       var mk=DATA.members.filter(function(m){ return !m.pace && m.name.toLowerCase()===String(myName).toLowerCase(); })[0];
       MYKEY = mk? mk.key : null;
@@ -431,7 +437,7 @@
         BONUS=(saved&&saved.picks&&saved.picks.bonus)||[];
         KPICKS=JSON.parse(JSON.stringify(mp));
         injectOpen(roster,mp);
-        EDIT = !!MYKEY;
+        EDIT = !!MYKEY && PHASE==='open';
         if(MYKEY) state.who=MYKEY;
       }
       render();
