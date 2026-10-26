@@ -11,11 +11,11 @@ on:
       basho:
         description: 'sumo-api basho code YYYYMM (e.g. 202609 = Aki 2026)'
         required: true
-        default: '202609'
+        default: '202611'
       basho_label:
         description: 'Banzuke entry-title label — must match sync-notion/build-standings char-for-char'
         required: true
-        default: 'Aki 2026'
+        default: 'Kyushu 2026'
       tournament_page_id:
         description: 'Notion Bashos page ID for this basho (dashed UUID)'
         required: true
