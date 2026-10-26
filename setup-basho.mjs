@@ -58,7 +58,7 @@ const API_THROTTLE_MS = 400;   // polite pacing on sumo-api (free, one-person AP
 const DB = {
   masterRikishi: 'ca79ecbb-4c56-45eb-b353-3dd33031c7d9',
   banzuke:       '8e3457a9-2747-4275-9b91-7ac03fe18290',
-  stables:       '772d1e51-7941-4518-950b-be0eb1695494',
+  stables:       'eff4e763-c792-422d-9c90-943f9315cb41',
 };
 
 const COUNTRIES = ['Japan','Bulgaria','Egypt','Georgia','Kazakhstan','Kyrgyzstan','Mongolia','Russia','Ukraine','China'];
