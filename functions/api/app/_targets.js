@@ -10,7 +10,6 @@
 // flip LEADERBOARD_LIVE to the next basho while the snapshot still holds the current one.
 
 import { NAGOYA, AKI } from './_season.js';
-import { NAGOYA, AKI } from './_season.js';
 // Gumbai's authored picks for a LIVE basho (the bot never POSTs to KV). Drop in per basho at grade
 // time, ported from that basho's rollover workbook Gumbai column, then set it as `gumbai` below.
 import KY26_GUMBAI from './_ky26-gumbai.js';
@@ -19,22 +18,16 @@ import KY26_GUMBAI from './_ky26-gumbai.js';
 export const BAKED = [NAGOYA, AKI];
 
 // Live-gradeable targets, oldest→newest. At most ONE is current at a time — the basho the snapshot
-// holds (or LEADERBOARD_LIVE forces). Aki = frozen module; Kyushu+ = live KV via _picks-loader.
+// holds (or LEADERBOARD_LIVE forces). Kyushu = live KV via _picks-loader.
 export const TARGETS = [
-  { basho: 'Aki 2026',    bashoId: '202609', bashoCode: 'Aki',  year: 2026, frozen: PICKS },
   { basho: 'Kyushu 2026', bashoId: '202611', bashoCode: 'Ky26', year: 2026, live: true, gumbai: KY26_GUMBAI },
 ];
 
 // Which target does the current snapshot (or the manual flag) select? At most one.
-// The forced flag wins first (exact bashoId); otherwise the snapshot's own basho (id, else name).
+// Forced flag wins first (exact bashoId); else the snapshot's own basho by id, else EXACT name.
 export function currentTarget(snapshot, env) {
   const forced = String((env && env.LEADERBOARD_LIVE) || '');
   if (forced) { const f = TARGETS.find((t) => t.bashoId === forced); if (f) return f; }
   const snapId = String(snapshot?.meta?.bashoId ?? '');
-  const snapName = String(snapshot?.meta?.basho ?? '');
-  return TARGETS.find((t) => {
-    if (t.bashoId === snapId) return true;
-    const word = t.basho.split(' ')[0];
-    return word && new RegExp(word, 'i').test(snapName);
-  }) || null;
+  return TARGETS.find((t) => t.bashoId === snapId) || null;
 }
