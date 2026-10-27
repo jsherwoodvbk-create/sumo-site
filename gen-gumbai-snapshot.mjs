@@ -87,10 +87,10 @@ const OUT = process.env.OUT || 'functions/api/_snapshot.js';
 
 // ─── PER-BASHO CONFIG — change these with the others each tournament ───────────
 // (BASHO also changes in sync-notion.mjs/.yml and build-standings.mjs.)
-const BASHO = process.env.BASHO || '202609';
-const TOURNAMENT_PAGE_ID = '3351ade1-241f-8011-8987-d959538f54a0';
-const BASHO_LABEL = 'Aki 2026';
-const BASHO_STAMP = '26Ak';   // severity-log / catchphrase day stamp prefix (26<Basho>D#). Ht/Hr/Nt/Ng/Ak/Ky.
+const BASHO = process.env.BASHO || '202611';
+const TOURNAMENT_PAGE_ID = '3351ade1-241f-809d-ae11-f626432837d2';
+const BASHO_LABEL = 'Kyushu 2026';
+const BASHO_STAMP = '26Ky';   // severity-log / catchphrase day stamp prefix (26<Basho>D#). Ht/Hr/Nt/Ng/Ak/Ky.
 // ──────────────────────────────────────────────────────────────────────────────
 
 const DB = {
