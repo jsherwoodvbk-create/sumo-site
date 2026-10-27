@@ -1,10 +1,10 @@
 {
   "cfg": {
-    "basho": "Aki 2026 (dry run)",
-    "bashoCode": "26Ak-dry",
+    "basho": "Kyushu 2026",
+    "bashoCode": "26Ky",
     "leagueId": "crew",
     "leagueName": "The Crew",
     "phase": "open",
-    "lockNote": "Dry run on the Aki field. Draft a full roster to test the flow end to end."
+    "lockNote": "Draft your full roster off the new Kyushu banzuke. Picks lock Friday, Nov 6 — end of day, PT (the weekend before Day 1, Sun Nov 8)."
   }
 }
