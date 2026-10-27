@@ -42,6 +42,19 @@ export const NAGOYA = {
   ],
 };
 
+// Aki 2026, baked at the Kyushu drop (2026-10-28). Golf from the graded Aki field
+// (prediction-history.json; reproducible via _score.js). All 5 played. Gumbai = pace car.
+export const AKI = {
+  basho: 'Aki 2026', bashoId: '202609', year: 2026,
+  field: [
+    { key: 'gumbai', golf: 26 },
+    { key: 'sherry', golf: 33 },
+    { key: 'mj',     golf: 34 },
+    { key: 'jennie', golf: 36 },
+    { key: 'james',  golf: 46 },
+  ],
+};
+
 // Participation points banked per basho (kill-skill tally → Notion → baked here).
 // points = per-member SUM across all streams that basho. Human keys only (Gumbai sits out).
 // Aki 2026 (locked 2026-10-19 in the 🏅 Participation Points DB):
