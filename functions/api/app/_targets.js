@@ -9,14 +9,14 @@
 // and drop it from TARGETS — or it falls off both surfaces (no longer live, not yet baked). Never
 // flip LEADERBOARD_LIVE to the next basho while the snapshot still holds the current one.
 
-import PICKS from './_aki-picks.js';
-import { NAGOYA } from './_season.js';
+import { NAGOYA, AKI } from './_season.js';
+import { NAGOYA, AKI } from './_season.js';
 // Gumbai's authored picks for a LIVE basho (the bot never POSTs to KV). Drop in per basho at grade
 // time, ported from that basho's rollover workbook Gumbai column, then set it as `gumbai` below.
 import KY26_GUMBAI from './_ky26-gumbai.js';
 
 // Finalized bashos (golf frozen in _season.js). Grows at each roll.
-export const BAKED = [NAGOYA];
+export const BAKED = [NAGOYA, AKI];
 
 // Live-gradeable targets, oldest→newest. At most ONE is current at a time — the basho the snapshot
 // holds (or LEADERBOARD_LIVE forces). Aki = frozen module; Kyushu+ = live KV via _picks-loader.
