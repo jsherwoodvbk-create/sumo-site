@@ -80,9 +80,9 @@ const DRY = (process.env.DRY_RUN === '1' || String(process.env.DRY_RUN).toLowerC
 // ─── PER-BASHO CONFIG — the three values the banzuke-drop cascade flips each tournament ───────────
 //   (BASHO / BASHO_LABEL / TOURNAMENT_PAGE_ID change together in setup-basho, sync-notion,
 //    build-standings and gen-gumbai-snapshot — keep them char-for-char in step with those.)
-const BASHO              = process.env.BASHO || '202609';
-const BASHO_LABEL        = process.env.BASHO_LABEL || 'Aki 2026';
-const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-8011-8987-d959538f54a0';
+const BASHO              = process.env.BASHO || '202611';
+const BASHO_LABEL        = process.env.BASHO_LABEL || 'Kyushu 2026';
+const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-809d-ae11-f626432837d2';
 // ──────────────────────────────────────────────────────────────────────────────────────────────
 
 const DIVISION = 'Makuuchi';
