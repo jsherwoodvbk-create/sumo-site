@@ -8,9 +8,12 @@ import fs from 'node:fs';
 //   override it, so edit it right here. Must also change in sync-notion.yml and
 //   sync-notion.mjs (the config block up top there).
 //   NOTE: the standings HEADER (title / h1 / gate) is now DERIVED from BASHO — no hand-edit.
-// HT_WT map below is now a FALLBACK only — height + weight auto-fetch from sumo-api
-//   (/rikishi/{id}, the same call age uses), so new faces fill in automatically and weights
-//   stay current each basho. The map is consulted only when sumo-api lacks a value.
+// HT_WT map below is now a FALLBACK only. WEIGHT auto-fetches live from sumo-api (/rikishi/{id},
+//   the same call age uses) every build, so it stays current each basho — weight is the value that
+//   CHANGES (the DB keeps Weight (kg) on the per-basho Banzuke entry for exactly this reason).
+//   HEIGHT comes from the same call but is a STABLE one-time fact (it lives on Master Rikishi) —
+//   fetched only so new faces auto-fill without a manual row, not because it changes. The map is
+//   consulted only when sumo-api lacks a value.
 // Full step-by-step: see the "Tournament Rollover" checklist in the project.
 const BASHO = process.env.BASHO || "202611";
 const DIVISION = "Makuuchi";
@@ -26,8 +29,9 @@ function bashoLabel(code){
   return (nm && /^\d{4}$/.test(yr)) ? `${nm} ${yr}` : null;
 }
 
-// height/weight aren't in the BANZUKE endpoint but ARE on /rikishi/{id} (fetched below), so they
-// auto-fill live; this static map (ft/in, lb) is only a FALLBACK when sumo-api lacks a value.
+// height/weight aren't in the BANZUKE endpoint but ARE on /rikishi/{id} (fetched below). Weight is
+// pulled live because it CHANGES each basho; height is pulled too only so new faces auto-fill (height
+// itself is a stable fact). This static map (ft/in, lb) is only a FALLBACK when sumo-api lacks a value.
 const HT_WT = {"Hoshoryu": {"ht": "6'2\"", "wt": 331}, "Onosato": {"ht": "6'4\"", "wt": 417}, "Kirishima": {"ht": "6'1\"", "wt": 331}, "Kotozakura": {"ht": "6'2\"", "wt": 392}, "Aonishiki": {"ht": "6'0\"", "wt": 313}, "Atamifuji": {"ht": "6'2\"", "wt": 434}, "Kotoshoho": {"ht": "6'3\"", "wt": 379}, "Wakatakakage": {"ht": "6'0\"", "wt": 304}, "Yoshinofuji": {"ht": "6'1\"", "wt": 346}, "Oho": {"ht": "6'4\"", "wt": 408}, "Fujinokawa": {"ht": "5'10\"", "wt": 271}, "Takanosho": {"ht": "6'0\"", "wt": 381}, "Churanoumi": {"ht": "5'10\"", "wt": 333}, "Gonoyama": {"ht": "5'10\"", "wt": 344}, "Hiradoumi": {"ht": "5'10\"", "wt": 311}, "Hakunofuji": {"ht": "5'11\"", "wt": 351}, "Daieisho": {"ht": "6'0\"", "wt": 353}, "Ichiyamamoto": {"ht": "6'3\"", "wt": 353}, "Oshoma": {"ht": "6'3\"", "wt": 366}, "Ura": {"ht": "5'9\"", "wt": 306}, "Shodai": {"ht": "6'0\"", "wt": 370}, "Fujiseiun": {"ht": "6'1\"", "wt": 331}, "Kotoeiho": {"ht": "6'0\"", "wt": 313}, "Takayasu": {"ht": "6'2\"", "wt": 381}, "Wakamotoharu": {"ht": "6'2\"", "wt": 315}, "Roga": {"ht": "6'0\"", "wt": 353}, "Fujiryoga": {"ht": "5'11\"", "wt": 399}, "Tobizaru": {"ht": "5'8\"", "wt": 298}, "Asanoyama": {"ht": "6'2\"", "wt": 386}, "Chiyoshoma": {"ht": "6'0\"", "wt": 309}, "Mitakeumi": {"ht": "6'0\"", "wt": 386}, "Wakanosho": {"ht": "5'10\"", "wt": 320}, "Abi": {"ht": "6'2\"", "wt": 368}, "Asahakuryu": {"ht": "6'1\"", "wt": 335}, "Nishikifuji": {"ht": "6'0\"", "wt": 342}, "Takerufuji": {"ht": "6'2\"", "wt": 326}, "Kinbozan": {"ht": "6'5\"", "wt": 395}, "Shishi": {"ht": "6'4\"", "wt": 390}, "Onokatsu": {"ht": "6'1\"", "wt": 364}, "Kazuma": {"ht": "6'1\"", "wt": 452}, "Asakoryu": {"ht": "5'10\"", "wt": 276}, "Daiseizan": {"ht": "6'4\"", "wt": 362}, "Asasuiryu": {"ht": "5'9\"", "wt": 265}, "Tokihayate": {"ht": "5'10\"", "wt": 300}, "Toshinofuji": {"ht": "6'5\"", "wt": 333}, "Shonannoumi": {"ht": "6'4\"", "wt": 403}};
 
 const MAWASHI = {"Abi":"#191970","Aonishiki":"#004225","Asahakuryu":"#16305c","Asakoryu":"#b7302a","Asanoyama":"#5a2a52","Atamifuji":"#7e3a4f","Chiyoshoma":"#a9762f","Churanoumi":"#6a3d9a","Daieisho":"#932c50","Daiseizan":"#5d2e8e","Fujinokawa":"#2f6fc0","Fujiryoga":"#16305c","Fujiseiun":"#191970","Gonoyama":"#191970","Hakunofuji":"#8a7b68","Hiradoumi":"#2b1a47","Hoshoryu":"#10132e","Ichiyamamoto":"#17a088","Kazuma":"#191970","Kinbozan":"#8c8c8c","Kirishima":"#3a2b3a","Kotoeiho":"#5b73a0","Kotoshoho":"#aebfca","Kotozakura":"#7fd8cf","Mitakeumi":"#bf3d67","Nishikifuji":"#c096bf","Oho":"#47215e","Onokatsu":"#9a9a9a","Onosato":"#191970","Oshoma":"#c6c6c6","Roga":"#302a63","Sadanoumi":"#7d8894","Shishi":"#1c1c1c","Shodai":"#1c1c1c","Takanosho":"#b7302a","Takayasu":"#16305c","Takerufuji":"#ab8fd0","Tobizaru":"#adbccb","Ura":"#ffb7c5","Wakamotoharu":"#1c1c1c","Wakanosho":"#191970","Wakatakakage":"#16215e","Yoshinofuji":"#2b1a47"};
@@ -73,9 +77,11 @@ function cmToFtIn(cm){
 }
 const kgToLb = kg => (kg!=null && kg>0) ? Math.round(kg*2.20462) : "";
 
-// One /rikishi/{id} call → age + live height + weight. Height/weight are the per-basho-current
-// sumo-api values (same source setup-basho writes onto Banzuke Weight (kg)), so standings stay in
-// step with the roster instead of a frozen map. Blanks on any miss → caller falls back to HT_WT.
+// One /rikishi/{id} call → age + height + weight. WEIGHT is the per-basho changer (wrestlers gain/lose
+// between tournaments — the reason to fetch it live; the DB keeps Weight (kg) on the per-basho Banzuke
+// entry, which setup-basho refreshes each drop). HEIGHT is a stable fact (it lives on Master Rikishi),
+// fetched from the same call just so new faces populate without a manual row. Blanks on any miss →
+// caller falls back to HT_WT.
 async function fetchVitals(id){
   try{
     const res = await fetch(`https://www.sumo-api.com/api/rikishi/${id}`);
@@ -113,7 +119,7 @@ async function main(){
     });
     const fb = HT_WT[r.shikonaEn] || {ht:"", wt:""};
     const v = vitals[idx] || {ht:"", wt:"", age:null};
-    const ht = v.ht || fb.ht || "";                                   // live sumo-api wins; map fills a gap
+    const ht = v.ht || fb.ht || "";                                   // height is stable; live just auto-fills new faces, map is fallback
     const wt = (v.wt !== "" && v.wt != null) ? v.wt : (fb.wt ?? "");  // live weight wins (current each basho)
     const mc = MAWASHI[r.shikonaEn];
     const slug = String(r.shikonaEn).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
