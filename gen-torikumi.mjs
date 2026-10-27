@@ -44,7 +44,7 @@ import process from 'node:process';
 const API = 'https://www.sumo-api.com/api';
 const DIVISION = 'Makuuchi';
 const TOTAL_DAYS = 15;
-const BASHO = process.env.BASHO || '202609';   // ← Aki 2026 (bump each tournament, with the other generators)
+const BASHO = process.env.BASHO || '202611';   // ← Kyushu 2026 (bump each tournament, with the other generators)
 const OUT = process.env.OUT || 'tomorrow-card.json';
 const FORCE_DAY = parseInt(process.env.FORCE_DAY || '', 10); // NaN when unset
 const UA = 'salt-stats-sumo-torikumi/1.0 (+https://sumo.stavesandhoop.com; daily card pull)';
@@ -61,7 +61,7 @@ const THROTTLE_MS = 1200;
 //   shared) in the torikumi step's env. Absent → the write is skipped with a note, JSON path unchanged.
 //   PER-BASHO: TOURNAMENT_PAGE_ID + BASHO_LABEL bump with the other generators at the drop.
 const NOTION_TOKEN_WRITE = process.env.NOTION_TOKEN_WRITE || '';
-const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-8011-8987-d959538f54a0';  // Aki 2026 🏆 Bashos page
+const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-809d-ae11-f626432837d2';  // Kyushu 2026 🏆 Bashos page
 const DAYS_DB_ID = process.env.DAYS_DB_ID || 'eb0597c9-7259-49cd-babb-889f3b28f33d';   // 📅 Days/Transcripts
 const NOTION_VERSION = '2022-06-28';
 
