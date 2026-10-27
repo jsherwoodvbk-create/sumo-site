@@ -29,6 +29,13 @@
 //     Gumbai reads this field, so a stale value gives the wrong peak. The refresh RAISES only,
 //     never lowers, and skips newcomers (whose Highest Rank was just set to their entry = peak).
 //     Reads /rikishi/{id}?ranks=true — the same career rank history the per-rikishi dashboard uses.
+//   - WEIGHT REFRESH (live pass, 2026-10-26): weight is a PER-BASHO value stored on the BANZUKE
+//     ENTRY ("Weight at this tournament", by design — NOT on Master Rikishi, because wrestlers gain
+//     and lose between basho). So on the LIVE run, after the roster is ensured, current weight is
+//     pulled fresh from sumo-api (/rikishi/{id}) and written to Weight (kg) for ALL entries — every
+//     drop, overwrite-when-changed (an unchanged value is skipped, so a re-run is near-silent).
+//     This replaces the old fill-empty-only backfill for the drop. Weight (lbs) is a Notion formula
+//     off this kg value, so only kg is written. No reads or writes in DRY.
 //
 // ENV: NOTION_TOKEN (required) · DRY_RUN (default "1") ·
 //      BASHO / BASHO_LABEL / TOURNAMENT_PAGE_ID (default to Aki 2026 below; override per basho)
@@ -221,6 +228,8 @@ async function main() {
   const MR = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p.id]));
   const MRPAGE = new Map(mrPages.map(p => [titleOf(p, 'Ring Name'), p]));   // full pages, for the Highest Rank refresh
   const BZ = new Set(bzPages.map(p => titleOf(p, 'Entry')));
+  const BZID = new Map(bzPages.map(p => [titleOf(p, 'Entry'), p.id]));                                   // entry title -> Banzuke page id (for the weight refresh)
+  const BZWT = new Map(bzPages.map(p => [titleOf(p, 'Entry'), p.properties?.['Weight (kg)']?.number ?? null])); // stored kg, to skip no-op writes
 
   // Stables lookup — used only when creating newcomers (live run), so skip the query in DRY.
   // Maps lowercased stable Name -> page id, so we can LINK the Stable relation instead of a Note.
@@ -284,7 +293,8 @@ async function main() {
         'Rikishi': { relation: [{ id: mrId }] },
         'Tournament': { relation: [{ id: TOURNAMENT_PAGE_ID }] },
       };
-      await notion('/pages', 'POST', { parent: { database_id: DB.banzuke }, properties: props });
+      const createdBz = await notion('/pages', 'POST', { parent: { database_id: DB.banzuke }, properties: props });
+      BZID.set(entryTitle, createdBz.id);   // record the new page id so the weight pass can reach it
       await sleep(WRITE_THROTTLE_MS);
     }
     BZ.add(entryTitle);
@@ -315,16 +325,43 @@ async function main() {
     }
   }
 
+  // ── WEIGHT REFRESH (live only) — weight is a PER-BASHO value stored on the Banzuke ENTRY
+  //    ("Weight at this tournament", not on Master Rikishi), so pull it fresh from sumo-api and
+  //    write Weight (kg) for ALL entries at the drop — overwrite only when it changed, so a re-run
+  //    is near-silent. Weight (lbs) is a Notion formula off this value, so only kg is written.
+  const wtUpdated = [];
+  let wtChecked = 0, wtSame = 0, wtNoData = 0;
+  if (!DRY) {
+    console.log(`\nWeight refresh — pulling current weight for ${all.length} entries from sumo-api …`);
+    for (const r of all) {
+      const name = r.shikonaEn;
+      const entryTitle = `${name} — ${BASHO_LABEL}`;
+      const pageId = BZID.get(entryTitle);
+      if (!pageId) { flags.push(`"${name}": no Banzuke page id for the weight refresh — skipped.`); continue; }
+      const d = await fetchRikishiDetail(r.rikishiID); await sleep(API_THROTTLE_MS);
+      wtChecked++;
+      const wkg = d?.weightKg ?? null;
+      if (wkg == null) { wtNoData++; flags.push(`"${name}": no weight from sumo-api — Weight (kg) left as is.`); continue; }
+      if (BZWT.get(entryTitle) === wkg) { wtSame++; continue; }   // unchanged — skip the write
+      await notion(`/pages/${pageId}`, 'PATCH', { properties: { 'Weight (kg)': { number: wkg } } });
+      await sleep(WRITE_THROTTLE_MS);
+      wtUpdated.push(`${name}: ${BZWT.get(entryTitle) ?? '(blank)'} → ${wkg} kg`);
+    }
+  }
+
   console.log(`\n──────── ${DRY ? 'CENSUS (nothing written)' : 'DONE'} ────────`);
   console.log(`Banzuke entries to create: ${bzCreate} · already present (skipped): ${skipEntry} · newcomer Master pages: ${mrCreate}`);
   if (!DRY) console.log(`Highest Rank: checked ${hrChecked} returning wrestlers · raised ${hrRaised.length} · no rank history ${hrBlank}.`);
   else console.log(`Highest Rank refresh: runs on the LIVE pass only (reads sumo-api rank history for the returning wrestlers and raises any stale Notion "Highest Rank"; no reads or writes in DRY).`);
+  if (!DRY) console.log(`Weight: checked ${wtChecked} entries · updated ${wtUpdated.length} · unchanged ${wtSame} · no data ${wtNoData}.`);
+  else console.log(`Weight refresh: runs on the LIVE pass only (pulls current weight from sumo-api and writes Weight (kg) for every Banzuke entry; no reads or writes in DRY).`);
   if (hrRaised.length) { console.log('\n⬆️  HIGHEST RANK RAISED:'); for (const h of hrRaised) console.log('  - ' + h); }
+  if (wtUpdated.length) { console.log('\n⚖️  WEIGHT SET/UPDATED:'); for (const w of wtUpdated) console.log('  - ' + w); }
   if (newcomers.length) { console.log(`\nNEWCOMERS (new Master Rikishi — pull Real Name + Photo from JSA, run onboard-rikishi):`); for (const n of newcomers) console.log('  - ' + n); }
   if (flags.length) { console.log('\n⚠️  FLAGS:'); for (const f of [...new Set(flags)]) console.log('  - ' + f); }
   else console.log('No flags.');
   if (DRY) console.log('\nDRY RUN. Review the census + newcomers, then re-run with DRY_RUN=0.');
-  else console.log(`\n✓ ${BASHO_LABEL} banzuke roster is in Notion (+ Highest Rank refreshed). Next: flip the config (Phase 2) and dry-run the sync.`);
+  else console.log(`\n✓ ${BASHO_LABEL} banzuke roster is in Notion (+ Highest Rank + Weight refreshed). Next: flip the config (Phase 2) and dry-run the sync.`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });
