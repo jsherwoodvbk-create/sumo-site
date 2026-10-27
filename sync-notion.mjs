@@ -53,9 +53,9 @@ const NOTION_TOKEN = process.env.NOTION_TOKEN;
 //   BASHO_LABEL       : exact text used in Banzuke "Entry" titles, e.g. "Aonishiki — Aki 2026".
 //                       Also used as the Day-row title prefix, e.g. "Aki 2026 · Day 6".
 // Full step-by-step: see the "Tournament Rollover" checklist in the project.
-const BASHO = process.env.BASHO || '202607';
-const TOURNAMENT_PAGE_ID = '3351ade1-241f-8011-8987-d959538f54a0';
-const BASHO_LABEL = 'Aki 2026';
+const BASHO = process.env.BASHO || '202611';
+const TOURNAMENT_PAGE_ID = '3351ade1-241f-809d-ae11-f626432837d2';
+const BASHO_LABEL = 'Kyushu 2026';
 // ─────────────────────────────────────────────────────────────────────────────────────
 
 const DIVISION = 'Makuuchi';
