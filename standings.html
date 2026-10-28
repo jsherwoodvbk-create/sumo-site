@@ -325,5 +325,20 @@ const DATA=[{"name":"Hoshoryu","rank":"Yokozuna","rc":"yok","days":["","","","",
   if(s==='app'){ var c=document.querySelector('.homecrest'); if(c){ c.setAttribute('href','/app'); c.setAttribute('title','Crew home'); } }
 })();
 </script>
+<script>
+(function(){
+  var h1=document.querySelector('header h1');
+  var label=(h1?h1.textContent:'').split(' · ')[0].trim();
+  var started = Array.isArray(DATA) && DATA.some(function(x){ return (x.days||[]).some(function(v){ return v==='w'||v==='l'; }); });
+  var champ = (typeof CHAMPION!=='undefined') && CHAMPION && CHAMPION.name;
+  var phase = champ ? 'final' : (started ? 'live' : 'pre');
+  var sub = {pre:'Banzuke posted', live:'In progress', final:'Final results'}[phase];
+  var gline = {pre:'The '+label+' banzuke is set — the basho hasn\u2019t started yet.', live:label+' is under way.', final:label+' is in the books.'}[phase];
+  var e;
+  if(e=document.querySelector('header .sub')) e.textContent=sub;
+  if(e=document.querySelector('#gate h2')) e.textContent=label+': mind the spoilers';
+  if(e=document.querySelector('#gate p')) e.textContent=gline+' If you\u2019re still catching up, tell us how far you\u2019ve watched and we\u2019ll show results only through that day.';
+})();
+</script>
 </body>
 </html>
