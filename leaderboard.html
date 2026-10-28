@@ -223,7 +223,7 @@
     var hint = hasPart
       ? 'Banzuke prediction: Score is how far your picks landed from where the wrestlers actually finished (lower is better), and Pts is the 3·2·1 it earns. Participation is the drinking-game and Gumbai points banked over the tournament. Total decides the basho.'
       : 'Score = how far your picks landed from the real banzuke, added up. ↓ Lowest wins.';
-    return '<p class="viewhead">'+esc(v.basho)+' · final</p>'+
+    return '<p class="viewhead">'+esc(v.basho)+(hasPart?' · final':' · banzuke graded')+'</p>'+
       '<p class="scorehint">'+hint+'</p>'+
       '<table><thead>'+head+'</thead>'+
       '<tbody>'+rows+'</tbody></table>'+ paceStrip(pace,'thisBasho');
