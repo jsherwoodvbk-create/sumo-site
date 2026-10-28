@@ -333,7 +333,46 @@
       (EDIT&&state.who===MYKEY?'<button class="dl" id="savep" style="background:var(--win)">\uD83D\uDCBE Save my '+esc(OPENSHORT)+' picks</button>':'')+'<button class="dl" id="dl">⬇ Download to Excel</button></div>';
   }
 
+  // ---- scored-state view: crew recap + reveal table (shows whenever phase is not 'open') ----
+  function latestGraded(){ var a=DATA.tournaments.filter(function(t){return t.hasPred && !t.open;}); return a[a.length-1]; }
+  function recapHTML(t){
+    var MEDAL={1:'🥇',2:'🥈',3:'🥉'};
+    var rows=(t.recap||[]).map(function(r){
+      var med=r.pace?'<span class="rc-pace">pace</span>':(MEDAL[r.place]||r.place);
+      return '<tr class="'+(r.place===1?'rc-win':(r.pace?'rc-pacerow':''))+'"><td class="rc-pl">'+med+'</td>'+
+        '<td class="rc-who">'+esc(r.name)+(r.pace?' <span class="rc-tag">the bot</span>':'')+'</td>'+
+        '<td class="rc-num">'+r.base+'</td><td class="rc-num rc-bonus">'+(r.bonus?('−'+r.bonus):'0')+'</td>'+
+        '<td class="rc-num rc-total">'+r.final+'</td></tr>';
+    }).join('');
+    var promos=(t.promos||[]).map(function(p){ return '<b>'+esc(p.name)+'</b> to '+rlabel(p.rank)+' <span class="rc-pw">('+p.by.map(esc).join(', ')+')</span>'; }).join(' · ');
+    return '<h2 class="rc-h">How we did</h2>'+
+      '<p class="rc-lede">Lowest score wins. Score is how far your picks landed from the real banzuke, added up. Bonus is one point off for every juryo call-up you placed right.</p>'+
+      '<table class="rc-recap"><thead><tr><th class="rc-pl">#</th><th>Crew</th><th class="rc-num">Score</th><th class="rc-num">Bonus</th><th class="rc-num">Final</th></tr></thead><tbody>'+rows+'</tbody></table>'+
+      (promos?'<div class="rc-promos"><span class="rc-ttl">Juryo call-ups that paid off</span>'+promos+'</div>':'');
+  }
+  function revealHTML(t){
+    var mem=DATA.members, W=t.wrestlers, names=Object.keys(W);
+    var mak=names.filter(function(n){return W[n].actual!=='j';}).sort(function(a,b){return W[a].actualVal-W[b].actualVal;});
+    var drops=names.filter(function(n){return W[n].actual==='j' && W[n].prior && W[n].prior!=='j';}); // fell from makuuchi (not juryo-pool noise)
+    var order=mak.concat(drops);
+    function dc(pc,av){ if(pc==null)return''; var pv=rval(pc,t.juryoValue); if(pv==null||av==null)return''; var ad=Math.abs(pv-av); return ad===0?'rv-d0':ad<=2?'':ad<=4?'rv-dmd':'rv-dlg'; }
+    var head='<tr><th class="rv-wn">Rikishi</th><th>Actual</th>'+mem.map(function(m){return '<th>'+esc(m.name)+'</th>';}).join('')+'</tr>';
+    var rowsH=order.map(function(n){
+      var w=W[n], isDrop=w.actual==='j';
+      var cells=mem.map(function(m){ var pc=w.pred?w.pred[m.key]:null; return pc==null?'<td class="rv-empty">—</td>':'<td class="'+dc(pc,w.actualVal)+'">'+rlabel(pc)+'</td>'; }).join('');
+      return '<tr class="'+(isDrop?'rv-drop':'')+'"><td class="rv-wn">'+esc(n)+'</td><td class="rv-act">'+rlabel(w.actual)+(isDrop?' <span class="rv-fell">fell</span>':'')+'</td>'+cells+'</tr>';
+    }).join('');
+    return '<h2 class="rc-h">Every pick, side by side</h2>'+
+      '<p class="rc-lede">The final rank, then what each of us called. Greener is closer, red is a big miss. <b>J</b> means they called him down to juryo.</p>'+
+      '<div class="rv-wrap"><table class="rv-table"><thead>'+head+'</thead><tbody>'+rowsH+'</tbody></table></div>'+
+      '<p class="rv-legend"><span class="rv-sw rv-g"></span>nailed it &nbsp; <span class="rv-sw rv-y"></span>a few off &nbsp; <span class="rv-sw rv-r"></span>way off</p>';
+  }
+  function renderResults(){
+    var t=latestGraded();
+    body.innerHTML = t ? (recapHTML(t)+revealHTML(t)) : '<p class="rc-lede">No basho graded yet.</p>';
+  }
   function render(){
+    if (PHASE!=='open'){ renderResults(); return; }
     var editing=EDIT&&state.who===MYKEY;
     var locked = !!(MYKEY && state.who===MYKEY && openTour() && !editing);
     var lockNote = locked ? '<p class="legend" style="margin:0 0 10px;color:var(--muted)">'+esc(OPENSHORT)+' picks are locked. '+(PHASE==='scored'?'The banzuke is in and picks are graded.':'The window is closed.')+' Your submitted picks show in the '+esc(OPENSHORT)+' column below.</p>' : '';
@@ -421,6 +460,7 @@
     (roster||[]).forEach(function(x){ if(!x||!x.name) return; var p={}; if(MYKEY) p[MYKEY]=(mp&&mp[x.name])||null; w[x.name]={actual:null,actualVal:null,record:'',wins:null,yusho:false,sansho:[],pred:p}; });
     DATA.tournaments.push({id:OPENID,short:OPENSHORT,hasPred:true,open:true,juryoValue:23,wrestlers:w});
   }
+  (function(t){t.recap=[{"key":"sherry","name":"Sherry","base":20,"bonus":3,"final":17,"place":1},{"key":"gumbai","name":"Gumbai","base":18,"bonus":0,"final":18,"pace":true},{"key":"james","name":"James","base":23,"bonus":1,"final":22,"place":2},{"key":"jennie","name":"Jennie","base":33,"bonus":1,"final":32,"place":3},{"key":"mj","name":"MJ","base":37,"bonus":2,"final":35,"place":4}];t.promos=[{"name":"Dewanoryu","rank":"m14","by":["Jennie","MJ"]},{"name":"Kitanowaka","rank":"m15","by":["Sherry","James"]},{"name":"Arashifuji","rank":"m16","by":["Sherry"]},{"name":"Kyokukaiyu","rank":"m16","by":["MJ","Sherry"]}];})(DATA.tournaments[DATA.tournaments.length-1]);
   function boot(){
     Promise.all([
       fetch('/api/app/roster').then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; }),
@@ -449,5 +489,44 @@
   boot();
 })();
 </script>
+<style>
+/* scored-state view: crew recap + reveal table (banzuke prediction results) */
+.rc-h{font-family:'Zen Old Mincho',Georgia,serif;font-size:18px;margin:22px 0 4px}
+.rc-lede{font-size:13px;color:var(--muted);margin:0 0 12px;line-height:1.5}
+.rc-recap{width:100%;border-collapse:collapse;font-size:15px}
+.rc-recap th,.rc-recap td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
+.rc-recap thead th{font-size:11px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);border-bottom:2px solid var(--line)}
+.rc-recap .rc-num{text-align:right;font-variant-numeric:tabular-nums}
+.rc-recap .rc-bonus{color:var(--win);font-weight:600}
+.rc-recap .rc-total{font-weight:800;font-size:17px}
+.rc-recap .rc-pl{width:42px;font-weight:700;color:var(--muted)}
+.rc-recap .rc-who{font-weight:600}
+.rc-recap tr.rc-win td{background:color-mix(in srgb,var(--clay) 13%,transparent)}
+.rc-recap tr.rc-pacerow td{background:var(--surface-2,var(--clay-soft));color:var(--muted)}
+.rc-pace{font-size:10px;text-transform:uppercase;letter-spacing:.05em;color:var(--pace,var(--clay));font-weight:800}
+.rc-tag{font-size:10px;color:var(--muted);font-weight:600}
+.rc-promos{background:var(--surface);border:1px solid var(--line);border-left:4px solid var(--clay);border-radius:10px;padding:11px 14px;margin:14px 0 0;font-size:13px;line-height:1.7}
+.rc-promos .rc-ttl{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--clay);font-weight:800;margin-bottom:3px}
+.rc-promos .rc-pw{color:var(--muted)}
+.rv-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface);margin-top:4px}
+.rv-table{min-width:560px;width:100%;border-collapse:collapse;font-size:13px}
+.rv-table thead th{background:var(--subhead,var(--clay-soft));color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;padding:8px 7px;border-bottom:2px solid var(--line);text-align:center;white-space:nowrap}
+.rv-table thead th.rv-wn{text-align:left;position:sticky;left:0;background:var(--subhead,var(--clay-soft))}
+.rv-table td{padding:6px 7px;border-bottom:1px solid var(--line);text-align:center;font-variant-numeric:tabular-nums;white-space:nowrap}
+.rv-table tr:nth-child(even){background:var(--zebra,var(--clay-soft))}
+.rv-table td.rv-wn{text-align:left;font-weight:600;position:sticky;left:0;background:var(--surface)}
+.rv-table tr:nth-child(even) td.rv-wn{background:var(--zebra,var(--clay-soft))}
+.rv-table td.rv-act{font-weight:700}
+.rv-fell{font-size:9.5px;color:var(--loss);font-weight:700;text-transform:uppercase}
+.rv-table tr.rv-drop td.rv-wn{color:var(--loss)}
+.rv-d0{background:#c3e3cf;color:var(--ink);font-weight:700}
+.rv-dmd{color:var(--warn,#b07d2a);font-weight:600}
+.rv-dlg{background:#f1cbc2;color:var(--bad,var(--loss));font-weight:700}
+.rv-empty{color:var(--muted);opacity:.5}
+.rv-legend{font-size:11.5px;color:var(--muted);margin:9px 2px 0}
+.rv-sw{display:inline-block;width:11px;height:11px;border-radius:3px;vertical-align:-1px;margin:0 2px}
+.rv-g{background:#c3e3cf}.rv-y{background:var(--warn,#b07d2a)}.rv-r{background:#f1cbc2}
+@media (prefers-color-scheme:dark){.rv-d0,.rv-g{background:#1f5232}.rv-dlg,.rv-r{background:#5a2a22}}
+</style>
 </body>
 </html>
