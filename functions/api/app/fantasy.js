@@ -35,11 +35,6 @@ export async function onRequestGet(context) {
   const { request, env } = context;
   const s = await getSession(request, env);
   if (!s) return json({ error: 'not-authed' }, 401);
-    // Reject saves once the draft is locked — closes the direct-API back door (the page already
-  // hides the picker post-lock).
-  if (isLocked(await readCfg(request), Date.now())) {
-    return json({ error: 'locked', message: 'The draft is locked.' }, 403);
-  }
   const basho = env.FANTASY_BASHO || '';
   const key = `fantasy:${basho}:${LEAGUE}:${String(s.email).toLowerCase()}`;
   const saved = await env.PREDICTIONS.get(key);
@@ -57,6 +52,15 @@ export async function onRequestPost(context) {
   const { request, env } = context;
   const s = await getSession(request, env);
   if (!s) return json({ error: 'not-authed' }, 401);
+  export async function onRequestPost(context) {
+  const { request, env } = context;
+  const s = await getSession(request, env);
+  if (!s) return json({ error: 'not-authed' }, 401);
+  // Reject saves once the draft is locked — closes the direct-API back door (the page already
+  // hides the picker post-lock).
+  if (isLocked(await readCfg(request), Date.now())) {
+    return json({ error: 'locked', message: 'The draft is locked.' }, 403);
+  }
   let body;
   try { body = await request.json(); } catch { return json({ error: 'bad-json' }, 400); }
   const basho = env.FANTASY_BASHO || '';
