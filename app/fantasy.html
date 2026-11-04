@@ -12,15 +12,17 @@
   :root{
     --bg:#f1e9db; --surface:#fbf7ef; --surface-2:#efe6d3; --ink:#26262b; --muted:#6f695d; --line:#e2d9c7;
     --clay:#a9742c; --clay-soft:#e6cf9f; --purple:#6a3d9a; --vermilion:#cf5a2c; --win:#227a4b; --loss:#a93327;
+    --pace:#6a3d9a; --zebra:#f4ecda; --subhead:#ece0c6; --win-bg2:#c3e3cf; --loss-bg2:#f1cbc2;
   }
   @media (prefers-color-scheme:dark){
     :root{--bg:#171719; --surface:#212127; --surface-2:#1b1b21; --ink:#ece4d4; --muted:#a49c8b; --line:#33333b;
-      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;}
+      --clay:#d2a35c; --clay-soft:#40331d; --purple:#b892e4; --vermilion:#e5814f; --win:#49bd82; --loss:#e06a5c;
+      --pace:#b892e4; --zebra:#1c1c21; --subhead:#2a2620; --win-bg2:#1f5232; --loss-bg2:#5a2a22;}
   }
   *{box-sizing:border-box}
   body{margin:0;background:var(--bg);color:var(--ink);padding:16px 16px 64px;
     font:16px/1.5 'Inter',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-  h1{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
+  h1,h2{font-family:'Zen Old Mincho',Georgia,'Times New Roman',serif}
   .wrap{max-width:680px;margin:0 auto}
   header{background:
       repeating-linear-gradient(178deg, rgba(0,0,0,.14) 0 1px, transparent 1px 4px),
@@ -33,23 +35,16 @@
   .hdrow h1{margin:0;font-size:23px;font-weight:900}
   .hdrow .sub{margin:3px 0 0;font-size:13px;opacity:.9}
   .hdnav{margin-left:auto;display:flex;align-items:center;gap:9px}
-  .navcoin{width:34px;height:34px;flex:0 0 auto;border-radius:50%;overflow:hidden;display:block;
-    box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease, box-shadow .12s ease}
-  .navcoin svg{width:100%;height:100%;display:block}
   .homecrest{width:34px;height:34px;border-radius:50%;flex:0 0 auto;overflow:hidden;background:#efe7d5;
     box-shadow:0 0 0 1px rgba(255,255,255,.30),0 2px 6px rgba(0,0,0,.28);transition:transform .12s ease, box-shadow .12s ease}
-  .navcoin:hover,.homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
+  .homecrest:hover{transform:translateY(-1px);box-shadow:0 0 0 1px rgba(255,255,255,.55),0 5px 13px rgba(0,0,0,.34)}
   .homecrest img{width:100%;height:100%;object-fit:cover;display:block}
-  .tabs{display:flex;gap:8px;margin:0 0 14px}
-  .tabs a{font-size:13px;font-weight:600;text-decoration:none;color:var(--muted);border:1px solid var(--line);
-    background:var(--surface);border-radius:999px;padding:6px 14px;transition:color .12s,border-color .12s}
-  .tabs a.on{color:#fff;background:var(--vermilion);border-color:var(--vermilion)}
-  .tabs a:not(.on):hover{color:var(--ink);border-color:var(--clay)}
   .intro{font-size:13.5px;color:var(--muted);line-height:1.5;margin:0 0 14px}
   .banner{display:flex;align-items:center;gap:10px;border-radius:10px;padding:11px 14px;margin:0 0 16px;font-size:13.5px;
     background:var(--surface-2);border:1px solid var(--line);border-left:4px solid var(--clay)}
   .banner.open{border-left-color:var(--win)} .banner.locked{border-left-color:var(--muted)}
   .banner b{color:var(--ink)}
+  /* ── picker (open phase) ── */
   .whorow{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:14px;margin:0 0 14px}
   .whorow select{font:inherit;font-size:14px;padding:6px 9px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink)}
   table{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden}
@@ -70,6 +65,50 @@
   .status.ok{color:var(--win);font-weight:600}
   .pace{margin-top:16px;font-size:12.5px;color:var(--muted);border-top:1px solid var(--line);padding-top:12px}
   .pace b{color:var(--clay)}
+  /* ── scorecard (locked phase) ── */
+  .watched{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:var(--surface);
+    border:1px solid var(--line);border-radius:10px;padding:9px 13px;font-size:13px;margin:0 0 14px}
+  .watched b{color:var(--purple)}
+  .watched button{margin-left:auto;font:inherit;font-size:13px;font-weight:600;color:#fff;background:var(--purple);
+    border:none;border-radius:8px;padding:6px 13px;cursor:pointer}
+  .strip{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+  .chip{flex:1 1 auto;min-width:120px;background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:10px 12px;position:relative}
+  .chip.leader{background:color-mix(in srgb, var(--clay) 13%, transparent)}
+  .chip.me{box-shadow:inset 3px 0 0 var(--vermilion)}
+  .chip .pl{font-size:11px;color:var(--muted);font-weight:700}
+  .chip .nm{font-weight:700;font-size:15px;margin:1px 0}
+  .chip .nm .medal{font-size:15px}
+  .chip .mg{font-variant-numeric:tabular-nums;font-weight:800;font-size:17px}
+  .chip .mg.pos{color:var(--win)} .chip .mg.neg{color:var(--loss)} .chip .mg.zero{color:var(--muted)}
+  .chip.pacechip{background:var(--surface-2);border-style:dashed}
+  .chip.pacechip .nm{color:var(--pace)}
+  .gridwrap{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+  table.grid{min-width:520px;border:none;border-radius:0}
+  table.grid thead th{background:var(--subhead);color:var(--muted);font-size:10.5px;text-transform:uppercase;letter-spacing:.03em;
+    padding:8px 7px;border-bottom:2px solid var(--line);text-align:center;white-space:nowrap;border-top:none}
+  table.grid thead th.rl{text-align:left;position:sticky;left:0;background:var(--subhead)}
+  table.grid thead th.pacecol{color:var(--pace)}
+  table.grid td{padding:6px 7px;border-top:1px solid var(--line);text-align:center;font-size:12.5px;white-space:nowrap;vertical-align:middle}
+  table.grid tr:nth-child(even){background:var(--zebra)}
+  table.grid td.rl{text-align:left;font-weight:800;font-family:'Zen Old Mincho',Georgia,serif;position:sticky;left:0;background:var(--surface);width:70px}
+  table.grid tr:nth-child(even) td.rl{background:var(--zebra)}
+  .cell .pk{font-weight:600;display:block;line-height:1.25}
+  .cell .rec{font-variant-numeric:tabular-nums;color:var(--muted);font-size:11px}
+  .cell .rec.pos{color:var(--win)} .cell .rec.neg{color:var(--loss)}
+  td.pacecol .cell .pk{color:var(--pace)}
+  .note{font-size:12px;color:var(--muted);margin:14px 0 0;border-top:1px solid var(--line);padding-top:12px;line-height:1.5}
+  .note b{color:var(--clay)}
+  .hidden-el{display:none !important}
+  .gate{position:fixed;inset:0;background:rgba(20,20,22,.74);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:20px;z-index:50}
+  .gatebox{background:var(--surface);color:var(--ink);border:1px solid var(--line);border-top:5px solid var(--purple);
+    border-radius:14px;padding:26px 24px;max-width:380px;text-align:center;box-shadow:0 18px 50px rgba(0,0,0,.4)}
+  .gatebox .flag{font-size:32px;margin-bottom:8px}
+  .gatebox h2{margin:0 0 6px;font-size:20px}
+  .gatebox p{margin:0 0 18px;font-size:14px;color:var(--muted)}
+  .gaterow{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap}
+  .gaterow select{font:inherit;font-size:16px;padding:9px 12px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+  .gaterow button{font:inherit;font-size:15px;font-weight:700;background:var(--purple);color:#fff;border:none;border-radius:9px;padding:10px 18px;cursor:pointer}
+  .gate .fine{margin-top:14px;font-size:11.5px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -94,127 +133,195 @@
   <header>
     <div class="hdrow">
       <svg class="hdicon" viewBox="0 0 120 120" aria-hidden="true"><use href="#ic-fantasy"/></svg>
-      <div>
-        <h1 id="h1">Fantasy League</h1>
-        <p class="sub" id="sub">The Crew</p>
-      </div>
-      <nav class="hdnav">
-        <a class="homecrest" id="crest" href="/app" title="Crew home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a>
-      </nav>
+      <div><h1 id="h1">Fantasy League</h1><p class="sub" id="sub">The Crew</p></div>
+      <nav class="hdnav"><a class="homecrest" href="/app" title="Crew home" aria-label="Home"><img src="/salt-stats-sumo-badgeold.png" alt=""></a></nav>
     </div>
   </header>
-  <div class="tabs">
-    <a href="/app/fantasy" class="on">Draft</a>
-    <a href="/app/fantasy-standings">Standings</a>
-  </div>
-  <p class="intro">Draft <b>one wrestler at every rank</b> down the banzuke, from the Yokozuna rung to the bottom of the maegashira. You score each wrestler's wins minus losses over the 15 days, added up. Picks lock <b>Friday end of day, before Day&nbsp;1</b>, so draft with the pregame show in hand.</p>
+
+  <p class="intro" id="intro"></p>
   <div class="banner" id="banner"></div>
-  <div class="whorow" id="whorow"></div>
-  <table><thead><tr><th>Rung</th><th></th><th>Your pick</th></tr></thead><tbody id="rows"></tbody></table>
-  <div class="bar">
-    <button class="btn" id="save">Save my roster</button>
-    <span class="status" id="status"></span>
+
+  <!-- OPEN phase: the picker -->
+  <div id="pickview" class="hidden-el">
+    <div class="whorow" id="whorow"></div>
+    <table><thead><tr><th>Rung</th><th></th><th>Your pick</th></tr></thead><tbody id="rows"></tbody></table>
+    <div class="bar"><button class="btn" id="save">Save my roster</button><span class="status" id="status"></span></div>
+    <p class="pace"><b>Gumbai</b> drafts too, as the pace car, at the same deadline off the pregame show. Beat the bot and you've out-picked the obvious. (It runs the race but never takes the crew crown.)</p>
   </div>
-  <p class="pace"><b>Gumbai</b> drafts too, as the pace car. It picks at the same Friday deadline off the pregame show, so it's no pushover. Beat the bot and you've out-picked the obvious. (Gumbai runs the race but never takes the crew crown.)</p>
+
+  <!-- LOCKED phase: the running scorecard -->
+  <div id="scoreview" class="hidden-el">
+    <div class="watched hidden-el" id="watched"><span>Showing through <b id="thruLbl"></b>.</span><button id="changeDay">Change day</button></div>
+    <div class="strip" id="strip"></div>
+    <div class="gridwrap"><table class="grid"><thead><tr id="gridhead"></tr></thead><tbody id="gridbody"></tbody></table></div>
+    <p class="note"><b>How it scores.</b> Each rostered wrestler's wins minus losses, summed, through the day you've watched. A wrestler who sits scores zero, no penalty. Final 3·2·1 and the yusho/sansho tiebreakers settle at senshuraku. Gumbai runs the race and takes the medal its own finish earns, never the crew crown.</p>
+  </div>
 </div>
+
+<div class="gate hidden-el" id="gate">
+  <div class="gatebox">
+    <div class="flag">🚧</div>
+    <h2>Mind the spoilers</h2>
+    <p>The scorecard shows running results. Tell us how far <i>you</i>'ve watched and it fills in through your day.</p>
+    <div class="gaterow">
+      <label for="daySel" style="font-size:14px">Caught up through</label>
+      <select id="daySel"></select>
+      <button id="enter">Show scorecard</button>
+    </div>
+    <div class="fine">Set it once; we remember your day on this browser.</div>
+  </div>
+</div>
+
 <script>
 (function(){
-  // Fallback field (Aki 2026) baked for the dry run; production fetches /api/app/roster.
-  var FALLBACK_FIELD = [{"n": "Hoshoryu", "r": "Yokozuna"}, {"n": "Onosato", "r": "Yokozuna"}, {"n": "Kirishima", "r": "Ozeki"}, {"n": "Kotozakura", "r": "Ozeki"}, {"n": "Aonishiki", "r": "Ozeki"}, {"n": "Atamifuji", "r": "Sekiwake"}, {"n": "Fujinokawa", "r": "Sekiwake"}, {"n": "Daieisho", "r": "Komusubi"}, {"n": "Hakunofuji", "r": "Komusubi"}, {"n": "Kotoeiho", "r": "M1"}, {"n": "Kotoshoho", "r": "M1"}, {"n": "Takayasu", "r": "M2"}, {"n": "Yoshinofuji", "r": "M2"}, {"n": "Churanoumi", "r": "M3"}, {"n": "Gonoyama", "r": "M3"}, {"n": "Fujiryoga", "r": "M4"}, {"n": "Takanosho", "r": "M4"}, {"n": "Oshoma", "r": "M5"}, {"n": "Roga", "r": "M5"}, {"n": "Asanoyama", "r": "M6"}, {"n": "Ichiyamamoto", "r": "M6"}, {"n": "Fujiseiun", "r": "M7"}, {"n": "Nishikifuji", "r": "M7"}, {"n": "Hiradoumi", "r": "M8"}, {"n": "Takerufuji", "r": "M8"}, {"n": "Shishi", "r": "M9"}, {"n": "Ura", "r": "M9"}, {"n": "Kinbozan", "r": "M10"}, {"n": "Oho", "r": "M10"}, {"n": "Shodai", "r": "M11"}, {"n": "Wakamotoharu", "r": "M11"}, {"n": "Asahakuryu", "r": "M12"}, {"n": "Wakatakakage", "r": "M12"}, {"n": "Abi", "r": "M13"}, {"n": "Asakoryu", "r": "M13"}, {"n": "Chiyoshoma", "r": "M14"}, {"n": "Tobizaru", "r": "M14"}, {"n": "Asasuiryu", "r": "M15"}, {"n": "Tokihayate", "r": "M15"}, {"n": "Toshinofuji", "r": "M16"}, {"n": "Wakanosho", "r": "M16"}, {"n": "Shonannoumi", "r": "M17"}];
-  var SANYAKU = ["Yokozuna","Ozeki","Sekiwake","Komusubi"];
-  var MEMBERS = {jennie:"Jennie", mj:"MJ", sherry:"Sherry", james:"James"};
-
-  var CFG = {basho:"Aki 2026 (dry run)", bashoCode:"26Ak", leagueId:"crew", leagueName:"The Crew", phase:"open", lockNote:""};
-  var FIELD=FALLBACK_FIELD, MYKEY=null, EDIT=false, PICKS={}, DIRTY=false, RUNGS=[];
+  var SANYAKU=["Yokozuna","Ozeki","Sekiwake","Komusubi"];
+  var MEMBERS={jennie:"Jennie", mj:"MJ", sherry:"Sherry", james:"James", gumbai:"Gumbai"};
+  var CFG={basho:"", bashoCode:"", leagueId:"crew", leagueName:"The Crew", phase:"open", lockNote:"", lockAt:null};
+  var FIELD=[], MYKEY=null, EDIT=false, PICKS={}, DIRTY=false, RUNGS=[];
+  var LOCKED=false, SCORES=null, PACEKEY="gumbai", MAXDAY=0, thruDay=null;
+  var MEDAL={1:"🥇",2:"🥈",3:"🥉"};
 
   function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
-  function buildRungs(){
-    // Fully banzuke-driven: whatever ranks the field actually holds become the rungs. The maegashira
-    // count flexes with the sanyaku count each basho (more named ranks => fewer M rungs), so nothing
-    // is hardcoded. Order = sanyaku in canonical order, then maegashira by number ascending; any
-    // unexpected label lands at the end so a rung is never silently dropped.
-    var by={}; FIELD.forEach(function(x){ (by[x.r]=by[x.r]||[]).push(x); });
-    var ranks=Object.keys(by);
-    var order=SANYAKU.filter(function(r){return by[r];});
-    ranks.filter(function(r){return /^M\d+$/.test(r);})
-         .sort(function(a,b){return (+a.slice(1))-(+b.slice(1));})
-         .forEach(function(r){order.push(r);});
-    var seen={}; order.forEach(function(r){seen[r]=1;});
-    ranks.forEach(function(r){ if(!seen[r]){ order.push(r); seen[r]=1; } });
-    RUNGS = order.map(function(r){return {rung:r, cands:by[r]};});
+  function nm(k,f){ return MEMBERS[k]||f||k; }
+  function mcls(m){ return m>0?"pos":(m<0?"neg":"zero"); }
+  function sgn(m){ return (m>0?"+":"")+m; }
+
+  // ── shared rung ordering ──
+  function rungOrder(rungs){
+    var seen={}, out=[];
+    SANYAKU.forEach(function(r){ if(rungs.indexOf(r)>=0){ out.push(r); seen[r]=1; } });
+    rungs.filter(function(r){return /^M\d+$/.test(r);}).sort(function(a,b){return (+a.slice(1))-(+b.slice(1));}).forEach(function(r){out.push(r);seen[r]=1;});
+    rungs.forEach(function(r){ if(!seen[r]){ out.push(r); seen[r]=1; } });
+    return out;
   }
-  function sideLabel(rung,i,n){ if(n!==2) return n===1?"":""; return i===0?"East":"West"; }
+  function wlThrough(days,day){ var w=0,l=0,a=(days||[]); for(var i=0;i<Math.min(day,a.length);i++){ if(a[i]==="w")w++; else if(a[i]==="l")l++; } return {w:w,l:l,m:w-l}; }
 
-  function render(){
-    document.getElementById("sub").textContent = CFG.leagueName + "  ·  " + CFG.basho;
-    var open = CFG.phase==="open";
-    var editing = open && !!MYKEY;
-    var b=document.getElementById("banner");
-    b.className="banner "+(open?"open":"locked");
-    b.innerHTML = open
-      ? "● <b>Draft window open.</b> "+(CFG.lockNote||"Picks lock Friday end of day, before Day 1.")
-      : "● <b>Picks are locked.</b> "+(CFG.lockNote||"Rosters are set for the basho.");
-
+  // ================= PICKER (open) =================
+  function buildRungs(){
+    var by={}; FIELD.forEach(function(x){ (by[x.r]=by[x.r]||[]).push(x); });
+    RUNGS = rungOrder(Object.keys(by)).map(function(r){return {rung:r, cands:by[r]};});
+  }
+  function renderPicker(){
+    document.getElementById("scoreview").classList.add("hidden-el");
+    document.getElementById("pickview").classList.remove("hidden-el");
+    document.getElementById("intro").innerHTML = 'Draft <b>one wrestler at every rank</b> down the banzuke. You score each wrestler’s wins minus losses over the 15 days, added up. Picks lock '+esc(CFG.lockNote||"the night before Day 1")+'.';
+    var b=document.getElementById("banner"); b.className="banner open";
+    b.innerHTML="● <b>Draft window open.</b> "+esc(CFG.lockNote||"Picks lock the night before Day 1.");
+    var editing = !!MYKEY;
     var wr=document.getElementById("whorow");
-    if(MYKEY && !EDIT){ wr.innerHTML="Drafting as <b style='margin-left:4px'>"+esc(MEMBERS[MYKEY]||MYKEY)+"</b>"; }
-    else if(EDIT){   // dry-run / no fixed identity: pick who you're drafting as
-      var opts=Object.keys(MEMBERS).map(function(k){return '<option value="'+k+'"'+(k===MYKEY?" selected":"")+'>'+esc(MEMBERS[k])+'</option>';}).join("");
+    if(MYKEY && !EDIT){ wr.innerHTML="Drafting as <b style='margin-left:4px'>"+esc(nm(MYKEY))+"</b>"; }
+    else if(EDIT){
+      var opts=["jennie","mj","sherry","james"].map(function(k){return '<option value="'+k+'"'+(k===MYKEY?" selected":"")+'>'+esc(MEMBERS[k])+'</option>';}).join("");
       wr.innerHTML="Drafting as <select id='whoSel'>"+opts+"</select> <span class='onecand'>(dry run: choose a crew member to test)</span>";
-    } else { wr.innerHTML=""; }
-
+    } else wr.innerHTML="";
     var tb=document.getElementById("rows"); tb.innerHTML="";
     RUNGS.forEach(function(R){
-      var n=R.cands.length, cur=PICKS[R.rung]||"";
-      var cell;
+      var n=R.cands.length, cur=PICKS[R.rung]||"", cell;
       if(editing){
         if(n===1){ cell='<span class="onecand">'+esc(R.cands[0].n)+' <em>(only choice)</em></span>'; }
-        else{
-          var o='<option value="">Pick one</option>';
-          R.cands.forEach(function(c,i){ o+='<option value="'+esc(c.n)+'"'+(c.n===cur?" selected":"")+'>'+esc(c.n)+'</option>'; });
-          cell='<select class="pick" data-rung="'+esc(R.rung)+'">'+o+'</select>';
-        }
-      } else {
-        cell = cur ? '<span class="lockpick">'+esc(cur)+'</span>' : '<span class="onecand">—</span>';
-      }
-      var side = (n===2) ? "E / W" : (n===1 ? "" : n+" up");
-      tb.insertAdjacentHTML("beforeend",
-        '<tr><td class="rung">'+esc(R.rung)+'</td><td class="side">'+side+'</td><td>'+cell+'</td></tr>');
+        else{ var o='<option value="">Pick one</option>'; R.cands.forEach(function(c){ o+='<option value="'+esc(c.n)+'"'+(c.n===cur?" selected":"")+'>'+esc(c.n)+'</option>'; }); cell='<select class="pick" data-rung="'+esc(R.rung)+'">'+o+'</select>'; }
+      } else { cell = cur ? '<span class="lockpick">'+esc(cur)+'</span>' : '<span class="onecand">—</span>'; }
+      var side=(n===2)?"E / W":(n===1?"":n+" up");
+      tb.insertAdjacentHTML("beforeend",'<tr><td class="rung">'+esc(R.rung)+'</td><td class="side">'+side+'</td><td>'+cell+'</td></tr>');
     });
-
-    var save=document.getElementById("save");
-    save.style.display = editing ? "" : "none";
+    var save=document.getElementById("save"); save.style.display = editing?"":"none";
     if(editing){
-      Array.prototype.forEach.call(document.querySelectorAll("select.pick"),function(sel){
-        sel.onchange=function(){ var r=this.getAttribute("data-rung"); if(this.value) PICKS[r]=this.value; else delete PICKS[r]; DIRTY=true; setStatus(); };
-      });
+      Array.prototype.forEach.call(document.querySelectorAll("select.pick"),function(sel){ sel.onchange=function(){ var r=this.getAttribute("data-rung"); if(this.value)PICKS[r]=this.value; else delete PICKS[r]; DIRTY=true; setStatus(); }; });
       var ws=document.getElementById("whoSel"); if(ws) ws.onchange=function(){ MYKEY=this.value; loadPicksFor(MYKEY); };
     }
     setStatus();
   }
-  function setStatus(msg,kind){ var el=document.getElementById("status");
-    if(msg!=null){ el.textContent=msg; el.className="status "+(kind||""); return; }
-    el.textContent = DIRTY ? "Unsaved changes" : ""; el.className="status "+(DIRTY?"dirty":""); }
-
-  function countPicked(){ return RUNGS.filter(function(R){ return R.cands.length===1 || PICKS[R.rung]; }).length; }
-
+  function setStatus(msg,kind){ var el=document.getElementById("status"); if(msg!=null){ el.textContent=msg; el.className="status "+(kind||""); return; } el.textContent=DIRTY?"Unsaved changes":""; el.className="status "+(DIRTY?"dirty":""); }
+  function countPicked(){ return RUNGS.filter(function(R){ return R.cands.length===1||PICKS[R.rung]; }).length; }
   function save(){
     if(!MYKEY) return;
-    // auto-fill forced single-candidate rungs so the roster is complete
     RUNGS.forEach(function(R){ if(R.cands.length===1) PICKS[R.rung]=R.cands[0].n; });
     var btn=document.getElementById("save"); btn.disabled=true; btn.textContent="Saving…";
-    // NOTE: production server derives the member from the auth session, NOT this client 'member' field.
-    fetch("/api/app/fantasy",{method:"POST",headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({leagueId:CFG.leagueId, basho:CFG.bashoCode, member:MYKEY, picks:PICKS})})
+    fetch("/api/app/fantasy",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({leagueId:CFG.leagueId, basho:CFG.bashoCode, member:MYKEY, picks:PICKS})})
       .then(function(r){return r.json();})
-      .then(function(d){ DIRTY=false; setStatus((d&&d.ok)?"Roster saved ✓ ("+countPicked()+"/"+RUNGS.length+" rungs)":"Save failed. Try again.", (d&&d.ok)?"ok":""); })
-      .catch(function(){ setStatus("Save failed (dry run has no endpoint yet). "+countPicked()+"/"+RUNGS.length+" rungs picked.", ""); })
+      .then(function(d){ DIRTY=false; setStatus((d&&d.ok)?"Roster saved ✓ ("+countPicked()+"/"+RUNGS.length+" rungs)":"Save failed. Try again.",(d&&d.ok)?"ok":""); })
+      .catch(function(){ setStatus("Save failed. Try again.",""); })
       .finally(function(){ btn.disabled=false; btn.textContent="Save my roster"; });
   }
-  function loadPicksFor(key){
-    fetch("/api/app/fantasy?member="+encodeURIComponent(key),{headers:{Accept:"application/json"}})
-      .then(function(r){ return r.ok?r.json():null; }).catch(function(){ return null; })
-      .then(function(d){ PICKS=(d&&d.picks)||{}; render(); });
+  function loadPicksFor(key){ fetch("/api/app/fantasy?member="+encodeURIComponent(key),{headers:{Accept:"application/json"}}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;}).then(function(d){ PICKS=(d&&d.picks)||{}; renderPicker(); }); }
+
+  // ================= SCORECARD (locked) =================
+  function computeScorecard(standings,day){
+    var rows=standings.map(function(s){ var m=0; (s.detail||[]).forEach(function(d){ m+=wlThrough(d.days,day).m; }); return {key:s.key,name:s.name,isPaceCar:s.key===PACEKEY,margin:m}; });
+    var humans=rows.filter(function(r){return !r.isPaceCar;}).sort(function(a,b){return b.margin-a.margin;});
+    var place=0,seen=0,prev=null; humans.forEach(function(h){ seen++; if(prev===null||h.margin!==prev){place=seen;prev=h.margin;} h.place=place; });
+    var pace=rows.filter(function(r){return r.isPaceCar;})[0]||null;
+    if(pace) pace.place=rows.filter(function(r){return r.margin>pace.margin;}).length+1;
+    var rungsSet={}, grid={};
+    standings.forEach(function(s){ (s.detail||[]).forEach(function(d){ rungsSet[d.rung]=1; (grid[d.rung]=grid[d.rung]||{})[s.key]=Object.assign({pick:d.pick}, wlThrough(d.days,day)); }); });
+    return {strip:humans, pace:pace, rungs:rungOrder(Object.keys(rungsSet)), grid:grid};
   }
+  function memberCols(){ // humans present in the board, then the pace car
+    var cols=[]; (SCORES.standings||[]).forEach(function(s){ if(s.key!==PACEKEY) cols.push(s.key); });
+    if((SCORES.standings||[]).some(function(s){return s.key===PACEKEY;})) cols.push(PACEKEY);
+    return cols;
+  }
+  function renderScorecard(){
+    document.getElementById("pickview").classList.add("hidden-el");
+    document.getElementById("scoreview").classList.remove("hidden-el");
+    document.getElementById("intro").innerHTML='Every roster scores its wrestlers’ <b>wins minus losses</b>, added up, through the day you’ve watched. Rosters are locked; the teams are shown in full. Only the records fill in to your day.';
+    var b=document.getElementById("banner"); b.className="banner locked";
+    b.innerHTML="● <b>Picks are locked.</b> "+(MAXDAY>0?"Running scores. Set how far you’ve watched.":"Teams are set. Bouts begin Day 1; scores post daily.");
+
+    if(!SCORES || !SCORES.scored){
+      document.getElementById("strip").innerHTML="";
+      document.getElementById("gridhead").innerHTML=""; document.getElementById("gridbody").innerHTML="";
+      document.getElementById("watched").classList.add("hidden-el");
+      document.getElementById("strip").innerHTML='<div class="chip"><div class="pl">—</div><div class="nm">Standing by</div><div class="mg zero">'+esc((SCORES&&SCORES.note)||"Scores post once the basho is under way.")+'</div></div>';
+      return;
+    }
+    // pre-Day-1: teams visible, no day gate, no scores yet
+    if(MAXDAY<1){ document.getElementById("gate").classList.add("hidden-el"); document.getElementById("watched").classList.add("hidden-el"); paintBoard(0); return; }
+    // day gate
+    if(thruDay==null){ openGate(); return; }
+    document.getElementById("gate").classList.add("hidden-el");
+    var wv=document.getElementById("watched"); wv.classList.remove("hidden-el");
+    document.getElementById("thruLbl").textContent = (thruDay>=MAXDAY?"Day "+MAXDAY+(SCORES.champion?" · final":""):"Day "+thruDay);
+    paintBoard(thruDay);
+  }
+  function paintBoard(day){
+    var sc=computeScorecard(SCORES.standings||[], day);
+    // strip
+    var strip=sc.strip.map(function(h){
+      var med=MEDAL[h.place]?'<span class="medal">'+MEDAL[h.place]+'</span> ':(h.place+'. ');
+      return '<div class="chip'+(h.place===1?' leader':'')+(h.key===MYKEY?' me':'')+'"><div class="pl">'+med+esc(nm(h.key,h.name))+(h.key===MYKEY?' · you':'')+'</div><div class="mg '+mcls(h.margin)+'">'+sgn(h.margin)+'</div></div>';
+    }).join("");
+    if(sc.pace){ strip+='<div class="chip pacechip"><div class="pl">#'+sc.pace.place+' overall</div><div class="nm">Gumbai</div><div class="mg '+mcls(sc.pace.margin)+'">'+sgn(sc.pace.margin)+'</div></div>'; }
+    document.getElementById("strip").innerHTML=strip;
+    // grid head
+    var cols=memberCols();
+    var head='<th class="rl">Rung</th>'+cols.map(function(k){return '<th'+(k===PACEKEY?' class="pacecol"':'')+'>'+esc(nm(k))+'</th>';}).join("");
+    document.getElementById("gridhead").innerHTML=head;
+    // grid body
+    var body=sc.rungs.map(function(rung){
+      var tds=cols.map(function(k){
+        var c=(sc.grid[rung]||{})[k];
+        if(!c||!c.pick) return '<td'+(k===PACEKEY?' class="pacecol"':'')+'><span class="onecand">—</span></td>';
+        var rec = day>0 ? '<span class="rec '+mcls(c.m)+'">'+c.w+'–'+c.l+'</span>' : '';
+        return '<td'+(k===PACEKEY?' class="pacecol"':'')+'><div class="cell"><span class="pk">'+esc(c.pick)+'</span>'+rec+'</div></td>';
+      }).join("");
+      return '<tr><td class="rl">'+esc(rung)+'</td>'+tds+'</tr>';
+    }).join("");
+    document.getElementById("gridbody").innerHTML=body;
+  }
+  function openGate(){
+    var sel=document.getElementById("daySel"); sel.innerHTML="";
+    for(var d=1;d<=MAXDAY;d++){ var o=document.createElement("option"); o.value=d; o.textContent="Day "+d; if(d===MAXDAY)o.selected=true; sel.appendChild(o); }
+    document.getElementById("gate").classList.remove("hidden-el");
+  }
+
+  // ================= boot =================
+  function deriveLocked(){
+    if(String(CFG.phase||"").toLowerCase()==="locked") return true;
+    if(CFG.lockAt){ var t=Date.parse(CFG.lockAt); if(!isNaN(t) && Date.now()>=t) return true; }
+    return false;
+  }
+  function render(){ if(LOCKED) renderScorecard(); else renderPicker(); }
 
   function boot(){
     Promise.all([
@@ -224,18 +331,25 @@
       fetch("/api/app/fantasy").then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
     ]).then(function(res){
       var roster=res[0], cfg=res[1], me=res[2], saved=res[3];
-      if(roster&&roster.roster&&roster.roster.length){ FIELD=roster.roster.map(function(x){return {n:x.n||x.name, r:x.r||x.rank};}); }
       if(cfg&&cfg.cfg){ for(var k in cfg.cfg) CFG[k]=cfg.cfg[k]; } else if(cfg){ for(var k2 in cfg) CFG[k2]=cfg[k2]; }
-      buildRungs();
-      // identity: a known crew member => fixed; otherwise dry-run picker
-      var nm = me && (me.name||me.email);
-      var key=null; if(nm){ for(var k3 in MEMBERS){ if(MEMBERS[k3].toLowerCase()===String(nm).toLowerCase()){ key=k3; } } }
-      if(key){ MYKEY=key; EDIT=false; } else { MYKEY="jennie"; EDIT=true; }  // dry run defaults to a picker
+      if(roster&&roster.roster&&roster.roster.length){ FIELD=roster.roster.map(function(x){return {n:x.n||x.name, r:x.r||x.rank};}); }
+      document.getElementById("sub").textContent=(CFG.leagueName||"The Crew")+"  ·  "+(CFG.basho||"");
+      var who=me&&(me.name||me.email), key=null; if(who){ for(var k3 in MEMBERS){ if(MEMBERS[k3].toLowerCase()===String(who).toLowerCase()) key=k3; } }
+      if(key){ MYKEY=key; EDIT=false; } else { MYKEY="jennie"; EDIT=true; }
       PICKS=(saved&&saved.picks)||{};
-      render();
-    }).catch(function(){ buildRungs(); MYKEY="jennie"; EDIT=true; render(); });
+      LOCKED=deriveLocked();
+      if(!LOCKED){ buildRungs(); render(); return; }
+      // locked → load the board, carry the watched day
+      var raw=null; try{ raw=new URLSearchParams(location.search).get("d"); }catch(e){}
+      if(!raw){ try{ raw=localStorage.getItem("ss_watched_day"); }catch(e){} }
+      var n=parseInt(raw,10); if(n>=1) thruDay=n;
+      fetch("/api/app/fantasy-scores",{headers:{Accept:"application/json"}}).then(function(r){return r.ok?r.json():null;}).catch(function(){return null;})
+        .then(function(d){ SCORES=d; MAXDAY=(d&&d.maxDay)||0; PACEKEY=(d&&d.paceCarKey)||"gumbai"; if(thruDay!=null) thruDay=Math.min(thruDay,MAXDAY); render(); });
+    }).catch(function(){ buildRungs(); render(); });
   }
   document.getElementById("save").onclick=save;
+  document.getElementById("enter").onclick=function(){ thruDay=+document.getElementById("daySel").value; try{localStorage.setItem("ss_watched_day",thruDay);}catch(e){} document.getElementById("gate").classList.add("hidden-el"); render(); };
+  document.getElementById("changeDay").onclick=function(){ openGate(); };
   boot();
 })();
 </script>
