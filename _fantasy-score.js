@@ -51,6 +51,7 @@ export function indexField(field) {
       absent: !!r.absent,
       yusho: !!r.yusho,
       sansho: Array.isArray(r.sansho) ? r.sansho.slice() : [],
+      days: Array.isArray(r.days) ? r.days.slice() : null,
     });
   }
   return byName;
@@ -71,6 +72,7 @@ export function scoreRoster(roster, byName) {
     for (const s of rec.sansho) if (s in tiers) tiers[s] += 1;
     detail.push({
       rung, pick: rec.name, found: true,
+      rank: rec.rank, days: rec.days,
       w: rec.w, l: rec.l, margin: rec.margin,
       yusho: rec.yusho, sansho: rec.sansho,
     });
