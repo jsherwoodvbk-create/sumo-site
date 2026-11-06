@@ -6843,7 +6843,7 @@
       }
     ],
     "story": {
-      "html": "<span class=\"who\">Takerufuji</span> comes with one of the great debut stories in the sport: he won a top-division championship in his very first makuuchi tournament, a genuine sensation. An Isegahama man, his shikona reads as \"noble Fuji,\" and he came up as Ishioka. He is from Aomori and fights in a medium lilac purple mawashi.",
+      "html": "<span class=\"who\">Takerufuji</span> comes with one of the great debut stories in the sport: he won a top-division championship in his very first makuuchi tournament, the first man in 110 years to do it, and a genuine sensation. An Isegahama man, his shikona reads as \"noble Fuji,\" and he came up as Ishioka. He is from Aomori and fights in a medium lilac purple mawashi.",
       "source": "Crew-written."
     },
     "arc": {
@@ -15400,8 +15400,8 @@
       }
     ],
     "story": {
-      "html": "<span class=\"who\">Tamawashi</span>’s story is not written yet.",
-      "source": "Crew-written · awaiting a write-up."
+      "html": "<span class=\"who\">Tamawashi</span> is the iron man of the division, and the streak is the whole story: since his 2004 debut he has never missed a bout. Not one, in a sport that breaks people. A Mongolian veteran out of Kataonami, his shikona reads as \"jewel eagle,\" the 玉 prefix being the stable's signature mark. He rose as high as Sekiwake, and when he drops to juryo he climbs straight back out of it, still moving at an age when most of the men judging his bouts are younger than he is. He fights in a dark steel blue mawashi. The booth just calls him the Iron Man.",
+      "source": "Crew-written."
     },
     "arc": {
       "fromJuryo": true,
@@ -17845,13 +17845,49 @@
             "basho": "Aki 2026",
             "bashoCode": "26Ak",
             "day": 1,
-            "text": "Sidelined from day one, still healing from a right-knee surgery undergone after Nagoya. Distinct from the Nagoya right-thigh withdrawal (separate row). [booth: Raja]"
+            "text": "Carried in. Right knee, post-Nagoya surgery. Did not appear at Aki 2026. [booth]"
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "Aki2026D1: Yokozuna Hoshoryu is sidelined from day one because he is still healing from a right knee surgery he underwent after the Nagoya Basho. [booth, carrying]"
+            "text": "26Ky PREVIEW (0.5, air 2026-11-06) [booth: Hiro Morita, Murray Johnson, John Gunning]: THE SURGERY IS NOW DATED. Right knee, late July, which puts it immediately after Nagoya ended on 26 July. He sat out the entire September tournament and has 'reportedly resumed training' for November."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "HE IS ON THE KYUSHU BANZUKE AT YOKOZUNA. Status stays Withdrawn anyway, because the banzuke is not an appearance. Kyujo comes from results data, and he has not yet been on a dohyo. Day 1 is what moves this row, not the listing."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE BOOTH WILL NOT CALL IT, AND SAID SO PLAINLY. Gunning: 'Will he compete? I don't know. Should he compete? I don't know.' He then gave his own read: he thinks Hoshoryu will compete, should compete, would be competitive, and could finish with a jun-yusho. Murray and Hiro did not contradict him. That is an unusual amount of hedging from a booth that normally has a line, and it is worth recording as the state of knowledge rather than as a prediction."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "TWO THINGS THE PREVIEW ADDED AROUND IT: the pressure on him is lower than it would have been because there is a second Yokozuna now carrying the rank, and his oyakata, described as a traditionalist who wants a Yokozuna to win as a Yokozuna, nonetheless wants him competing sooner rather than later."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WATCH CONDITION FOR DAY 1, set now so it resolves mechanically rather than needing a fresh judgment: if he appears and fights normally, this row goes to a carried chronic on the knee and the Withdrawn ends. If he appears and is visibly protecting it, the row stays open and takes an Eased-or-Active call on the Scorekeeper Eye. If he does not appear, he is kyujo from Day 1 and the row holds Withdrawn with a new onset."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THIS IS THE SAME SHAPE AS THE HEAD-IMPACT ROWS: write down in advance what the next observation means, so the next observation settles it."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NOTE ON THE OTHER TWO HOSHORYU ROWS: the right thigh rows (Aki and Nagoya withdrawals) are untouched by this. The preview named only the knee."
           }
         ]
       },
