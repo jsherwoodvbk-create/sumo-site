@@ -255,7 +255,7 @@
     var played=standings.some(function(s){ return (s.detail||[]).some(function(d){ var r=wlThrough(d.days,day); return (r.w+r.l)>0; }); });
     var rungsSet={}, grid={};
     standings.forEach(function(s){ (s.detail||[]).forEach(function(d){ rungsSet[d.rung]=1; (grid[d.rung]=grid[d.rung]||{})[s.key]=Object.assign({pick:d.pick}, wlThrough(d.days,day)); }); });
-    return {strip:humans, pace:pace, rungs:rungOrder(Object.keys(rungsSet)), grid:grid, scored:played};
+    return {strip:humans, pace:pace, rungs:rungOrder(Object.keys(rungsSet).filter(function(r){ return SANYAKU.indexOf(r)>=0 || /^M\d+$/.test(r); })), grid:grid, scored:played};
   }
   function memberCols(){ // humans present in the board, then the pace car
     var cols=[]; (SCORES.standings||[]).forEach(function(s){ if(s.key!==PACEKEY) cols.push(s.key); });
@@ -334,7 +334,7 @@
     ]).then(function(res){
       var roster=res[0], cfg=res[1], me=res[2], saved=res[3];
       if(cfg&&cfg.cfg){ for(var k in cfg.cfg) CFG[k]=cfg.cfg[k]; } else if(cfg){ for(var k2 in cfg) CFG[k2]=cfg[k2]; }
-      if(roster&&roster.roster&&roster.roster.length){ FIELD=roster.roster.map(function(x){return {n:x.n||x.name, r:x.r||x.rank};}); }
+      if(roster&&roster.roster&&roster.roster.length){ FIELD=roster.roster.map(function(x){return {n:x.n||x.name, r:x.r||x.rank};}).filter(function(x){ return SANYAKU.indexOf(x.r)>=0 || /^M\d+$/.test(x.r); }); }  // makuuchi only, no juryo on fantasy
       document.getElementById("sub").textContent=(CFG.leagueName||"The Crew")+"  ·  "+(CFG.basho||"");
       var who=me&&(me.name||me.email), key=null; if(who){ for(var k3 in MEMBERS){ if(MEMBERS[k3].toLowerCase()===String(who).toLowerCase()) key=k3; } }
       if(key){ MYKEY=key; EDIT=false; } else { MYKEY="jennie"; EDIT=true; }
