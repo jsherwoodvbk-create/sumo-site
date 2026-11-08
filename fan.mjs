@@ -44,8 +44,8 @@ const NOTION_VERSION = '2022-06-28';
 const ANTHROPIC_VERSION = '2023-06-01';
 
 const MODE = (process.env.MODE || 'pass1').toLowerCase();
-const BASHO_LABEL = process.env.BASHO_LABEL || 'Aki 2026';
-const TOURNAMENT_PAGE_ID = (process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-8011-8987-d959538f54a0');
+const BASHO_LABEL = process.env.BASHO_LABEL || 'Kyushu 2026';
+const TOURNAMENT_PAGE_ID = (process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-809d-ae11-f626432837d2');
 const DAY_OVERRIDE = process.env.DAY ? Number(process.env.DAY) : null;
 const DRY_RUN = process.env.DRY_RUN === '1' || process.env.DRY_RUN === 'true';
 const REFAN = process.env.REFAN === '1' || process.env.REFAN === 'true';   // force a full re-fan of DAY=N (see ENV note above); REQUIRES DAY
@@ -898,9 +898,9 @@ async function resolveBoutOfDay(dayRow, dayNum) {
       });
       if (!bout) { problem(`BOTD: no Day ${dayNum} bout found for "${na}" vs "${nb}" - skipped`); continue; }
       done.add(bout.id);
-      const cur = pSelect(bout, 'Bout of the Day');
-      if (cur) { note(`   BOTD "${na} vs ${nb}" already ${cur} (human/prior) - not clobbering`); continue; }
-      await updatePage(bout.id, { 'Bout of the Day': wSelect(slots[i]) }, `BOTD ${slots[i]}`);
+            const cur = (bout.properties?.['Bout of the Day']?.multi_select || []).map(o => o.name);
+      if (cur.length) { note(`   BOTD "${na} vs ${nb}" already ${cur.join('/')} (human/prior) - not clobbering`); continue; }
+      await updatePage(bout.id, { 'Bout of the Day': wMulti([slots[i]]) }, `BOTD ${slots[i]}`);
       note(`   BOTD ${slots[i]} = ${na} vs ${nb}`);
     }
   } catch (e) { problem(`BOTD lane failed (${e.message}) - non-fatal`); }
