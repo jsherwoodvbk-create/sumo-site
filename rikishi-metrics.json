@@ -638,6 +638,36 @@
             "bashoCode": null,
             "day": null,
             "text": "26AkD1 (Scorekeeper Eye): Right and left ankles taped. No shoulder tape visible - though a rotator cuff would not tape visibly, so this is not evidence either way. (Jennie)"
+          },
+          {
+            "basho": "Kyushu 2026",
+            "bashoCode": "26Ky",
+            "day": 1,
+            "text": "5 (Live, air 2026-11-08) [booth: Raja Pradhan + unnamed analyst]: THE INJURY IS NOW DATED AND PLACED. He hurt the left rotator cuff at the Kyushu Basho, in this same Fukuoka venue, in November 2025. The row has carried since Nagoya with no onset; it has one now, and it is a year old this week."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE BOOTH FRAMED THE WHOLE YEAR AROUND IT: 'all the struggles this past year dealing with that nagging left shoulder injury', plus the pressure of producing as a Yokozuna. They tied it directly to the tears at the September yusho interview."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE DROUGHT NOTE ON THIS ROW IS NOW STALE. The old Aki preview line reads 'no yusho since Sep 2025'. He took Aki 2026, his sixth, which the booth called his first in a year. The form watch that hung off the drought has resolved; the shoulder watch has not."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NO NEW PHYSICAL OBSERVATION TODAY. Nothing about tape, guarding, or the left arm in the bout. He lost the musubi-no-ichiban to Yoshinofuji on a monoii reversal, and the booth read the bout as tactical, not physical: 'the sumo was all Onosato' until he went down. Status holds Active on carry-forward, unchanged."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "OPEN FOR THE SCOREKEEPER EYE: whether the left shoulder is taped or guarded on the Day 1 Highlights, and whether the left-hand work looks like Nagoya or like September."
           }
         ]
       }
@@ -18797,15 +18827,16 @@
       {
         "area": "Right knee (post-surgery)",
         "nature": [
-          "Acute"
+          "Acute",
+          "Chronic"
         ],
-        "status": "Withdrawn",
+        "status": "Active",
         "source": [
           "Booth mention"
         ],
         "condition": "Hoshoryu — right knee (post-Nagoya surgery)",
         "firstBasho": "26Ak",
-        "chronicSafe": false,
+        "chronicSafe": true,
         "layers": [
           {
             "basho": "Aki 2026",
@@ -18854,6 +18885,42 @@
             "bashoCode": null,
             "day": null,
             "text": "NOTE ON THE OTHER TWO HOSHORYU ROWS: the right thigh rows (Aki and Nagoya withdrawals) are untouched by this. The preview named only the knee."
+          },
+          {
+            "basho": "Kyushu 2026",
+            "bashoCode": "26Ky",
+            "day": 1,
+            "text": "5 (Live, air 2026-11-08) [booth: Raja Pradhan + unnamed analyst]: THE WATCH CONDITION RESOLVED. He appeared, fought, and won. First time on a dohyo since Nagoya. Withdrawn ends here; Nature takes Chronic alongside Acute as a carried knee."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WHAT THE BOOTH ADDED TO THE MECHANISM: it was ligament surgery, not just 'surgery', and he was hospitalized for a week after it. Both are new."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WHAT THEY SAID ABOUT THE PRESENT STATE: 'still bandaged up very heavily' before the bout, and 'despite his still banged up right knee' after it. That is the booth describing the knee, not describing protective behavior in the bout itself. He fought a normal bout and shoved his man out."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE DECISION BEHIND HIS RETURN, per the booth: he talked with his oyakata Katsunami for a couple of minutes just before the tournament and told him he was resolved to go back to the dohyo. As a Yokozuna he could simply have gone kyujo again, as in September. He chose not to."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "STATUS SET TO ACTIVE, NOT EASED. He is competing, which is the change, but nothing here is evidence of improvement, and heavy bandaging is not an easing. Active is the call that claims the least."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "OPEN FOR THE SCOREKEEPER EYE: the Eased-vs-Active refinement, and whether there is protective behavior in the bout that the live booth did not call. This row is written from the live broadcast only. The Day 1 Highlights rewatch is what would catch a limp, a short step, or a shikiri squat that will not load the right side."
           }
         ]
       },
