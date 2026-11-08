@@ -252,9 +252,10 @@
     var place=0,seen=0,prev=null; humans.forEach(function(h){ seen++; if(prev===null||h.margin!==prev){place=seen;prev=h.margin;} h.place=place; });
     var pace=rows.filter(function(r){return r.isPaceCar;})[0]||null;
     if(pace) pace.place=rows.filter(function(r){return r.margin>pace.margin;}).length+1;
+    var played=standings.some(function(s){ return (s.detail||[]).some(function(d){ var r=wlThrough(d.days,day); return (r.w+r.l)>0; }); });
     var rungsSet={}, grid={};
     standings.forEach(function(s){ (s.detail||[]).forEach(function(d){ rungsSet[d.rung]=1; (grid[d.rung]=grid[d.rung]||{})[s.key]=Object.assign({pick:d.pick}, wlThrough(d.days,day)); }); });
-    return {strip:humans, pace:pace, rungs:rungOrder(Object.keys(rungsSet)), grid:grid};
+    return {strip:humans, pace:pace, rungs:rungOrder(Object.keys(rungsSet)), grid:grid, scored:played};
   }
   function memberCols(){ // humans present in the board, then the pace car
     var cols=[]; (SCORES.standings||[]).forEach(function(s){ if(s.key!==PACEKEY) cols.push(s.key); });
@@ -287,11 +288,12 @@
   function paintBoard(day){
     var sc=computeScorecard(SCORES.standings||[], day);
     // strip
+    var SCORED=sc.scored;
     var strip=sc.strip.map(function(h){
-      var med=MEDAL[h.place]?'<span class="medal">'+MEDAL[h.place]+'</span> ':(h.place+'. ');
-      return '<div class="chip'+(h.place===1?' leader':'')+(h.key===MYKEY?' me':'')+'"><div class="pl">'+med+esc(nm(h.key,h.name))+(h.key===MYKEY?' · you':'')+'</div><div class="mg '+mcls(h.margin)+'">'+sgn(h.margin)+'</div></div>';
+      var med=!SCORED?'':(MEDAL[h.place]?'<span class="medal">'+MEDAL[h.place]+'</span> ':(h.place+'. '));
+      return '<div class="chip'+(SCORED&&h.place===1?' leader':'')+(h.key===MYKEY?' me':'')+'"><div class="pl">'+med+esc(nm(h.key,h.name))+(h.key===MYKEY?' · you':'')+'</div><div class="mg '+mcls(h.margin)+'">'+sgn(h.margin)+'</div></div>';
     }).join("");
-    if(sc.pace){ strip+='<div class="chip pacechip"><div class="pl">#'+sc.pace.place+' overall</div><div class="nm">Gumbai</div><div class="mg '+mcls(sc.pace.margin)+'">'+sgn(sc.pace.margin)+'</div></div>'; }
+    if(sc.pace){ var ppl=SCORED?('#'+sc.pace.place+' overall'):'pace car'; strip+='<div class="chip pacechip"><div class="pl">'+ppl+'</div><div class="nm">Gumbai</div><div class="mg '+mcls(sc.pace.margin)+'">'+sgn(sc.pace.margin)+'</div></div>'; }
     document.getElementById("strip").innerHTML=strip;
     // grid head
     var cols=memberCols();
