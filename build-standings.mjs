@@ -170,18 +170,18 @@ async function main(){
   fs.writeFileSync(TARGET, out);
   console.log(`OK roster=${DATA.length} maxDay=${MAX_DAY} champion=${champion?champion.name+(champion.playoff?" (playoff)":""):"none"} (source: sumo-api ${BASHO})`);
 
-  // Keep the homepage badge's day in sync.
-  try {
-    const IDX = 'index.html';
-    if (fs.existsSync(IDX)) {
+  // Keep the homepage badge's day in sync (public + app homepages).
+  for (const IDX of ['index.html', 'app/index.html']) {
+    try {
+      if (!fs.existsSync(IDX)) continue;
       const idx = fs.readFileSync(IDX, 'utf8');
-      const idxRe = /(in progress · Day )\d+/;
+      const idxRe = /(· Day )\d+/;
       if (idxRe.test(idx)) {
         const patched = idx.replace(idxRe, `$1${MAX_DAY}`);
-        if (patched !== idx) { fs.writeFileSync(IDX, patched); console.log(`index.html badge -> Day ${MAX_DAY}`); }
-        else console.log(`index.html badge already Day ${MAX_DAY}`);
-      } else console.log('index.html badge pattern not found — skipped (homepage day not updated)');
-    }
-  } catch (e) { console.warn('index.html badge update skipped:', e.message); }
+        if (patched !== idx) { fs.writeFileSync(IDX, patched); console.log(`${IDX} badge -> Day ${MAX_DAY}`); }
+        else console.log(`${IDX} badge already Day ${MAX_DAY}`);
+      } else console.log(`${IDX} badge pattern not found — skipped`);
+    } catch (e) { console.warn(`${IDX} badge update skipped:`, e.message); }
+  }  
 }
 main().catch(e=>{ console.error(e); process.exit(1); });
