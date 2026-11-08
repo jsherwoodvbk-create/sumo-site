@@ -55,9 +55,9 @@ const NOTION_VERSION = '2022-06-28';
 const TOTAL_DAYS = 15;
 
 // ─── PER-BASHO CONFIG — change with the others each tournament (build-standings, gen-gumbai-snapshot) ───
-const BASHO = process.env.BASHO || '202609';
-const BASHO_LABEL = process.env.BASHO_LABEL || 'Aki 2026';
-const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-8011-8987-d959538f54a0';
+const BASHO = process.env.BASHO || '202611';
+const BASHO_LABEL = process.env.BASHO_LABEL || 'Kyushu 2026';
+const TOURNAMENT_PAGE_ID = process.env.TOURNAMENT_PAGE_ID || '3351ade1-241f-809d-ae11-f626432837d2';
 const OUT = process.env.OUT || 'drinking-game.html';
 // between-basho banner (banzuke-drop sets these at the drop; unset = live, no banner)
 const GAME_CLOSED = process.env.GAME_CLOSED === '1' || process.env.GAME_CLOSED === 'true';
