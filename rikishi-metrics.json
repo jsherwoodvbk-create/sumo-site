@@ -32,18 +32,18 @@
     "records": {
       "allDivision": {
         "w": 201,
-        "l": 72,
-        "pct": ".736"
+        "l": 73,
+        "pct": ".734"
       },
       "makuuchi": {
         "w": 167,
-        "l": 62,
-        "pct": ".729"
+        "l": 63,
+        "pct": ".726"
       },
       "crew": {
         "w": 102,
-        "l": 37,
-        "pct": ".734"
+        "l": 38,
+        "pct": ".729"
       },
       "note": null
     },
@@ -347,8 +347,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            1
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -549,6 +569,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            1
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -610,7 +647,12 @@
       "crew": {
         "baseW": 102,
         "baseL": 37,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -682,18 +724,18 @@
     "records": {
       "allDivision": {
         "w": 158,
-        "l": 49,
-        "pct": ".763"
+        "l": 50,
+        "pct": ".760"
       },
       "makuuchi": {
         "w": 98,
-        "l": 37,
-        "pct": ".726"
+        "l": 38,
+        "pct": ".721"
       },
       "crew": {
         "w": 98,
-        "l": 37,
-        "pct": ".726"
+        "l": 38,
+        "pct": ".721"
       },
       "note": "For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -1064,8 +1106,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -1246,6 +1308,23 @@
             3
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -1253,7 +1332,7 @@
         "label": "Full",
         "his": 0.7,
         "avg": 0.3,
-        "n": "1 in 135 bouts"
+        "n": "1 in 136 bouts"
       }
     ],
     "injuries": [
@@ -1430,7 +1509,12 @@
       "crew": {
         "baseW": 98,
         "baseL": 37,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 1,
@@ -1503,19 +1587,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 488,
+        "w": 489,
         "l": 316,
         "pct": ".607"
       },
       "makuuchi": {
-        "w": 349,
+        "w": 350,
         "l": 239,
         "pct": ".594"
       },
       "crew": {
-        "w": 110,
+        "w": 111,
         "l": 55,
-        "pct": ".667"
+        "pct": ".669"
       },
       "note": null
     },
@@ -1968,7 +2052,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 110,
+      "totalWins": 111,
       "slices": [
         {
           "name": "Frontal Force Out",
@@ -2012,12 +2096,12 @@
           "moves": 16,
           "tail": [
             {
-              "name": "Rear Push Out",
-              "n": 4,
-              "pct": 4
+              "name": "Frontal Push Down",
+              "n": 5,
+              "pct": 5
             },
             {
-              "name": "Frontal Push Down",
+              "name": "Rear Push Out",
               "n": 4,
               "pct": 4
             },
@@ -2103,8 +2187,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -2325,6 +2429,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -2334,7 +2455,12 @@
       "crew": {
         "baseW": 110,
         "baseL": 55,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -2403,18 +2529,18 @@
     "records": {
       "allDivision": {
         "w": 154,
-        "l": 93,
-        "pct": ".623"
+        "l": 94,
+        "pct": ".621"
       },
       "makuuchi": {
         "w": 69,
-        "l": 51,
-        "pct": ".575"
+        "l": 52,
+        "pct": ".570"
       },
       "crew": {
         "w": 69,
-        "l": 51,
-        "pct": ".575"
+        "l": 52,
+        "pct": ".570"
       },
       "note": "For Fujinokawa, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -2731,8 +2857,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -2893,6 +3039,23 @@
             5
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -2900,13 +3063,13 @@
         "label": "Full",
         "his": 0.8,
         "avg": 0.3,
-        "n": "1 in 120 bouts"
+        "n": "1 in 121 bouts"
       },
       {
         "label": "Partial",
         "his": 0.8,
         "avg": 0.2,
-        "n": "1 in 120 bouts"
+        "n": "1 in 121 bouts"
       }
     ],
     "injuries": [
@@ -2949,7 +3112,12 @@
       "crew": {
         "baseW": 69,
         "baseL": 51,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 5,
@@ -3018,18 +3186,18 @@
     "records": {
       "allDivision": {
         "w": 393,
-        "l": 368,
+        "l": 369,
         "pct": ".516"
       },
       "makuuchi": {
         "w": 139,
-        "l": 131,
-        "pct": ".515"
+        "l": 132,
+        "pct": ".513"
       },
       "crew": {
         "w": 84,
-        "l": 81,
-        "pct": ".509"
+        "l": 82,
+        "pct": ".506"
       },
       "note": null
     },
@@ -3545,8 +3713,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            1
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -3767,6 +3955,23 @@
             7
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            1
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -3776,7 +3981,12 @@
       "crew": {
         "baseW": 84,
         "baseL": 81,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -3839,19 +4049,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 439,
+        "w": 440,
         "l": 219,
-        "pct": ".667"
+        "pct": ".668"
       },
       "makuuchi": {
-        "w": 287,
+        "w": 288,
         "l": 182,
-        "pct": ".612"
+        "pct": ".613"
       },
       "crew": {
-        "w": 44,
+        "w": 45,
         "l": 29,
-        "pct": ".603"
+        "pct": ".608"
       },
       "note": null
     },
@@ -4254,11 +4464,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 44,
+      "totalWins": 45,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 48,
+          "pct": 47,
           "color": "#cf5a2c"
         },
         {
@@ -4277,15 +4487,20 @@
           "color": "#4a7fb5"
         },
         {
-          "name": "Thrust Down",
-          "pct": 5,
+          "name": "Frontal Crush Out",
+          "pct": 4,
           "color": "#c99a2e"
         },
         {
+          "name": "Thrust Down",
+          "pct": 4,
+          "color": "#b5566f"
+        },
+        {
           "name": "Other",
-          "pct": 9,
+          "pct": 7,
           "color": "#8a8168",
-          "moves": 4,
+          "moves": 3,
           "tail": [
             {
               "name": "Slap Down",
@@ -4294,11 +4509,6 @@
             },
             {
               "name": "Hand Pull Down",
-              "n": 1,
-              "pct": 2
-            },
-            {
-              "name": "Frontal Crush Out",
               "n": 1,
               "pct": 2
             },
@@ -4319,8 +4529,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            1,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -4441,6 +4671,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            1,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -4596,7 +4843,12 @@
       "crew": {
         "baseW": 44,
         "baseL": 29,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -4665,18 +4917,18 @@
     "records": {
       "allDivision": {
         "w": 431,
-        "l": 325,
-        "pct": ".570"
+        "l": 326,
+        "pct": ".569"
       },
       "makuuchi": {
         "w": 259,
-        "l": 267,
-        "pct": ".492"
+        "l": 268,
+        "pct": ".491"
       },
       "crew": {
         "w": 79,
-        "l": 85,
-        "pct": ".482"
+        "l": 86,
+        "pct": ".479"
       },
       "note": null
     },
@@ -5246,8 +5498,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            1
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -5468,6 +5740,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            1
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -5575,7 +5864,12 @@
       "crew": {
         "baseW": 79,
         "baseL": 85,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 1,
@@ -5639,18 +5933,18 @@
     "records": {
       "allDivision": {
         "w": 837,
-        "l": 637,
-        "pct": ".568"
+        "l": 638,
+        "pct": ".567"
       },
       "makuuchi": {
         "w": 677,
-        "l": 521,
+        "l": 522,
         "pct": ".565"
       },
       "crew": {
         "w": 86,
-        "l": 68,
-        "pct": ".558"
+        "l": 69,
+        "pct": ".555"
       },
       "note": null
     },
@@ -6380,8 +6674,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            1
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -6602,6 +6916,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            1
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -6716,7 +7047,12 @@
       "crew": {
         "baseW": 86,
         "baseL": 68,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 2,
@@ -6785,18 +7121,18 @@
     "records": {
       "allDivision": {
         "w": 178,
-        "l": 82,
-        "pct": ".685"
+        "l": 83,
+        "pct": ".682"
       },
       "makuuchi": {
         "w": 72,
-        "l": 46,
-        "pct": ".610"
+        "l": 47,
+        "pct": ".605"
       },
       "crew": {
         "w": 51,
-        "l": 39,
-        "pct": ".567"
+        "l": 40,
+        "pct": ".560"
       },
       "note": null
     },
@@ -7082,8 +7418,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -7244,6 +7600,23 @@
             2
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -7251,13 +7624,13 @@
         "label": "Full",
         "his": 1.1,
         "avg": 0.3,
-        "n": "1 in 90 bouts"
+        "n": "1 in 91 bouts"
       },
       {
         "label": "Partial",
         "his": 1.1,
         "avg": 0.2,
-        "n": "1 in 90 bouts"
+        "n": "1 in 91 bouts"
       }
     ],
     "injuries": [
@@ -7397,7 +7770,12 @@
       "crew": {
         "baseW": 51,
         "baseL": 39,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -7460,19 +7838,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 354,
+        "w": 355,
         "l": 312,
         "pct": ".532"
       },
       "makuuchi": {
-        "w": 186,
+        "w": 187,
         "l": 189,
-        "pct": ".496"
+        "pct": ".497"
       },
       "crew": {
-        "w": 78,
+        "w": 79,
         "l": 87,
-        "pct": ".473"
+        "pct": ".476"
       },
       "note": null
     },
@@ -7890,11 +8268,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 78,
+      "totalWins": 79,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 50,
+          "pct": 49,
           "color": "#cf5a2c"
         },
         {
@@ -7913,30 +8291,30 @@
           "color": "#4a7fb5"
         },
         {
-          "name": "Frontal Thrust Out",
+          "name": "Hand Pull Down",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Rear Push Out",
+          "name": "Frontal Thrust Out",
           "pct": 4,
           "color": "#b5566f"
         },
         {
           "name": "Other",
-          "pct": 8,
+          "pct": 9,
           "color": "#8a8168",
           "moves": 3,
           "tail": [
             {
-              "name": "Frontal Crush Out",
+              "name": "Rear Push Out",
               "n": 3,
               "pct": 4
             },
             {
-              "name": "Hand Pull Down",
-              "n": 2,
-              "pct": 3
+              "name": "Frontal Crush Out",
+              "n": 3,
+              "pct": 4
             },
             {
               "name": "Underarm Throw",
@@ -7955,8 +8333,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -8177,6 +8575,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -8220,7 +8635,12 @@
       "crew": {
         "baseW": 78,
         "baseL": 87,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -8284,18 +8704,18 @@
     "records": {
       "allDivision": {
         "w": 355,
-        "l": 313,
+        "l": 314,
         "pct": ".531"
       },
       "makuuchi": {
         "w": 219,
-        "l": 237,
-        "pct": ".480"
+        "l": 238,
+        "pct": ".479"
       },
       "crew": {
         "w": 82,
-        "l": 75,
-        "pct": ".522"
+        "l": 76,
+        "pct": ".519"
       },
       "note": null
     },
@@ -8772,8 +9192,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -8994,6 +9434,23 @@
             10
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -9123,7 +9580,12 @@
       "crew": {
         "baseW": 82,
         "baseL": 75,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 1,
@@ -9186,19 +9648,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 506,
+        "w": 507,
         "l": 410,
-        "pct": ".552"
+        "pct": ".553"
       },
       "makuuchi": {
-        "w": 234,
+        "w": 235,
         "l": 198,
-        "pct": ".542"
+        "pct": ".543"
       },
       "crew": {
-        "w": 77,
+        "w": 78,
         "l": 88,
-        "pct": ".467"
+        "pct": ".470"
       },
       "note": null
     },
@@ -9749,11 +10211,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 77,
+      "totalWins": 78,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 35,
+          "pct": 36,
           "color": "#cf5a2c"
         },
         {
@@ -9788,7 +10250,7 @@
         },
         {
           "name": "Other",
-          "pct": 15,
+          "pct": 14,
           "color": "#8a8168",
           "moves": 8,
           "tail": [
@@ -9844,8 +10306,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -10066,6 +10548,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -10073,7 +10572,7 @@
         "label": "Full",
         "his": 0.6,
         "avg": 0.3,
-        "n": "1 in 165 bouts"
+        "n": "1 in 166 bouts"
       }
     ],
     "injuries": [
@@ -10123,7 +10622,12 @@
       "crew": {
         "baseW": 77,
         "baseL": 88,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 2,
@@ -10187,18 +10691,18 @@
     "records": {
       "allDivision": {
         "w": 278,
-        "l": 224,
-        "pct": ".554"
+        "l": 225,
+        "pct": ".553"
       },
       "makuuchi": {
         "w": 110,
-        "l": 118,
-        "pct": ".482"
+        "l": 119,
+        "pct": ".480"
       },
       "crew": {
         "w": 68,
-        "l": 71,
-        "pct": ".489"
+        "l": 72,
+        "pct": ".486"
       },
       "note": null
     },
@@ -10626,8 +11130,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -10848,6 +11372,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -10857,7 +11398,12 @@
       "crew": {
         "baseW": 68,
         "baseL": 71,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -10920,19 +11466,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 213,
+        "w": 214,
         "l": 198,
-        "pct": ".518"
+        "pct": ".519"
       },
       "makuuchi": {
-        "w": 108,
+        "w": 109,
         "l": 117,
-        "pct": ".480"
+        "pct": ".482"
       },
       "crew": {
-        "w": 77,
+        "w": 78,
         "l": 88,
-        "pct": ".467"
+        "pct": ".470"
       },
       "note": null
     },
@@ -11190,7 +11736,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 77,
+      "totalWins": 78,
       "slices": [
         {
           "name": "Frontal Push Out",
@@ -11209,7 +11755,7 @@
         },
         {
           "name": "Thrust Down",
-          "pct": 9,
+          "pct": 10,
           "color": "#4a7fb5"
         },
         {
@@ -11229,7 +11775,7 @@
         },
         {
           "name": "Other",
-          "pct": 12,
+          "pct": 11,
           "color": "#8a8168",
           "moves": 5,
           "tail": [
@@ -11275,8 +11821,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -11497,6 +12063,23 @@
             5
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -11528,7 +12111,12 @@
       "crew": {
         "baseW": 77,
         "baseL": 88,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -11595,18 +12183,18 @@
     "records": {
       "allDivision": {
         "w": 238,
-        "l": 186,
-        "pct": ".561"
+        "l": 187,
+        "pct": ".560"
       },
       "makuuchi": {
         "w": 79,
-        "l": 86,
-        "pct": ".479"
+        "l": 87,
+        "pct": ".476"
       },
       "crew": {
         "w": 74,
-        "l": 76,
-        "pct": ".493"
+        "l": 77,
+        "pct": ".490"
       },
       "note": null
     },
@@ -11990,8 +12578,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -12192,6 +12800,23 @@
             4
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -12248,7 +12873,12 @@
       "crew": {
         "baseW": 74,
         "baseL": 76,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -12319,19 +12949,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 576,
+        "w": 577,
         "l": 504,
-        "pct": ".533"
+        "pct": ".534"
       },
       "makuuchi": {
-        "w": 317,
+        "w": 318,
         "l": 314,
-        "pct": ".502"
+        "pct": ".503"
       },
       "crew": {
-        "w": 74,
+        "w": 75,
         "l": 89,
-        "pct": ".454"
+        "pct": ".457"
       },
       "note": null
     },
@@ -12926,7 +13556,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 74,
+      "totalWins": 75,
       "slices": [
         {
           "name": "Frontal Push Out",
@@ -13006,8 +13636,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -13228,6 +13878,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -13339,7 +14006,12 @@
       "crew": {
         "baseW": 74,
         "baseL": 89,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -13408,18 +14080,18 @@
     "records": {
       "allDivision": {
         "w": 354,
-        "l": 313,
-        "pct": ".531"
+        "l": 314,
+        "pct": ".530"
       },
       "makuuchi": {
         "w": 197,
-        "l": 232,
-        "pct": ".459"
+        "l": 233,
+        "pct": ".458"
       },
       "crew": {
         "w": 73,
-        "l": 92,
-        "pct": ".442"
+        "l": 93,
+        "pct": ".440"
       },
       "note": null
     },
@@ -13901,8 +14573,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -14123,6 +14815,23 @@
             3
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -14271,7 +14980,12 @@
       "crew": {
         "baseW": 73,
         "baseL": 92,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 1,
@@ -14335,18 +15049,18 @@
     "records": {
       "allDivision": {
         "w": 93,
-        "l": 44,
-        "pct": ".679"
+        "l": 45,
+        "pct": ".674"
       },
       "makuuchi": {
         "w": 9,
-        "l": 6,
-        "pct": ".600"
+        "l": 7,
+        "pct": ".563"
       },
       "crew": {
         "w": 9,
-        "l": 6,
-        "pct": ".600"
+        "l": 7,
+        "pct": ".563"
       },
       "note": "For Toshinofuji, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -14521,8 +15235,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -14543,6 +15277,23 @@
             5
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -14552,7 +15303,12 @@
       "crew": {
         "baseW": 9,
         "baseL": 6,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -14616,18 +15372,18 @@
     "records": {
       "allDivision": {
         "w": 257,
-        "l": 208,
-        "pct": ".553"
+        "l": 209,
+        "pct": ".552"
       },
       "makuuchi": {
         "w": 84,
-        "l": 96,
-        "pct": ".467"
+        "l": 97,
+        "pct": ".464"
       },
       "crew": {
         "w": 72,
-        "l": 79,
-        "pct": ".477"
+        "l": 80,
+        "pct": ".474"
       },
       "note": null
     },
@@ -15040,8 +15796,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -15262,6 +16038,23 @@
             8
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -15271,7 +16064,12 @@
       "crew": {
         "baseW": 72,
         "baseL": 79,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -15338,18 +16136,18 @@
     "records": {
       "allDivision": {
         "w": 916,
-        "l": 908,
+        "l": 909,
         "pct": ".502"
       },
       "makuuchi": {
         "w": 714,
-        "l": 784,
-        "pct": ".477"
+        "l": 785,
+        "pct": ".476"
       },
       "crew": {
         "w": 61,
-        "l": 75,
-        "pct": ".449"
+        "l": 76,
+        "pct": ".445"
       },
       "note": null
     },
@@ -16022,8 +16820,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -16224,6 +17042,23 @@
             2
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -16233,7 +17068,12 @@
       "crew": {
         "baseW": 61,
         "baseL": 75,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 1,
@@ -16301,17 +17141,17 @@
     },
     "records": {
       "allDivision": {
-        "w": 78,
+        "w": 79,
         "l": 49,
-        "pct": ".614"
+        "pct": ".617"
       },
       "makuuchi": {
-        "w": 0,
+        "w": 1,
         "l": 0,
-        "pct": null
+        "pct": ".1000"
       },
       "crew": {
-        "w": 1,
+        "w": 2,
         "l": 0,
         "pct": ".1000"
       },
@@ -16461,12 +17301,17 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 1,
+      "totalWins": 2,
       "slices": [
         {
-          "name": "Frontal Push Down",
-          "pct": 100,
+          "name": "Frontal Push Out",
+          "pct": 50,
           "color": "#cf5a2c"
+        },
+        {
+          "name": "Frontal Push Down",
+          "pct": 50,
+          "color": "#2f8f5b"
         }
       ]
     },
@@ -16478,8 +17323,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -16500,6 +17365,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -16509,7 +17391,12 @@
       "crew": {
         "baseW": 1,
         "baseL": 0,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -16568,18 +17455,18 @@
     "records": {
       "allDivision": {
         "w": 169,
-        "l": 117,
-        "pct": ".591"
+        "l": 118,
+        "pct": ".589"
       },
       "makuuchi": {
         "w": 6,
-        "l": 9,
-        "pct": ".400"
+        "l": 10,
+        "pct": ".375"
       },
       "crew": {
         "w": 11,
-        "l": 13,
-        "pct": ".458"
+        "l": 14,
+        "pct": ".440"
       },
       "note": null
     },
@@ -16857,8 +17744,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -16979,6 +17886,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -17043,7 +17967,12 @@
       "crew": {
         "baseW": 11,
         "baseL": 13,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -17109,19 +18038,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 401,
+        "w": 402,
         "l": 235,
         "pct": ".631"
       },
       "makuuchi": {
-        "w": 319,
+        "w": 320,
         "l": 187,
-        "pct": ".630"
+        "pct": ".631"
       },
       "crew": {
-        "w": 83,
+        "w": 84,
         "l": 38,
-        "pct": ".686"
+        "pct": ".689"
       },
       "note": null
     },
@@ -17482,16 +18411,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 83,
+      "totalWins": 84,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 22,
+          "pct": 21,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 11,
+          "pct": 12,
           "color": "#2f8f5b"
         },
         {
@@ -17622,8 +18551,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ng",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            1,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ng": [
           [
             "Named",
@@ -17824,6 +18773,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            1,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -17956,7 +18922,12 @@
       "crew": {
         "baseW": 83,
         "baseL": 38,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -18028,18 +18999,18 @@
     "records": {
       "allDivision": {
         "w": 459,
-        "l": 315,
-        "pct": ".593"
+        "l": 316,
+        "pct": ".592"
       },
       "makuuchi": {
         "w": 325,
-        "l": 227,
-        "pct": ".589"
+        "l": 228,
+        "pct": ".588"
       },
       "crew": {
         "w": 84,
-        "l": 77,
-        "pct": ".522"
+        "l": 78,
+        "pct": ".519"
       },
       "note": null
     },
@@ -18577,8 +19548,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -18799,6 +19790,23 @@
             2
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -18836,7 +19844,12 @@
       "crew": {
         "baseW": 84,
         "baseL": 77,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -18904,19 +19917,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 270,
+        "w": 271,
         "l": 195,
-        "pct": ".581"
+        "pct": ".582"
       },
       "makuuchi": {
-        "w": 162,
+        "w": 163,
         "l": 138,
-        "pct": ".540"
+        "pct": ".542"
       },
       "crew": {
-        "w": 93,
+        "w": 94,
         "l": 72,
-        "pct": ".564"
+        "pct": ".566"
       },
       "note": null
     },
@@ -19204,11 +20217,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 93,
+      "totalWins": 94,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 39,
+          "pct": 38,
           "color": "#cf5a2c"
         },
         {
@@ -19227,17 +20240,17 @@
           "color": "#4a7fb5"
         },
         {
-          "name": "Frontal Push Down",
-          "pct": 2,
+          "name": "Rear Push Out",
+          "pct": 3,
           "color": "#c99a2e"
         },
         {
-          "name": "Thrust Down",
+          "name": "Frontal Push Down",
           "pct": 2,
           "color": "#b5566f"
         },
         {
-          "name": "Frontal Crush Out",
+          "name": "Thrust Down",
           "pct": 2,
           "color": "#3a9aa0"
         },
@@ -19248,12 +20261,12 @@
           "moves": 7,
           "tail": [
             {
-              "name": "Frontal Thrust Out",
+              "name": "Frontal Crush Out",
               "n": 2,
               "pct": 2
             },
             {
-              "name": "Rear Push Out",
+              "name": "Frontal Thrust Out",
               "n": 2,
               "pct": 2
             },
@@ -19294,8 +20307,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -19516,6 +20549,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -19525,7 +20575,12 @@
       "crew": {
         "baseW": 93,
         "baseL": 72,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 2,
@@ -19593,19 +20648,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 120,
+        "w": 121,
         "l": 65,
-        "pct": ".649"
+        "pct": ".651"
       },
       "makuuchi": {
-        "w": 69,
-        "l": 51,
-        "pct": ".575"
-      },
-      "crew": {
         "w": 70,
         "l": 51,
         "pct": ".579"
+      },
+      "crew": {
+        "w": 71,
+        "l": 51,
+        "pct": ".582"
       },
       "note": null
     },
@@ -19792,11 +20847,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 70,
+      "totalWins": 71,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 39,
+          "pct": 38,
           "color": "#cf5a2c"
         },
         {
@@ -19815,17 +20870,17 @@
           "color": "#4a7fb5"
         },
         {
-          "name": "Beltless Arm Throw",
+          "name": "Thrust Down",
           "pct": 4,
           "color": "#c99a2e"
         },
         {
-          "name": "Rear Push Out",
-          "pct": 3,
+          "name": "Beltless Arm Throw",
+          "pct": 4,
           "color": "#b5566f"
         },
         {
-          "name": "Thrust Down",
+          "name": "Rear Push Out",
           "pct": 3,
           "color": "#3a9aa0"
         },
@@ -19887,8 +20942,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            1,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -20069,6 +21144,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            1,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -20078,7 +21170,12 @@
       "crew": {
         "baseW": 70,
         "baseL": 51,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 4,
@@ -20141,19 +21238,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 79,
+        "w": 80,
         "l": 39,
-        "pct": ".669"
+        "pct": ".672"
       },
       "makuuchi": {
-        "w": 35,
+        "w": 36,
         "l": 25,
-        "pct": ".583"
+        "pct": ".590"
       },
       "crew": {
-        "w": 35,
+        "w": 36,
         "l": 25,
-        "pct": ".583"
+        "pct": ".590"
       },
       "note": "For Fujiryoga, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
@@ -20278,16 +21375,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 35,
+      "totalWins": 36,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 34,
+          "pct": 36,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Down",
-          "pct": 23,
+          "pct": 22,
           "color": "#2f8f5b"
         },
         {
@@ -20297,7 +21394,7 @@
         },
         {
           "name": "Slap Down",
-          "pct": 9,
+          "pct": 8,
           "color": "#4a7fb5"
         },
         {
@@ -20343,8 +21440,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            1,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -20425,6 +21542,23 @@
             8
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            1,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -20480,7 +21614,12 @@
       "crew": {
         "baseW": 35,
         "baseL": 25,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -20543,19 +21682,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 202,
+        "w": 203,
         "l": 127,
-        "pct": ".614"
+        "pct": ".615"
       },
       "makuuchi": {
-        "w": 33,
+        "w": 34,
         "l": 27,
-        "pct": ".550"
+        "pct": ".557"
       },
       "crew": {
-        "w": 34,
+        "w": 35,
         "l": 31,
-        "pct": ".523"
+        "pct": ".530"
       },
       "note": null
     },
@@ -20818,16 +21957,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 34,
+      "totalWins": 35,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 44,
+          "pct": 46,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 15,
+          "pct": 14,
           "color": "#2f8f5b"
         },
         {
@@ -20857,7 +21996,7 @@
         },
         {
           "name": "Other",
-          "pct": 8,
+          "pct": 7,
           "color": "#8a8168",
           "moves": 3,
           "tail": [
@@ -20888,8 +22027,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            1,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -21050,6 +22209,23 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            1,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -21120,7 +22296,12 @@
       "crew": {
         "baseW": 34,
         "baseL": 31,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -21184,18 +22365,18 @@
     "records": {
       "allDivision": {
         "w": 174,
-        "l": 115,
-        "pct": ".602"
+        "l": 116,
+        "pct": ".600"
       },
       "makuuchi": {
         "w": 95,
-        "l": 79,
-        "pct": ".546"
+        "l": 80,
+        "pct": ".543"
       },
       "crew": {
         "w": 84,
-        "l": 75,
-        "pct": ".528"
+        "l": 76,
+        "pct": ".525"
       },
       "note": null
     },
@@ -21513,8 +22694,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -21735,6 +22936,23 @@
             5
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -21742,7 +22960,7 @@
         "label": "Full",
         "his": 0.6,
         "avg": 0.3,
-        "n": "1 in 159 bouts"
+        "n": "1 in 160 bouts"
       }
     ],
     "injuries": [
@@ -21938,7 +23156,12 @@
       "crew": {
         "baseW": 84,
         "baseL": 75,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 5,
@@ -22004,19 +23227,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 646,
+        "w": 647,
         "l": 530,
-        "pct": ".549"
+        "pct": ".550"
       },
       "makuuchi": {
-        "w": 495,
+        "w": 496,
         "l": 433,
-        "pct": ".533"
+        "pct": ".534"
       },
       "crew": {
-        "w": 83,
+        "w": 84,
         "l": 67,
-        "pct": ".553"
+        "pct": ".556"
       },
       "note": null
     },
@@ -22558,26 +23781,26 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 83,
+      "totalWins": 84,
       "slices": [
         {
-          "name": "Slap Down",
+          "name": "Frontal Thrust Out",
           "pct": 20,
           "color": "#cf5a2c"
         },
         {
-          "name": "Frontal Push Out",
-          "pct": 19,
+          "name": "Slap Down",
+          "pct": 20,
           "color": "#2f8f5b"
         },
         {
-          "name": "Frontal Thrust Out",
+          "name": "Frontal Push Out",
           "pct": 19,
           "color": "#7a4fb0"
         },
         {
           "name": "Thrust Down",
-          "pct": 16,
+          "pct": 15,
           "color": "#4a7fb5"
         },
         {
@@ -22643,8 +23866,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -22845,6 +24088,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -22889,7 +24149,12 @@
       "crew": {
         "baseW": 83,
         "baseL": 67,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 2,
@@ -22957,19 +24222,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 242,
+        "w": 243,
         "l": 202,
-        "pct": ".545"
+        "pct": ".546"
       },
       "makuuchi": {
-        "w": 146,
+        "w": 147,
         "l": 154,
-        "pct": ".487"
+        "pct": ".488"
       },
       "crew": {
-        "w": 76,
+        "w": 77,
         "l": 89,
-        "pct": ".461"
+        "pct": ".464"
       },
       "note": null
     },
@@ -23250,7 +24515,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 76,
+      "totalWins": 77,
       "slices": [
         {
           "name": "Frontal Push Out",
@@ -23274,7 +24539,7 @@
         },
         {
           "name": "Frontal Thrust Out",
-          "pct": 7,
+          "pct": 6,
           "color": "#c99a2e"
         },
         {
@@ -23289,7 +24554,7 @@
         },
         {
           "name": "Other",
-          "pct": 7,
+          "pct": 8,
           "color": "#8a8168",
           "moves": 5,
           "tail": [
@@ -23330,8 +24595,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -23552,6 +24837,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -23561,7 +24863,12 @@
       "crew": {
         "baseW": 76,
         "baseL": 89,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 2,
@@ -23625,18 +24932,18 @@
     "records": {
       "allDivision": {
         "w": 173,
-        "l": 118,
-        "pct": ".595"
+        "l": 119,
+        "pct": ".592"
       },
       "makuuchi": {
         "w": 41,
-        "l": 34,
-        "pct": ".547"
+        "l": 35,
+        "pct": ".539"
       },
       "crew": {
         "w": 44,
-        "l": 37,
-        "pct": ".543"
+        "l": 38,
+        "pct": ".537"
       },
       "note": null
     },
@@ -23944,8 +25251,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            1
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -24106,6 +25433,23 @@
             9
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            1
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -24113,7 +25457,7 @@
         "label": "Partial",
         "his": 1.2,
         "avg": 0.2,
-        "n": "1 in 81 bouts"
+        "n": "1 in 82 bouts"
       }
     ],
     "injuries": [
@@ -24144,7 +25488,12 @@
       "crew": {
         "baseW": 44,
         "baseL": 37,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -24217,19 +25566,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 222,
+        "w": 223,
         "l": 186,
-        "pct": ".544"
+        "pct": ".545"
       },
       "makuuchi": {
-        "w": 151,
+        "w": 152,
         "l": 162,
-        "pct": ".482"
+        "pct": ".484"
       },
       "crew": {
-        "w": 83,
+        "w": 84,
         "l": 82,
-        "pct": ".503"
+        "pct": ".506"
       },
       "note": null
     },
@@ -24489,11 +25838,11 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 83,
+      "totalWins": 84,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 28,
+          "pct": 29,
           "color": "#cf5a2c"
         },
         {
@@ -24528,7 +25877,7 @@
         },
         {
           "name": "Other",
-          "pct": 16,
+          "pct": 15,
           "color": "#8a8168",
           "moves": 10,
           "tail": [
@@ -24594,8 +25943,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            1,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -24816,6 +26185,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            1,
+            0
+          ],
+          "LowM": [
+            0,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -24825,7 +26211,12 @@
       "crew": {
         "baseW": 83,
         "baseL": 82,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -24892,18 +26283,18 @@
     "records": {
       "allDivision": {
         "w": 360,
-        "l": 313,
-        "pct": ".535"
+        "l": 314,
+        "pct": ".534"
       },
       "makuuchi": {
         "w": 150,
-        "l": 164,
-        "pct": ".478"
+        "l": 165,
+        "pct": ".476"
       },
       "crew": {
         "w": 56,
-        "l": 50,
-        "pct": ".528"
+        "l": 51,
+        "pct": ".523"
       },
       "note": null
     },
@@ -25383,8 +26774,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -25565,6 +26976,23 @@
             6
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [
@@ -25572,13 +27000,13 @@
         "label": "Full",
         "his": 0.9,
         "avg": 0.3,
-        "n": "1 in 106 bouts"
+        "n": "1 in 107 bouts"
       },
       {
         "label": "Partial",
         "his": 2.8,
         "avg": 0.2,
-        "n": "3 in 106 bouts"
+        "n": "3 in 107 bouts"
       }
     ],
     "injuries": [
@@ -25652,7 +27080,12 @@
       "crew": {
         "baseW": 56,
         "baseL": 50,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -25723,19 +27156,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 208,
+        "w": 209,
         "l": 164,
-        "pct": ".559"
+        "pct": ".560"
       },
       "makuuchi": {
-        "w": 81,
+        "w": 82,
         "l": 76,
-        "pct": ".516"
+        "pct": ".519"
       },
       "crew": {
-        "w": 75,
+        "w": 76,
         "l": 67,
-        "pct": ".528"
+        "pct": ".531"
       },
       "note": null
     },
@@ -26004,26 +27437,26 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 75,
+      "totalWins": 76,
       "slices": [
         {
           "name": "Frontal Push Out",
-          "pct": 40,
+          "pct": 39,
           "color": "#cf5a2c"
         },
         {
           "name": "Underarm Throw",
-          "pct": 19,
+          "pct": 18,
           "color": "#2f8f5b"
         },
         {
-          "name": "Arm Lock Throw",
+          "name": "Frontal Force Out",
           "pct": 8,
           "color": "#7a4fb0"
         },
         {
-          "name": "Frontal Force Out",
-          "pct": 7,
+          "name": "Arm Lock Throw",
+          "pct": 8,
           "color": "#4a7fb5"
         },
         {
@@ -26043,7 +27476,7 @@
         },
         {
           "name": "Other",
-          "pct": 10,
+          "pct": 11,
           "color": "#8a8168",
           "moves": 6,
           "tail": [
@@ -26089,8 +27522,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -26291,6 +27744,23 @@
             9
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [
@@ -26298,7 +27768,7 @@
         "label": "Partial",
         "his": 0.7,
         "avg": 0.2,
-        "n": "1 in 142 bouts"
+        "n": "1 in 143 bouts"
       }
     ],
     "injuries": [
@@ -26424,7 +27894,12 @@
       "crew": {
         "baseW": 75,
         "baseL": 67,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -26493,18 +27968,18 @@
     "records": {
       "allDivision": {
         "w": 334,
-        "l": 295,
-        "pct": ".531"
+        "l": 296,
+        "pct": ".530"
       },
       "makuuchi": {
         "w": 204,
-        "l": 216,
-        "pct": ".486"
+        "l": 217,
+        "pct": ".485"
       },
       "crew": {
         "w": 78,
-        "l": 87,
-        "pct": ".473"
+        "l": 88,
+        "pct": ".470"
       },
       "note": null
     },
@@ -26977,8 +28452,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -27199,6 +28694,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -27279,7 +28791,12 @@
       "crew": {
         "baseW": 78,
         "baseL": 87,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 3,
@@ -27342,19 +28859,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 134,
+        "w": 135,
         "l": 76,
-        "pct": ".638"
+        "pct": ".640"
       },
       "makuuchi": {
-        "w": 38,
-        "l": 37,
-        "pct": ".507"
-      },
-      "crew": {
         "w": 39,
         "l": 37,
         "pct": ".513"
+      },
+      "crew": {
+        "w": 40,
+        "l": 37,
+        "pct": ".519"
       },
       "note": null
     },
@@ -27552,16 +29069,16 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 39,
+      "totalWins": 40,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 56,
+          "pct": 55,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 21,
+          "pct": 23,
           "color": "#2f8f5b"
         },
         {
@@ -27576,7 +29093,7 @@
         },
         {
           "name": "Other",
-          "pct": 8,
+          "pct": 7,
           "color": "#8a8168",
           "moves": 3,
           "tail": [
@@ -27607,8 +29124,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -27729,6 +29266,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -27778,7 +29332,12 @@
       "crew": {
         "baseW": 39,
         "baseL": 37,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -27841,19 +29400,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 525,
+        "w": 526,
         "l": 411,
         "pct": ".561"
       },
       "makuuchi": {
-        "w": 341,
+        "w": 342,
         "l": 306,
-        "pct": ".527"
+        "pct": ".528"
       },
       "crew": {
-        "w": 71,
+        "w": 72,
         "l": 89,
-        "pct": ".444"
+        "pct": ".447"
       },
       "note": null
     },
@@ -28359,7 +29918,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 71,
+      "totalWins": 72,
       "slices": [
         {
           "name": "Frontal Push Out",
@@ -28368,7 +29927,7 @@
         },
         {
           "name": "Slap Down",
-          "pct": 20,
+          "pct": 21,
           "color": "#2f8f5b"
         },
         {
@@ -28398,7 +29957,7 @@
         },
         {
           "name": "Other",
-          "pct": 9,
+          "pct": 8,
           "color": "#8a8168",
           "moves": 4,
           "tail": [
@@ -28434,8 +29993,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -28656,14 +30235,31 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [
       {
         "label": "Full",
-        "his": 1.3,
+        "his": 1.2,
         "avg": 0.3,
-        "n": "2 in 160 bouts"
+        "n": "2 in 161 bouts"
       }
     ],
     "injuries": [
@@ -28725,7 +30321,12 @@
       "crew": {
         "baseW": 71,
         "baseL": 89,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 2,
@@ -28788,19 +30389,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 96,
+        "w": 97,
         "l": 58,
-        "pct": ".623"
+        "pct": ".626"
       },
       "makuuchi": {
-        "w": 8,
+        "w": 9,
         "l": 7,
-        "pct": ".533"
+        "pct": ".563"
       },
       "crew": {
-        "w": 10,
+        "w": 11,
         "l": 8,
-        "pct": ".556"
+        "pct": ".579"
       },
       "note": null
     },
@@ -28950,38 +30551,38 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 10,
+      "totalWins": 11,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 50,
+          "pct": 55,
           "color": "#cf5a2c"
         },
         {
           "name": "Slap Down",
-          "pct": 20,
+          "pct": 18,
           "color": "#2f8f5b"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 10,
+          "pct": 9,
           "color": "#7a4fb0"
         },
         {
           "name": "Under Shoulder Swing Down",
-          "pct": 10,
+          "pct": 9,
           "color": "#4a7fb5"
         },
         {
           "name": "Other",
-          "pct": 10,
+          "pct": 9,
           "color": "#8a8168",
           "moves": 1,
           "tail": [
             {
               "name": "Hand Pull Down",
               "n": 1,
-              "pct": 10
+              "pct": 9
             }
           ]
         }
@@ -28995,8 +30596,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -29077,14 +30698,31 @@
             1
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [
       {
         "label": "Full",
-        "his": 5.6,
+        "his": 5.3,
         "avg": 0.3,
-        "n": "1 in 18 bouts"
+        "n": "1 in 19 bouts"
       }
     ],
     "injuries": [
@@ -29184,7 +30822,12 @@
       "crew": {
         "baseW": 10,
         "baseL": 8,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -29247,19 +30890,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 189,
+        "w": 190,
         "l": 121,
-        "pct": ".610"
+        "pct": ".611"
       },
       "makuuchi": {
-        "w": 0,
+        "w": 1,
         "l": 0,
-        "pct": null
+        "pct": ".1000"
       },
       "crew": {
-        "w": 4,
+        "w": 5,
         "l": 1,
-        "pct": ".800"
+        "pct": ".833"
       },
       "note": null
     },
@@ -29535,21 +31178,21 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 4,
+      "totalWins": 5,
       "slices": [
         {
           "name": "Frontal Force Out",
-          "pct": 50,
+          "pct": 60,
           "color": "#cf5a2c"
         },
         {
           "name": "Frontal Push Out",
-          "pct": 25,
+          "pct": 20,
           "color": "#2f8f5b"
         },
         {
           "name": "Underarm Throw",
-          "pct": 25,
+          "pct": 20,
           "color": "#7a4fb0"
         }
       ]
@@ -29562,8 +31205,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -29624,6 +31287,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -29633,7 +31313,12 @@
       "crew": {
         "baseW": 4,
         "baseL": 1,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -29697,18 +31382,18 @@
     "records": {
       "allDivision": {
         "w": 270,
-        "l": 218,
-        "pct": ".553"
+        "l": 219,
+        "pct": ".552"
       },
       "makuuchi": {
         "w": 18,
-        "l": 36,
-        "pct": ".333"
+        "l": 37,
+        "pct": ".327"
       },
       "crew": {
         "w": 4,
-        "l": 5,
-        "pct": ".444"
+        "l": 6,
+        "pct": ".400"
       },
       "note": null
     },
@@ -30017,8 +31702,28 @@
     },
     "mawashi": [],
     "caliber": {
-      "default": "25Ht",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            0,
+            1
+          ]
+        ],
         "25Ht": [
           [
             "Named",
@@ -30039,6 +31744,23 @@
             5
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            0,
+            1
+          ]
+        }
       }
     },
     "henka": [],
@@ -30048,7 +31770,12 @@
       "crew": {
         "baseW": 4,
         "baseL": 5,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 0,
+            "l": 1
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
@@ -30111,19 +31838,19 @@
     },
     "records": {
       "allDivision": {
-        "w": 107,
+        "w": 108,
         "l": 60,
-        "pct": ".641"
+        "pct": ".643"
       },
       "makuuchi": {
-        "w": 0,
+        "w": 1,
         "l": 0,
-        "pct": null
+        "pct": ".1000"
       },
       "crew": {
-        "w": 2,
+        "w": 3,
         "l": 2,
-        "pct": ".500"
+        "pct": ".600"
       },
       "note": null
     },
@@ -30284,7 +32011,7 @@
     },
     "kimarite": {
       "window": "since Jan 2025",
-      "totalWins": 2,
+      "totalWins": 3,
       "slices": [
         {
           "name": "Frontal Force Out",
@@ -30301,8 +32028,28 @@
       }
     ],
     "caliber": {
-      "default": "26Ak",
+      "default": "26Ky",
       "bashos": {
+        "26Ky": [
+          [
+            "Named",
+            "Y·O·S·K",
+            0,
+            0
+          ],
+          [
+            "High M",
+            "M1–8",
+            0,
+            0
+          ],
+          [
+            "Low M",
+            "M9+ · Juryo",
+            1,
+            0
+          ]
+        ],
         "26Ak": [
           [
             "Named",
@@ -30363,6 +32110,23 @@
             0
           ]
         ]
+      },
+      "curBasho": "26Ky",
+      "curDays": {
+        "1": {
+          "Named": [
+            0,
+            0
+          ],
+          "HighM": [
+            0,
+            0
+          ],
+          "LowM": [
+            1,
+            0
+          ]
+        }
       }
     },
     "henka": [],
@@ -30372,7 +32136,12 @@
       "crew": {
         "baseW": 2,
         "baseL": 2,
-        "days": {}
+        "days": {
+          "1": {
+            "w": 1,
+            "l": 0
+          }
+        }
       },
       "kinboshi": {
         "base": 0,
