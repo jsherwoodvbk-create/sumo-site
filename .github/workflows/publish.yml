@@ -65,8 +65,8 @@ jobs:
         continue-on-error: true
         env:
           NOTION_TOKEN_WRITE: ${{ secrets.NOTION_TOKEN_WRITE }}
-          TOURNAMENT_PAGE_ID: "3351ade1-241f-8011-8987-d959538f54a0"
-          BASHO_LABEL: "Aki 2026"
+          TOURNAMENT_PAGE_ID: "3351ade1-241f-809d-ae11-f626432837d2"
+          BASHO_LABEL: "Kyushu 2026"
         run: node gen-torikumi.mjs
 
       - name: Rebuild Gumbai snapshot from Notion
