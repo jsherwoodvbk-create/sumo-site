@@ -31,14 +31,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 201,
+        "w": 202,
         "l": 73,
-        "pct": ".734"
+        "pct": ".735"
       },
       "makuuchi": {
-        "w": 167,
+        "w": 168,
         "l": 63,
-        "pct": ".726"
+        "pct": ".727"
       },
       "crew": {
         "w": 102,
@@ -753,21 +753,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 158,
+        "w": 159,
         "l": 50,
-        "pct": ".760"
+        "pct": ".761"
       },
       "makuuchi": {
-        "w": 98,
+        "w": 99,
         "l": 38,
-        "pct": ".721"
+        "pct": ".723"
       },
       "crew": {
         "w": 98,
         "l": 38,
         "pct": ".721"
       },
-      "note": "For Aonishiki, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -1617,14 +1617,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 489,
+        "w": 490,
         "l": 316,
-        "pct": ".607"
+        "pct": ".608"
       },
       "makuuchi": {
-        "w": 350,
+        "w": 351,
         "l": 239,
-        "pct": ".594"
+        "pct": ".595"
       },
       "crew": {
         "w": 111,
@@ -2559,20 +2559,20 @@
     "records": {
       "allDivision": {
         "w": 154,
-        "l": 94,
-        "pct": ".621"
+        "l": 95,
+        "pct": ".618"
       },
       "makuuchi": {
         "w": 69,
-        "l": 52,
-        "pct": ".570"
+        "l": 53,
+        "pct": ".566"
       },
       "crew": {
         "w": 69,
         "l": 52,
         "pct": ".570"
       },
-      "note": "For Fujinokawa, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -3216,13 +3216,13 @@
     "records": {
       "allDivision": {
         "w": 393,
-        "l": 369,
-        "pct": ".516"
+        "l": 370,
+        "pct": ".515"
       },
       "makuuchi": {
         "w": 139,
-        "l": 132,
-        "pct": ".513"
+        "l": 133,
+        "pct": ".511"
       },
       "crew": {
         "w": 84,
@@ -4080,13 +4080,13 @@
     "records": {
       "allDivision": {
         "w": 440,
-        "l": 219,
-        "pct": ".668"
+        "l": 220,
+        "pct": ".667"
       },
       "makuuchi": {
         "w": 288,
-        "l": 182,
-        "pct": ".613"
+        "l": 183,
+        "pct": ".611"
       },
       "crew": {
         "w": 45,
@@ -4947,12 +4947,12 @@
     "records": {
       "allDivision": {
         "w": 431,
-        "l": 326,
+        "l": 327,
         "pct": ".569"
       },
       "makuuchi": {
         "w": 259,
-        "l": 268,
+        "l": 269,
         "pct": ".491"
       },
       "crew": {
@@ -5962,12 +5962,12 @@
     },
     "records": {
       "allDivision": {
-        "w": 837,
+        "w": 838,
         "l": 638,
-        "pct": ".567"
+        "pct": ".568"
       },
       "makuuchi": {
-        "w": 677,
+        "w": 678,
         "l": 522,
         "pct": ".565"
       },
@@ -7150,14 +7150,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 178,
+        "w": 179,
         "l": 83,
-        "pct": ".682"
+        "pct": ".683"
       },
       "makuuchi": {
-        "w": 72,
+        "w": 73,
         "l": 47,
-        "pct": ".605"
+        "pct": ".608"
       },
       "crew": {
         "w": 51,
@@ -7869,13 +7869,13 @@
     "records": {
       "allDivision": {
         "w": 355,
-        "l": 312,
-        "pct": ".532"
+        "l": 313,
+        "pct": ".531"
       },
       "makuuchi": {
         "w": 187,
-        "l": 189,
-        "pct": ".497"
+        "l": 190,
+        "pct": ".496"
       },
       "crew": {
         "w": 79,
@@ -8733,14 +8733,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 355,
+        "w": 356,
         "l": 314,
         "pct": ".531"
       },
       "makuuchi": {
-        "w": 219,
+        "w": 220,
         "l": 238,
-        "pct": ".479"
+        "pct": ".480"
       },
       "crew": {
         "w": 82,
@@ -9486,6 +9486,27 @@
     "henka": [],
     "injuries": [
       {
+        "area": "head (concussion)",
+        "nature": [
+          "Chronic"
+        ],
+        "status": "Eased",
+        "source": [
+          "Booth mention"
+        ],
+        "condition": "Kotoshoho - head (concussion)",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Kyushu2026D2: Kotoshoho was unable to complete the September tournament after suffering a concussion late in the basho, but he looks healthy and full of energy this basho. [booth, carrying]"
+          }
+        ]
+      },
+      {
         "area": "Head / jaw - CONCUSSION",
         "nature": [
           "Acute",
@@ -9679,13 +9700,13 @@
     "records": {
       "allDivision": {
         "w": 507,
-        "l": 410,
-        "pct": ".553"
+        "l": 411,
+        "pct": ".552"
       },
       "makuuchi": {
         "w": 235,
-        "l": 198,
-        "pct": ".543"
+        "l": 199,
+        "pct": ".541"
       },
       "crew": {
         "w": 78,
@@ -10700,8 +10721,8 @@
     "highestRank": "M5",
     "photo": "/img/portraits/roga.jpg",
     "origin": {
-      "city": "Mongolia",
-      "country": "Ulaanbaatar - Russia",
+      "city": "Russia",
+      "country": "Russia",
       "flag": ""
     },
     "vitals": {
@@ -10720,14 +10741,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 278,
+        "w": 279,
         "l": 225,
-        "pct": ".553"
+        "pct": ".554"
       },
       "makuuchi": {
-        "w": 110,
+        "w": 111,
         "l": 119,
-        "pct": ".480"
+        "pct": ".483"
       },
       "crew": {
         "w": 68,
@@ -11444,7 +11465,7 @@
     "bio": [
       {
         "k": "Shusshin",
-        "v": "Mongolia, Ulaanbaatar - Russia",
+        "v": "Russia",
         "src": "sumo-api"
       },
       {
@@ -11497,13 +11518,13 @@
     "records": {
       "allDivision": {
         "w": 214,
-        "l": 198,
-        "pct": ".519"
+        "l": 199,
+        "pct": ".518"
       },
       "makuuchi": {
         "w": 109,
-        "l": 117,
-        "pct": ".482"
+        "l": 118,
+        "pct": ".480"
       },
       "crew": {
         "w": 78,
@@ -12213,13 +12234,13 @@
     "records": {
       "allDivision": {
         "w": 238,
-        "l": 187,
-        "pct": ".560"
+        "l": 188,
+        "pct": ".559"
       },
       "makuuchi": {
         "w": 79,
-        "l": 87,
-        "pct": ".476"
+        "l": 88,
+        "pct": ".473"
       },
       "crew": {
         "w": 74,
@@ -12969,7 +12990,7 @@
         "day": 14,
         "yy": "’94"
       },
-      "stable": "Tokiwayama"
+      "stable": "Minatogawa"
     },
     "birthday": {
       "inWindow": true,
@@ -12979,14 +13000,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 577,
+        "w": 578,
         "l": 504,
         "pct": ".534"
       },
       "makuuchi": {
-        "w": 318,
+        "w": 319,
         "l": 314,
-        "pct": ".503"
+        "pct": ".504"
       },
       "crew": {
         "w": 75,
@@ -13935,7 +13956,7 @@
           "Suspected chronic",
           "Worsened"
         ],
-        "status": "Withdrawn",
+        "status": "Eased",
         "source": [
           "Booth mention",
           "Scorekeeper Eye"
@@ -14027,6 +14048,12 @@
             "bashoCode": null,
             "day": null,
             "text": "THREE DAYS, THREE CALLS, ALL CORRECT ON THEIR OWN DAY. D10 she overrode the booth's limp and called a knock. D12 she logged no change on the gingerly line. D13 he is out. Declining to call a flare is not the same as being wrong: the lane records what was visible, it does not predict."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Kyushu2026D2: Takanosho withdrew from the September tournament late in the second week due to a left ankle injury, so he will be looking for redemption this time around. [booth, carrying]"
           }
         ]
       }
@@ -14109,14 +14136,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 354,
+        "w": 355,
         "l": 314,
-        "pct": ".530"
+        "pct": ".531"
       },
       "makuuchi": {
-        "w": 197,
+        "w": 198,
         "l": 233,
-        "pct": ".458"
+        "pct": ".459"
       },
       "crew": {
         "w": 73,
@@ -15079,20 +15106,20 @@
     "records": {
       "allDivision": {
         "w": 93,
-        "l": 45,
-        "pct": ".674"
+        "l": 46,
+        "pct": ".669"
       },
       "makuuchi": {
         "w": 9,
-        "l": 7,
-        "pct": ".563"
+        "l": 8,
+        "pct": ".529"
       },
       "crew": {
         "w": 9,
         "l": 7,
         "pct": ".563"
       },
-      "note": "For Toshinofuji, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -15402,13 +15429,13 @@
     "records": {
       "allDivision": {
         "w": 257,
-        "l": 209,
-        "pct": ".552"
+        "l": 210,
+        "pct": ".550"
       },
       "makuuchi": {
         "w": 84,
-        "l": 97,
-        "pct": ".464"
+        "l": 98,
+        "pct": ".462"
       },
       "crew": {
         "w": 72,
@@ -16165,14 +16192,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 916,
+        "w": 917,
         "l": 909,
         "pct": ".502"
       },
       "makuuchi": {
-        "w": 714,
+        "w": 715,
         "l": 785,
-        "pct": ".476"
+        "pct": ".477"
       },
       "crew": {
         "w": 61,
@@ -17171,12 +17198,12 @@
     },
     "records": {
       "allDivision": {
-        "w": 79,
+        "w": 80,
         "l": 49,
-        "pct": ".617"
+        "pct": ".620"
       },
       "makuuchi": {
-        "w": 1,
+        "w": 2,
         "l": 0,
         "pct": ".1000"
       },
@@ -17185,7 +17212,7 @@
         "l": 0,
         "pct": ".1000"
       },
-      "note": null
+      "note": "For Arashifuji, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
     "specials": [
       {
@@ -17485,13 +17512,13 @@
     "records": {
       "allDivision": {
         "w": 169,
-        "l": 118,
-        "pct": ".589"
+        "l": 119,
+        "pct": ".587"
       },
       "makuuchi": {
         "w": 6,
-        "l": 10,
-        "pct": ".375"
+        "l": 11,
+        "pct": ".353"
       },
       "crew": {
         "w": 11,
@@ -18068,14 +18095,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 402,
+        "w": 403,
         "l": 235,
-        "pct": ".631"
+        "pct": ".632"
       },
       "makuuchi": {
-        "w": 320,
+        "w": 321,
         "l": 187,
-        "pct": ".631"
+        "pct": ".632"
       },
       "crew": {
         "w": 84,
@@ -19065,12 +19092,12 @@
     },
     "records": {
       "allDivision": {
-        "w": 459,
+        "w": 460,
         "l": 316,
-        "pct": ".592"
+        "pct": ".593"
       },
       "makuuchi": {
-        "w": 325,
+        "w": 326,
         "l": 228,
         "pct": ".588"
       },
@@ -19984,14 +20011,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 271,
+        "w": 272,
         "l": 195,
         "pct": ".582"
       },
       "makuuchi": {
-        "w": 163,
+        "w": 164,
         "l": 138,
-        "pct": ".542"
+        "pct": ".543"
       },
       "crew": {
         "w": 94,
@@ -20716,13 +20743,13 @@
     "records": {
       "allDivision": {
         "w": 121,
-        "l": 65,
-        "pct": ".651"
+        "l": 66,
+        "pct": ".647"
       },
       "makuuchi": {
         "w": 70,
-        "l": 51,
-        "pct": ".579"
+        "l": 52,
+        "pct": ".574"
       },
       "crew": {
         "w": 71,
@@ -21306,20 +21333,20 @@
     "records": {
       "allDivision": {
         "w": 80,
-        "l": 39,
-        "pct": ".672"
+        "l": 40,
+        "pct": ".667"
       },
       "makuuchi": {
         "w": 36,
-        "l": 25,
-        "pct": ".590"
+        "l": 26,
+        "pct": ".581"
       },
       "crew": {
         "w": 36,
         "l": 25,
         "pct": ".590"
       },
-      "note": "For Fujiryoga, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
+      "note": null
     },
     "specials": [
       {
@@ -21750,13 +21777,13 @@
     "records": {
       "allDivision": {
         "w": 203,
-        "l": 127,
-        "pct": ".615"
+        "l": 128,
+        "pct": ".613"
       },
       "makuuchi": {
         "w": 34,
-        "l": 27,
-        "pct": ".557"
+        "l": 28,
+        "pct": ".548"
       },
       "crew": {
         "w": 35,
@@ -22431,14 +22458,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 174,
+        "w": 175,
         "l": 116,
-        "pct": ".600"
+        "pct": ".601"
       },
       "makuuchi": {
-        "w": 95,
+        "w": 96,
         "l": 80,
-        "pct": ".543"
+        "pct": ".545"
       },
       "crew": {
         "w": 84,
@@ -23295,13 +23322,13 @@
     "records": {
       "allDivision": {
         "w": 647,
-        "l": 530,
-        "pct": ".550"
+        "l": 531,
+        "pct": ".549"
       },
       "makuuchi": {
         "w": 496,
-        "l": 433,
-        "pct": ".534"
+        "l": 434,
+        "pct": ".533"
       },
       "crew": {
         "w": 84,
@@ -24290,13 +24317,13 @@
     "records": {
       "allDivision": {
         "w": 243,
-        "l": 202,
-        "pct": ".546"
+        "l": 203,
+        "pct": ".545"
       },
       "makuuchi": {
         "w": 147,
-        "l": 154,
-        "pct": ".488"
+        "l": 155,
+        "pct": ".487"
       },
       "crew": {
         "w": 77,
@@ -24998,14 +25025,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 173,
+        "w": 174,
         "l": 119,
-        "pct": ".592"
+        "pct": ".594"
       },
       "makuuchi": {
-        "w": 41,
+        "w": 42,
         "l": 35,
-        "pct": ".539"
+        "pct": ".545"
       },
       "crew": {
         "w": 44,
@@ -25633,14 +25660,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 223,
+        "w": 224,
         "l": 186,
-        "pct": ".545"
+        "pct": ".546"
       },
       "makuuchi": {
-        "w": 152,
+        "w": 153,
         "l": 162,
-        "pct": ".484"
+        "pct": ".486"
       },
       "crew": {
         "w": 84,
@@ -26350,13 +26377,13 @@
     "records": {
       "allDivision": {
         "w": 360,
-        "l": 314,
-        "pct": ".534"
+        "l": 315,
+        "pct": ".533"
       },
       "makuuchi": {
         "w": 150,
-        "l": 165,
-        "pct": ".476"
+        "l": 166,
+        "pct": ".475"
       },
       "crew": {
         "w": 56,
@@ -27224,13 +27251,13 @@
     "records": {
       "allDivision": {
         "w": 209,
-        "l": 164,
-        "pct": ".560"
+        "l": 165,
+        "pct": ".559"
       },
       "makuuchi": {
         "w": 82,
-        "l": 76,
-        "pct": ".519"
+        "l": 77,
+        "pct": ".516"
       },
       "crew": {
         "w": 76,
@@ -28034,14 +28061,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 334,
+        "w": 335,
         "l": 296,
-        "pct": ".530"
+        "pct": ".531"
       },
       "makuuchi": {
-        "w": 204,
+        "w": 205,
         "l": 217,
-        "pct": ".485"
+        "pct": ".486"
       },
       "crew": {
         "w": 78,
@@ -28926,21 +28953,21 @@
     },
     "records": {
       "allDivision": {
-        "w": 135,
+        "w": 136,
         "l": 76,
-        "pct": ".640"
+        "pct": ".642"
       },
       "makuuchi": {
-        "w": 39,
+        "w": 40,
         "l": 37,
-        "pct": ".513"
+        "pct": ".519"
       },
       "crew": {
         "w": 40,
         "l": 37,
         "pct": ".519"
       },
-      "note": null
+      "note": "For Asahakuryu, Makuuchi and Crew match, since he reached makuuchi after our Jan 2025 epoch; the three-way split matters most for veterans who fought before it."
     },
     "specials": [
       {
@@ -29468,13 +29495,13 @@
     "records": {
       "allDivision": {
         "w": 526,
-        "l": 411,
+        "l": 412,
         "pct": ".561"
       },
       "makuuchi": {
         "w": 342,
-        "l": 306,
-        "pct": ".528"
+        "l": 307,
+        "pct": ".527"
       },
       "crew": {
         "w": 72,
@@ -30331,6 +30358,27 @@
     ],
     "injuries": [
       {
+        "area": "right ankle (possibly)",
+        "nature": [
+          "Acute"
+        ],
+        "status": "Active",
+        "source": [
+          "Booth mention"
+        ],
+        "condition": "Abi - right ankle (possibly)",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Kyushu2026D2: Abi went down awkwardly, his knee buckled. Looks like he might have injured his other ankle (his left ankle was already heavily taped up). He was dragging his right foot and appeared to be in some kind of pain. The booth hoped he would be OK and that the injury was not that serious. [booth]"
+          }
+        ]
+      },
+      {
         "area": "Left foot; right hand; left shoulder",
         "nature": [
           "Acute"
@@ -30457,13 +30505,13 @@
     "records": {
       "allDivision": {
         "w": 97,
-        "l": 58,
-        "pct": ".626"
+        "l": 59,
+        "pct": ".622"
       },
       "makuuchi": {
         "w": 9,
-        "l": 7,
-        "pct": ".563"
+        "l": 8,
+        "pct": ".529"
       },
       "crew": {
         "w": 11,
@@ -30957,12 +31005,12 @@
     },
     "records": {
       "allDivision": {
-        "w": 190,
+        "w": 191,
         "l": 121,
-        "pct": ".611"
+        "pct": ".612"
       },
       "makuuchi": {
-        "w": 1,
+        "w": 2,
         "l": 0,
         "pct": ".1000"
       },
@@ -31448,14 +31496,14 @@
     },
     "records": {
       "allDivision": {
-        "w": 270,
+        "w": 271,
         "l": 219,
-        "pct": ".552"
+        "pct": ".553"
       },
       "makuuchi": {
-        "w": 18,
+        "w": 19,
         "l": 37,
-        "pct": ".327"
+        "pct": ".339"
       },
       "crew": {
         "w": 4,
@@ -31906,13 +31954,13 @@
     "records": {
       "allDivision": {
         "w": 108,
-        "l": 60,
-        "pct": ".643"
+        "l": 61,
+        "pct": ".639"
       },
       "makuuchi": {
         "w": 1,
-        "l": 0,
-        "pct": ".1000"
+        "l": 1,
+        "pct": ".500"
       },
       "crew": {
         "w": 3,
