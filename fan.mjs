@@ -455,7 +455,7 @@ async function writeInterviews(dayRow, interviews) {
   note(`   interviews: Day linked to ${ids.size} rikishi (${ids.size - before} new)`);
 }
 
-async function libraryForAnnouncer(announcerId) {{
+async function libraryForAnnouncer(announcerId) {
   // all Library rows for this announcer (for find-or-create match + distinct-day seed)
   const rows = await queryAll(DB.library, { property: 'Announcer', relation: { contains: idNoDash(announcerId) } });
   return rows;
