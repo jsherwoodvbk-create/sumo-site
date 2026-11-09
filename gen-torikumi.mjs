@@ -128,7 +128,12 @@ async function upsertDayLineup(dayNum, lineupText) {
   const lineupProp = { Lineup: { rich_text: lineup ? [{ text: { content: lineup } }] : [] } };
   const existing = await findDayRow(dayNum);
   if (existing) {
-    if (lineupOf(existing) === lineup) return 'unchanged';
+    const cur = lineupOf(existing);
+    // Only skip when the row ALREADY holds the same NON-EMPTY lineup. An empty Lineup with a real
+    // card in hand must always be (re)written; otherwise an empty field short-circuits to "unchanged"
+    // and never fills. (2026-11-09: Kyushu Days 1-2 sat empty while the tally read unchanged=2.)
+    if (cur && cur === lineup) return 'unchanged';
+    console.log(`    Lineup Day ${dayNum}: have ${cur.length}c, writing ${lineup.length}c -> patch`);
     await notion(`/pages/${idNoDash(existing.id)}`, 'PATCH', { properties: lineupProp });
     return 'patched';
   }
