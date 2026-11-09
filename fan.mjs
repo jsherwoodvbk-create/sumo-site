@@ -253,6 +253,18 @@ const EXTRACTION_SCHEMA = {
         required: ['phrase_templated'],
       },
     },
+    interviews: {
+      type: 'array',
+      description: 'The dohyo-side / post-bout INTERVIEWS aired this episode. 0 to several per episode depending on GSH run time; return [] if none. The interviewee is ALWAYS a wrestler on the current makuuchi banzuke, so give their canonical shikona. Report WHO was interviewed and the GIST of what they talked about, as COLOR only - no results, records, or kimarite as hard fact. Their own repeated lines ALSO go to catchphrases with speaker:Interviewee; THIS lane is the who + topic, that lane is the quotable phrase.',
+      items: {
+        type: 'object',
+        properties: {
+          rikishi: { type: 'string', description: 'shikona of the interviewee (a current makuuchi wrestler), canonical spelling' },
+          topic: { type: 'string', description: 'short plain-prose gist of what they talked about (color only, no hard results); blank if unclear' },
+        },
+        required: ['rikishi'],
+      },
+    },
     bio_proposals: {
       type: 'array',
       description: 'PROPOSE-only soft bio for Master Rikishi (style, comeback narrative, current-form read, candidate nickname). Never hard facts (dates, debuts, records).',
@@ -279,7 +291,7 @@ const EXTRACTION_SCHEMA = {
       },
     },
   },
-  required: ['storylines', 'injuries', 'catchphrases', 'bio_proposals'],
+  required: ['storylines', 'injuries', 'catchphrases', 'bio_proposals', 'interviews'],
 };
 
 function extractionPrompt({ mode, type, dayNum, sourceText, announcerHint, libraryHint }) {
@@ -287,16 +299,17 @@ function extractionPrompt({ mode, type, dayNum, sourceText, announcerHint, libra
 - FIREWALL: the transcript is COLOR ONLY. Never state a result, record, kimarite, rank, or win/loss as a hard fact. Booth NARRATIVE about the day is fine (storylines), but any result-shaped specific claim goes in verify_flags, not asserted.
 - Catchphrases are the booth's memorable lines: recurring announcer IDIOM, vivid one-off SITUATIONAL COLOR (the funniest/most memorable calls - Jewel material; don't drop a great one-off just because it isn't a recurring house-ism), and INTERVIEWEE catchphrases (the wrestler's own repeated lines, e.g. the "my own brand of sumo" family - set speaker:Interviewee). EXCLUDE: garbled kimarite (yori kitty=yorikiri, etc.), mangled rikishi names, and known rikishi nicknames (a nickname travels with the WRESTLER; a catchphrase travels with the VOICE). Template the subject to X; keep escalations as distinct phrases ("Guns blazing" vs "Guns blazing bang bang bang").
 - Injuries: report what the booth OBSERVED. "carrying"/ongoing framing = carrying:true (Suspected chronic), a fresh event = carrying:false (Acute). Area + setting + booth_read.
+- Interviews: the dohyo-side / post-bout interviews aired THIS episode (0 to several, depends on run time). The interviewee is ALWAYS on the current makuuchi banzuke, so use their canonical shikona. Report WHO + the GIST (color only, no hard results). Their repeated personal lines ALSO go to catchphrases as speaker:Interviewee.
 - Bio is PROPOSE-only soft color, never hard facts.
 - Plain prose, no em dashes, no macrons.`;
   const ctx = `CONTEXT: ${BASHO_LABEL}, Day ${dayNum}, row Type "${type}". Canonical announcer roster: ${ROSTER.join(', ')}.` +
     (announcerHint ? `\nThe Day's announcer is already set to: ${announcerHint} (use it; you need not re-resolve).` : '') +
     (libraryHint ? `\nExisting Library phrases for candidate announcers (for fingerprinting + find-or-create matching):\n${libraryHint}` : '');
   const laneNote = type && type.includes('Live/Preview')
-    ? 'This is a .5 Live/Preview row: NO catchphrases (return []), no bout-derived lanes. Announcers + Storylines + Injuries + bio only.'
+    ? 'This is a .5 Live/Preview row: NO catchphrases and NO interviews (return [] for both), no bout-derived lanes. Announcers + Storylines + Injuries + bio only.'
     : 'This is a Highlights row: all color lanes apply.';
   if (mode === 'pass2') {
-    return `You are extracting Jennie's SCOREKEEPER NOTES to MERGE onto an existing fan-out (Pass 2). Scorekeeper beats booth. Populate "corrections" for crowns/giggle bumps/subject fixes/injury confirmations, and add any missed catchphrases or injuries she recorded. Do NOT restate the whole day.\n\n${rails}\n\n${ctx}\n${laneNote}\n\nSCOREKEEPER NOTES:\n${sourceText}`;
+    return `You are extracting Jennie's SCOREKEEPER NOTES to MERGE onto an existing fan-out (Pass 2). Scorekeeper beats booth. Populate "corrections" for crowns/giggle bumps/subject fixes/injury confirmations, and add any missed catchphrases, injuries, or interviews she recorded. Do NOT restate the whole day.\n\n${rails}\n\n${ctx}\n${laneNote}\n\nSCOREKEEPER NOTES:\n${sourceText}`;
   }
   return `You are the broadcast color fan-out (Pass 1). Extract structured color from this ${BASHO_LABEL} transcript. Emit ONLY via the tool.\n\n${rails}\n\n${ctx}\n${laneNote}\n\nTRANSCRIPT:\n${sourceText}`;
 }
@@ -421,7 +434,28 @@ async function writeInjury(dayRow, inj, show, air) {
   return r.id;
 }
 
-async function libraryForAnnouncer(announcerId) {
+// INTERVIEWS LANE (2026-11-09): link the day's interviewees onto the Day's Interviews relation.
+// The Day's "Interviews" property is a relation to the Master Rikishi table (reciprocal: "Interview
+// Days"), so this lane is just WHO was interviewed, never a Q&A row - the interviewee's quotable lines
+// ride the catchphrase lane (speaker:Interviewee). The interviewee is always a current-banzuke wrestler,
+// so findRikishiId resolves it; an unresolved name is a real garble and gets flagged, not linked. 0..N
+// per episode. MERGE, never clobber. Spoiler-safe: a relation carries no result; topic is logged only.
+async function writeInterviews(dayRow, interviews) {
+  if (!interviews || !interviews.length) { note('   interviews: none extracted'); return; }
+  const ids = new Set(pRel(dayRow, 'Interviews').map(idNoDash));   // existing links - merge
+  const before = ids.size;
+  for (const iv of interviews) {
+    const rid = await findRikishiId(iv.rikishi);
+    if (!rid) { problem(`interview: could not resolve rikishi "${iv.rikishi}" - SKIPPED (no bad link)`); continue; }
+    ids.add(idNoDash(rid));
+    note(`   interview: ${iv.rikishi}${clean(iv.topic) ? ' - ' + clean(iv.topic) : ''}`);
+  }
+  if (ids.size === before) { note('   interviews: nothing new to link'); return; }
+  await updatePage(dayRow.id, { Interviews: wRel([...ids]) }, 'Day.Interviews');
+  note(`   interviews: Day linked to ${ids.size} rikishi (${ids.size - before} new)`);
+}
+
+async function libraryForAnnouncer(announcerId) {{
   // all Library rows for this announcer (for find-or-create match + distinct-day seed)
   const rows = await queryAll(DB.library, { property: 'Announcer', relation: { contains: idNoDash(announcerId) } });
   return rows;
@@ -1017,6 +1051,7 @@ async function pass1() {
 
   await writeStorylines(row, ex.storylines, show, air, REFAN);
   for (const inj of (ex.injuries || [])) await writeInjury(row, inj, show, air);
+  if (!type.includes('Live/Preview')) await writeInterviews(row, ex.interviews);
   if (!type.includes('Live/Preview')) {
     // The whole catchphrase subsystem is fault-isolated: storylines + injuries have already landed,
     // and a failure here (Catcher / Library / Sightings) must not fail the run or block the publish chain.
@@ -1058,8 +1093,9 @@ async function pass2() {
   const a = pRel(row, 'Announcer'); let annId = a[0] || null, annName = null;
   if (annId) { const rows = await announcers(); const r = rows.find(x => idNoDash(x.id) === idNoDash(annId)); annName = r ? pTitle(r, 'Announcer') : null; }
 
-  // add any missed injuries / catchphrases (find-or-update -> safe)
+  // add any missed injuries / catchphrases / interviews (find-or-update + merge -> safe)
   for (const inj of (ex.injuries || [])) await writeInjury(row, inj, show, air);
+  await writeInterviews(row, ex.interviews);
   if (annId && (ex.catchphrases || []).length) await writeCatchphrases(row, ex.catchphrases, annId, annName, show, air, { allowJewel: false, skipExisting: true });
 
   // corrections: crown -> re-crown Jewel + giggle 5; giggle bump; fix subject
