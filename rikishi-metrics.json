@@ -23832,7 +23832,7 @@
     "vitals": {
       "heightCm": 182,
       "weightKg": 163,
-      "age": 32,
+      "age": 33,
       "bday": {
         "mon": "Nov",
         "day": 10,
@@ -24814,7 +24814,7 @@
       },
       {
         "k": "Born",
-        "v": "10 Nov 1993 · age 32",
+        "v": "10 Nov 1993 · age 33",
         "src": "sumo-api"
       },
       {
