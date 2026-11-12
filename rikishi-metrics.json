@@ -33727,7 +33727,7 @@
     "vitals": {
       "heightCm": 191,
       "weightKg": 159,
-      "age": 25,
+      "age": 26,
       "bday": {
         "mon": "Nov",
         "day": 12,
@@ -34209,7 +34209,7 @@
       },
       {
         "k": "Born",
-        "v": "12 Nov 2000 · age 25",
+        "v": "12 Nov 2000 · age 26",
         "src": "sumo-api"
       },
       {
