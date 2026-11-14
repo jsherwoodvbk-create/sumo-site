@@ -1532,10 +1532,60 @@
     ],
     "injuries": [
       {
+        "area": "Right foot; right ankle",
+        "nature": [
+          "Acute"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Aonishiki — right foot + ankle",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD2 (Scorekeeper Eye): NEW ROW. The RIGHT foot and ankle are taped and the LEFT is bare."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NEW ROW, NOT A LAYER, and the test is unambiguous. The carried row is 'Aonishiki - left foot/toe/ankle', which names a side. A right-side observation would make that row lie, so it splits. Same call as the Asakoryu side question at Aki D15, which also split on side, and the opposite of the Abi foot-vs-ankle question, which did not."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE SIDE SWAP IS THE FINDING. This man's left foot has been the single most-tracked item on the project: four flare calls in fifteen days at Aki, three of them resting on the shikiri squat alone. On Day 1 of Kyushu the left was bare and the flare tag came off. On Day 2 the tape is on the other foot."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE SQUAT SAYS THE LEFT IS GENUINELY QUIET. Jennie: 'he is balanced on squats'. That is the instrument that has caught the left foot before tape ever did, and it is reading clean. So this is not a case of the left problem migrating or being mis-sided; it reads as a separate right-side issue on a man whose left side is currently behaving."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NATURE IS ACUTE, NOT SUSPECTED CHRONIC, because there is a before and after one day apart: bare on Day 1, taped on Day 2. That is an event, unlike Day 1 census tape which has no known onset."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WATCH: whether this is one day of strapping or the start of something, and whether the left stays quiet while the right is loaded. If the left comes back while the right is taped, the two rows want reading together."
+          }
+        ]
+      },
+      {
         "area": "Left foot — toe + ankle",
         "nature": [
-          "Chronic",
-          "Flared"
+          "Chronic"
         ],
         "status": "Active",
         "source": [
@@ -1765,7 +1815,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "AO (O)",
+        "v": "AO (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -3156,9 +3206,14 @@
     },
     "mawashi": [
       {
-        "b": "medium blue",
-        "c": "#3a4a6b",
+        "b": "medium blue (through Aki 2026)",
+        "c": "#8a7a5a",
         "chg": 0
+      },
+      {
+        "b": "dark steel grey",
+        "c": "#8c8c92",
+        "chg": 1
       }
     ],
     "caliber": {
@@ -3453,7 +3508,7 @@
         "nature": [
           "Acute"
         ],
-        "status": "Active",
+        "status": "Dormant",
         "source": [
           "Scorekeeper Eye"
         ],
@@ -3478,6 +3533,24 @@
             "bashoCode": null,
             "day": null,
             "text": "WORTH WATCHING RATHER THAN WORTH WORRYING ABOUT YET: one day of wrapping on a man with no history is the weakest kind of signal. What makes it worth a row is that it is the FIRST thing on a clean record, and the onset date is the whole value if it turns into something."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): CLOSED. 'yeah the sleeve is off fujinokawa' (Jennie, 2026-11-13). Tape gone on an acute row, activation rule closes it. Status Dormant."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "IT RESOLVED THE WAY THE ROW HOPED IT WOULD. Opened on Aki D9 as the first item ever on a clean record, with the onset date as the whole point. It did not become anything: the wrap lasted the back half of Aki and is gone by the next basho. The row has done its job and the dated onset stays on file in case the elbow reappears."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "HE IS OTHERWISE CLEAN ON DAY 1. The only thing Jennie recorded against him was a new mawashi colour."
           }
         ]
       }
@@ -3543,7 +3616,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "Mighty Mite; Bloody Eye (O); Mr Excitement; The Human Highlight Reel",
+        "v": "Mighty Mite; Bloody Eye (C); Mr Excitement; The Human Highlight Reel",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -5274,7 +5347,7 @@
         ]
       },
       {
-        "area": "General / stamina (post left-knee ACL comeback); visible tape: left knee, right leg above+below knee, left hand, right glute (D14)",
+        "area": "General / stamina (post left-knee ACL comeback); visible tape 26KyD2: left knee, right knee, left ankle, left hand. Right glute still absent since 26AkD14",
         "nature": [
           "Chronic"
         ],
@@ -7728,6 +7801,39 @@
     "henka": [],
     "injuries": [
       {
+        "area": "Both balls of feet",
+        "nature": [
+          "Suspected chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Takayasu — both balls of feet",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): New row by Jennie's call, 2026-11-13, kept separate from the existing 'Takayasu — chronic (May layoff)' row."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "WHY SEPARATE RATHER THAN AMENDED: the May row is explicitly Unspecified, 11 days out for something never named. There was a precedent for filling an Unspecified row's Area from the Scorekeeper Eye (Takerufuji, 26AkD1), but balls-of-feet tape is common and coupling it to an unknown May layoff would be inventing a link. Jennie chose the new row."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "IF THE TWO TURN OUT TO BE THE SAME THING, merge this into the May row rather than the other way round, since that row holds the layoff history."
+          }
+        ]
+      },
+      {
         "area": "unspecified (woozy)",
         "nature": [
           "Acute"
@@ -7893,7 +7999,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "Hairy (O), Papayasu (O)",
+        "v": "Hairy (C), Papayasu (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -8519,7 +8625,7 @@
         "nature": [
           "Suspected chronic"
         ],
-        "status": "Active",
+        "status": "Dormant",
         "source": [
           "Scorekeeper Eye"
         ],
@@ -8556,6 +8662,24 @@
             "bashoCode": null,
             "day": null,
             "text": "THIRD SITE ON THIS MAN. He already carries the right elbow and forearm (Active, since D1) and the back (Eased). The booth flagged unspecified 'injury concerns' on him twice this basho, D5 and earlier, and never named anything. Three separate treated sites in eleven days is itself worth reading, and it is the kind of pattern the end-of-basho remodel should be able to surface without a human noticing it by hand."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): CLOSED on Jennie's call, 2026-11-13: 'close takerufuji's cupping rows'. No cupping marks anywhere on him on Day 1; the only thing recorded is the right elbow sleeve. Status Dormant."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE EVIDENCE QUESTION WAS REAL AND IT CUT TOWARD CLOSING. Absence of a fading bruise is normally weak, because bruises fade whether or not the problem resolved. What settles it here is that Yoshinofuji has clearly visible cupping bruises on the same Day 1 pass. Fresh cupping marks ARE visible to this scorekeeper when they exist, so their absence on Takerufuji means no recent treatment rather than a missed look."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE CROSS-MAN CHECK IS THE REUSABLE PART: one man's positive observation on the same day calibrates what another man's absence means."
           }
         ]
       },
@@ -8564,7 +8688,7 @@
         "nature": [
           "Suspected chronic"
         ],
-        "status": "Eased",
+        "status": "Dormant",
         "source": [
           "Scorekeeper Eye"
         ],
@@ -8607,6 +8731,24 @@
             "bashoCode": null,
             "day": null,
             "text": "Booth colour the same day: 'Takerufuji has his own injury concerns', unspecified. Possibly this, possibly the right elbow and forearm on his other row."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): CLOSED on Jennie's call, 2026-11-13: 'close takerufuji's cupping rows'. Eased since Aki D5, no fresh marks since, and none on Day 1 of the next basho. Status Dormant."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE ROW'S OWN STANDING INSTRUCTION WAS 'if new marks appear, the row goes back to Active'. Seven weeks and a tournament boundary later, none have. That is the condition for closing rather than holding."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "SEE THE LEFT SHOULDER ROW for the cross-man calibration that makes this absence meaningful: Yoshinofuji's fresh cupping bruises on the same Day 1 pass prove the scorekeeper sees these marks when they are there."
           }
         ]
       },
@@ -9567,6 +9709,27 @@
     "henka": [],
     "injuries": [
       {
+        "area": "Left elbow",
+        "nature": [
+          "Acute"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Hiradoumi — left elbow",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): First row for this man. Bandaid on the left elbow, not tape or a sleeve. A bandaid reads as a fresh surface scrape rather than a managed joint, which is why this is Acute and not Suspected chronic. Same shape as the Chiyoshoma left elbow scrape row from Nagoya. Expect it to close quickly; if it is still there in a week it was never a scrape."
+          }
+        ]
+      },
+      {
         "area": "Left ankle",
         "nature": [
           "Acute"
@@ -10525,11 +10688,11 @@
         "nature": [
           "Chronic"
         ],
-        "status": "Eased",
+        "status": "Dormant",
         "source": [
           "Booth mention"
         ],
-        "condition": "Kotoshoho - head (concussion)",
+        "condition": "Kotoshoho - head (SUPERSEDED, see the Aki D11 concussion row)",
         "firstBasho": null,
         "chronicSafe": false,
         "layers": [
@@ -10547,7 +10710,7 @@
           "Acute",
           "Worsened"
         ],
-        "status": "Withdrawn",
+        "status": "Dormant",
         "source": [
           "Scorekeeper Eye",
           "Booth mention"
@@ -14427,7 +14590,7 @@
     "vitals": {
       "heightCm": 184,
       "weightKg": 176,
-      "age": 31,
+      "age": 32,
       "bday": {
         "mon": "Nov",
         "day": 14,
@@ -15464,12 +15627,12 @@
     "henka": [],
     "injuries": [
       {
-        "area": "lower body/legs - right leg above+below knee (D1), left ankle (D7; ligament damage per the D13 booth storyline, unverified)",
+        "area": "lower body/legs - right leg above+below knee (26AkD1, again 26KyD2), left ankle (26AkD7; ligament damage per the D13 booth storyline, unverified), both knees (26KyD1 only)",
         "nature": [
           "Suspected chronic",
           "Worsened"
         ],
-        "status": "Eased",
+        "status": "Active",
         "source": [
           "Booth mention",
           "Scorekeeper Eye"
@@ -15622,7 +15785,7 @@
       },
       {
         "k": "Born",
-        "v": "14 Nov 1994 · age 31",
+        "v": "14 Nov 1994 · age 32",
         "src": "sumo-api"
       },
       {
@@ -16691,7 +16854,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "Sleepy (O), Itchy (O)",
+        "v": "Sleepy (C), Itchy (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -17117,7 +17280,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "The Chief (O)",
+        "v": "The Chief (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -18071,7 +18234,7 @@
       }
     ],
     "story": {
-      "html": "<span class=\"who\">Tamawashi</span> is the iron man of the division, and the streak is the whole story: since his 2004 debut he has never missed a bout. Not one, in a sport that breaks people. A Mongolian veteran out of Kataonami, his shikona reads as \"jewel eagle,\" the 玉 prefix being the stable's signature mark. He rose as high as Sekiwake, and when he drops to juryo he climbs straight back out of it, still moving at an age when most of the men judging his bouts are younger than he is. He fights in a dark steel blue mawashi. The booth just calls him the Iron Man.",
+      "html": "<span class=\"who\">Tamawashi</span> is the iron man of the division, and the streak is the whole story: since his 2004 debut he has never missed a bout. Not one, in a sport that breaks people. A Mongolian veteran out of Kataonami, his shikona reads as \"jewel eagle,\" the 玉 prefix being the stable's signature mark. He rose as high as Sekiwake, and when he drops to juryo he climbs straight back out of it, still moving at an age when most of the men judging his bouts are younger than he is. He fights in a dark steel blue mawashi. The booth just calls him the Iron Man.<br><br>He is also the oldest man ever to climb back into the top division. He came up from juryo for the Kyushu basho of 2026 and turned 42 in the middle of it, in his 101st tournament in makuuchi.",
       "source": "Crew-written."
     },
     "arc": {
@@ -19007,6 +19170,27 @@
     "henka": [],
     "injuries": [
       {
+        "area": "Both ankles",
+        "nature": [
+          "Suspected chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Tamawashi — both ankles",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): First row for this man. Both ankles taped. Day 1 census tape, no mechanism, no booth mention. He is back in makuuchi at M15 after 10-5 from J3, so there is no recent makuuchi baseline to compare against. Age 41 and the division's iron man, which is context for ankle tape rather than evidence of an event."
+          }
+        ]
+      },
+      {
         "area": "unspecified (lower body)",
         "nature": [
           "Acute"
@@ -19081,6 +19265,11 @@
         "k": "Born",
         "v": "16 Nov 1984 · age 41",
         "src": "sumo-api"
+      },
+      {
+        "k": "Notes",
+        "v": "RECORD, added by Jennie 2026-11-13 from the Kyushu Day 2 broadcast: oldest rikishi to return to makuuchi.\n\n[verify] THE AGE FIGURE. Jennie's note gives 40 years 11 months. His Birthday on this record is 1984-11-16, and Kyushu 2026 Day 1 was 2026-11-08, which makes him 41 years 11 months on the day he returned, not 40. The two differ by exactly one year, which is the shape of a single-digit slip rather than a different fact.\n\nSupporting it: Pass 1's Day 2 storyline, independently, says he is 41 and turns 42 during this tournament. That agrees with the Birthday field and with 41y11m.\n\nThe milestone itself is not in doubt, only the number attached to it. Written into Story without an age for that reason. If the booth really did say 40 years 11 months, the booth is wrong and it belongs in the cleanup register; if the record was actually set at an earlier return, then this is a different milestone and wants its own line.",
+        "src": "crew"
       },
       {
         "k": "Shikona meaning",
@@ -20078,7 +20267,7 @@
         "nature": [
           "Acute"
         ],
-        "status": "Active",
+        "status": "Dormant",
         "source": [
           "Booth mention"
         ],
@@ -20103,6 +20292,24 @@
             "bashoCode": "26Ng",
             "day": 9,
             "text": "Injury dampening the debut."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): CLOSED. 'Daiseizan carries: left elbow in sleeve; no tape on right leg' (Jennie). Tape gone on an acute row, so the activation rule closes it. Status Dormant."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE EXPLICIT NEGATIVE IS WHY THIS CLOSES CLEANLY. Jennie did not simply omit the right leg, she wrote that there is no tape on it. On a Day 1 census that is a positive finding, not silence, and it is exactly the shape the activation rule needs. An omission would have left this row open."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "HIS LEFT ELBOW ROW IS UNAFFECTED and stays Active; the sleeve is still on."
           }
         ]
       }
@@ -21030,14 +21237,15 @@
     "henka": [],
     "injuries": [
       {
-        "area": "Right knee (post-surgery)",
+        "area": "Right knee (post-surgery); left ball of foot; right hand",
         "nature": [
           "Acute",
           "Chronic"
         ],
         "status": "Active",
         "source": [
-          "Booth mention"
+          "Booth mention",
+          "Scorekeeper Eye"
         ],
         "condition": "Hoshoryu — right knee (post-Nagoya surgery)",
         "firstBasho": "26Ak",
@@ -22186,7 +22394,7 @@
     "henka": [],
     "injuries": [
       {
-        "area": "Lower back + knees",
+        "area": "Lower back + knees; left ankle",
         "nature": [
           "Chronic"
         ],
@@ -22274,7 +22482,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "6 Pack (O)",
+        "v": "6 Pack (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -23095,7 +23303,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "Atomic (O)",
+        "v": "Atomic (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -23718,7 +23926,41 @@
       }
     },
     "henka": [],
-    "injuries": [],
+    "injuries": [
+      {
+        "area": "Left elbow; upper back",
+        "nature": [
+          "Suspected chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Yoshinofuji — left elbow + upper back (cupping)",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): First row for this man. Elbow sleeve plus cupping bruises across the upper back. Cupping marks are treatment evidence, not injury evidence: they say something is being worked on, not what. Same handling as the Takerufuji cupping rows."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "[verify] WHICH ELBOW. The note says 'elbow sleeve' without a side. Left blank rather than guessed."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "NOTE ON TIMING: these marks are visible on Day 1, and cupping bruises fade over roughly a week, so the treatment happened shortly before the basho."
+          }
+        ]
+      }
+    ],
     "gate": {
       "curBashoCode": "26Ky",
       "crew": {
@@ -25964,7 +26206,7 @@
         "layers": []
       },
       {
-        "area": "Left foot / both feet",
+        "area": "Left foot / both feet; left calf",
         "nature": [
           "Chronic"
         ],
@@ -27047,7 +27289,7 @@
     "henka": [],
     "injuries": [
       {
-        "area": "Right leg",
+        "area": "Right leg (below knee + calf); both balls of feet; both elbows; right hand",
         "nature": [
           "Chronic"
         ],
@@ -28542,7 +28784,7 @@
     ],
     "injuries": [
       {
-        "area": "Right hand",
+        "area": "Right hand; below right knee (closed 26KyD2)",
         "nature": [
           "Acute"
         ],
@@ -31162,7 +31404,7 @@
         ]
       },
       {
-        "area": "Right knee (ACL)",
+        "area": "Right knee (ACL); high quads + groin, both sides",
         "nature": [
           "Acute",
           "Worsened"
@@ -31288,7 +31530,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "Mr Feisty (O)",
+        "v": "Mr Feisty (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -33877,15 +34119,17 @@
     ],
     "injuries": [
       {
-        "area": "right ankle (possibly)",
+        "area": "Right ankle; right knee",
         "nature": [
-          "Acute"
+          "Chronic",
+          "Worsened"
         ],
         "status": "Active",
         "source": [
-          "Booth mention"
+          "Booth mention",
+          "Scorekeeper Eye"
         ],
-        "condition": "Abi - right ankle (possibly)",
+        "condition": "Abi — right ankle + right knee",
         "firstBasho": null,
         "chronicSafe": false,
         "layers": [
@@ -33916,7 +34160,7 @@
         ]
       },
       {
-        "area": "Left foot; right hand; left shoulder",
+        "area": "Left foot/ankle; right hand; left hand; left shoulder; right elbow",
         "nature": [
           "Acute"
         ],
@@ -34615,7 +34859,7 @@
       },
       {
         "k": "Nicknames",
-        "v": "Band-Aid (O)",
+        "v": "Band-Aid (C)",
         "src": "crew · (J) official / (O) ours"
       }
     ]
@@ -35570,7 +35814,13 @@
         }
       ]
     },
-    "mawashi": [],
+    "mawashi": [
+      {
+        "b": "deep forest green",
+        "c": "#2f8f6b",
+        "chg": 0
+      }
+    ],
     "caliber": {
       "default": "26Ky",
       "bashos": {
@@ -35704,7 +35954,29 @@
       }
     },
     "henka": [],
-    "injuries": [],
+    "injuries": [
+      {
+        "area": "Right ankle; right ball of foot; left ball of foot",
+        "nature": [
+          "Suspected chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Scorekeeper Eye"
+        ],
+        "condition": "Kitanowaka — right ankle + both balls of feet",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD1 (Scorekeeper Eye): First row for this man. Right ankle taped, both balls of feet taped. No mechanism and no booth mention; this is Day 1 census tape, so the cause is unknown and Nature is Suspected chronic rather than Acute. Jennie, 2026-11-13: with no commentary to lean on, a tournament has to start from whatever tape is visible on Day 1."
+          }
+        ]
+      }
+    ],
     "gate": {
       "curBashoCode": "26Ky",
       "crew": {
@@ -35771,8 +36043,8 @@
       },
       {
         "k": "Nicknames",
-        "v": "None on file yet",
-        "src": "human-owned field"
+        "v": "Kitten (C)",
+        "src": "crew · (J) official / (O) ours"
       }
     ]
   },
