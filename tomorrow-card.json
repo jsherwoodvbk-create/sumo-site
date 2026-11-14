@@ -8,8 +8,8 @@
     "note": "Result-free CARDS (pairings), ungated. `cards` holds every published day; `day`/`matchups` is the next scheduled card (back-compat). Regenerated every run; not stored in Notion."
   },
   "today": {
-    "date": "2026-11-13",
-    "tournamentDay": 6
+    "date": "2026-11-14",
+    "tournamentDay": 7
   },
   "nextDay": 7,
   "day": 7,
