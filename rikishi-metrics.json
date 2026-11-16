@@ -18950,7 +18950,7 @@
     "vitals": {
       "heightCm": 189,
       "weightKg": 178,
-      "age": 41,
+      "age": 42,
       "bday": {
         "mon": "Nov",
         "day": 16,
@@ -20095,7 +20095,7 @@
       },
       {
         "k": "Born",
-        "v": "16 Nov 1984 · age 41",
+        "v": "16 Nov 1984 · age 42",
         "src": "sumo-api"
       },
       {
@@ -20125,7 +20125,7 @@
       "basho": "Kyushu 2026"
     },
     "highestRank": "M16",
-    "photo": "https://prod-files-secure.s3.us-west-2.amazonaws.com/4fd1ade1-241f-811a-aad8-00032f89a35f/b4ee44ca-6d42-4711-8971-71ec783f7a65/Arashifuji.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB4664IPA7QSM%2F20261115%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261115T203021Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEPT%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJGMEQCIH4uWqMmEjhIN1zzThxd7mWrXN%2FbwDmBNx9txontxnkcAiBkIqvvRNlrEVzRekoxJNpq62MtZBARY6HeGowbqb0R2yqIBAi8%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F8BEAAaDDYzNzQyMzE4MzgwNSIMVdER8V18O%2F8Op%2FRdKtwDz%2B3dvxFh4qfArnGIwL9lUdLErekVXQa3C2BAc7xuEzJNDw%2FlwD059ae1RquYp1vFDuGP4RrrjNwEtaeegCvGqN%2FOvhgGZVOp2M2SRknhGuhwjC4ueKsmed%2FtV9f6Rc0ObuZB5z9Hk%2FC6TENyOjl6AB0lCUlyHB330NLYdDYRcC8P1tF%2FntrA2ResyfKlcEwiVW5Om2LEO%2Bxz0zBYakssuU9bimT0wwOSt5yzhkoUMSxKcga74gpOBb5XBL25NaVl%2FYFqtGSujVffDWGeUWhBC33nWVHLwtmp25Eq8szxJHxc2ZOO98mE67dOwiouqOGENe%2B8TLyz4akfidt1D%2FpCI%2FQIXNNe0IdM1uV1jWD%2B%2FP%2FAaoXFGIcp88H4Pze8pJmiCgbpfYrgpjmxtKoPv4gQIvk4jIU0bgT4z7zCY%2BAvfSJ3VivlDiI8E4SFZS5STsYfYyK3jyt60%2BxSaY7Dy%2BGF%2Fq%2FJIshTW6NvlzBRDtLomKQzBVFBcpsAqmem4wX6bZ0rUUmZSJD8whBu%2FWNtqeCoja2TKhGhumkMazLhTj1LT2HyvLLSiJtHRT4Hgm6lcUxxxVuyx7t08ePd0TCXxqBbiGVPjuXNi8IccSGqJCoN0J6X7S0FbIYJvdXbWIIwrozo1wY6pgEtJbi8WeuDzFtJn%2Fmo0A866k98G38QY5HwxZt%2FqonHMRKIN1sfvo5JLA7ByFfXNQ4EA2K0jaTsb3LisukcubA%2F7B0vv15XVyoASLbInYkXRHIaINL%2FJBXXjSrXSCTKN%2FKuLlSZUOFbVGj2GoH7ISz3jj6ex5GwPUNNKZH%2FyxqTw5Kr4FJsLfjjjQtcP%2Fhw0jPmNuuWhOAgbrV8Rym20ggGpsr3v9Cv&X-Amz-Signature=d4b874478fac1faa240d1bba4dc73725c0b50e489f9cbd0a7ceeaa32fd01d3ed&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+    "photo": "https://prod-files-secure.s3.us-west-2.amazonaws.com/4fd1ade1-241f-811a-aad8-00032f89a35f/b4ee44ca-6d42-4711-8971-71ec783f7a65/Arashifuji.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB4666LCGFEE7%2F20261116%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261116T021846Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEPb%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEaCXVzLXdlc3QtMiJIMEYCIQC161%2FLbbr%2FSV4p1Ig5ay7xEyU6e%2B3UodHUbBz4s8VP%2BQIhALo2H07YPd4U2NLHT3GcDOHwFtr2iSyUJYw3wXmpaHc9KogECL7%2F%2F%2F%2F%2F%2F%2F%2F%2F%2FwEQABoMNjM3NDIzMTgzODA1IgxjIPxQ%2FPkOPOODB8Eq3AOCQCcDKmwZB5s7mgOnyoYFBjkbh%2FpxZxJCf0GO%2BBqcsXTN2IOwt%2F9LlaD%2B1mRoVWtg%2Fn7%2FGlZlupzfXDMbruLhveE38v3EQLTxx6mb%2FYP7KPPXU6FsKTcsotvztjliTEb5OX1x%2F8KrAkFDoVfBRZJQw0h4N5Dc6oMJvohzxlcpnyVBnjqx05wIjQwqTUaUOGKK%2BSklgci1ZI5K%2F2aYVm%2FomkmjdPTS4br9lYqRWWjaI70A9hYBcGC0z584rEVKOj6pz33h4X1A8kmw0bGwz88qHDzB4sLPB3sPQgRgP1%2FxbzEunXCW6RaXKzgc5zBCwG95D35CiX1oAvnEvd7ZhBXWypOOPuzPImY1HGw8Uht8IZSE6G5tyBVRh%2F%2FjtlOyHfgzVGQyEWUX6te5Rp8%2FN4RKV4qjwfPnYLDaa2mzLVVagiBwXuoRJawlV%2FTN%2BUbse9uSolS1dR%2BcJmeio6fYovL66CNXfcRRIlNOjFhuBjTRkmqJ4ysuMRtG435QKV30pPg33SCpxXohur7BwtEldF4FQAaCDseVZQFFu9e9pgct6NukypbN2wCxKtNiOon2OHOOdbf%2FR3q%2Fo7KG8J88rV0Q9oVK8osx66Fh%2BN9ulqyGb02mnap8evBEQi7b2zCqxOjXBjqkATntt6AN3xn%2BB6bsYPbD03z%2F0Wr39iyEb5J6RczueVyOkkR6hLKt6i1lPju2F9qhSD7A%2FgKsuaIhBKC4IIQ4VZ3YclI%2FdUWO5Q%2BDMfOYdlm1zedkrkwo8%2Bpviuwr07KzJC0ZbS4OhZelF6Ulg%2FbM5PKh%2Btp4qWN5j8DFpQmDWYfDyB8JzKrsN%2BVYSqBklGUdU3t%2B3q69l%2BDkPj%2FsPv0p9Mx8RTPm&X-Amz-Signature=834c0237dc56a4c623f4519dbad5ba481768c61b7582e97b8f6d74d38a070044&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
     "origin": {
       "city": "Fukuoka-ken",
       "country": "Kasuya-gun",
