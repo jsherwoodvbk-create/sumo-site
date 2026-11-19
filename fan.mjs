@@ -398,7 +398,7 @@ async function writeStorylines(dayRow, storylines, show, air, force = false) {
 
 async function writeInjury(dayRow, inj, show, air) {
   const rid = await findRikishiId(inj.rikishi);
-  if (!rid) { problem(`injury: could not resolve rikishi "${inj.rikishi}" - SKIPPED (no bad write)`); return; }
+  if (!rid) { review(`injury: could not resolve rikishi "${inj.rikishi}" - SKIPPED (no bad write)`); return; }
   const area = clean(inj.area) || 'unspecified';
   const layer = `${BASHO_LABEL.replace(/[^0-9A-Za-z]/g, '')}D${pNum(dayRow, 'Day #')}: ${clean(inj.booth_read)} [booth${inj.carrying ? ', carrying' : ''}]`;
   // find-or-update by rikishi + area
@@ -446,7 +446,7 @@ async function writeInterviews(dayRow, interviews) {
   const before = ids.size;
   for (const iv of interviews) {
     const rid = await findRikishiId(iv.rikishi);
-    if (!rid) { problem(`interview: could not resolve rikishi "${iv.rikishi}" - SKIPPED (no bad link)`); continue; }
+    if (!rid) { review(`interview: could not resolve rikishi "${iv.rikishi}" - SKIPPED (no bad link)`); continue; }
     ids.add(idNoDash(rid));
     note(`   interview: ${iv.rikishi}${clean(iv.topic) ? ' - ' + clean(iv.topic) : ''}`);
   }
@@ -834,11 +834,18 @@ async function resolveAnnouncer(dayRow, ex, catcherRows) {
   if (fromNotes) return { name: fromNotes, how: 'Scorekeeper Notes header' };
   const fromCatcher = await announcerFromCatcher(catcherRows);
   if (fromCatcher) return { name: canonical(fromCatcher.name), how: 'crew-tagged in Catcher' };
-  // transcript self-ID (Pass 1 only; free and reliable when present)
-  if (ex && ex.announcer_self_id && ROSTER.some(n => norm(n) === norm(ex.announcer_self_id))) return { name: canonical(ex.announcer_self_id), how: 'self-ID in transcript' };
-  // on-screen PLAY-BY-PLAY caption via a cheap vision call - beats the flaky text fingerprint
+  // ON-SCREEN PLAY-BY-PLAY caption (vision) OUTRANKS the transcript self-ID. The lower-third super is
+  // ground truth; a self-ID garbles and, worse, grabs cross-references/handoffs — a Murray broadcast
+  // saying "Raja has the call tomorrow" read as a Raja self-ID and buried the Murray frame (Kyushu
+  // Day 10, 2026-11). Read the frame first; fall back to the self-ID only when no frame confirms it,
+  // and flag any frame-vs-self-ID disagreement for the scorekeeper.
+  const selfId = (ex && ex.announcer_self_id && ROSTER.some(n => norm(n) === norm(ex.announcer_self_id))) ? canonical(ex.announcer_self_id) : null;
   const vis = await resolveAnnouncerVision(dayRow);
-  if (vis) return { name: canonical(vis), how: 'on-screen caption (vision)' };
+  if (vis) {
+    if (selfId && norm(selfId) !== norm(canonical(vis))) review(`announcer: on-screen caption says ${canonical(vis)} but transcript self-ID said ${selfId} - trusting the frame (self-ID likely a cross-reference/garble)`);
+    return { name: canonical(vis), how: 'on-screen caption (vision)' };
+  }
+  if (selfId) return { name: selfId, how: 'self-ID in transcript (no frame to confirm)' };
   // last resort: KB phrasing fingerprint (Pass 1 only; unreliable - held for catchphrases if it is all we have)
   if (ex && ex.announcer_confidence === 'fingerprint' && ex.announcer_fingerprint && ROSTER.some(n => norm(n) === norm(ex.announcer_fingerprint))) return { name: canonical(ex.announcer_fingerprint), how: 'KB fingerprint' };
   return { name: null, how: 'undetermined (HOLD catchphrases)' };
@@ -918,19 +925,19 @@ async function resolveBoutOfDay(dayRow, dayNum) {
         { property: 'Day #', number: { equals: dayNum } },
       ] });
     } catch (e) { problem(`BOTD: Match Log query failed (${e.message}) - held`); return; }
-    if (!bouts.length) { problem(`BOTD: no Match Log bouts for Day ${dayNum} yet (results not synced) - held; a re-fire will set it`); return; }
+    if (!bouts.length) { review(`BOTD: no Match Log bouts for Day ${dayNum} yet (results not synced) - held; a re-fire will set it`); return; }
     const slots = ['L', 'U'];
     const done = new Set();
     for (let i = 0; i < pairs.length && i < 2; i++) {
       const [na, nb] = pairs[i];
       const ida = await findRikishiId(na), idb = await findRikishiId(nb);
-      if (!ida || !idb) { problem(`BOTD: could not resolve "${na}" vs "${nb}" to the roster - skipped`); continue; }
+      if (!ida || !idb) { review(`BOTD: could not resolve "${na}" vs "${nb}" to the roster - skipped`); continue; }
       const bout = bouts.find(b => {
         if (done.has(b.id)) return false;
         const set = new Set([idNoDash(pRel(b, 'Winner')[0] || ''), idNoDash(pRel(b, 'Loser')[0] || '')]);
         return set.has(idNoDash(ida)) && set.has(idNoDash(idb));
       });
-      if (!bout) { problem(`BOTD: no Day ${dayNum} bout found for "${na}" vs "${nb}" - skipped`); continue; }
+      if (!bout) { review(`BOTD: no Day ${dayNum} bout found for "${na}" vs "${nb}" - skipped`); continue; }
       done.add(bout.id);
             const cur = (bout.properties?.['Bout of the Day']?.multi_select || []).map(o => o.name);
       if (cur.length) { note(`   BOTD "${na} vs ${nb}" already ${cur.join('/')} (human/prior) - not clobbering`); continue; }
