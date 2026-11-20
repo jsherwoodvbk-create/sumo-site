@@ -8925,6 +8925,12 @@
             "bashoCode": null,
             "day": null,
             "text": "Kyushu2026D10: His lower body is the issue of this tournament. He's two and seven. The feet not moving well. When the pressure goes on the feet, you can't dig in. [booth, carrying]"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Kyushu2026D10: The lower body is the issue this tournament. He's 2-7, the feet not moving well. When the pressure goes on the feet, you can't dig in. [booth, carrying]"
           }
         ]
       },
@@ -12165,6 +12171,27 @@
     },
     "henka": [],
     "injuries": [
+      {
+        "area": "back (herniated disc)",
+        "nature": [
+          "Chronic"
+        ],
+        "status": "Active",
+        "source": [
+          "Booth mention"
+        ],
+        "condition": "Kotoshoho - back (herniated disc)",
+        "firstBasho": null,
+        "chronicSafe": false,
+        "layers": [
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Kyushu2026D10: Of course he was out with that herniated discs problem. Returns today for his 300th career bout. [booth, carrying]"
+          }
+        ]
+      },
       {
         "area": "back (herniated discs)",
         "nature": [
@@ -21892,7 +21919,7 @@
       "basho": "Kyushu 2026"
     },
     "highestRank": "M16",
-    "photo": "https://prod-files-secure.s3.us-west-2.amazonaws.com/4fd1ade1-241f-811a-aad8-00032f89a35f/b4ee44ca-6d42-4711-8971-71ec783f7a65/Arashifuji.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466SNLQUM6M%2F20261119%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261119T234522Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFcaCXVzLXdlc3QtMiJHMEUCICaALaEndpEotfem0tHF6dKtnQI%2FBMoMf1otYdF5OEOcAiEAlCVPa1fETaovqmvTCrtiR5Dqm5zZlzdk8w05hG%2BsEcMq%2FwMIIBAAGgw2Mzc0MjMxODM4MDUiDFY43h%2B%2Fh8abiSAQEyrcA98X8PFdznFsnaNdKT9gBpZSEnJOnxSZ3z3ZLBtAAaWB1uP4W9Hb07wXSQWHkXm0tbtCou7ySAbstDdp%2BRBORpRsaonffdWJFZa9JXdnyrRI3QPqmNAK%2FWWBh7lGYCbLqnIdPq4GEcFe9v25TmkDAiVjUUdDCIAdTBFCJ0UXyckRNidPqmKnB%2FVXucnnx51nu%2BR2qRFp5KnEhex1Ox0o0MzgrbfW%2FcI5FZIzSU8TyGDu97s3X%2FUxPpVftSCqydHSeXt2ZRFrOUkNdDEbDn0a5YxcKJtiQ5WLuTzrjzV8rEvk385wWhOa%2Fm%2FPLkpTPYzk4uA6kzBQ%2FXf7ozzV1XckuzHDDjSOHkuEe5N2J9UUXKffA9jj9QPq%2FXdPbDweoaONd7W9txSCEPRXF33d1np3LlOxWBY6lP7xNa8FzH9Hx87RjPKtI9GzJ6iz0GUrgEBE491lUGxUyZoTXevhbNsaLTFy8WF22Ngmk1lfNdK4sPcsCsDBrxmlrBHAURk%2FPvBBJDulKWgpe2Itude0C0WcI%2BoE8jGSoe9t20mQ3Hq1qpqY3vrVfmqT%2BDFgFxSHvI8UgGhc47pXp0%2Fg0TzGpHer1K3VrDeaRNdS2HlVYVGg7c%2F32xXg2lre9OhNVwj%2FMKz6%2FdcGOqUBJ9v8IHVfH0WFi7kvVYg0nBTVbpG41q%2BuEr65%2F4UHx0ettbfHoBgYQtYx9yHrE9deXzQvDntyibvxSjNKPAT7lm%2BwJvRMyX%2Bf1ju3Mmn1YVzgTtkmCflHQsKBKV1KMKdYRaWoKcGxRnj%2FqLHBcaEJQfOyr1ukeaQxwvSQahJ4tZUgRxEqv2w3rAzpq%2Fm2rWF8Xtfjfik1dd1Ya8UL4jukfs3OpWpR&X-Amz-Signature=df0ce670d9bcb43bdd4973a7e699e3a22396b2500aa83cf72d0688f71153a921&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+    "photo": "https://prod-files-secure.s3.us-west-2.amazonaws.com/4fd1ade1-241f-811a-aad8-00032f89a35f/b4ee44ca-6d42-4711-8971-71ec783f7a65/Arashifuji.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB4664ZTGI2VU%2F20261120%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261120T005605Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFcaCXVzLXdlc3QtMiJIMEYCIQCLNFxK89FnHH88PA9CyaejbjEspIKGsoRJ2Y5CjJhocgIhAN%2BnpaHuxaws%2Fal3UATlq%2BCfVimTFkVEOiN2kEuLU6EHKv8DCB8QABoMNjM3NDIzMTgzODA1IgxgeaZld%2Br0fxXLb6gq3AND9JJZGpkz91bqx8MTC6WABCm2xw7ipjGR%2Bp1y%2BQpc682h3v%2FqwDkaEtf0VtFjBJa24s7gvMI9%2B%2FFStgWoVaSNSxrigVdRWHiue2YBha%2FjLGO534bmLZyTxFn3uj2Xis0hNpmi3eFC8BWWEMlw%2FfSuTSNiYuDEjqrvRBnPqDTlX4yXfb7cKgy%2Fy2yUxRadYz0sfBSPe88I8FxUIm%2BIer%2B%2FmePHp4vBxhpieGrD1AoCjwrocp7LQdK1vysE5fnhLJgQTrW6cpHG9mHaUbJFyvzqLYQZGGnm0ycSevGaZK0BNkbSIfTcQcsX%2Fate%2FcRCHk7utiYc%2F5PRS0G6Be0rJ8iAGhGPFO8Iruwk5QMy6clkJOtl0EZUWMxwDYH7L2lIm3DcNBsC%2F%2FDmRKmWhmV91jQtlL%2BB%2FqfjwBKFmole3%2Ba0IRcHTm96bg5X3eEeK4087iNNfJ7WZTB7VBiGrLI%2BPsBC5XOCPEzetceG56YudUPimd3nFTUZYt%2B4rhuuuHy6UY3nyyJ1xE1zkDLLoYWj5YXIJRTTHpDQhbKWTMbDoxc61rHbldQR63lL1YeAHPCnmQhYR%2Fz9A6MuJ9BLSarTEzqy1mfJi7Rs8Pp3shVBXpVud51tCf9MNyZ2jQWt6jCz%2Bv3XBjqkATpUZrSSGHZxNBuVZPAVU2Kk8jS%2FI9DW8c4F8hkDi4QesmXfSktq%2BH4QVbwsxyKqIu6u%2F9jkpPRAU2WHCEeZREtTgbMsGQvtW1plrCRn4jX0Dyk%2BXu8HCyq%2FHbPc7AdAB%2FSl%2B2IOWubXQpcjaiN2DaFNQfXZCC70s%2BOR0581rsXm4yz39rn3QkA8IbuYs0Npf68E2vwbX04bjPwy7opyNcimQFHt&X-Amz-Signature=e89faf268cb61fc2946aa93449b296ea6b042b30641a4ee8e658fe29270e2e3d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
     "origin": {
       "city": "Fukuoka-ken",
       "country": "Kasuya-gun",
@@ -24272,6 +24299,12 @@
             "bashoCode": null,
             "day": null,
             "text": "Kyushu2026D12: Hoshoryu is determined to fight all 15 days despite the surgically repaired right knee. [booth, carrying]"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "Kyushu2026D10: We'd like to see him in better physical condition, but it's great to see him turning up. That injury to the knee is hampering his sumo. [booth, carrying]"
           }
         ]
       },
