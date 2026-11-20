@@ -1768,38 +1768,11 @@
     ],
     "injuries": [
       {
-        "area": "unspecified",
-        "nature": [
-          "Suspected chronic"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Aonishiki - unspecified",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D11: Aonishiki appeared to be in some discomfort after yesterdays bout. Lets pay close attention to how he moves today particularly his footwork [booth, carrying]"
-          },
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D12: Unfortunately, Aonishikis lower body is in pain and he does not have a good record. Aonishiki simply cannot compete with that sore lower body. Aonishiki in a lot of pain, no doubt. [booth, carrying]"
-          }
-        ]
-      },
-      {
         "area": "Leg, side unresolved",
         "nature": [
           "Acute"
         ],
-        "status": "Active",
+        "status": "Dormant",
         "source": [
           "Booth mention",
           "Seen-in-bout"
@@ -1824,22 +1797,34 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "WON THE BOUT AND CAME OFF IT LIMPING, which is the shape of every flare on his left-foot row: Nagoya D6, Nagoya D8, Aki D9 and Aki D14 were all limps after wins. If the side resolves left, this is the fifth."
+            "text": "WON THE BOUT AND CAME OFF IT LIMPING, which is the shape of every flare on his left-foot row: Nagoya D6, Nagoya D8, Aki D9 and Aki D14 were all limps after wins."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
             "text": "TWO ROWS, TWO DIRECTIONS, SAME MAN, SAME DAY: he is the thrower who got hurt and Kirishima is the thrown man who did not."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD11 (Scorekeeper Eye): DORMANT. Clean squat the day after, so a knock rather than an aggravation. The booth's 'lets hope its just temporary' turned out to be right."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "ONE DAY FROM OPEN TO CLOSED, and the row still earned its place: it holds a dated mechanism, a corrected attribution, and the reason Kirishima has no row. None of that would exist if the vague Pass 1 row had simply been deleted on sight. Same lesson as Asanoyama's unspecified row on Day 7, which was nearly killed and turned out to be a real fall off the dohyo."
           }
         ]
       },
       {
-        "area": "Right foot; right ankle",
+        "area": "Right foot (ball of foot from 26KyD11); right ankle",
         "nature": [
           "Acute"
         ],
-        "status": "Eased",
+        "status": "Active",
         "source": [
           "Scorekeeper Eye"
         ],
@@ -1882,14 +1867,31 @@
             "bashoCode": null,
             "day": null,
             "text": "WATCH: whether this is one day of strapping or the start of something, and whether the left stays quiet while the right is loaded. If the left comes back while the right is taped, the two rows want reading together."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD11 (Scorekeeper Eye): REACTIVATED. Right ball of foot taped after six bare days; squat clean. Area narrowed to the ball of the foot."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THE D2 WATCH ITEM HAS NOW RESOLVED THE OTHER WAY. It asked whether the left would stay quiet while the right was loaded. Today BOTH are taped, which is the first time since Day 4. So the two rows do want reading together, and the reading is still 'one foot at a time' rather than compensation, because each quiet spell has been a real quiet spell."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "THIS SIDE'S HISTORY IN ELEVEN DAYS: taped D2-D4, bare D5-D10, taped D11. Strapping that comes and goes on a roughly weekly cycle, with exactly one functional sign against it (the D5 squat deficit) and one unsided limp nearby."
           }
         ]
       },
       {
         "area": "Left foot — toe + ankle",
         "nature": [
-          "Chronic",
-          "Flared"
+          "Chronic"
         ],
         "status": "Active",
         "source": [
@@ -3196,29 +3198,7 @@
       }
     },
     "henka": [],
-    "injuries": [
-      {
-        "area": "left leg or right leg (unclear which)",
-        "nature": [
-          "Acute"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Kirishima - left leg or right leg (unclear which)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D10: Drops from the top of the leaderboard and limping away from that encounter with the right or the left. It's pretty hard to tell which one he's struggling with here. In a bit of pain. Let's hope it's just temporary. Shake that one off. [booth]"
-          }
-        ]
-      }
-    ],
+    "injuries": [],
     "gate": {
       "curBashoCode": "26Ky",
       "crew": {
@@ -8908,33 +8888,6 @@
     "henka": [],
     "injuries": [
       {
-        "area": "lower body (feet)",
-        "nature": [
-          "Chronic"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Takayasu - lower body (feet)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D10: His lower body is the issue of this tournament. He's two and seven. The feet not moving well. When the pressure goes on the feet, you can't dig in. [booth, carrying]"
-          },
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D10: The lower body is the issue this tournament. He's 2-7, the feet not moving well. When the pressure goes on the feet, you can't dig in. [booth, carrying]"
-          }
-        ]
-      },
-      {
         "area": "Both balls of feet",
         "nature": [
           "Suspected chronic"
@@ -8982,13 +8935,19 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "WHAT MAKES THIS READ USEFUL RATHER THAN ATMOSPHERIC: it names a mechanism and a trigger. The feet fail under pressure, and what fails is digging in, which is the base. That is specific enough to test against the eye on a later day, unlike 'struggling with injury'."
+            "text": "WHAT MAKES THIS READ USEFUL RATHER THAN ATMOSPHERIC: it names a mechanism and a trigger. The feet fail under pressure, and what fails is digging in, which is the base."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THE SAME FINDING AS ABI, IN A DIFFERENT MAN, ON THE SAME CARD. Both are losing the base rather than a part: Abi cannot plant on the right, Takayasu cannot dig in at all. Two of the three oldest men in the top division, both on ten days of foot and ankle tape, both described by the booth in terms of what the lower body will no longer do. Worth watching as a pattern rather than two rows."
+            "text": "THE SAME FINDING AS ABI, IN A DIFFERENT MAN, ON THE SAME CARD. Both are losing the base rather than a part: Abi cannot plant on the right, Takayasu cannot dig in at all. Two of the three oldest men in the top division, both on ten days of foot and ankle tape, both described by the booth in terms of what the lower body will no longer do."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD11 (Scorekeeper Eye): NATURE STAYS SUSPECTED CHRONIC on her ruling. A booth functional read, on its own, does not promote a census-tape row."
           }
         ]
       },
@@ -12171,69 +12130,6 @@
     },
     "henka": [],
     "injuries": [
-      {
-        "area": "back (herniated disc)",
-        "nature": [
-          "Chronic"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Kotoshoho - back (herniated disc)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D10: Of course he was out with that herniated discs problem. Returns today for his 300th career bout. [booth, carrying]"
-          }
-        ]
-      },
-      {
-        "area": "back (herniated discs)",
-        "nature": [
-          "Chronic"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Kotoshoho - back (herniated discs)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D10: Kotoshoho returns today. Of course he was out with that herniated discs problem. 300th career bout for Kotoshoho. With the sitting out period that he had six days, Kotoshoho was basically now 2 and 8. But good to see him back and fighting well. [booth, carrying]"
-          }
-        ]
-      },
-      {
-        "area": "neck (herniated disc)",
-        "nature": [
-          "Chronic"
-        ],
-        "status": "Eased",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Kotoshoho - neck (herniated disc)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D12: Kotoshoho will return to action a couple of days ago while recovering from a herniated disc in his neck. [booth, carrying]"
-          }
-        ]
-      },
       {
         "area": "head (concussion)",
         "nature": [
@@ -16412,7 +16308,7 @@
     "henka": [],
     "injuries": [
       {
-        "area": "left shoulder",
+        "area": "Left shoulder (surgery earlier in 2026, not fully recovered)",
         "nature": [
           "Chronic",
           "Flared"
@@ -16429,7 +16325,25 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "Kyushu2026D11: Shishi has withdrawn from the tournament due to pain in his left shoulder. He underwent surgery on that shoulder earlier this year but it has yet to fully recover [booth, carrying]"
+            "text": "Kyushu2026D11 (booth): Shishi has withdrawn from the tournament due to pain in his left shoulder. He underwent surgery on that shoulder earlier this year but it has yet to fully recover [booth]"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD11 (Scorekeeper Eye): WITHDRAWAL CONFIRMED, and the fusen in B5 is the authoritative signal. Surgical history added to the row on her instruction."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "FIRST ROW THIS MAN HAS EVER CARRIED in this record. Ten days of makuuchi sumo on a post-surgical shoulder with nothing visible, then out."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "ONE OF TWO WITHDRAWALS ON THE SAME CARD, with Asakoryu's right knee in B10. Both were already on the torikumi, and both were caught by the fusen rather than the lineup."
           }
         ]
       },
@@ -21708,27 +21622,6 @@
     "henka": [],
     "injuries": [
       {
-        "area": "unspecified (ongoing)",
-        "nature": [
-          "Chronic"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Tamawashi - unspecified (ongoing)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D10: Another man who's struggling this tournament with injury, but he's turned things around. He's won the last three bouts. [booth, carrying]"
-          }
-        ]
-      },
-      {
         "area": "Both ankles",
         "nature": [
           "Suspected chronic"
@@ -21919,7 +21812,7 @@
       "basho": "Kyushu 2026"
     },
     "highestRank": "M16",
-    "photo": "https://prod-files-secure.s3.us-west-2.amazonaws.com/4fd1ade1-241f-811a-aad8-00032f89a35f/b4ee44ca-6d42-4711-8971-71ec783f7a65/Arashifuji.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB4664ZTGI2VU%2F20261120%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261120T005605Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFcaCXVzLXdlc3QtMiJIMEYCIQCLNFxK89FnHH88PA9CyaejbjEspIKGsoRJ2Y5CjJhocgIhAN%2BnpaHuxaws%2Fal3UATlq%2BCfVimTFkVEOiN2kEuLU6EHKv8DCB8QABoMNjM3NDIzMTgzODA1IgxgeaZld%2Br0fxXLb6gq3AND9JJZGpkz91bqx8MTC6WABCm2xw7ipjGR%2Bp1y%2BQpc682h3v%2FqwDkaEtf0VtFjBJa24s7gvMI9%2B%2FFStgWoVaSNSxrigVdRWHiue2YBha%2FjLGO534bmLZyTxFn3uj2Xis0hNpmi3eFC8BWWEMlw%2FfSuTSNiYuDEjqrvRBnPqDTlX4yXfb7cKgy%2Fy2yUxRadYz0sfBSPe88I8FxUIm%2BIer%2B%2FmePHp4vBxhpieGrD1AoCjwrocp7LQdK1vysE5fnhLJgQTrW6cpHG9mHaUbJFyvzqLYQZGGnm0ycSevGaZK0BNkbSIfTcQcsX%2Fate%2FcRCHk7utiYc%2F5PRS0G6Be0rJ8iAGhGPFO8Iruwk5QMy6clkJOtl0EZUWMxwDYH7L2lIm3DcNBsC%2F%2FDmRKmWhmV91jQtlL%2BB%2FqfjwBKFmole3%2Ba0IRcHTm96bg5X3eEeK4087iNNfJ7WZTB7VBiGrLI%2BPsBC5XOCPEzetceG56YudUPimd3nFTUZYt%2B4rhuuuHy6UY3nyyJ1xE1zkDLLoYWj5YXIJRTTHpDQhbKWTMbDoxc61rHbldQR63lL1YeAHPCnmQhYR%2Fz9A6MuJ9BLSarTEzqy1mfJi7Rs8Pp3shVBXpVud51tCf9MNyZ2jQWt6jCz%2Bv3XBjqkATpUZrSSGHZxNBuVZPAVU2Kk8jS%2FI9DW8c4F8hkDi4QesmXfSktq%2BH4QVbwsxyKqIu6u%2F9jkpPRAU2WHCEeZREtTgbMsGQvtW1plrCRn4jX0Dyk%2BXu8HCyq%2FHbPc7AdAB%2FSl%2B2IOWubXQpcjaiN2DaFNQfXZCC70s%2BOR0581rsXm4yz39rn3QkA8IbuYs0Npf68E2vwbX04bjPwy7opyNcimQFHt&X-Amz-Signature=e89faf268cb61fc2946aa93449b296ea6b042b30641a4ee8e658fe29270e2e3d&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
+    "photo": "https://prod-files-secure.s3.us-west-2.amazonaws.com/4fd1ade1-241f-811a-aad8-00032f89a35f/b4ee44ca-6d42-4711-8971-71ec783f7a65/Arashifuji.png?X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Content-Sha256=UNSIGNED-PAYLOAD&X-Amz-Credential=ASIAZI2LB466WEBUUMHH%2F20261120%2Fus-west-2%2Fs3%2Faws4_request&X-Amz-Date=20261120T033759Z&X-Amz-Expires=3600&X-Amz-Security-Token=IQoJb3JpZ2luX2VjEFoaCXVzLXdlc3QtMiJHMEUCIF%2FcxRlexCm2RZbArhrmzBABqDkmklerCkLZqgJJ0r1mAiEAm3RDfxHT1ZM8hEXXpQvoWV9p98zqWn8pBtee48WkrEsq%2FwMIIhAAGgw2Mzc0MjMxODM4MDUiDKavhYBW6zWSx0TA8CrcAzTzE7CBKdt62ZXimSKFjaSbiEoYwi9I3pTUt6w1QxTKvRjPX9rDPfslhWPFbyj6ViP%2F%2Bu%2FlFcWJv0cievktlHDdM3bKGXaDKJikpnpCE%2FCJehQZx5IVQihP0dsZcOLp4XJx4eu9hUV6Rn4EKUJOKKiHEun0lSqkYsy%2Fs5uwCELMG3SbtTR7ibYAwp9oC1gstCV%2BlSY8tTnPNbNwqPwWP8VgvFnmvWUJ5ZKltAcpPkpBLNOo0uVEOJgeAPv4xES%2F5pPZD65Os37xPSgMyyemONzdMeo6r%2FSrL9LuMV8FmBJie%2B0iy4aZMyKjt%2FBw1XM4rocbOhLAiMAE7wwFWNglc2RG7Y7CyteINxBfgDRB3P4%2BSgphPCCRI%2FtXlWfY4om3m%2FxaGoOH5FZvYv3x%2FctjTUXXdhGsuu1GLOX6g38keFXhcoF1NzqBxX6Iue4%2FzeHof6U1ECrZFo73Pc6uUXmZ0TMWeUZEWziT%2FpdimSd3R%2F8aYGAToTQyu9qMDrIrGm1pBAR57ZWKQWx3JiuNUDUVF07vTQoPazQtFo%2B5E%2B9OgaPgPNBmLWiFvzt%2BelXIJVMApL3Xs2rEabqTIql6gJ1cD6nDSvfqDuqdyJI4cLyjlUxyQQKTRpjNVaTarROiMNi%2F%2FtcGOqUBD2WHgGeiK7S18EAlKz%2FZqHlCIdu8fgCGERQioh5hdvJb9rJ33YnNWAZ55xA2eyT26OwiNM8b8lmWHqf4LGUF33a1t%2BdkBWfqFg3gTCoUzEraClxZeCvL7te678nG6Fx0oN0v8nByBP5H8476sfEwAqG4suEnFyg%2BfsIr%2FZW15bQ7xgpkOlgXGYxXjxKedzH3ncH1DH6uMneIrKBI98NGhtiRhbAm&X-Amz-Signature=2f6eb56e63e42155ab07e276844f17b8686384c794d70f319e2ccd4f06e8bae9&X-Amz-SignedHeaders=host&x-amz-checksum-mode=ENABLED&x-id=GetObject",
     "origin": {
       "city": "Fukuoka-ken",
       "country": "Kasuya-gun",
@@ -24179,27 +24072,6 @@
       }
     ],
     "injuries": [
-      {
-        "area": "unspecified (ongoing)",
-        "nature": [
-          "Chronic"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Hoshoryu - unspecified (ongoing)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D11: Considering his physical condition you have to give him a lot of credit for staying in the tournament and fighting on. Even though hes banged up [booth, carrying]"
-          }
-        ]
-      },
       {
         "area": "Right knee (post-surgery); left ball of foot; right hand",
         "nature": [
@@ -27925,7 +27797,7 @@
         "nature": [
           "Acute"
         ],
-        "status": "Active",
+        "status": "Dormant",
         "source": [
           "Scorekeeper Eye"
         ],
@@ -31157,6 +31029,18 @@
             "bashoCode": null,
             "day": null,
             "text": "26AkD2 (Scorekeeper Eye): RIGHT KNEE AND CALF TAPED. This is the right leg finally becoming visible - on Day 1 the logged condition showed nothing at all. One day apart, so either it was taped under something on Day 1 or it was aggravated in between. (Jennie)"
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD9 (booth): his pushing power has disappeared. Flagged for a ruling rather than written."
+          },
+          {
+            "basho": null,
+            "bashoCode": null,
+            "day": null,
+            "text": "26KyD11 (Scorekeeper Eye): 'not bad but not at full form yet methinks' (Jennie). Logged as a performance note on this row; no new row, no status change. The Day 9 booth claim resolves as context for the carried right leg rather than as a condition of its own."
           }
         ]
       }
@@ -32819,61 +32703,67 @@
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "ONSET IS DATED TO KYUSHU DAY 1, NOT DAY 3. Both the booth and the scorekeeper say the injury was sustained on day one. Under the Pass-1-duplicate rule the record is dated to when the injury occurred where that is known, so Onset Day carries Day 1 for the mechanism, Day 3 for the withdrawal and now Day 10 for the return."
+            "text": "ONSET IS DATED TO KYUSHU DAY 1, NOT DAY 3. Both the booth and the scorekeeper say the injury was sustained on day one. Under the Pass-1-duplicate rule the record is dated to when the injury occurred where that is known, so Onset Day carries Day 1 for the mechanism, Day 3 for the withdrawal, Day 10 for the return and Day 12 for the booth restatement."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "NOTHING WAS VISIBLE ON HIM ON DAY 1 OR DAY 2. The scorekeeper's Day 1 census had right hand plus below-right-knee tape; Day 2 had the right hand only, with the knee explicitly clear. A cervical disc does not tape, so the eye had nothing to find, and he fought two more days before withdrawing. This is the Kotoshoho head-impact lesson in a different form: the sites that matter most are often the ones with nothing to see."
+            "text": "NOTHING WAS VISIBLE ON HIM ON DAY 1 OR DAY 2. A cervical disc does not tape, so the eye had nothing to find, and he fought two more days before withdrawing. The sites that matter most are often the ones with nothing to see."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "HOW THE NAME WAS RESOLVED AT D3, because the reasoning is worth keeping. Pass 1 transcribed him as 'Kotoajo'. The Day 3 sheet argued it could not be any of the three Koto- men because all three were on the card and the Match Log showed a technique on all 21 bouts, so there was no fusen. That conclusion was WRONG. Fusensho IS a technique in the Kimarite table, so 'every bout has a technique' does not rule out a forfeit. The right test is what the technique IS, not whether one is present. Kinbozan v Kotoeiho was a fusensho all along and the data said so."
+            "text": "HOW THE NAME WAS RESOLVED AT D3. Pass 1 transcribed him as 'Kotoajo'. The Day 3 sheet argued it could not be any of the three Koto- men because all three were on the card and the Match Log showed a technique on all 21 bouts, so there was no fusen. That conclusion was WRONG. Fusensho IS a technique, so 'every bout has a technique' does not rule out a forfeit. The right test is what the technique IS. Kinbozan v Kotoeiho was a fusensho all along."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THE GENERAL LESSON FOR THE DE-GARBLING WORK: a withdrawal is the one case where the lineup actively misleads. The torikumi is published the day before, so a man who withdraws still appears on the card. Any normaliser that uses 'is this man on today's lineup' as a participant check will treat a withdrawn man as present. The fusen on the Match Log is the authoritative signal, not the lineup."
+            "text": "THE GENERAL LESSON: a withdrawal is the one case where the lineup actively misleads. The torikumi publishes the day before, so a withdrawn man is still on the card. The fusen on the Match Log is the authoritative signal, not the lineup."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "26KyD10 (booth): returns today, of course he was out with that herniated discs problem, with the sitting out period that he had six days basically now 2 and 8, good to see him back and fighting well [booth]"
+            "text": "26KyD10 (booth): returns today, of course he was out with that herniated discs problem, with the sitting out period that he had six days basically now 2 and 8, good to see him back and fighting well [booth, filed under Kotoshoho]"
           },
           {
             "basho": "Kyushu 2026",
             "bashoCode": "26Ky",
             "day": 10,
-            "text": "RETURNED AFTER SIX DAYS. PASS 1 FILED THIS LINE UNDER KOTOSHOHO AND IT IS HIM."
+            "text": "RETURNED AFTER SIX DAYS. Checked rather than read: the Match Log has him fighting D1 to D3, no bout at all D4 to D9, back on D10. Kotoshoho fought every day and never sat."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "HOW IT WAS CHECKED, and it was checked rather than read. The Match Log has Kotoeiho fighting D1, D2 and D3, then no bout at all on D4 through D9, then back on D10. Six days, exactly as the booth said. Kotoshoho has a bout on every one of the first twelve days and never sat. So the man returning from a six-day disc absence can only be Kotoeiho, and the booth line belongs here."
+            "text": "SIX FUSEN LOSSES ARE MISSING FROM THE MATCH LOG. D4 through D9 have no row for him at all, not even a forfeit, while his D3 forfeit does exist. His record in the tracker undercounts by six losses until those are created. Dev-side item."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THE DUPLICATE PASS 1 OPENED ON KOTOSHOHO WAS DELETED on the scorekeeper's call."
+            "text": "26KyD12 (booth): returned to action a couple of days ago while recovering from a herniated disc in his neck [booth, filed under Kotoshoho again]"
+          },
+          {
+            "basho": "Kyushu 2026",
+            "bashoCode": "26Ky",
+            "day": 12,
+            "text": "FOURTH KOTO- MISATTRIBUTION OF THE BASHO, and the first one that disproves itself. 'A couple of days ago' from Day 12 is Day 10, which is exactly when HE came back and nowhere near anything in Kotoshoho's basho. The garbled sentence carries its own date stamp."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "THIS IS THE SECOND TIME THIS BASHO THAT THIS MAN'S NAME HAS DEFEATED PASS 1, after 'Kotoajo' at D3, and the third Koto- misattribution overall counting the duplicate on Day 12. Three men on this banzuke share the Koto- prefix and two of them, Kotoeiho and Kotoshoho, differ only in the tail. The lineup-primed glossary cannot help here, because both men are on the card every day: priming makes both names available and the transcript still has to pick. NEAR-HOMOPHONE SHIKONA WITHIN A SHARED PREFIX IS ITS OWN GARBLE CLASS and it needs the Match Log, not a word list."
+            "text": "PASS 1 OPENED ONE INJURY ROW ON DAY 12 AND THIS WAS IT. Deleted, line folded here. It also missed three real booth injury lines the same day: Aonishiki's lower body, Hoshoryu's stated intent to fight all fifteen, and Kotozakura fighting through pain. One garbled row written, three real ones dropped."
           },
           {
             "basho": null,
             "bashoCode": null,
             "day": null,
-            "text": "SIX FUSEN LOSSES ARE MISSING FROM THE MATCH LOG. D4 through D9 have no row for him at all, not even a forfeit, while his D3 forfeit does exist. His record in the tracker will undercount by six losses until those are created. Dev-side item."
+            "text": "THE NAME QUESTION IS NOW CLOSED BY INSTRUCTION. See the Scorekeeper Eye."
           }
         ]
       },
@@ -35853,14 +35743,15 @@
       {
         "area": "Right knee (ACL); high quads + groin, both sides",
         "nature": [
-          "Acute"
+          "Acute",
+          "Worsened"
         ],
         "status": "Withdrawn",
         "source": [
           "Booth mention",
           "Scorekeeper Eye"
         ],
-        "condition": "Asakoryu — right knee (ACL, carried)",
+        "condition": "Asakoryu — right knee (ACL, carried, kyujo 26KyD11)",
         "firstBasho": "26Ng",
         "chronicSafe": false,
         "layers": [
@@ -36946,27 +36837,6 @@
     },
     "henka": [],
     "injuries": [
-      {
-        "area": "unspecified (ongoing)",
-        "nature": [
-          "Acute"
-        ],
-        "status": "Active",
-        "source": [
-          "Booth mention"
-        ],
-        "condition": "Oho - unspecified (ongoing)",
-        "firstBasho": null,
-        "chronicSafe": false,
-        "layers": [
-          {
-            "basho": null,
-            "bashoCode": null,
-            "day": null,
-            "text": "Kyushu2026D9: Oho trying to block the arms of Roga, it seems, but Roga has a strong grip. [booth]"
-          }
-        ]
-      },
       {
         "area": "Right hamstring (booth) + R forearm/wrist taped & low core strength (Scorekeeper Eye, D10)",
         "nature": [
@@ -39647,9 +39517,9 @@
     "henka": [
       {
         "label": "Full",
-        "his": 3.3,
+        "his": 6.7,
         "avg": 0.4,
-        "n": "1 in 30 bouts"
+        "n": "2 in 30 bouts"
       }
     ],
     "injuries": [
